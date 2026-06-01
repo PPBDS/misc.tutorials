@@ -1,0 +1,26 @@
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Renviron
+
+# R CMD check / build artifacts
+*.Rcheck/
+*.tar.gz
+
+# pkgdown output
+docs/
+
+# Quarto
+**/.quarto/
+**/*_files/
+
+# OS
+.DS_Store
+
+# Claude Code local settings
+.claude/
+
+# All HTML files
+**/*.html

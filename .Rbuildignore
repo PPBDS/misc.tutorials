@@ -1,0 +1,23 @@
+^renv$
+^renv\.lock$
+^\.Rproj\.user$
+^LICENSE\.md$
+^TODO.txt$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.github$
+^README.Rmd$
+^README.html$
+^CRAN-SUBMISSION$
+^inst/tutorials/.*\.html$
+^inst/tutorials/.*_files(/.*)?$
+^CLAUDE.md$
+^\.claude$
+
+# Uncomment this line when submitting to CRAN. We do so to remove
+# the data/ directories from the tutorials. These files are large.
+# Note that R CMD check will still show the package as large because
+# it does not report that .tar.qz file size, which is what matters
+# to CRAN.
+# ^inst/tutorials/.*/data(/.*)?$

@@ -1,0 +1,54 @@
+Package: misc.tutorials
+Title: Tutorials for 'R for Data Science' and US Census Data
+Version: 0.0.1
+Authors@R:
+    c(
+    person(given = "David",
+           family = "Kane",
+           role = c("aut", "cre", "cph"),
+           email = "dave.kane@gmail.com",
+           comment = c(ORCID = "0000-0002-6660-3934")))
+Description: Collection of interactive tutorials covering material from
+    'R for Data Science (2e)' by Wickham, Cetinkaya-Rundel, and Grolemund,
+    and from 'Analyzing US Census Data' by Walker. Each tutorial sources
+    data from a different sort of storage technology -- delimited files,
+    spreadsheets, databases, 'Arrow' files, and web APIs -- and then works
+    with that data using the 'tidyverse'. Makes extensive use of the tools
+    in the 'tutorial.helpers' package.
+Depends: R (>= 4.1.0)
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Config/testthat/edition: 3
+BugReports: https://github.com/PPBDS/misc.tutorials/issues
+URL: https://ppbds.github.io/misc.tutorials/, https://github.com/PPBDS/misc.tutorials
+Imports:
+    tutorial.helpers,
+    utils
+Suggests:
+    arrow,
+    babynames,
+    DBI,
+    dbplyr,
+    duckdb,
+    ggrepel,
+    httr2,
+    jsonlite,
+    knitr,
+    leaflet,
+    learnr,
+    maps,
+    nycflights13,
+    plotly,
+    purrr,
+    quarto,
+    readxl,
+    rvest,
+    scales,
+    sf,
+    testthat,
+    tidycensus,
+    tidyr,
+    tidyverse,
+    viridis
