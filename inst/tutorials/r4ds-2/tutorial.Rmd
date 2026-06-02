@@ -63,7 +63,7 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
