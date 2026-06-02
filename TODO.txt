@@ -1,3 +1,10 @@
+## Alec
+
+> You should be in a repo named r4ds-2. If you are not, create one and move to it.
+
+How? This belongs somewhere in vscode.tutorials. Can you do this straight from PPBDS/codebase-starter? That would be cool. If so, teach in infrastructure.
+
+
 ## Items
 
 Find better data sets than the ones we are using. We want something in which there is a weird mystery (plots which we can't understand) which we eventually solve and, in the end, create a plot which teaches us something.

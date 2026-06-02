@@ -1,6 +1,6 @@
 ---
 title: Second Tutorial for R4DS
-author: Sruthi Gandhi and David Kane
+author: David Kane
 tutorial:
   id: r4ds-2
 output:
@@ -53,7 +53,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-You should be in a repo named `r4ds-2`. If you are not, create one and move to it.
+You should be connected to a repo named `r4ds-2`. If you are not, create one and connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing Cheese and Wine"` and your name as the author. In a bash Terminal, render it:
 

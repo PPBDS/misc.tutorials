@@ -59,7 +59,7 @@ Use AI however you like throughout. An agentic coding tool (such as Claude Code 
 
 ### Exercise 1
 
-You should be in a repo named `census`. If you are not, create one and move to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
+You should be connected to a repo named `census`. If you are not, create one and connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
