@@ -166,21 +166,23 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be in a repo named `r4ds-5`. If you are not, create one and move to it.
 
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Earthquakes and Movies"`) and your name as author. In a bash Terminal, run:
+Create a new file, `analysis.qmd`, with the title `"Earthquakes and Movies"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push.
+Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
 
 In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -191,6 +193,12 @@ question_text(NULL,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
 	rows = 3)
+```
+
+###
+
+```
+analysis_files
 ```
 
 ###
@@ -241,6 +249,15 @@ question_text(NULL,
 	rows = 6)
 ```
 
+<pre><code>```{r}
+#| message: false
+library(tidyverse)
+library(leaflet)
+library(rvest)
+library(httr2)
+library(ggrepel)
+```</code></pre>
+
 ###
 
 JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
@@ -256,25 +273,6 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 
 ### Exercise 3
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
-
-CP/CR.
-
-```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
-```
-
-###
-
-The earthquake data here is **GeoJSON** — JSON with a standard shape for geographic features, pairing a geometry (the coordinates) with properties (magnitude, time, place). Web APIs hand back exactly this kind of nested JSON, so turning it into a flat, tidy table is the core skill of this section.
-
-### Exercise 4
-
 In the R Terminal, run:
 
 ```
@@ -286,13 +284,19 @@ This creates a `data` directory in your project for storing downloaded files.
 
 CP/CR.
 
-```{r introduction-4}
+```{r introduction-3}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
 	rows = 5)
+```
+
+###
+
+```
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
 ```
 
 ###

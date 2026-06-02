@@ -125,17 +125,15 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be in a repo named `r4ds-4`. If you are not, create one and move to it.
 
-You need two R Terminals: one for running this tutorial and one for your exercises. Open a second R Terminal using the dropdown button.
-
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"NBA and FIFA"`) and your name as author. In a bash Terminal, run:
+Create a new file, `analysis.qmd`, with the title `"NBA and FIFA"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push.
+Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
 
 In the R Terminal, run:
 
@@ -154,6 +152,12 @@ question_text(NULL,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
 	rows = 3)
+```
+
+###
+
+```
+analysis_files
 ```
 
 ###
@@ -200,42 +204,33 @@ question_text(NULL,
 	rows = 6)
 ```
 
+<pre><code>```{r}
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(arrow)
+  library(plotly)
+  library(viridis)
+  library(scales)
+})
+```</code></pre>
+
 ###
 
 Like CSV, parquet is used for rectangular data, but it's a custom binary format designed for big data — not a text format you can read in any editor. Both **arrow** and **dbplyr** provide **dplyr** backends, so you can use the same **dplyr** code whether your data is in a parquet file or a database.
 
 ### Exercise 3
 
-In a bash Terminal, run `quarto render analysis.qmd`. Confirm that the Live Server tab auto-refreshes.
+From the R Terminal, run these three commands:
+
+```
+getwd()
+dir.create("data")
+list.files()
+```
 
 CP/CR.
 
 ```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
-```
-
-###
-
-Opening an Arrow dataset scans only a few thousand rows to work out its structure, without loading the whole file into memory. You can then filter and select with ordinary **[dplyr](https://dplyr.tidyverse.org/)** verbs and pull only the data you actually need into R at the end.
-
-### Exercise 4
-
-From the R Terminal, run these three commands:
-
-`getwd()`
-`dir.create("data")`
-`list.files()`
-
-This will create a `data` directory in your project.
-
-CP/CR.
-
-```{r introduction-4}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -246,15 +241,8 @@ question_text(NULL,
 
 ###
 
-Your answer should look something like this, although your path will be different.
-
 ```
-> getwd()
-[1] "/workspaces/r4ds-4"
-> dir.create("data")
-> list.files()
- [1] "analysis_files" "analysis.html"  "analysis.qmd"   "data"
->
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
 ```
 
 Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there's less data to move from disk to memory.

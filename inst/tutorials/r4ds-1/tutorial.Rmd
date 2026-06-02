@@ -170,23 +170,23 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be in a repo named `r4ds-1`. If you are not, create one and move to it.
 
-You need two R Terminals: one for running this tutorial and one for your exercises.
-
-Create a new Quarto Document and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Music Data"`) and your name as author. In a bash Terminal, run:
+Create a new file, `analysis.qmd`, with the title `"Analyzing Music Data"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push.
+Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
 
 In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -256,37 +256,6 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-In a bash Terminal, run:
-
-```
-quarto render analysis.qmd
-```
-
-Confirm that the rendered HTML auto-refreshes. CP/CR.
-
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-The terminal output should end with something like:
-
-```
-Output created: analysis.html
-```
-
-###
-
-Rendering is your feedback loop. You edit `analysis.qmd`, render it, and inspect the refreshed HTML before deciding what to do next.
-
-### Exercise 4
-
 From the R Terminal, run these three commands:
 
 ```
@@ -297,7 +266,7 @@ list.files()
 
 CP/CR.
 
-```{r introduction-4}
+```{r introduction-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -308,15 +277,9 @@ question_text(NULL,
 
 ###
 
-Your answer should look something like this, although your path will be different.
-
-````
-> getwd()
-[1] "/workspaces/r4ds-1"
-> dir.create("data")
-> list.files()
-[1] "analysis_files" "analysis.html"  "analysis.qmd"   "data"
-````
+```
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+```
 
 ###
 

@@ -1,19 +1,27 @@
 ## Items
 
+Find better data sets than the ones we are using. We want something in which there is a weird mystery (plots which we can't understand) which we eventually solve and, in the end, create a plot which teaches us something.
+
+Do we want to always (ever?) supply the code which downloads the data we want into the data/ directory? Probably not. In the real world, we just tell AI to download.
+
+`census` should have a data directory and various rds files should be placed there, with the code set to cache so that it doesn't run every time. Later QMD code then just loads the rds file it wants.
 
 Tutorials now are about concepts, not books.
 
-There is a NOTE on a couple of the CRAN checks. Seems like the .Rbuildignore is not being referenced in those checks, leaving the package as 48 MB. How can this be?
+ Would options(pillar.print_max = Inf, pillar.print_min = Inf) make the use of df_print: default not necessary? Which is best? Again, goal is for printed out tibbles to look the same in the tutorial html as they look in the Console.
 
-* Would options(pillar.print_max = Inf, pillar.print_min = Inf) make the use of df_print: default not necessary? Which is best? Again, goal is for printed out tibbles to look the same in the tutorial html as they look in the Console.
-
-
-* Should we be using duckdplyr more and/or in place of other databases?
+Should we be using duckdplyr more and/or in place of other databases?
 
 ## New tutorial ideas
 
-baseball, text (like tidytext package), stocks and Bitcoin.
+    * baseball
 
-Add a tutorial about working with large, complex projects? Each topic would involve forking an already existing project and then making a bunch of changes, perhaps including getting the raw data.
+    * text (like tidytext package, using babynames, perhaps)
 
-Cover material in book titled something like R Stuff that it is not in the manual: https://rstats.wtf/ Might cover things like the **here** package.
+    * stocks
+
+    * Bitcoin.
+
+    * A tutorial about working with large, complex projects? And fixing it? Each topic would involve forking an already existing project and then making a bunch of changes, perhaps including getting the raw data.
+
+    * Cover material from "What They Forgot to Teach You About R": https://rstats.wtf/ Might cover things like the **here** package. This is, sort of, a follow on to the vscode infrastructure package.

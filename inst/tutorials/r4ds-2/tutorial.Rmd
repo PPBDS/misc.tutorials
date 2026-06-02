@@ -55,17 +55,15 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be in a repo named `r4ds-2`. If you are not, create one and move to it.
 
-You need two R Terminals: one for running this tutorial and one for your exercises. Open a second R Terminal using the dropdown button.
-
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Cheese and Wine"`) and your name as author. In a bash Terminal, run:
+Create a new file, `analysis.qmd`, with the title `"Analyzing Cheese and Wine"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push.
+Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
 
 In the R Terminal, run:
 
@@ -84,6 +82,12 @@ question_text(NULL,
     try_again_button = "Edit Answer",
     incorrect = NULL,
     rows = 3)
+```
+
+###
+
+```
+analysis_files
 ```
 
 ###
@@ -120,17 +124,25 @@ question_text(NULL,
 
 ###
 
+<pre><code>```{r}
+#| message: false
+library(tidyverse)
+library(readxl)
+```</code></pre>
+
+###
+
 Adding `execute: echo: false` to the YAML header hides all code output by default. `#| message: false` on the setup chunk suppresses the package-loading messages that **tidyverse** prints. Together they give you a clean rendered page with only your results visible.
 
 ### Exercise 3
 
 From the R Terminal, run these three commands:
 
-`getwd()`. 
-`dir.create("data")`. 
-`list.files()`. 
-
-This will create a `data` directory in your project. This is a good place to store any data that you are working with.
+```
+getwd()
+dir.create("data")
+list.files()
+```
 
 CP/CR.
 
@@ -145,16 +157,13 @@ question_text(NULL,
 
 ###
 
-Your answer should look something like this, although your path will be different.
+```
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+```
 
-````
-> getwd()
-[1] "/workspaces/r4ds-2"
-> dir.create("data")
-> list.files()
- [1] "analysis_files" "analysis.html"  "analysis.qmd"   "data"
->
-````
+###
+
+The `data` directory is where your project stores the files you download. You don't need to memorize the shell commands that create it — your AI agent can handle that.
 
 ## Cheese
 ###

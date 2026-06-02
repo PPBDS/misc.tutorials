@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Tutorials for 'R for Data Science' and US Census Data
-Version: 0.0.1.9001
+Version: 0.0.1.9002
 Authors@R:
     c(
     person(given = "David",

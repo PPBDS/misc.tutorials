@@ -67,11 +67,15 @@ quarto render analysis.qmd
 
 Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push your work. In the R Terminal, run:
+Create a `.gitignore` with `analysis_files` on its own line. Commit and push.
+
+In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -82,6 +86,12 @@ question_text(NULL,
   try_again_button = "Edit Answer",
   incorrect = NULL,
   rows = 3)
+```
+
+###
+
+```
+analysis_files
 ```
 
 ###
@@ -124,26 +134,16 @@ question_text(NULL,
 
 ###
 
-**tidycensus** returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an **[sf](https://r-spatial.github.io/sf/)** object — a table with a spatial column attached — that **[ggplot2](https://ggplot2.tidyverse.org/)** can map directly. **sf** is the standard package for spatial data in R, and the boundaries themselves come from **[tigris](https://github.com/walkerke/tigris)**, which **tidycensus** uses under the hood.
-
-### Exercise 3
-
-In a bash Terminal, run `quarto render analysis.qmd` and confirm your Live Server tab refreshes on its own.
-
-CP/CR.
-
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
-```
+<pre><code>```{r}
+#| message: false
+library(tidyverse)
+library(tidycensus)
+library(sf)
+```</code></pre>
 
 ###
 
-**tidycensus** works without an API key for light use — keyless users may make up to 500 queries per day, far more than this tutorial needs. For heavier work, request a free key at [the Census signup page](https://api.census.gov/data/key_signup.html) and set it once at the start of your session (your AI agent can do this for you). Most data-provider APIs work this way: anonymous access is rate-limited, and a free key raises the ceiling.
+**tidycensus** returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an **[sf](https://r-spatial.github.io/sf/)** object — a table with a spatial column attached — that **[ggplot2](https://ggplot2.tidyverse.org/)** can map directly. **sf** is the standard package for spatial data in R, and the boundaries themselves come from **[tigris](https://github.com/walkerke/tigris)**, which **tidycensus** uses under the hood.
 
 ## Texas income
 ###
@@ -187,7 +187,7 @@ income_tx <- get_acs(
 
 ###
 
-Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment.
+Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment. You do not need an API key for light use — keyless users get up to 500 queries a day, plenty for this tutorial; for heavier work, request a free key at [the Census signup page](https://api.census.gov/data/key_signup.html).
 
 ### Exercise 2
 
