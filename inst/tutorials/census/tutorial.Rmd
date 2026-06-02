@@ -240,6 +240,7 @@ question_text(NULL,
 Our rough map:
 
 ```{r texas-income-3-test}
+#| echo: true
 #| message: false
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate))
@@ -275,6 +276,7 @@ question_text(NULL,
 Our improved map:
 
 ```{r texas-income-4-test}
+#| echo: true
 #| message: false
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
@@ -459,24 +461,9 @@ question_text(NULL,
 
 Our code and map:
 
-```
-edu_ca |>
-  group_by(GEOID) |>
-  summarize(
-    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
-  ) |>
-  ggplot() +
-  geom_sf(aes(fill = percent)) +
-  scale_fill_viridis_c(option = "C", name = "% with degree") +
-  labs(
-    title = "Adults with a bachelor's degree or higher by county, California (2020)",
-    caption = "Source: ACS 5-year estimates via tidycensus"
-  ) +
-  theme_void()
-```
-
 ```{r california-bachelors-4-test}
 #| message: false
+#| echo: true
 edu_ca |>
   group_by(GEOID) |>
   summarize(
@@ -631,6 +618,7 @@ question_text(NULL,
 Our rough chart:
 
 ```{r california-age-3-test}
+#| echo: true
 age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>
@@ -669,6 +657,7 @@ question_text(NULL,
 Our improved chart:
 
 ```{r california-age-4-test}
+#| echo: true
 age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>

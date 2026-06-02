@@ -195,7 +195,13 @@ question_text(NULL,
 
 ###
 
-List-columns come in two basic forms, named and unnamed. **[tidyr](https://tidyr.tidyverse.org/)** can unnest a *named* list-column — where every row carries the same element names — by spreading each element into its own column, and an *unnamed* one, where the number of elements varies per row, by stacking the elements into more rows.
+List-columns come in two basic forms, named and unnamed. A **named** list labels each element, like a record:
+
+```r
+list(place = "Loma Prieta", year = 1989, magnitude = 6.9)
+```
+
+An **unnamed** list is just an ordered sequence — `list(6.9, 7.1, 5.4)` — whose length can vary from row to row.
 
 ### Exercise 2
 
@@ -238,6 +244,15 @@ question_text(NULL,
 ###
 
 JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
+
+```json
+{
+  "place": "Northern California",
+  "magnitude": 4.2,
+  "felt": true,
+  "tags": ["minor", "shallow"]
+}
+```
 
 ### Exercise 3
 
