@@ -224,7 +224,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `nameby_year.duckdb`.
+```
+nameby_year.duckdb
+```
 
 ###
 
@@ -411,7 +413,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `nycflights13.duckdb`.
+```
+nameby_year.duckdb  nycflights13.duckdb
+```
 
 ###
 

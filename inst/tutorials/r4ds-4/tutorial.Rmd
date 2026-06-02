@@ -289,7 +289,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `game.parquet` and `line_score.parquet`.
+```
+game.parquet  line_score.parquet
+```
 
 ###
 
@@ -518,7 +520,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `fifa.parquet`.
+```
+fifa.parquet  game.parquet  line_score.parquet
+```
 
 ###
 

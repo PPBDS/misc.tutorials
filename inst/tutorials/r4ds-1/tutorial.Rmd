@@ -788,8 +788,6 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include:
-
 ```
 music.csv
 ```

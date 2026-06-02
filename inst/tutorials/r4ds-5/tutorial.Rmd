@@ -310,6 +310,8 @@ question_text(NULL,
 
 This section focuses on working with hierarchical JSON data and writing your own transformation functions, using **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[tidyr](https://tidyr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**. You will learn how to extract nested data from GeoJSON files, convert Unix timestamps to datetimes, and build interactive maps. Key concepts include reaching into deeply nested lists, *rectangling* them into a tidy table, and writing small custom functions.
 
+###
+
 We use `earthquakes.geojson` from the **USGS real-time earthquake feed**, a live GeoJSON feed maintained by the U.S. Geological Survey providing seismic activity data including magnitude, location, depth, and timestamps.
 
 Here is the tibble we will build:
@@ -345,7 +347,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `earthquakes.geojson`.
+```
+earthquakes.geojson
+```
 
 ###
 

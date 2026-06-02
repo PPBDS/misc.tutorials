@@ -197,7 +197,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `cheeses.xlsx`.
+```
+cheeses.xlsx
+```
 
 ###
 
@@ -451,7 +453,9 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include `wine.xlsx`.
+```
+cheeses.xlsx  wine.xlsx
+```
 
 ###
 
