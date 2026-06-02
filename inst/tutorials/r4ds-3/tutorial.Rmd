@@ -356,6 +356,7 @@ question_text(NULL,
 ###
 
 ```{r baby-names-5-test}
+#| echo: true
 ggplot(x, aes(x = year, y = total, color = length_class)) +
   geom_line(linewidth = 1.2) +
   labs(
@@ -541,6 +542,7 @@ question_text(NULL,
 ###
 
 ```{r flights-5-test}
+#| echo: true
 ggplot(departure_data, aes(x = sched_hour, y = dep_hour, fill = total_delay)) +
   geom_tile(color = "white") +
   scale_fill_viridis_c(option = "plasma", name = "Total Delay\n(minutes)") +

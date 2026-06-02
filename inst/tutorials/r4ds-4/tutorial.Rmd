@@ -458,6 +458,7 @@ question_text(NULL,
 ###
 
 ```{r nba-5-test}
+#| echo: true
 nba_clean |>
   ggplot(aes(x = game_year, y = avg_points, color = game_era)) +
   geom_line(linewidth = 1.2, alpha = 0.8) +
@@ -675,6 +676,7 @@ question_text(NULL,
 ###
 
 ```{r fifa-5-test}
+#| echo: true
 final_fifa |>
   filter(value_numeric > 0, X.OVA > 60) |>
   ggplot(aes(x = Age, y = X.OVA, size = value_numeric, color = value_numeric)) +

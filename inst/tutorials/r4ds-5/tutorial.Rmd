@@ -271,7 +271,7 @@ question_text(NULL,
 
 ###
 
-`#| cache: true` is a render-time feature — Quarto runs the code on the first render and saves results to disk. Subsequent renders load from the cache instead of re-running. Add `analysis_cache` to `.gitignore` so cache files stay off GitHub.
+The earthquake data here is **GeoJSON** — JSON with a standard shape for geographic features, pairing a geometry (the coordinates) with properties (magnitude, time, place). Web APIs hand back exactly this kind of nested JSON, so turning it into a flat, tidy table is the core skill of this section.
 
 ### Exercise 4
 
@@ -500,9 +500,9 @@ You can reach into a list-column and lift out just the named values you need —
 
 ### Exercise 4
 
-Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so.
+Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so, since cache files should never go to GitHub.
 
-In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto is running the code and saving the result to disk. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto runs the code and saves the result to disk — but every later render loads `earthquake_df` from the cache instead of re-rectangling the GeoJSON. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -522,6 +522,8 @@ question_text(NULL,
 ```
 
 ###
+
+Filtering to the last 365 days and to the continental US trims the global feed down to a few thousand quakes — small enough to map smoothly. The vast majority are minor; the few above magnitude 5 are the ones a reader's eye should land on.
 
 ### Exercise 5
 
@@ -549,6 +551,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-5-test}
+#| echo: true
 leaflet(earthquake_df) |>
   addTiles() |>
   addCircleMarkers(
@@ -800,6 +803,7 @@ question_text(NULL,
 ###
 
 ```{r top-movies-5-test}
+#| echo: true
 top_movies |>
   filter(year >= 1990, year <= 2010) |>
   ggplot(aes(x = year, y = rating)) +

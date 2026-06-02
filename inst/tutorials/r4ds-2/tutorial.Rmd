@@ -323,6 +323,7 @@ question_text(NULL,
 Our plot:
 
 ```{r cheese-5-test}
+#| echo: true
 cheese_tibble |>
   ggplot(aes(x = milk, y = n, fill = milk)) +
   geom_col(show.legend = FALSE) +
@@ -367,6 +368,7 @@ question_text(NULL,
 Our improved plot:
 
 ```{r cheese-6-test}
+#| echo: true
 cheese_tibble |>
   ggplot(aes(x = milk, y = n, fill = milk)) +
   geom_col(show.legend = FALSE) +
@@ -553,6 +555,7 @@ question_text(NULL,
 Our plot:
 
 ```{r wine-5-test}
+#| echo: true
 wine_tibble |>
   ggplot(aes(x = Phenols, y = Flavanoids, color = Color)) +
   geom_jitter(size = 2, alpha = 0.5) +
