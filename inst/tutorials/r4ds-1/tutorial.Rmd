@@ -383,15 +383,32 @@ billboard_small
 
 The weekly columns are relative to when each song entered the chart. `wk4` means the fourth chart week for that song, not the same calendar week for every song.
 
+### Exercise 3
+
+Look at the table in the rendered HTML. Find two songs with different `date.entered` values. Write one sentence describing what `wk1` means for each song in calendar terms.
+
+```{r billboard-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
 ###
 
-Look at any two songs in the table above with different `date.entered` values. Both have a `wk1` rank, but those weeks fall on completely different calendar dates — `wk1` for a song that entered in February 2000 and `wk1` for a song that entered in September 2000 are seven months apart.
+`wk1` for a song that entered in February 2000 and `wk1` for a song that entered in September 2000 fall on calendar dates seven months apart — same relative position, completely different point in time.
 
-### Exercise 3
+###
+
+Week numbers count from each song's own `date.entered`. Comparing `wk4` for two songs is not comparing how they performed in the same calendar week — it is comparing how they performed at the same stage of their chart life. This distinction matters when looking for patterns across songs.
+
+### Exercise 4
 
 Ask AI to run `summarize()` on the `date.entered` column so you can see the time period covered by the dataset. Render and copy and paste the summary from the HTML.
 
-```{r billboard-3}
+```{r billboard-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -402,7 +419,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-3-test}
+```{r billboard-4-test}
 summary(billboard$date.entered)
 ```
 
@@ -410,48 +427,9 @@ summary(billboard$date.entered)
 
 The data includes 317 songs included in this data set appeared in the Billboard Hot 100 in 2000. Some of those songs first entered in June of 1999 but also appear in the charts in 2000. Others entered the charts in the last week of 2000. Week numbers are relative to each song's `date.entered` value.
 
-### Exercise 4
-
-Ask AI to make a histogram of the `wk1` rankings. Tell AI to include the number of values used in the plot. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r billboard-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
-```
-
-###
-
-```{r billboard-4-test}
-ggplot(billboard, aes(x = wk1)) +
-  geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
-  labs(
-    title = "Week 1 entry rankings for Billboard Hot 100 songs",
-    subtitle = "Most songs debut near the bottom of the chart (n = 317)",
-    x = "Week 1 rank (1 is highest)",
-    y = "Songs",
-    caption = "Source: tidyr::billboard"
-  )
-```
-
-###
-
-The histogram shows that the vast majority of songs entered between rank 60 and 100 — they debuted near the very bottom of the chart even to make the Hot 100 at all. Very few songs entered in the top quarter of the chart, meaning a high debut rank is genuinely rare.
-
 ### Exercise 5
 
-Ask AI to make a similar histogram of the `wk6` rankings. Tell AI to include the number of values used in the plot. replace the current plot, render, and inspect the plot in the rendered HTML.
+Ask AI to make a histogram of the `wk1` rankings. Tell AI to include the number of values used in the plot. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -473,6 +451,45 @@ question_text(NULL,
 ###
 
 ```{r billboard-5-test}
+ggplot(billboard, aes(x = wk1)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
+  labs(
+    title = "Week 1 entry rankings for Billboard Hot 100 songs",
+    subtitle = "Most songs debut near the bottom of the chart (n = 317)",
+    x = "Week 1 rank (1 is highest)",
+    y = "Songs",
+    caption = "Source: tidyr::billboard"
+  )
+```
+
+###
+
+The histogram shows that the vast majority of songs entered between rank 60 and 100 — they debuted near the very bottom of the chart even to make the Hot 100 at all. Very few songs entered in the top quarter of the chart, meaning a high debut rank is genuinely rare.
+
+### Exercise 6
+
+Ask AI to make a similar histogram of the `wk6` rankings. Tell AI to include the number of values used in the plot. replace the current plot, render, and inspect the plot in the rendered HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r billboard-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r billboard-6-test}
 ggplot(billboard, aes(x = wk6)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "darkseagreen", color = "white") +
   labs(
@@ -488,40 +505,9 @@ ggplot(billboard, aes(x = wk6)) +
 
 The distribution shifts toward higher ranks. Note that there are only 280 songs with week 6 rankings compared to 317 with rankings in week 1.
 
-### Exercise 6
-
-Ask AI to create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render and copy and paste the table from the HTML.
-
-```{r billboard-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-```{r billboard-6-test}
-billboard_missing
-```
-
-###
-
-`wk1` has no missing rankings because every song appears on the chart in its first recorded week. Later weeks have more missing values because songs drop off the Hot 100. Songs missing in later weeks could reflect permanent dropoffs or brief gaps before re-entry. It's unclear from the chart if reentry can happen.
-
 ### Exercise 7
 
-Ask AI whether any songs leave the chart and later re-enter it. Have AI create a small table that counts songs by whether they re-entered. Render and copy and paste the table from the HTML.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+Ask AI to create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render and copy and paste the table from the HTML.
 
 ```{r billboard-7}
 question_text(NULL,
@@ -535,16 +521,16 @@ question_text(NULL,
 ###
 
 ```{r billboard-7-test}
-billboard_reentry
+billboard_missing
 ```
 
 ###
 
-Most songs stay on the chart for a continuous run and then drop off permanently, but a small number do re-enter — `billboard_reentry` shows exactly how many. The logic for detecting re-entry (spotting a gap of `NA` values followed by a non-`NA` rank) is nontrivial; it is worth checking the code AI wrote to understand how it identified those songs.
+`wk1` has no missing rankings because every song appears on the chart in its first recorded week. Later weeks have more missing values because songs drop off the Hot 100. Songs missing in later weeks could reflect permanent dropoffs or brief gaps before re-entry. It's unclear from the chart if reentry can happen.
 
 ### Exercise 8
 
-Ask AI to plot the chart trajectories of the songs that re-entered the Hot 100, showing the gap where they were absent. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
+Ask AI whether any songs leave the chart and later re-enter it. Have AI create a small table that counts songs by whether they re-entered. Render and copy and paste the table from the HTML.
 
 In the R Terminal, run:
 
@@ -560,12 +546,43 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 10)
+  rows = 8)
 ```
 
 ###
 
 ```{r billboard-8-test}
+billboard_reentry
+```
+
+###
+
+Most songs stay on the chart for a continuous run and then drop off permanently, but a small number do re-enter — `billboard_reentry` shows exactly how many. The logic for detecting re-entry (spotting a gap of `NA` values followed by a non-`NA` rank) is nontrivial; it is worth checking the code AI wrote to understand how it identified those songs.
+
+### Exercise 9
+
+Ask AI to plot the chart trajectories of the songs that re-entered the Hot 100, showing the gap where they were absent. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r billboard-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r billboard-9-test}
 billboard_reentry_songs |>
   ggplot(aes(x = week, y = rank, group = song, color = song)) +
   geom_line(linewidth = 0.8) +
@@ -584,11 +601,11 @@ billboard_reentry_songs |>
 
 The breaks in each line show the weeks a song was absent from the chart. Most re-entries happen within a few weeks of dropping off, suggesting a brief dip rather than a full exit. Because `billboard_longer` includes a row for every song-week combination (even weeks with no ranking), `geom_line()` automatically leaves a gap wherever `rank` is `NA`.
 
-### Exercise 9
+### Exercise 10
 
 Ask AI to compare each song's `wk1` and `wk6` ranks and count how many songs improved, stayed the same, got worse, or were missing by week 6. Render and copy and paste the table from the HTML.
 
-```{r billboard-9}
+```{r billboard-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -599,7 +616,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-9-test}
+```{r billboard-10-test}
 billboard_wk6_change
 ```
 
@@ -607,11 +624,11 @@ billboard_wk6_change
 
 The majority of songs still on the chart at week 6 have improved — because lower rank numbers are better, moving from rank 80 to rank 60 is an improvement. The large "Missing by week 6" group shows how many songs left the chart entirely in those first five weeks.
 
-### Exercise 10
+### Exercise 11
 
 Ask AI to report the median rank change between `wk1` and `wk6` for songs that have both weeks recorded. Render and copy and paste the result from the HTML.
 
-```{r billboard-10}
+```{r billboard-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -622,7 +639,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-10-test}
+```{r billboard-11-test}
 billboard_wk6_change_summary
 ```
 
@@ -630,7 +647,7 @@ billboard_wk6_change_summary
 
 A negative median rank change means the typical surviving song moved to a better (lower-numbered) position by week 6. Comparing two columns starts to reveal movement over time, but it still hides the full path of each song.
 
-### Exercise 11
+### Exercise 12
 
 Ask AI to plot each song's ranking over time. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
 
@@ -642,7 +659,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-11}
+```{r billboard-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -653,7 +670,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-11-test}
+```{r billboard-12-test}
 billboard_longer |>
   filter(!is.na(rank)) |>
   ggplot(aes(x = week, y = rank, group = song)) +
@@ -672,11 +689,11 @@ billboard_longer |>
 
 Most lines end well before week 76, and notice that no line drops below approximately rank 50 — the chart goes to 100, but no song is ever shown ranked 80 or 90. Both patterns are worth investigating.
 
-### Exercise 12
+### Exercise 13
 
 Look at your trajectory plot in the rendered HTML. Notice that no song line drops below approximately rank 50, even though the chart runs to rank 100. Ask AI why that might be and add one sentence to your QMD noting this observation. Render and copy and paste your sentence from the HTML.
 
-```{r billboard-12}
+```{r billboard-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -691,7 +708,7 @@ Songs rarely slide gracefully to the bottom of the chart. Billboard's chart rule
 
 ###
 
-### Exercise 13
+### Exercise 14
 
 Look at your trajectory plot in the rendered HTML.
 
@@ -699,7 +716,7 @@ Look at your trajectory plot in the rendered HTML.
 
 After approximately how many weeks do most song lines end? Write one sentence describing what you see.
 
-```{r billboard-13}
+```{r billboard-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -712,7 +729,7 @@ question_text(NULL,
 
 Most lines end around week 20 — partly because songs fell off the chart, but also because this dataset covers songs that *entered* the Hot 100 in 2000, and data collection stopped in April 2001. A December 2000 debut could accumulate only a few weeks of data regardless of how long it actually charted. This is right-censoring: late arrivals appear short-lived because the observation window closed, not because the songs stopped charting.
 
-### Exercise 14
+### Exercise 15
 
 The full trajectory plot is useful, but it is too dense to explain individual stories. Focus on songs that reached the top 10 and look for different kinds of hit trajectories.
 
@@ -720,7 +737,7 @@ The full trajectory plot is useful, but it is too dense to explain individual st
 
 Ask AI to create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then ask AI to identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render and copy and paste the table from the HTML.
 
-```{r billboard-14}
+```{r billboard-15}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -731,7 +748,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-14-test}
+```{r billboard-15-test}
 billboard_top10_stories
 ```
 
@@ -739,7 +756,7 @@ billboard_top10_stories
 
 Filtering to top-10 songs keeps the focus on recognizable hits while still leaving different stories to compare. Some hits peak quickly, some climb for months, and some last a long time without ever reaching number one.
 
-### Exercise 15
+### Exercise 16
 
 Ask AI to plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML.
 
@@ -751,7 +768,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-15}
+```{r billboard-16}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -762,7 +779,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-15-test}
+```{r billboard-16-test}
 billboard_top10_longer |>
   filter(!is.na(rank)) |>
   ggplot(aes(x = week, y = rank, group = song)) +
@@ -807,11 +824,11 @@ billboard_top10_longer |>
 
 The gray lines show the broader top-10 population; the colored lines turn three rows of the summary table into stories readers can follow. This is a common analysis move: filter to a meaningful subset, then highlight examples that explain variation inside that subset.
 
-### Exercise 16
+### Exercise 17
 
 Add a short interpretation below the top-10 trajectory plot. In two or three sentences, name all three highlighted songs and describe what each one's path shows. Render and copy and paste your interpretation from the HTML.
 
-```{r billboard-16}
+```{r billboard-17}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -828,7 +845,7 @@ A strong response names all three highlighted songs by their chart labels and us
 
 The gray-and-color structure of this plot is a reusable design pattern: show the full context in gray so readers understand what is typical, then color the specific cases that explain variation. This keeps the chart honest — readers can see how unusual the highlighted songs are relative to the rest — while still giving them a clear story to follow.
 
-### Exercise 17
+### Exercise 18
 
 You are done iterating on the Billboard plot. Ask AI to add `#| cache: true` to the final Billboard plot chunk and render again. In a bash terminal, run:
 
@@ -838,7 +855,7 @@ list.files()
 
 CP/CR.
 
-```{r billboard-17}
+```{r billboard-18}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -855,7 +872,7 @@ Your project files should now include a cache directory such as `analysis_cache/
 
 Look at the gray lines in the background of the plot — those are all the songs that reached the top 10, not just the three highlighted ones. Most of them peak within the first 10–15 weeks and then fall off. The "longest top-10 run" highlight is exceptional not just compared to all 317 songs, but even compared to the other top-10 hits. Long chart staying power is rare even among songs that reached the elite tier.
 
-### Exercise 18
+### Exercise 19
 
 Ask AI to add the generated cache directory to `.gitignore`. In the R Terminal, run:
 
@@ -865,7 +882,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r billboard-18}
+```{r billboard-19}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -887,7 +904,7 @@ analysis_cache
 
 Cache files do not belong on GitHub — they are generated output that can be recreated by rendering. Cache finished expensive chunks once the code and data are stable, not during rough exploratory work you are still changing.
 
-### Exercise 19
+### Exercise 20
 
 Commit and push the Billboard work. Use the commit message:
 
@@ -897,7 +914,7 @@ Add Billboard chart analysis
 
 Run `git log -1`. CP/CR.
 
-```{r billboard-19}
+```{r billboard-20}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1484,7 +1501,7 @@ A map that shows a geographic pattern is not the same as a map that explains it.
 ## Summary
 ###
 
-This tutorial used AI to explore two music datasets. You investigated the structure of Billboard chart data, built ranking-over-time plots, downloaded and inspected a CSV file, discovered missing metadata, compared two genres of your choice, and mapped artist locations with an honest account of the data's limitations.
+This tutorial used AI to explore two music datasets. You investigated the structure of Billboard chart data, built ranking-over-time plots, downloaded and inspected a CSV file, discovered missing metadata, mapped artist locations by familiarity and genre, and gave an honest account of the data's limitations.
 
 ### Exercise 1
 
