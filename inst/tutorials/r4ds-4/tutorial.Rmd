@@ -204,6 +204,8 @@ question_text(NULL,
 	rows = 6)
 ```
 
+###
+
 <pre><code>```{r}
 suppressPackageStartupMessages({
   library(tidyverse)
@@ -315,6 +317,8 @@ open_dataset("data/game.parquet") |>
   collect()
 ```
 
+###
+
 A **left join** adds columns from a second table while keeping every row of the first (left) table. When a key value can match several rows on both sides, that is a *many-to-many* relationship — worth flagging explicitly, because it can multiply rows in ways you didn't intend.
 
 ### Exercise 3
@@ -340,11 +344,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r nba-3-test}
 nba_clean
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -469,6 +473,8 @@ nba_clean |>
   )
 ```
 
+###
+
 A **viridis** color scale for discrete categories is perceptually uniform and colorblind-accessible. And a static **ggplot2** chart can be made interactive — hover tooltips, zoom — by handing it to **[plotly](https://plotly.com/r/)**, a big payoff for very little extra work.
 
 ## FIFA
@@ -542,6 +548,8 @@ question_text(NULL,
   glimpse()
 ```
 
+###
+
 **[lubridate](https://lubridate.tidyverse.org/)** can parse dates written in month-day-year order (e.g. "Jun 17, 2018"). And **[stringr](https://stringr.tidyverse.org/)** can pull the first run of digits out of a messy string like "185cm" or "76kg" — a quick way to turn text like that into a usable number.
 
 ### Exercise 3
@@ -567,11 +575,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r fifa-3-test}
 final_fifa
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -688,6 +696,8 @@ final_fifa |>
   ) +
   theme_minimal()
 ```
+
+###
 
 An **ordered factor** tells **ggplot2** to use your chosen order for legends and axes instead of sorting alphabetically. And the **[scales](https://scales.r-lib.org/)** package formats axis numbers as currency — dollar signs, thousands separators, and scaling — so a chart of player values reads naturally.
 

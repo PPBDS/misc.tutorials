@@ -257,6 +257,8 @@ question_text(NULL,
 dbplyr_names
 ```
 
+###
+
 Opening a **connection** is the first step in working with any database: the connection names the database system — here DuckDB — and where to find the file. **[DBI](https://dbi.r-dbi.org/)** handles the low-level SQL execution, while **[dbplyr](https://dbplyr.tidyverse.org/)** translates your **[dplyr](https://dplyr.tidyverse.org/)** code into the SQL that DBI runs.
 
 ### Exercise 3
@@ -282,11 +284,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r baby-names-3-test}
 x
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -367,6 +369,8 @@ ggplot(x, aes(x = year, y = total, color = length_class)) +
   theme_minimal()
 ```
 
+###
+
 Creating categorical variables like `length_class` transforms continuous data (name length in characters) into discrete groups that are easier to interpret and visualize, revealing broader patterns that individual values might obscure.
 
 ## Flights
@@ -440,6 +444,8 @@ question_text(NULL,
 dbplyr_fly
 ```
 
+###
+
 Lazy tables let you explore database structure without loading data into memory. When you print a lazy table, **dbplyr** shows column names, types, and a preview — all from a lightweight SQL query. This is crucial for understanding unfamiliar databases before writing complex queries.
 
 ### Exercise 3
@@ -465,11 +471,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r flights-3-test}
 departure_data
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -560,6 +566,8 @@ ggplot(departure_data, aes(x = sched_hour, y = dep_hour, fill = total_delay)) +
     plot.subtitle = element_text(size = 12)
   )
 ```
+
+###
 
 Once you map a variable to an aesthetic, **ggplot2** takes care of the rest, choosing a reasonable scale and building a legend that explains the mapping. For heatmaps, a **viridis** fill scale gives perceptually uniform colors that work well for continuous data.
 

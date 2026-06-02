@@ -226,11 +226,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r cheese-2-test}
 glimpse(read_excel("data/cheeses.xlsx"))
 ```
+
+###
 
 The **[readxl](https://readxl.tidyverse.org/)** package reads both `.xls` and `.xlsx` spreadsheets, guessing the format from the file extension. A quick look at the column types and sample values helps you decide what to filter or transform before plotting.
 
@@ -257,8 +257,6 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r cheese-3-test}
 read_excel("data/cheeses.xlsx") |>
   filter(!is.na(country)) |>
@@ -269,6 +267,8 @@ read_excel("data/cheeses.xlsx") |>
   group_by(country) |>
   arrange(country, desc(n))
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -333,8 +333,6 @@ question_text(NULL,
 
 ###
 
-Our plot:
-
 ```{r cheese-5-test}
 #| echo: true
 cheese_tibble |>
@@ -352,6 +350,8 @@ cheese_tibble |>
     y = "Number of Cheeses (sqrt scale)"
   )
 ```
+
+###
 
 **Faceting** splits a plot into panels, one per level of a variable. Flipping the axes turns vertical bars into horizontal ones, which makes long category labels easier to read. Look at the France and USA panels — their bars are compressed because a single shared scale is set by Italy's much larger counts.
 
@@ -378,8 +378,6 @@ question_text(NULL,
 
 ###
 
-Our improved plot:
-
 ```{r cheese-6-test}
 #| echo: true
 cheese_tibble |>
@@ -397,6 +395,8 @@ cheese_tibble |>
     y = "Number of Cheeses (sqrt scale)"
   )
 ```
+
+###
 
 Giving each panel its own axis range — a *free* scale — lets every country's bars fill the available space instead of being dwarfed by the largest group. Use free scales when counts vary widely across groups and you care about the pattern *within* each group; keep a shared scale when the comparison *across* groups is the point.
 
@@ -474,11 +474,11 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r wine-2-test}
 read_excel("data/wine.xlsx")
 ```
+
+###
 
 Notice that the column names in this dataset are capitalized (`Phenols`, `Flavanoids`, `Color`) — unusual for tidy data. When asking AI to work with this dataset, use these exact column names and AI will match them correctly.
 
@@ -505,12 +505,12 @@ question_text(NULL,
 
 ###
 
-Our result:
-
 ```{r wine-3-test}
 read_excel("data/wine.xlsx") |>
   select(Phenols, Color, Flavanoids)
 ```
+
+###
 
 If your result doesn't match ours, replace your chunk code with the following before moving on:
 
@@ -569,8 +569,6 @@ question_text(NULL,
 
 ###
 
-Our plot:
-
 ```{r wine-5-test}
 #| echo: true
 wine_tibble |>
@@ -592,6 +590,8 @@ wine_tibble |>
     y = "Flavanoids"
   )
 ```
+
+###
 
 **Jittering** adds a small amount of random noise to each point so that points which would otherwise land on top of one another become visible — the standard fix for *overplotting* in dense regions. The jittered points should replace the plain ones, not sit on top of them: drawing both puts every point on the plot twice.
 

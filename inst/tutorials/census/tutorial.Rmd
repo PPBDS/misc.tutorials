@@ -173,8 +173,6 @@ question_text(NULL,
 
 ###
 
-Our code:
-
 ```
 income_tx <- get_acs(
   geography = "county",
@@ -203,8 +201,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our output:
 
 ```{r texas-income-2-test}
 income_tx
@@ -236,8 +232,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our rough map:
 
 ```{r texas-income-3-test}
 #| echo: true
@@ -272,8 +266,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our improved map:
 
 ```{r texas-income-4-test}
 #| echo: true
@@ -360,8 +352,6 @@ question_text(NULL,
 
 ###
 
-Our code:
-
 ```
 edu_ca <- get_acs(
   geography = "county",
@@ -391,8 +381,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our output:
 
 ```{r california-bachelors-2-test}
 edu_ca
@@ -458,8 +446,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our code and map:
 
 ```{r california-bachelors-4-test}
 #| message: false
@@ -551,8 +537,6 @@ question_text(NULL,
 
 ###
 
-Our code:
-
 ```
 age_ca <- get_acs(
   geography = "county",
@@ -581,8 +565,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our output:
 
 ```{r california-age-2-test}
 age_ca
@@ -614,8 +596,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our rough chart:
 
 ```{r california-age-3-test}
 #| echo: true
@@ -653,8 +633,6 @@ question_text(NULL,
 ```
 
 ###
-
-Our improved chart:
 
 ```{r california-age-4-test}
 #| echo: true
