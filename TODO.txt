@@ -1,24 +1,8 @@
-## Authoring
+## Items
 
-Cache after topic 1 in all r4ds tutorials, maybe in all tutorials.
-
-Claude is responsible for creating the text within backticks which shows students what they should see at the bottom of their HTML, since we are almost always editing the last code chunk.
-
-And Claude is responsible for keeping everything in sync. If we change the tibble up above, that means that what is displayed by summary() on that tibble in the QMD will change, which means that what we show students should change.
 
 Tutorials now are about concepts, not books.
 
-## Bugs
-
-* Errors when r4ds-4 is run as a tutorial:
-
-Output created: tutorial.html
-Warning: There were 7 warnings in `mutate()`.
-The first warning was:
-ℹ In argument: `value_numeric = case_when(...)`.
-Caused by warning:
-! NAs introduced by coercion
-ℹ Run `dplyr::last_dplyr_warnings()` to see the 6 remaining warnings.
 
 ## Length and performance
 

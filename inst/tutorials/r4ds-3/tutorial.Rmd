@@ -201,7 +201,7 @@ Your answer should look something like this, although your path will be differen
 
 In this section we use a DuckDB database called `nameby_year.duckdb`. The data comes from the **babynames** package, which contains names used for American babies from 1880 to 2017.
 
-Key concepts you'll use: `DBI::dbConnect()` to open a database connection, `tbl()` to create a lazy table reference, and `collect()` to pull results into R.
+Key concepts you'll use: opening a **connection** to the database, creating a **lazy table reference** (a query that hasn't run yet), and **collecting** the results — the moment the query actually executes and the data comes back into R.
 
 ```{r babynames-data}
 dbplyr_names
@@ -209,7 +209,7 @@ dbplyr_names
 
 ### Exercise 1
 
-We begin by downloading a DuckDB version of the babynames dataset directly from GitHub using `download.file()`.
+We begin by downloading a DuckDB version of the babynames dataset directly from GitHub.
 
 In the R Terminal, run:
 
@@ -234,11 +234,11 @@ question_text(NULL,
 
 ###
 
-`download.file()` saves a file from a URL to a local path. The `mode = "wb"` argument is required for binary files like `.duckdb` — without it, text-mode line-ending conversion can corrupt the file.
+Downloading a file means copying it from a URL to a local path in your project. A `.duckdb` database is a *binary* file, so it must be downloaded in binary mode — otherwise text-style line-ending conversion can corrupt it. The thing to carry away is the binary-versus-text distinction, not the mechanics.
 
 ### Exercise 2
 
-Ask AI to connect to `data/nameby_year.duckdb` using `DBI::dbConnect(duckdb::duckdb(), dbdir = ...)` and assign the result to `con_names`. Then create a lazy table reference to the `"babynames"` table using `tbl(con_names, "babynames")` and assign it to `dbplyr_names`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nameby_year.duckdb`, then create a lazy reference to its `babynames` table. Assign the connection to `con_names` and the table reference to `dbplyr_names`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -263,11 +263,11 @@ question_text(NULL,
 dbplyr_names
 ```
 
-`DBI::dbConnect()` creates a connection to a database. The first argument selects the DBMS (`duckdb::duckdb()`), and subsequent arguments describe where to find it. **DBI** handles the low-level SQL execution; **dbplyr** translates your **dplyr** code into SQL queries that DBI then runs.
+Opening a **connection** is the first step in working with any database: the connection names the database system — here DuckDB — and where to find the file. **[DBI](https://dbi.r-dbi.org/)** handles the low-level SQL execution, while **[dbplyr](https://dbplyr.tidyverse.org/)** translates your **[dplyr](https://dplyr.tidyverse.org/)** code into the SQL that DBI runs.
 
 ### Exercise 3
 
-Use the following prompt with your AI to build a summary of baby names starting with "A". Add the resulting code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Build a summary of baby names starting with "A", following the steps below. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -309,7 +309,7 @@ dbplyr_names |>
   collect()
 ```</code></pre>
 
-`tbl()` creates a lazy table — operations on it are translated to SQL and executed in the database, not in R's memory. Results are only retrieved into R when you call `collect()`. `str_starts()` and `str_length()` from **stringr** translate automatically to their SQL equivalents in a **dbplyr** pipeline.
+A **lazy table** is the key idea: operations on it are translated to SQL and executed inside the database, not in R's memory, and the results are only retrieved into R when you explicitly **collect** them. Remarkably, **[dbplyr](https://dbplyr.tidyverse.org/)** even translates **[stringr](https://stringr.tidyverse.org/)** string operations into their SQL equivalents, so the same tidyverse-style code runs against the database.
 
 ### Exercise 4
 
@@ -336,11 +336,11 @@ question_text(NULL,
 
 ###
 
-Everything before `collect()` in a **dbplyr** pipeline runs as SQL in the database. Once you call `collect()`, the results transfer into R as a tibble. The `.by` argument in `summarize()` performs grouped operations without creating a persistent grouped data frame, unlike `group_by()`.
+Everything before the **collect** step in a **dbplyr** pipeline runs as SQL in the database; collecting transfers the results into R as a tibble. Grouping a summary on the fly — totals per year and length class — gets you the aggregated table without leaving a persistent grouping behind on the data.
 
 ### Exercise 5
 
-Ask AI to pipe `x` into a line graph showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` mapped to `color`. Within `labs()`, add a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a line graph from `x` showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` shown by color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -383,7 +383,7 @@ Creating categorical variables like `length_class` transforms continuous data (n
 
 This section covers key concepts from [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html) and [Chapter 15: Regular Expressions](https://r4ds.hadley.nz/regexps.html). The `nycflights13` dataset contains information about all flights departing from New York City airports in 2013.
 
-Key functions you'll use: `parse_number()` to extract numeric values from strings, `%/%` and `%%` for integer division and modulo, and `pmax()` to compute element-wise maximums.
+Key ideas you'll use: pulling a number out of a messy string, splitting four-digit clock times into hours and minutes with integer division and remainder, and flooring negative values at zero so early departures don't cancel out late ones.
 
 ```{r flights-data}
 dbplyr_fly
@@ -391,7 +391,7 @@ dbplyr_fly
 
 ### Exercise 1
 
-We begin by downloading a DuckDB version of the flights dataset directly from GitHub using `download.file()`.
+We begin by downloading a DuckDB version of the flights dataset directly from GitHub.
 
 In the R Terminal, run:
 
@@ -416,11 +416,11 @@ question_text(NULL,
 
 ###
 
-The `nycflights13.duckdb` database contains multiple tables: `airlines`, `airports`, `flights`, `planes`, and `weather`. Use `dbListTables(con_air)` to list them after connecting.
+The `nycflights13.duckdb` database contains multiple tables: `airlines`, `airports`, `flights`, `planes`, and `weather`. A database connection can list the tables it holds, which is how you discover what's available after connecting.
 
 ### Exercise 2
 
-Ask AI to connect to `data/nycflights13.duckdb` using `DBI::dbConnect(duckdb::duckdb(), dbdir = ...)` and assign the result to `con_air`. Then create a lazy table reference to the `"flights"` table using `tbl(con_air, "flights")` and assign it to `dbplyr_fly`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nycflights13.duckdb`, then create a lazy reference to its `flights` table. Assign the connection to `con_air` and the table reference to `dbplyr_fly`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -449,7 +449,7 @@ Lazy tables let you explore database structure without loading data into memory.
 
 ### Exercise 3
 
-Use the following prompt with your AI to summarize departure delay patterns. Add the resulting code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Summarize departure delay patterns, following the steps below. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -498,7 +498,7 @@ dbplyr_fly |>
   count(sched_hour, dep_hour, wt = true_dep_delay, name = "total_delay")
 ```</code></pre>
 
-`%/%` is integer division (e.g., `517 %/% 100 = 5`) and `%%` is modulo (e.g., `517 %% 100 = 17`). Together they extract hours and minutes from four-digit military time. `pmax()` computes the element-wise maximum across vectors — `pmax(dep_delay, 0)` floors each delay at zero, preventing early departures from offsetting late ones.
+Four-digit military times like `517` pack the hour and minute together. Integer division by 100 gives the hour (5) and the remainder gives the minute (17) — a standard trick for unpacking a time stored as a number. Flooring each delay at zero (treating early departures as 0) keeps early flights from cancelling out late ones when the delays are summed.
 
 ### Exercise 4
 
@@ -525,11 +525,11 @@ question_text(NULL,
 
 ###
 
-Weighted counts with `count(wt = ...)` transform a frequency table into a sum table. Instead of counting how many flights fall into each scheduled/actual hour combination, we're summing the total delay minutes — revealing which time combinations contribute most to overall delays.
+A **weighted count** turns a frequency table into a sum table: instead of counting how many flights fall into each scheduled/actual hour combination, we sum the total delay minutes — revealing which time combinations contribute most to overall delays.
 
 ### Exercise 5
 
-Ask AI to pipe `departure_data` into a heatmap with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Within `labs()`, add a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a heatmap from `departure_data` with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -569,7 +569,7 @@ ggplot(departure_data, aes(x = sched_hour, y = dep_hour, fill = total_delay)) +
   )
 ```
 
-Once you map an aesthetic, **ggplot2** takes care of the rest. It selects a reasonable scale and constructs a legend that explains the mapping. For heatmaps, `scale_fill_viridis_c()` provides a perceptually uniform color scale that works well for continuous data.
+Once you map a variable to an aesthetic, **ggplot2** takes care of the rest, choosing a reasonable scale and building a legend that explains the mapping. For heatmaps, a **viridis** fill scale gives perceptually uniform colors that work well for continuous data.
 
 ## Summary
 
@@ -602,7 +602,7 @@ question_text(NULL,
 
 ###
 
-Database operations with **dbplyr** are translated to SQL and executed in the database, with results only pulled into R when you call `collect()`.
+Database operations with **[dbplyr](https://dbplyr.tidyverse.org/)** are translated to SQL and executed in the database, with the results only pulled into R when you collect them.
 
 ### Exercise 2
 
