@@ -261,21 +261,17 @@ open_dataset("data/game.parquet")
 
 ### Exercise 1
 
-We begin by downloading our parquet files directly from GitHub.
-
-In the R Terminal, run:
+Download these two parquet files and save them in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/game.parquet",
-  destfile = "data/game.parquet",
-  mode = "wb"
-)
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/line_score.parquet",
-  destfile = "data/line_score.parquet",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/game.parquet
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/line_score.parquet
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -288,6 +284,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 3)
 ```
+
+###
+
+Your `data` directory should now include `game.parquet` and `line_score.parquet`.
 
 ###
 
@@ -487,16 +487,16 @@ Key packages you'll use: **stringr** for text cleaning, **lubridate** for date p
 
 ### Exercise 1
 
-We begin by downloading our parquet file `data/fifa.parquet` directly from GitHub.
-
-In the R Terminal, run:
+Download the parquet file `fifa.parquet` from this URL and save it in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/fifa.parquet",
-  destfile = "data/fifa.parquet",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/fifa.parquet
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -509,6 +509,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 3)
 ```
+
+###
+
+Your `data` directory should now include `fifa.parquet`.
 
 ###
 

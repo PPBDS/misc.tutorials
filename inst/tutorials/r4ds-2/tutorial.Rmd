@@ -172,16 +172,16 @@ The [cheese.csv](https://github.com/rfordatascience/tidytuesday/blob/main/data/2
 
 ### Exercise 1
 
-We begin by downloading our spreadsheet `cheeses.xlsx` directly from GitHub into the `data` directory.
-
-In the R Terminal, run:
+Download the spreadsheet `cheeses.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/cheeses.xlsx",
-  destfile = "data/cheeses.xlsx",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/cheeses.xlsx
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -194,6 +194,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 8)
 ```
+
+###
+
+Your `data` directory should now include `cheeses.xlsx`.
 
 ###
 
@@ -422,16 +426,16 @@ The `wine` dataset contains the results of a chemical analysis of wines grown in
 
 ### Exercise 1
 
-We begin by downloading our spreadsheet `wine.xlsx` directly from GitHub into the `data` directory.
-
-In the R Terminal, run:
+Download the spreadsheet `wine.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/wine.xlsx",
-  destfile = "data/wine.xlsx",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/wine.xlsx
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -444,6 +448,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 3)
 ```
+
+###
+
+Your `data` directory should now include `wine.xlsx`.
 
 ###
 

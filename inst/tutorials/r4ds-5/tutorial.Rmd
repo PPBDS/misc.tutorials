@@ -318,14 +318,16 @@ earthquake_df
 
 ### Exercise 1
 
-Download the GeoJSON file to your `data` directory. In the R Terminal, run:
+Download the GeoJSON file `earthquakes.geojson` from this URL and save it in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/earthquakes.geojson",
-  destfile = "data/earthquakes.geojson",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/earthquakes.geojson
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -338,6 +340,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 5)
 ```
+
+###
+
+Your `data` directory should now include `earthquakes.geojson`.
 
 ###
 
