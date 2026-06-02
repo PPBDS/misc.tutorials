@@ -4,6 +4,8 @@
 
 How? This belongs somewhere in vscode.tutorials. Can you do this straight from PPBDS/codebase-starter? That would be cool. If so, teach in infrastructure.
 
+Search for cooler data sets.
+
 
 ## Items
 
