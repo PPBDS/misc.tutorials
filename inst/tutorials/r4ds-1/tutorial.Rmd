@@ -168,9 +168,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Create a new repo using [`codespace-starter`](https://github.com/PPBDS/codespace-starter) as a template and name it `r4ds-1`.
-
-If you haven't already, open the `r4ds-1` repo on GitHub and create a Codespace from it.
+Confirm you are working in the repo you created to launch this Codespace.
 
 You need two R Terminals: one for running this tutorial and one for your exercises.
 

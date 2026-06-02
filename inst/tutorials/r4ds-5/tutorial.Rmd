@@ -164,9 +164,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Create a new repo using `codespace-starter` as a template and name it `r4ds-5`.
-
-Open the `r4ds-5` repo on GitHub and create a Codespace from it.
+Confirm you are working in the repo you created to launch this Codespace.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Earthquakes and Movies"`) and your name as author. In a bash terminal, run:
 
