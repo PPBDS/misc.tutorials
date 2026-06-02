@@ -333,7 +333,7 @@ A **left join** adds columns from a second table while keeping every row of the 
 
 ### Exercise 3
 
-Build a cleaned and summarized NBA dataset, following the steps below. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Build a cleaned, summarized NBA dataset called `nba_clean`. You want one row per season, carrying the year, the era it falls in (Pre-Three Point through 1979, Modern Era through 1999, Analytics Era through 2019, Current Era after that), the average total points scored per game, the number of games, and the home-win percentage. Combine the game data with the line scores, keep seasons from 1946 on, and pull the result into R. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -342,10 +342,6 @@ show_file("analysis.qmd", chunk = "Last")
 ```
 
 CP/CR.
-
-Here's the prompt we used:
-
-Write R code that: reads `data/game.parquet` using `open_dataset()` and `collect()`; performs a `left_join()` with `open_dataset("data/line_score.parquet") |> collect()` by `game_id` with `relationship = "many-to-many"`; parses `game_date` and `game_date_est` as datetimes using `ymd_hms()`; drops rows where `pts_home.x` is NA using `drop_na()`; converts `game_date` to a datetime with `as_datetime()`, extracts `game_year` using `year()`, and creates `season_label` by combining `season_id %/% 10000` and `str_sub(season_id + 1, 3, 4)` with `paste0()`; filters to rows where `game_date` is not NA and `game_year >= 1946`; converts `wl_home` to a factor with levels "W" and "L"; creates `game_era` using `case_when()` where years ≤ 1979 are "Pre-Three Point", ≤ 1999 are "Modern Era", ≤ 2019 are "Analytics Era", and the rest are "Current Era", then converts `game_era` to a factor with those same levels in order; replaces NA with 0 for all columns containing "pct" and for `pts_home.x` and `pts_away.x` using `across()` and `replace_na()`; adds `total_points = pts_home.x + pts_away.x`; filters to rows where `total_points > 0` and neither home nor away points are NA; groups by `game_year`, `game_era`, `season_label`; summarizes to compute `avg_points` (mean of `total_points`), `games_count` (n()), and `home_win_pct` (mean of `wl_home == "W"`), with `.groups = "drop"`; and arranges by `game_year`.
 
 ```{r nba-3}
 question_text(NULL,
@@ -559,7 +555,7 @@ question_text(NULL,
 
 ### Exercise 3
 
-Build a cleaned FIFA player dataset, following the steps below. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Build a cleaned FIFA player dataset called `final_fifa`. You want numeric height and weight pulled out of the text columns; the character columns tidied up (newlines and stray spaces removed); the join date parsed and turned into the number of years at the club, plus a TRUE/FALSE flag for more than ten years; and the player's value, wage, and release clause converted from strings like "€110.5M" or "€565K" into plain euro numbers. Drop players with no join date. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -568,10 +564,6 @@ show_file("analysis.qmd", chunk = "Last")
 ```
 
 CP/CR.
-
-Here's the prompt we used:
-
-Write R code that: opens `data/fifa.parquet` using `open_dataset()` and `collect()`; creates `height_cm` and `weight_kg` by extracting numeric digits from `Height` and `Weight` using `str_extract(.x, "\\d+")` and converting to numeric with `as.numeric()`; removes newline characters (`"\\n"`) from all character columns using `mutate(across(where(is.character), ~str_replace_all(.x, "\\n", "")))`; trims whitespace from all character columns using `str_trim()`; parses `Joined` as a month-day-year date with `mdy()` and assigns it to `joined_date`; calculates `years_at_club` as `as.numeric(today() - joined_date) / 365.25`; creates `long_tenure` as TRUE if `years_at_club > 10`; drops rows where `joined_date` is NA; and creates `value_numeric`, `wage_numeric`, and `release_clause_numeric` using `case_when()` to handle: missing/empty/zero values (→ 0), strings containing "M" (extract the number with `parse_number()` and multiply by 1,000,000), strings containing "K" (extract the number with `parse_number()` and multiply by 1,000), plain numeric strings starting with optional "€" and digits (extract the number with `parse_number()`), and everything else (→ 0).
 
 ```{r fifa-3}
 question_text(NULL,

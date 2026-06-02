@@ -8,8 +8,6 @@ Tutorials now are about concepts, not books.
 
 r4ds-4 is probably too long. Maybe split it up into two tutorials?
 
-r4ds-5 takes too long to compile.
-
 There is a NOTE on a couple of the CRAN checks. Seems like the .Rbuildignore is not being referenced in those checks, leaving the package as 48 MB. How can this be?
 
 ## Display

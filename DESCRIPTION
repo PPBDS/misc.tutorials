@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Tutorials for 'R for Data Science' and US Census Data
-Version: 0.0.1
+Version: 0.0.1.9001
 Authors@R:
     c(
     person(given = "David",
@@ -10,11 +10,8 @@ Authors@R:
            comment = c(ORCID = "0000-0002-6660-3934")))
 Description: Collection of interactive tutorials covering material from
     'R for Data Science (2e)' by Wickham, Cetinkaya-Rundel, and Grolemund,
-    and from 'Analyzing US Census Data' by Walker. Each tutorial sources
-    data from a different sort of storage technology -- delimited files,
-    spreadsheets, databases, 'Arrow' files, and web APIs -- and then works
-    with that data using the 'tidyverse'. Makes extensive use of the tools
-    in the 'tutorial.helpers' package.
+    and from 'Analyzing US Census Data' by Walker. Makes extensive use of 
+    the tools in the 'tutorial.helpers' package.
 Depends: R (>= 4.1.0)
 License: MIT + file LICENSE
 Encoding: UTF-8

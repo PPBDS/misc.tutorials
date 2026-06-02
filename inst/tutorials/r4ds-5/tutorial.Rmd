@@ -377,12 +377,7 @@ Pulling a named element out of a deeply nested list, then spreading a named list
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous exercise with a new code chunk. First, define two helper functions:
-
-- `convert_earthquake_time(milliseconds)`: converts milliseconds since Unix epoch to a POSIXct datetime using `as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")`
-- `categorize_magnitude(mag)`: returns one of six categories — "Minor" (< 3.0), "Light" (3.0–3.9), "Moderate" (4.0–4.9), "Strong" (5.0–5.9), "Major" (6.0–6.9), "Great" (7.0+) — using `case_when()`
-
-Then, in a second new code chunk, build a pipe starting with `jsonlite::read_json("data/earthquakes.geojson")` that: plucks the "features" element, converts to a tibble, unnests `data` and then `properties` (with `names_sep = "_"`), hoists `geometry` to extract `coordinates`, unnests coordinates and renames to `longitude`/`latitude`/`depth`, converts "null" strings to `NA` across all character columns, filters rows where `properties_mag`, `longitude`, or `latitude` are `NA`, applies `convert_earthquake_time()` and `categorize_magnitude()` using `as.numeric()`, converts `properties_mag` and `depth` to numeric, filters to the last 365 days and to continental US bounds (longitude −125 to −66, latitude 20 to 50), extracts `hour` and `day_of_week` from `datetime`, categorizes `depth` as Shallow/Intermediate/Deep, selects key columns, creates a `tooltip_text` string with HTML formatting, filters valid geographic bounds, adds a `color` column by magnitude, and arranges by descending magnitude. Assign to `earthquake_df`.
+In your `analysis.qmd`, replace the code from the previous exercise with a new code chunk. Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
 
 In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -652,7 +647,7 @@ Selecting all the HTML nodes that match a CSS selector, then pulling a named att
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous two exercises with a single new code chunk. Build a pipe starting with `request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/")` that: performs the request, reads the HTML body, extracts the main `"table"` with `html_element()`, calls `html_table()`, selects only `rank_title_year = "Rank & Title"` and `rating = "IMDb Rating"`, uses `mutate()` to clean `rank_title_year` with `str_replace_all()` (replacing `"\n +"` with `" "`) and to create a `rating_details` column by embedding a second `request()` call that fetches the same URL and extracts `html_elements("td strong") |> html_attr("title")`, splits `rank_title_year` into `rank`/`title`/`year` with `separate_wider_regex()`, splits `rating_details` into a `number` column with another `separate_wider_regex()`, uses `mutate()` to apply `parse_number()` to `number`, convert `rank` and `year` to numeric with `across()`, create a `decade` column, and create `rating_category` and `popularity` columns using `case_when()`, and finally selects only `rank`, `title`, `year`, `rating`, `number` and arranges by `rank`. Assign to `top_movies`.
+In your `analysis.qmd`, replace the code from the previous two exercises with a single new code chunk. Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
 
 In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
