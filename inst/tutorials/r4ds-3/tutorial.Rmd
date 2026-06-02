@@ -71,17 +71,17 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Confirm you are working in the repo you created to launch this Codespace.
+You should be in a repo named `r4ds-3`. If you are not, create one and move to it.
 
 You need two R Terminals: one for running this tutorial and one for your exercises. Open a second R Terminal using the dropdown button.
 
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Baby Names and Flights"`) and your name as author. In a bash terminal, run:
+Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Baby Names and Flights"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
 
 Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
 
@@ -110,7 +110,7 @@ We will be working with databases in this tutorial. Two key differences between 
 
 ### Exercise 2
 
-In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
+In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
@@ -119,7 +119,7 @@ execute:
   echo: false
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab. In the R Terminal, run:
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -142,7 +142,7 @@ Databases are run by database management systems (DBMS's). DuckDB is an in-proce
 
 ### Exercise 3
 
-In a bash terminal, run `quarto render analysis.qmd`. Confirm that the Live Server tab auto-refreshes.
+In a bash Terminal, run `quarto render analysis.qmd`. Confirm that the Live Server tab auto-refreshes.
 
 CP/CR.
 
@@ -236,7 +236,7 @@ Downloading a file means copying it from a URL to a local path in your project. 
 
 ### Exercise 2
 
-Connect to the database file `data/nameby_year.duckdb`, then create a lazy reference to its `babynames` table. Assign the connection to `con_names` and the table reference to `dbplyr_names`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nameby_year.duckdb`, then create a lazy reference to its `babynames` table. Assign the connection to `con_names` and the table reference to `dbplyr_names`. Add both lines to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -265,7 +265,7 @@ Opening a **connection** is the first step in working with any database: the con
 
 ### Exercise 3
 
-Summarize the data: for each year since 2000, find the total number of babies given names that start with "A", split into "Short" names (5 letters or fewer) and "Long" names, and pull the result into R as `x`. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Summarize the data: for each year since 2000, find the total number of babies given names that start with "A", split into "Short" names (5 letters or fewer) and "Long" names, and pull the result into R as `x`. Add the code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -309,7 +309,7 @@ A **lazy table** is the key idea: operations on it are translated to SQL and exe
 
 Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `x`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time — by including `#| cache: true`, Quarto saves the result to disk so the next render loads from cache instead of re-running. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — by including `#| cache: true`, Quarto saves the result to disk so the next render loads from cache instead of re-running. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -334,7 +334,7 @@ Everything before the **collect** step in a **dbplyr** pipeline runs as SQL in t
 
 ### Exercise 5
 
-Make a line graph from `x` showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` shown by color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a line graph from `x` showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` shown by color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -414,7 +414,7 @@ The `nycflights13.duckdb` database contains multiple tables: `airlines`, `airpor
 
 ### Exercise 2
 
-Connect to the database file `data/nycflights13.duckdb`, then create a lazy reference to its `flights` table. Assign the connection to `con_air` and the table reference to `dbplyr_fly`. Add both lines to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nycflights13.duckdb`, then create a lazy reference to its `flights` table. Assign the connection to `con_air` and the table reference to `dbplyr_fly`. Add both lines to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -443,7 +443,7 @@ Lazy tables let you explore database structure without loading data into memory.
 
 ### Exercise 3
 
-Summarize departure delay patterns: for each combination of scheduled departure hour and actual departure hour, find the total number of delay minutes, treating early departures as zero delay. Pull the result into R as `departure_data`. Add the code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`.
+Summarize departure delay patterns: for each combination of scheduled departure hour and actual departure hour, find the total number of delay minutes, treating early departures as zero delay. Pull the result into R as `departure_data`. Add the code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -494,7 +494,7 @@ Four-digit military times like `517` pack the hour and minute together. Integer 
 
 Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `departure_data`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -519,7 +519,7 @@ A **weighted count** turns a frequency table into a sum table: instead of counti
 
 ### Exercise 5
 
-Make a heatmap from `departure_data` with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a heatmap from `departure_data` with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -571,7 +571,7 @@ You learned how to work with numbers, strings, and logical vectors using **readr
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
 In the R Terminal, run:
 
@@ -596,13 +596,13 @@ Database operations with **[dbplyr](https://dbplyr.tidyverse.org/)** are transla
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ````
 quarto publish gh-pages analysis.qmd
 ````
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 

@@ -164,15 +164,15 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Confirm you are working in the repo you created to launch this Codespace.
+You should be in a repo named `r4ds-5`. If you are not, create one and move to it.
 
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Earthquakes and Movies"`) and your name as author. In a bash terminal, run:
+Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Earthquakes and Movies"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
 
 Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
 
@@ -216,7 +216,7 @@ execute:
   echo: false
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -241,7 +241,7 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 
 ### Exercise 3
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
 
 CP/CR.
 
@@ -338,7 +338,7 @@ jsonlite::read_json("data/earthquakes.geojson") |>
   head(5)
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -377,7 +377,7 @@ Pulling a named element out of a deeply nested list, then spreading a named list
 
 In your `analysis.qmd`, replace the code from the previous exercise with a new code chunk. Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -487,7 +487,7 @@ You can reach into a list-column and lift out just the named values you need —
 
 Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto is running the code and saving the result to disk. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto is running the code and saving the result to disk. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -512,7 +512,7 @@ question_text(NULL,
 
 In a new code chunk, create an interactive **leaflet** map of `earthquake_df`. It should display circle markers sized by magnitude and colored by the `color` column, with popups showing the `tooltip_text`, plus a legend. Do not assign the plot to a variable.
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -584,7 +584,7 @@ request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/t
   html_table()
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -620,7 +620,7 @@ request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/t
   head(5)
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -647,7 +647,7 @@ Selecting all the HTML nodes that match a CSS selector, then pulling a named att
 
 In your `analysis.qmd`, replace the code from the previous two exercises with a single new code chunk. Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -738,7 +738,7 @@ One messy text column can be split into several clean ones with a regular expres
 
 Within the `top_movies` code chunk, add `#| cache: true` at the top.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -763,7 +763,7 @@ question_text(NULL,
 
 In a new code chunk, create an interesting plot of `top_movies`. Give it a proper title, subtitle, and caption. Do not assign the plot to a variable.
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -828,7 +828,7 @@ You learned about working with nested data structures, web scraping techniques, 
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -853,13 +853,13 @@ question_text(NULL,
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ```
 quarto publish gh-pages analysis.qmd
 ```
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 

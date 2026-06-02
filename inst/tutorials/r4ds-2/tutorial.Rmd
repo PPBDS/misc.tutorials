@@ -53,17 +53,17 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Confirm you are working in the repo you created to launch this Codespace.
+You should be in a repo named `r4ds-2`. If you are not, create one and move to it.
 
 You need two R Terminals: one for running this tutorial and one for your exercises. Open a second R Terminal using the dropdown button.
 
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Cheese and Wine"`) and your name as author. In a bash terminal, run:
+Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Cheese and Wine"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
 
 Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
 
@@ -92,7 +92,7 @@ The `.gitignore` file tells Git which files to skip. `analysis_files/` contains 
 
 ### Exercise 2
 
-In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
+In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
@@ -192,7 +192,7 @@ Downloading a file means copying it from a URL to a local path in your project. 
 
 ### Exercise 2
 
-Add a code chunk to your QMD that reads the cheese spreadsheet `data/cheeses.xlsx` and shows its structure — the column types with a few example values. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Add a code chunk to your QMD that reads the cheese spreadsheet `data/cheeses.xlsx` and shows its structure — the column types with a few example values. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -223,7 +223,7 @@ The **[readxl](https://readxl.tidyverse.org/)** package reads both `.xls` and `.
 
 ### Exercise 3
 
-Replace the code in the previous chunk with a pipeline that reads `data/cheeses.xlsx`, filters to the three most common cheese-producing countries, removes rows with missing `milk` values, and returns a count of milk types per country sorted by country and descending count. In a bash terminal, run `quarto render analysis.qmd`.
+Replace the code in the previous chunk with a pipeline that reads `data/cheeses.xlsx`, filters to the three most common cheese-producing countries, removes rows with missing `milk` values, and returns a count of milk types per country sorted by country and descending count. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -274,7 +274,7 @@ Sometimes you want a group count attached to every row without collapsing the da
 
 ### Exercise 4
 
-Within the recent code chunk, add the option `#| cache: true` and assign the result to `cheese_tibble`. If you have not done so already, add `analysis_cache` to your `.gitignore`. In a bash terminal, run `quarto render analysis.qmd`. This first render takes noticeably longer — Quarto runs the code and writes the cache to disk; subsequent renders skip that code and load from cache instead.
+Within the recent code chunk, add the option `#| cache: true` and assign the result to `cheese_tibble`. If you have not done so already, add `analysis_cache` to your `.gitignore`. In a bash Terminal, run `quarto render analysis.qmd`. This first render takes noticeably longer — Quarto runs the code and writes the cache to disk; subsequent renders skip that code and load from cache instead.
 
 In the R Terminal, run:
 
@@ -299,7 +299,7 @@ Quarto's `#| cache: true` option saves a chunk's result to disk so subsequent re
 
 ### Exercise 5
 
-Pipe `cheese_tibble` into a plot that shows the number of cheeses by milk type, faceted by country, with flipped axes. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Pipe `cheese_tibble` into a plot that shows the number of cheeses by milk type, faceted by country, with flipped axes. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -343,7 +343,7 @@ cheese_tibble |>
 
 ### Exercise 6
 
-Look at the France and USA panels in our example plot above. Update the cheese plot so that each country's panel uses its own independent scale. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Look at the France and USA panels in our example plot above. Update the cheese plot so that each country's panel uses its own independent scale. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -440,7 +440,7 @@ The [UCI Machine Learning Repository](https://archive.ics.uci.edu/) hosts hundre
 
 ### Exercise 2
 
-Read the spreadsheet `data/wine.xlsx` into R. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Read the spreadsheet `data/wine.xlsx` into R. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 CP/CR.
 
@@ -465,7 +465,7 @@ Notice that the column names in this dataset are capitalized (`Phenols`, `Flavan
 
 ### Exercise 3
 
-From `data/wine.xlsx`, keep only the `Phenols`, `Color`, and `Flavanoids` columns. Replace your current code in the same code chunk in your QMD with this. In a bash terminal, run `quarto render analysis.qmd`.
+From `data/wine.xlsx`, keep only the `Phenols`, `Color`, and `Flavanoids` columns. Replace your current code in the same code chunk in your QMD with this. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -504,7 +504,7 @@ Selecting columns — keeping only the ones you name, or dropping the ones you d
 
 ### Exercise 4
 
-Within the recent code chunk, add the option `#| cache: true` and assign the result to `wine_tibble`. If you have not done so already, add `analysis_cache` to your `.gitignore`. In a bash terminal, run `quarto render analysis.qmd`.
+Within the recent code chunk, add the option `#| cache: true` and assign the result to `wine_tibble`. If you have not done so already, add `analysis_cache` to your `.gitignore`. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -529,7 +529,7 @@ Covariation is the tendency for the values of two or more variables to vary toge
 
 ### Exercise 5
 
-Create a scatter plot from `wine_tibble` with `Phenols` on the x-axis and `Flavanoids` on the y-axis, with color mapped to `Color`. Include jittered points, a LOESS smooth curve, and label the maximum `Flavanoids` value as "Outlier" in magenta. Use a blue-to-orange color gradient and a classic theme. Add this code to a new code chunk in your QMD. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Create a scatter plot from `wine_tibble` with `Phenols` on the x-axis and `Flavanoids` on the y-axis, with color mapped to `Color`. Include jittered points, a LOESS smooth curve, and label the maximum `Flavanoids` value as "Outlier" in magenta. Use a blue-to-orange color gradient and a classic theme. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -628,7 +628,7 @@ You learned about working with categorical and continuous variables using differ
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
 In the R Terminal, run:
 
@@ -653,13 +653,13 @@ Spreadsheet data in `.xls` and `.xlsx` formats is read into R with the **[readxl
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ````
 quarto publish gh-pages analysis.qmd
 ````
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 

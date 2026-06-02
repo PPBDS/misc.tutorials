@@ -59,13 +59,13 @@ Use AI however you like throughout. An agentic coding tool (such as Claude Code 
 
 ### Exercise 1
 
-Confirm you are working in the repo you created to launch this Codespace. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash terminal, run:
+You should be in a repo named `census`. If you are not, create one and move to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render.
+Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render.
 
 Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Commit and push your work. In the R Terminal, run:
 
@@ -128,7 +128,7 @@ question_text(NULL,
 
 ### Exercise 3
 
-In a bash terminal, run `quarto render analysis.qmd` and confirm your Live Server tab refreshes on its own.
+In a bash Terminal, run `quarto render analysis.qmd` and confirm your Live Server tab refreshes on its own.
 
 CP/CR.
 
@@ -756,7 +756,7 @@ question_text(NULL,
 
 ### Exercise 2
 
-Publish your work to GitHub Pages. In a bash terminal, run:
+Publish your work to GitHub Pages. In a bash Terminal, run:
 
 ```
 quarto publish gh-pages analysis.qmd

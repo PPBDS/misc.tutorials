@@ -168,17 +168,17 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-Confirm you are working in the repo you created to launch this Codespace.
+You should be in a repo named `r4ds-1`. If you are not, create one and move to it.
 
 You need two R Terminals: one for running this tutorial and one for your exercises.
 
-Create a new Quarto Document and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Music Data"`) and your name as author. In a bash terminal, run:
+Create a new Quarto Document and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Music Data"`) and your name as author. In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open.
+Open `analysis.html` in a browser by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open.
 
 Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
 
@@ -222,7 +222,7 @@ execute:
   echo: false
 ```
 
-In a bash terminal, run `quarto render analysis.qmd` again. Check the rendered HTML. Only the title and author should appear in the HTML.
+In a bash Terminal, run `quarto render analysis.qmd` again. Check the rendered HTML. Only the title and author should appear in the HTML.
 
 In the R Terminal, run:
 
@@ -256,7 +256,7 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-In a bash terminal, run:
+In a bash Terminal, run:
 
 ```
 quarto render analysis.qmd
@@ -802,7 +802,7 @@ Download `music.csv` from this URL and save it as `data/music.csv`:
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-1/music.csv
 ```
 
-In a bash terminal, run:
+In a bash Terminal, run:
 
 ```
 ls data
@@ -1367,7 +1367,7 @@ This tutorial used AI to explore two music datasets. You investigated the struct
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
 
 In the R Terminal, run:
 
@@ -1396,13 +1396,13 @@ If it includes exploratory dead ends, clean the document while preserving the fi
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ````
 quarto publish gh-pages analysis.qmd
 ````
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 
