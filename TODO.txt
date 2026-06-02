@@ -3,18 +3,10 @@
 
 Tutorials now are about concepts, not books.
 
-
-## Length and performance
-
-r4ds-4 is probably too long. Maybe split it up into two tutorials?
-
 There is a NOTE on a couple of the CRAN checks. Seems like the .Rbuildignore is not being referenced in those checks, leaving the package as 48 MB. How can this be?
-
-## Display
 
 * Would options(pillar.print_max = Inf, pillar.print_min = Inf) make the use of df_print: default not necessary? Which is best? Again, goal is for printed out tibbles to look the same in the tutorial html as they look in the Console.
 
-## Tools and approach
 
 * Should we be using duckdplyr more and/or in place of other databases?
 

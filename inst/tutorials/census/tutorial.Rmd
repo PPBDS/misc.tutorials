@@ -55,7 +55,7 @@ age_ca <- read_rds("data/age_ca.rds")
 
 This tutorial follows the **[tidycensus](https://walker-data.com/tidycensus/)** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker — [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Mapping Census data with R](https://walker-data.com/census-r/mapping-census-data-with-r.html). You will pull data from the American Community Survey through the Census API and turn it into three published artifacts: choropleth maps of Texas household income and California educational attainment, and a bar chart of California median age.
 
-Use AI however you like throughout. An agent that edits files directly in your environment (such as Claude Code or Gemini CLI) works best; a chat-based assistant works too, with more copy/paste.
+Use AI however you like throughout. An agentic coding tool (such as Claude Code or Gemini CLI) works best, since it can read and edit your files directly; a chat-based assistant works too, with more copy/paste.
 
 ### Exercise 1
 
