@@ -260,6 +260,7 @@ question_text(NULL,
 ###
 
 ```{r cheese-3-test}
+#| echo: true
 read_excel("data/cheeses.xlsx") |>
   filter(!is.na(country)) |>
   add_count(country, name = "country_total") |>
@@ -272,18 +273,7 @@ read_excel("data/cheeses.xlsx") |>
 
 ###
 
-If your result doesn't match ours, replace your chunk code with the following before moving on:
-
-<pre><code>```{r}
-read_excel("data/cheeses.xlsx") |>
-  filter(!is.na(country)) |>
-  add_count(country, name = "country_total") |>
-  filter(country_total >= sort(unique(country_total), decreasing = TRUE)[3]) |>
-  filter(!is.na(milk)) |>
-  count(country, milk) |>
-  group_by(country) |>
-  arrange(country, desc(n))
-```</code></pre>
+If your result differs from ours, replace your code with the code above before moving on, so your `cheese_tibble` matches for the rest of the section.
 
 Sometimes you want a group count attached to every row without collapsing the data — for example, to keep each cheese's row while also knowing how many cheeses its country has, so you can filter to the busiest countries. Adding a per-group count as a new column does exactly that.
 
@@ -314,7 +304,7 @@ Quarto's `#| cache: true` option saves a chunk's result to disk so subsequent re
 
 ### Exercise 5
 
-Pipe `cheese_tibble` into a plot that shows the number of cheeses by milk type, faceted by country, with flipped axes. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Pipe `cheese_tibble` into a plot that shows the number of cheeses by milk type, faceted by country, with flipped axes. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -463,7 +453,7 @@ The [UCI Machine Learning Repository](https://archive.ics.uci.edu/) hosts hundre
 
 ### Exercise 2
 
-Read the spreadsheet `data/wine.xlsx` into R. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Read the spreadsheet `data/wine.xlsx` into R. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 CP/CR.
 
@@ -488,7 +478,7 @@ Notice that the column names in this dataset are capitalized (`Phenols`, `Flavan
 
 ### Exercise 3
 
-From `data/wine.xlsx`, keep only the `Phenols`, `Color`, and `Flavanoids` columns. Replace your current code in the same code chunk in your QMD with this. In a bash Terminal, run `quarto render analysis.qmd`.
+From `data/wine.xlsx`, keep only the `Phenols`, `Color`, and `Flavanoids` columns. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -510,18 +500,14 @@ question_text(NULL,
 ###
 
 ```{r wine-3-test}
+#| echo: true
 read_excel("data/wine.xlsx") |>
   select(Phenols, Color, Flavanoids)
 ```
 
 ###
 
-If your result doesn't match ours, replace your chunk code with the following before moving on:
-
-<pre><code>```{r}
-read_excel("data/wine.xlsx") |>
-  select(Phenols, Color, Flavanoids)
-```</code></pre>
+If your result differs from ours, replace your code with the code above before moving on, so your `wine_tibble` matches for the rest of the section.
 
 Selecting columns — keeping only the ones you name, or dropping the ones you don't — is one of the most basic data-wrangling moves, handled by **[dplyr](https://dplyr.tidyverse.org/)**. Narrowing to the columns you actually need keeps later steps and plots simple.
 
@@ -552,7 +538,7 @@ Covariation is the tendency for the values of two or more variables to vary toge
 
 ### Exercise 5
 
-Create a scatter plot from `wine_tibble` with `Phenols` on the x-axis and `Flavanoids` on the y-axis, with color mapped to `Color`. Include jittered points, a LOESS smooth curve, and label the maximum `Flavanoids` value as "Outlier" in magenta. Use a blue-to-orange color gradient and a classic theme. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Create a scatter plot from `wine_tibble` with `Phenols` on the x-axis and `Flavanoids` on the y-axis, with color mapped to `Color`. Include jittered points, a LOESS smooth curve, and label the maximum `Flavanoids` value as "Outlier" in magenta. Use a blue-to-orange color gradient and a classic theme. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 

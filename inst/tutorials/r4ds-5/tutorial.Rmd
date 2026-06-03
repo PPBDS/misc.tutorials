@@ -357,17 +357,7 @@ GeoJSON is a JSON-based format for representing geographic features. A `FeatureC
 
 ### Exercise 2
 
-In a new code chunk in your `analysis.qmd`, paste the following code to explore the raw JSON structure:
-
-```
-jsonlite::read_json("data/earthquakes.geojson") |>
-  pluck("features") |>
-  tibble(data = _) |>
-  unnest_wider(data) |>
-  unnest_wider(properties, names_sep = "_") |>
-  select(type, id, properties_mag, properties_place, properties_time) |>
-  head(5)
-```
+Explore the raw JSON structure. Read `data/earthquakes.geojson`, pull out its `features` array, and rectangle it into a tibble with one row per feature. Show the first five rows, keeping each quake's `type`, `id`, magnitude, place, and time.
 
 In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -391,6 +381,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-2-test}
+#| echo: true
 jsonlite::read_json("data/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
@@ -406,7 +397,7 @@ Pulling a named element out of a deeply nested list, then spreading a named list
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous exercise with a new code chunk. Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
+Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
 
 In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -430,14 +421,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-3-test}
-earthquake_df
-```
-
-###
-
-If your result does not match ours, replace your code with the following:
-
-<pre><code>```{r}
+#| echo: true
 convert_earthquake_time <- function(milliseconds) {
   as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")
 }
@@ -451,10 +435,7 @@ categorize_magnitude <- function(mag) {
     TRUE ~ "Great"
   )
 }
-```</code></pre>
 
-<pre><code>```{r}
-#| cache: true
 earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
@@ -510,7 +491,13 @@ earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
     )
   ) |>
   arrange(desc(properties_mag))
-```</code></pre>
+
+earthquake_df
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `earthquake_df` matches for the rest of the section.
 
 You can reach into a list-column and lift out just the named values you need — here, the coordinates inside the `geometry` object — without fully unnesting everything around them. That is handy when a nested structure carries far more fields than you care about.
 
@@ -608,15 +595,7 @@ top_movies
 
 ### Exercise 1
 
-In a new code chunk in your `analysis.qmd`, paste the following code to fetch and display the raw IMDb table:
-
-```
-request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_element("table") |>
-  html_table()
-```
+Fetch and display the raw IMDb table. Request the archived page at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/`, perform the request, read the response as HTML, pull out the first `<table>` element, and turn it into a tibble.
 
 In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -639,20 +618,21 @@ question_text(NULL,
 
 ###
 
-A `robots.txt` file tells automated bots which pages the site owner permits them to access. Always check `https://example.com/robots.txt` before scraping a new site. The Wayback Machine archives are generally permitted for research scraping.
-
-### Exercise 2
-
-In a new code chunk in your `analysis.qmd`, paste the following code to extract the rating details — the number of user votes — stored as an HTML attribute:
-
 ```
 request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
   req_perform() |>
   resp_body_html() |>
-  html_elements("td strong") |>
-  html_attr("title") |>
-  head(5)
+  html_element("table") |>
+  html_table()
 ```
+
+###
+
+A `robots.txt` file tells automated bots which pages the site owner permits them to access. Always check `https://example.com/robots.txt` before scraping a new site. The Wayback Machine archives are generally permitted for research scraping.
+
+### Exercise 2
+
+Extract the rating details — the number of user votes, which the page stores in an HTML attribute rather than the visible text. Request the same archived page, read it as HTML, select the `<strong>` elements inside the table cells, pull the `title` attribute off each, and show the first five.
 
 In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -675,11 +655,22 @@ question_text(NULL,
 
 ###
 
+```
+request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
+  req_perform() |>
+  resp_body_html() |>
+  html_elements("td strong") |>
+  html_attr("title") |>
+  head(5)
+```
+
+###
+
 Selecting all the HTML nodes that match a CSS selector, then pulling a named attribute off each one, is how you reach data that isn't in the visible text — here the `title` attribute on the `<strong>` elements inside the table cells holds the vote-count string.
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous two exercises with a single new code chunk. Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
+Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
 
 In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -702,16 +693,7 @@ question_text(NULL,
 
 ###
 
-```{r top-movies-3-test}
-top_movies
 ```
-
-###
-
-If your result does not match ours, replace your code with the following:
-
-<pre><code>```{r}
-#| cache: true
 top_movies <- request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
   req_perform() |>
   resp_body_html() |>
@@ -764,7 +746,15 @@ top_movies <- request("https://web.archive.org/web/20220201012049/https://www.im
   ) |>
   select(rank, title, year, rating, number) |>
   arrange(rank)
-```</code></pre>
+```
+
+```{r top-movies-3-test}
+top_movies
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `top_movies` matches for the rest of the section.
 
 One messy text column can be split into several clean ones with a regular expression made of *named* pieces: each named piece becomes a new column, while the unnamed pieces are matched and discarded. It is the workhorse for turning a string like "1. The Shawshank Redemption (1994)" into separate rank, title, and year columns.
 

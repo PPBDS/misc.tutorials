@@ -234,7 +234,7 @@ Downloading a file means copying it from a URL to a local path in your project. 
 
 ### Exercise 2
 
-Connect to the database file `data/nameby_year.duckdb`, then create a lazy reference to its `babynames` table. Assign the connection to `con_names` and the table reference to `dbplyr_names`. Add both lines to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nameby_year.duckdb`, then create a lazy reference to its `babynames` table. Assign the connection to `con_names` and the table reference to `dbplyr_names`. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -265,7 +265,7 @@ Opening a **connection** is the first step in working with any database: the con
 
 ### Exercise 3
 
-Summarize the data: for each year since 2000, find the total number of babies given names that start with "A", split into "Short" names (5 letters or fewer) and "Long" names, and pull the result into R as `x`. Add the code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`.
+Summarize the data: for each year since 2000, find the total number of babies given names that start with "A", split into "Short" names (5 letters or fewer) and "Long" names, and pull the result into R as `x`. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -287,21 +287,18 @@ question_text(NULL,
 ###
 
 ```{r baby-names-3-test}
-x
-```
-
-###
-
-If your result doesn't match ours, replace your chunk code with the following before moving on:
-
-<pre><code>```{r}
+#| echo: true
 dbplyr_names |>
   filter(str_starts(name, "A"), year > 2000, n >= 10) |>
   mutate(length_class = if_else(str_length(name) <= 5, "Short", "Long")) |>
   summarize(total = sum(n), .by = c(year, length_class)) |>
   arrange(year) |>
   collect()
-```</code></pre>
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `x` matches for the rest of the section.
 
 A **lazy table** is the key idea: operations on it are translated to SQL and executed inside the database, not in R's memory, and the results are only retrieved into R when you explicitly **collect** them. Remarkably, **[dbplyr](https://dbplyr.tidyverse.org/)** even translates **[stringr](https://stringr.tidyverse.org/)** string operations into their SQL equivalents, so the same tidyverse-style code runs against the database.
 
@@ -334,7 +331,7 @@ Everything before the **collect** step in a **dbplyr** pipeline runs as SQL in t
 
 ### Exercise 5
 
-Make a line graph from `x` showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` shown by color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a line graph from `x` showing the proportion of "Short" vs. "Long" names starting with "A" over the years, with `length_class` shown by color. Give it a proper title, subtitle, and caption. Don't assign the plot. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -423,7 +420,7 @@ The `nycflights13.duckdb` database contains multiple tables: `airlines`, `airpor
 
 ### Exercise 2
 
-Connect to the database file `data/nycflights13.duckdb`, then create a lazy reference to its `flights` table. Assign the connection to `con_air` and the table reference to `dbplyr_fly`. Add both lines to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Connect to the database file `data/nycflights13.duckdb`, then create a lazy reference to its `flights` table. Assign the connection to `con_air` and the table reference to `dbplyr_fly`. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -454,7 +451,7 @@ Lazy tables let you explore database structure without loading data into memory.
 
 ### Exercise 3
 
-Summarize departure delay patterns: for each combination of scheduled departure hour and actual departure hour, find the total number of delay minutes, treating early departures as zero delay. Pull the result into R as `departure_data`. Add the code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`.
+Summarize departure delay patterns: for each combination of scheduled departure hour and actual departure hour, find the total number of delay minutes, treating early departures as zero delay. Pull the result into R as `departure_data`. In a bash Terminal, run `quarto render analysis.qmd`.
 
 In the R Terminal, run:
 
@@ -476,19 +473,12 @@ question_text(NULL,
 ###
 
 ```{r flights-3-test}
-departure_data
-```
-
-###
-
-If your result doesn't match ours, replace your chunk code with the following before moving on:
-
-<pre><code>```{r}
+#| echo: true
 dbplyr_fly |>
   select(dep_time, sched_dep_time, dep_delay, tailnum) |>
-  mutate(tail_number = parse_number(tailnum)) |>
   filter(!is.na(dep_time)) |>
   collect() |>
+  mutate(tail_number = parse_number(tailnum)) |>
   mutate(
     dep_hour = dep_time %/% 100,
     dep_minute = dep_time %% 100,
@@ -497,7 +487,11 @@ dbplyr_fly |>
     true_dep_delay = pmax(dep_delay, 0)
   ) |>
   count(sched_hour, dep_hour, wt = true_dep_delay, name = "total_delay")
-```</code></pre>
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `departure_data` matches for the rest of the section.
 
 Four-digit military times like `517` pack the hour and minute together. Integer division by 100 gives the hour (5) and the remainder gives the minute (17) — a standard trick for unpacking a time stored as a number. Flooring each delay at zero (treating early departures as 0) keeps early flights from cancelling out late ones when the delays are summed.
 
@@ -530,7 +524,7 @@ A **weighted count** turns a frequency table into a sum table: instead of counti
 
 ### Exercise 5
 
-Make a heatmap from `departure_data` with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Give it a proper title, subtitle, and caption. Don't assign the plot. Add this code to a new code chunk in your QMD. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a heatmap from `departure_data` with `sched_hour` on the x-axis, `dep_hour` on the y-axis, and `total_delay` as the fill color. Give it a proper title, subtitle, and caption. Don't assign the plot. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
