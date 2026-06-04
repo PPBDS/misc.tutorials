@@ -160,29 +160,29 @@ This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4
 
 You will learn about working with nested data structures, web scraping techniques, and creating custom functions using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, and **[purrr](https://purrr.tidyverse.org/)**. Key concepts include extracting nested elements from lists, expanding list-columns into separate columns, extracting tables from HTML pages, and splitting text into structured columns using regex patterns.
 
-We recommend using an in-environment AI agent such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code); instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
 ### Exercise 1
 
-Create a new repo using `codespace-starter` as a template and name it `r4ds-5`.
+You should be connected to a repo named `r4ds-5`. If you are not, create one and connect to it.
 
-Open the `r4ds-5` repo on GitHub and create a Codespace from it.
-
-Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Earthquakes and Movies"`) and your name as author. In a bash terminal, run:
+Create a new file, `analysis.qmd`, with the title `"Earthquakes and Movies"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -197,7 +197,19 @@ question_text(NULL,
 
 ###
 
-List-columns tend to come in two basic forms: named and unnamed. **tidyr** provides `unnest_wider()` for named list-columns — where each row has the same element names — and `unnest_longer()` for unnamed ones where the number of elements varies per row.
+```
+analysis_files
+```
+
+###
+
+List-columns come in two basic forms, named and unnamed. A **named** list labels each element, like a record:
+
+```r
+list(place = "Loma Prieta", year = 1989, magnitude = 6.9)
+```
+
+An **unnamed** list is just an ordered sequence — `list(6.9, 7.1, 5.4)` — whose length can vary from row to row.
 
 ### Exercise 2
 
@@ -218,7 +230,7 @@ execute:
   echo: false
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -239,28 +251,29 @@ question_text(NULL,
 
 ###
 
-JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
-
-### Exercise 3
-
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
-
-CP/CR.
-
-```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
-```
+<pre><code>```{r}
+#| message: false
+library(tidyverse)
+library(leaflet)
+library(rvest)
+library(httr2)
+library(ggrepel)
+```</code></pre>
 
 ###
 
-`#| cache: true` is a render-time feature — Quarto runs the code on the first render and saves results to disk. Subsequent renders load from the cache instead of re-running. Add `analysis_cache` to `.gitignore` so cache files stay off GitHub.
+JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
 
-### Exercise 4
+```json
+{
+  "place": "Northern California",
+  "magnitude": 4.2,
+  "felt": true,
+  "tags": ["minor", "shallow"]
+}
+```
+
+### Exercise 3
 
 In the R Terminal, run:
 
@@ -273,7 +286,7 @@ This creates a `data` directory in your project for storing downloaded files.
 
 CP/CR.
 
-```{r introduction-4}
+```{r introduction-3}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -284,12 +297,20 @@ question_text(NULL,
 
 ###
 
-**jsonlite** also provides `fromJSON()`, which performs automatic simplification (`simplifyVector = TRUE`). This often works well for simple JSON, but `read_json()` gives you more control over rectangling complex nested structures.
+```
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+```
+
+###
+
+**jsonlite** can also read JSON with automatic simplification, which often works well for simple, regular JSON. Reading it *without* simplification keeps the full nested structure, giving you more control when you need to rectangle something complex by hand.
 
 ## Earthquakes
 ###
 
-This section focuses on working with hierarchical JSON data structures and creating custom functions using **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[tidyr](https://tidyr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**. You will learn how to extract nested data from GeoJSON files, convert Unix timestamps to datetime objects, and create interactive maps. Key concepts include `pluck()`, `unnest_wider()`, `hoist()`, and writing custom transformation functions.
+This section focuses on working with hierarchical JSON data and writing your own transformation functions, using **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[tidyr](https://tidyr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**. You will learn how to extract nested data from GeoJSON files, convert Unix timestamps to datetimes, and build interactive maps. Key concepts include reaching into deeply nested lists, *rectangling* them into a tidy table, and writing small custom functions.
+
+###
 
 We use `earthquakes.geojson` from the **USGS real-time earthquake feed**, a live GeoJSON feed maintained by the U.S. Geological Survey providing seismic activity data including magnitude, location, depth, and timestamps.
 
@@ -301,14 +322,16 @@ earthquake_df
 
 ### Exercise 1
 
-Download the GeoJSON file to your `data` directory. In the R Terminal, run:
+Download the GeoJSON file `earthquakes.geojson` from this URL and save it in your `data/` directory:
 
 ```
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/earthquakes.geojson",
-  destfile = "data/earthquakes.geojson",
-  mode = "wb"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/earthquakes.geojson
+```
+
+In a bash Terminal, run:
+
+```
+ls data
 ```
 
 CP/CR.
@@ -324,23 +347,19 @@ question_text(NULL,
 
 ###
 
+```
+earthquakes.geojson
+```
+
+###
+
 GeoJSON is a JSON-based format for representing geographic features. A `FeatureCollection` object contains a `features` array — each feature has `type`, `geometry` (with coordinates), and `properties` (metadata like magnitude and place).
 
 ### Exercise 2
 
-In a new code chunk in your `analysis.qmd`, paste the following code to explore the raw JSON structure:
+Explore the raw JSON structure. Read `data/earthquakes.geojson`, pull out its `features` array, and rectangle it into a tibble with one row per feature. Show the first five rows, keeping each quake's `type`, `id`, magnitude, place, and time.
 
-```
-jsonlite::read_json("data/earthquakes.geojson") |>
-  pluck("features") |>
-  tibble(data = _) |>
-  unnest_wider(data) |>
-  unnest_wider(properties, names_sep = "_") |>
-  select(type, id, properties_mag, properties_place, properties_time) |>
-  head(5)
-```
-
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -362,6 +381,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-2-test}
+#| echo: true
 jsonlite::read_json("data/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
@@ -373,18 +393,13 @@ jsonlite::read_json("data/earthquakes.geojson") |>
 
 ###
 
-`pluck()` extracts a named element from a nested list by name or index. `unnest_wider()` expands a list-column so each named element becomes its own column — use `names_sep` to avoid name collisions when unnesting multiple levels.
+Pulling a named element out of a deeply nested list, then spreading a named list-column so each element becomes its own column, are the core *rectangling* moves — they turn hierarchical JSON into a flat table. When you unnest several levels, prefixing the new column names with their parent keeps them from colliding.
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous exercise with a new code chunk. First, ask AI to define two helper functions:
+Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
 
-- `convert_earthquake_time(milliseconds)`: converts milliseconds since Unix epoch to a POSIXct datetime using `as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")`
-- `categorize_magnitude(mag)`: returns one of six categories — "Minor" (< 3.0), "Light" (3.0–3.9), "Moderate" (4.0–4.9), "Strong" (5.0–5.9), "Major" (6.0–6.9), "Great" (7.0+) — using `case_when()`
-
-Then, in a second new code chunk, ask AI to build a pipe starting with `jsonlite::read_json("data/earthquakes.geojson")` that: plucks the "features" element, converts to a tibble, unnests `data` and then `properties` (with `names_sep = "_"`), hoists `geometry` to extract `coordinates`, unnests coordinates and renames to `longitude`/`latitude`/`depth`, converts "null" strings to `NA` across all character columns, filters rows where `properties_mag`, `longitude`, or `latitude` are `NA`, applies `convert_earthquake_time()` and `categorize_magnitude()` using `as.numeric()`, converts `properties_mag` and `depth` to numeric, filters to the last 365 days and to continental US bounds (longitude −125 to −66, latitude 20 to 50), extracts `hour` and `day_of_week` from `datetime`, categorizes `depth` as Shallow/Intermediate/Deep, selects key columns, creates a `tooltip_text` string with HTML formatting, filters valid geographic bounds, adds a `color` column by magnitude, and arranges by descending magnitude. Assign to `earthquake_df`.
-
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -406,14 +421,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-3-test}
-earthquake_df
-```
-
-###
-
-If your result does not match ours, replace your code with the following:
-
-<pre><code>```{r}
+#| echo: true
 convert_earthquake_time <- function(milliseconds) {
   as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")
 }
@@ -427,10 +435,7 @@ categorize_magnitude <- function(mag) {
     TRUE ~ "Great"
   )
 }
-```</code></pre>
 
-<pre><code>```{r}
-#| cache: true
 earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
@@ -486,15 +491,21 @@ earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
     )
   ) |>
   arrange(desc(properties_mag))
-```</code></pre>
 
-`hoist()` selectively extracts specific named values from a list-column without fully unnesting it — useful when you only need certain fields from a complex nested structure like the `geometry` object here.
+earthquake_df
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `earthquake_df` matches for the rest of the section.
+
+You can reach into a list-column and lift out just the named values you need — here, the coordinates inside the `geometry` object — without fully unnesting everything around them. That is handy when a nested structure carries far more fields than you care about.
 
 ### Exercise 4
 
-Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so.
+Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so, since cache files should never go to GitHub.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto is running the code and saving the result to disk. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — Quarto runs the code and saves the result to disk — but every later render loads `earthquake_df` from the cache instead of re-rectangling the GeoJSON. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -515,11 +526,13 @@ question_text(NULL,
 
 ###
 
+Filtering to the last 365 days and to the continental US trims the global feed down to a few thousand quakes — small enough to map smoothly. The vast majority are minor; the few above magnitude 5 are the ones a reader's eye should land on.
+
 ### Exercise 5
 
-In a new code chunk, ask AI to create an interactive map of `earthquake_df` using **leaflet**. The map should display circle markers sized by magnitude and colored by the `color` column, with popups showing the `tooltip_text`. Add a legend. Do not assign the plot to a variable.
+In a new code chunk, create an interactive **leaflet** map of `earthquake_df`. It should display circle markers sized by magnitude and colored by the `color` column, with popups showing the `tooltip_text`, plus a legend. Do not assign the plot to a variable.
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -541,6 +554,7 @@ question_text(NULL,
 ###
 
 ```{r earthquakes-5-test}
+#| echo: true
 leaflet(earthquake_df) |>
   addTiles() |>
   addCircleMarkers(
@@ -564,12 +578,12 @@ leaflet(earthquake_df) |>
 
 ###
 
-`leaflet()` creates interactive HTML maps. `addTiles()` loads the background map tiles; `addCircleMarkers()` places circles at each lat/lng coordinate. The `popup` argument accepts HTML strings, which is why `tooltip_text` uses `<br>` for line breaks.
+**[leaflet](https://rstudio.github.io/leaflet/)** builds interactive HTML maps: you start from a base layer of background map tiles, then add a layer of circle markers at each latitude/longitude. Marker popups accept HTML, which is why `tooltip_text` uses `<br>` for line breaks.
 
 ## Top Movies
 ###
 
-This section covers web scraping techniques and data extraction from HTML tables using **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, and **[stringr](https://stringr.tidyverse.org/)**. You will scrape the archived IMDb Top 250 movies list, clean the resulting text, and extract structured data. Key concepts include `html_element()`, `html_elements()`, `html_table()`, `html_attr()`, and `separate_wider_regex()`.
+This section covers web scraping and data extraction from HTML tables using **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, and **[stringr](https://stringr.tidyverse.org/)**. You will scrape the archived IMDb Top 250 movies list, clean the resulting text, and extract structured data. Key concepts include selecting elements from an HTML page, reading an HTML table into a data frame, pulling attributes off HTML nodes, and splitting one messy text column into several clean ones.
 
 We use a archived version of **The IMDb Top 250 Movies list** from February 2022, accessed via the Wayback Machine for a stable, reproducible URL.
 
@@ -581,17 +595,9 @@ top_movies
 
 ### Exercise 1
 
-In a new code chunk in your `analysis.qmd`, paste the following code to fetch and display the raw IMDb table:
+Fetch and display the raw IMDb table. Request the archived page at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/`, perform the request, read the response as HTML, pull out the first `<table>` element, and turn it into a tibble.
 
-```
-request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_element("table") |>
-  html_table()
-```
-
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -612,22 +618,23 @@ question_text(NULL,
 
 ###
 
-A `robots.txt` file tells automated bots which pages the site owner permits them to access. Always check `https://example.com/robots.txt` before scraping a new site. The Wayback Machine archives are generally permitted for research scraping.
-
-### Exercise 2
-
-In a new code chunk in your `analysis.qmd`, paste the following code to extract the rating details — the number of user votes — stored as an HTML attribute:
-
 ```
 request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
   req_perform() |>
   resp_body_html() |>
-  html_elements("td strong") |>
-  html_attr("title") |>
-  head(5)
+  html_element("table") |>
+  html_table()
 ```
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+###
+
+A `robots.txt` file tells automated bots which pages the site owner permits them to access. Always check `https://example.com/robots.txt` before scraping a new site. The Wayback Machine archives are generally permitted for research scraping.
+
+### Exercise 2
+
+Extract the rating details — the number of user votes, which the page stores in an HTML attribute rather than the visible text. Request the same archived page, read it as HTML, select the `<strong>` elements inside the table cells, pull the `title` attribute off each, and show the first five.
+
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -648,13 +655,24 @@ question_text(NULL,
 
 ###
 
-`html_elements()` selects all nodes matching a CSS selector and returns an `xml_nodeset`. `html_attr()` then extracts a named attribute from each node — here the `title` attribute on `<strong>` elements inside table cells contains the vote count string.
+```
+request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
+  req_perform() |>
+  resp_body_html() |>
+  html_elements("td strong") |>
+  html_attr("title") |>
+  head(5)
+```
+
+###
+
+Selecting all the HTML nodes that match a CSS selector, then pulling a named attribute off each one, is how you reach data that isn't in the visible text — here the `title` attribute on the `<strong>` elements inside the table cells holds the vote-count string.
 
 ### Exercise 3
 
-In your `analysis.qmd`, replace the code from the previous two exercises with a single new code chunk. Ask AI to build a pipe starting with `request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/")` that: performs the request, reads the HTML body, extracts the main `"table"` with `html_element()`, calls `html_table()`, selects only `rank_title_year = "Rank & Title"` and `rating = "IMDb Rating"`, uses `mutate()` to clean `rank_title_year` with `str_replace_all()` (replacing `"\n +"` with `" "`) and to create a `rating_details` column by embedding a second `request()` call that fetches the same URL and extracts `html_elements("td strong") |> html_attr("title")`, splits `rank_title_year` into `rank`/`title`/`year` with `separate_wider_regex()`, splits `rating_details` into a `number` column with another `separate_wider_regex()`, uses `mutate()` to apply `parse_number()` to `number`, convert `rank` and `year` to numeric with `across()`, create a `decade` column, and create `rating_category` and `popularity` columns using `case_when()`, and finally selects only `rank`, `title`, `year`, `rating`, `number` and arranges by `rank`. Assign to `top_movies`.
+Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -675,16 +693,7 @@ question_text(NULL,
 
 ###
 
-```{r top-movies-3-test}
-top_movies
 ```
-
-###
-
-If your result does not match ours, replace your code with the following:
-
-<pre><code>```{r}
-#| cache: true
 top_movies <- request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
   req_perform() |>
   resp_body_html() |>
@@ -737,15 +746,23 @@ top_movies <- request("https://web.archive.org/web/20220201012049/https://www.im
   ) |>
   select(rank, title, year, rating, number) |>
   arrange(rank)
-```</code></pre>
+```
 
-`separate_wider_regex()` splits a character column into multiple new columns using named capture groups in a regex pattern. Unnamed pattern pieces are consumed but discarded — only the named groups (`rank = "\\d+"`) become columns.
+```{r top-movies-3-test}
+top_movies
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on, so your `top_movies` matches for the rest of the section.
+
+One messy text column can be split into several clean ones with a regular expression made of *named* pieces: each named piece becomes a new column, while the unnamed pieces are matched and discarded. It is the workhorse for turning a string like "1. The Shawshank Redemption (1994)" into separate rank, title, and year columns.
 
 ### Exercise 4
 
 Within the `top_movies` code chunk, add `#| cache: true` at the top.
 
-In a bash terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -768,9 +785,9 @@ question_text(NULL,
 
 ### Exercise 5
 
-In a new code chunk, ask AI to create an interesting plot of `top_movies`. Include a proper title, subtitle, and caption in `labs()`. Do not assign the plot to a variable.
+In a new code chunk, create an interesting plot of `top_movies`. Give it a proper title, subtitle, and caption. Do not assign the plot to a variable.
 
-In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -792,6 +809,7 @@ question_text(NULL,
 ###
 
 ```{r top-movies-5-test}
+#| echo: true
 top_movies |>
   filter(year >= 1990, year <= 2010) |>
   ggplot(aes(x = year, y = rating)) +
@@ -824,7 +842,7 @@ top_movies |>
 
 ###
 
-`geom_text_repel()` from **ggrepel** places text labels that automatically move apart to avoid overlapping each other and the data points. `max.overlaps` controls how many overlapping labels to allow before hiding them.
+**[ggrepel](https://ggrepel.slowkow.com/)** places text labels that automatically nudge apart so they don't overlap each other or the data points — the standard fix for a crowded scatter plot — with a control for how many overlapping labels to allow before some are hidden.
 
 ## Summary
 ###
@@ -835,7 +853,7 @@ You learned about working with nested data structures, web scraping techniques, 
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -856,17 +874,17 @@ question_text(NULL,
 
 ###
 
-`purrr::map()` applies a function to each element of a list and returns the results as a new list. `map_dfr()` combines the results into a single data frame by row-binding — useful when you want to apply a scraping function to multiple URLs.
+**[purrr](https://purrr.tidyverse.org/)** lets you apply the same function to each element of a list and gather the results — either as a new list, or row-bound into a single data frame. That is the natural way to run one scraping function across many URLs.
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ```
 quarto publish gh-pages analysis.qmd
 ```
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 
@@ -881,7 +899,7 @@ question_text(NULL,
 
 ###
 
-**ggplot2** can save a plot to a file with `ggsave()`. By default it saves the last displayed plot, using the current device size, and infers the file format from the extension (PNG, PDF, etc.).
+**ggplot2** can save a plot to a file: by default it saves the most recently displayed plot, at the current device size, and infers the format (PNG, PDF, …) from the file extension.
 
 ### Exercise 3
 
@@ -898,7 +916,7 @@ question_text(NULL,
 
 ###
 
-There is one special type of missing value that you may encounter: `NaN` (**n**ot **a** **n**umber). In the rare case you need to distinguish an `NA` from a `NaN`, use `is.nan(x)`.
+There is one special type of missing value you may encounter: `NaN` (**n**ot **a** **n**umber), which arises from undefined operations like `0/0`. It behaves like `NA` in most respects, and on the rare occasion you must tell the two apart, there is a dedicated test for it.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```

@@ -1,6 +1,6 @@
 ---
 title: Second Tutorial for R4DS
-author: Sruthi Gandhi and David Kane
+author: David Kane
 tutorial:
   id: r4ds-2
 output:
@@ -87,16 +87,12 @@ This section covers key concepts from [Chapter 9: Layers](https://r4ds.hadley.nz
 
 You will learn about working with tabular data from Excel files using **[readxl](https://readxl.tidyverse.org/)** and **[ggplot2](https://ggplot2.tidyverse.org/)**. Key techniques include calendar heatmaps with `geom_tile()`, ordered factors for correct axis sorting, grouped summaries as the foundation for visualizations, boxplots, and scatter plots with annotated outliers.
 
-We recommend using an in-environment AI agent such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
 
 ### Exercise 1
 
-Create a new repo using `codespace-starter` as a template and name it `r4ds-2`.
-
-If you haven't already, open the `r4ds-2` repo on GitHub and create a Codespace from it.
-
-You need two R Terminals: one for running this tutorial and one for your exercises. Open a second R Terminal using the dropdown button.
+You should be connected to a repo named `r4ds-2`. If you are not, create one and connect to it.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births and Basketball Recruits"`) and your name as author. In a bash terminal, run:
 
@@ -104,9 +100,9 @@ Create a new file and save it as `analysis.qmd`. Add a YAML header at the top wi
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open — it will refresh automatically whenever you re-render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line, `analysis_cache` on the second line, and a blank line at the end. Save and push.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
@@ -133,7 +129,7 @@ This tutorial works with two datasets: US daily birth counts (1994–2014) from 
 
 ### Exercise 2
 
-In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk. In a bash terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
+In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
@@ -161,17 +157,25 @@ question_text(NULL,
 
 ###
 
+<pre><code>```{r}
+#| message: false
+library(tidyverse)
+library(readxl)
+```</code></pre>
+
+###
+
 Excel files exported from spreadsheet software often encode categorical variables as plain text. Before those columns display in the right order on a plot axis they need to be converted to ordered factors — you will do that for both datasets in this tutorial.
 
 ### Exercise 3
 
 From the R Terminal, run these three commands:
 
-`getwd()`. 
-`dir.create("data")`. 
-`list.files()`. 
-
-This will create a `data` directory in your project. This is a good place to store any data that you are working with.
+```
+getwd()
+dir.create("data")
+list.files()
+```
 
 CP/CR.
 
@@ -1283,7 +1287,7 @@ You learned about working with tabular data from Excel files using **[readxl](ht
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
 In the R Terminal, run:
 
@@ -1308,13 +1312,13 @@ Both analyses follow the same data-preparation pattern: read an Excel file, insp
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ````
 quarto publish gh-pages analysis.qmd
 ````
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 

@@ -164,31 +164,29 @@ music_map_data <- music |>
 You will use AI to analyze two music datasets: Billboard chart rankings and a sample from the Million Song Dataset. Your job is to steer the analysis, render often, inspect the output, and decide what the data can honestly show.
 
 ###
-We recommend using an AI agent that works directly within your development environment, such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files without copy/pasting. You may also use a chat-based AI (such as ChatGPT or Claude on the web), though this will require manually copying code into your Quarto document. Instructions throughout these tutorials are written assuming you are using an in-environment AI agent, but the choice is yours.
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files without copy/pasting. You may also use a chat-based AI (such as ChatGPT or Claude on the web), though this will require manually copying code into your Quarto document. Our instructions are written assuming you are using an agentic coding tool, but the choice is yours.
 
 ### Exercise 1
 
-Create a new repo using [`codespace-starter`](https://github.com/PPBDS/codespace-starter) as a template and name it `r4ds-1`.
+You should be connected to a repo named `r4ds-1`. If you are not, create one and connect to it.
 
-If you haven't already, open the `r4ds-1` repo on GitHub and create a Codespace from it.
-
-You need two R Terminals: one for running this tutorial and one for your exercises.
-
-Create a new Quarto Document and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing Music Data"`) and your name as author. In a bash terminal, run:
+Create a new file, `analysis.qmd`, with the title `"Analyzing Music Data"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` in a browser by right-clicking it in the File Explorer and selecting **Open with Live Server**. Keep this tab open.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
 
-Create a `.gitignore` file with `analysis_files` on the first line and then a blank line. Save and push.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -224,7 +222,7 @@ execute:
   echo: false
 ```
 
-In a bash terminal, run `quarto render analysis.qmd` again. Check the rendered HTML. Only the title and author should appear in the HTML.
+In a bash Terminal, run `quarto render analysis.qmd` again. Check the rendered HTML. Only the title and author should appear in the HTML.
 
 In the R Terminal, run:
 
@@ -258,37 +256,6 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-In a bash terminal, run:
-
-```
-quarto render analysis.qmd
-```
-
-Confirm that the rendered HTML auto-refreshes. CP/CR.
-
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-The terminal output should end with something like:
-
-```
-Output created: analysis.html
-```
-
-###
-
-Rendering is your feedback loop. You edit `analysis.qmd`, render it, and inspect the refreshed HTML before deciding what to ask AI for next.
-
-### Exercise 4
-
 From the R Terminal, run these three commands:
 
 ```
@@ -299,7 +266,7 @@ list.files()
 
 CP/CR.
 
-```{r introduction-4}
+```{r introduction-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -310,19 +277,13 @@ question_text(NULL,
 
 ###
 
-Your answer should look something like this, although your path will be different.
-
-````
-> getwd()
-[1] "/workspaces/r4ds-1"
-> dir.create("data")
-> list.files()
-[1] "analysis_files" "analysis.html"  "analysis.qmd"   "data"
-````
+```
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+```
 
 ###
 
-The `data` directory is where your project stores downloaded data. Instead of manually writing these commands you can ask AI to create directories and manage your files.
+The `data` directory is where your project stores downloaded data. You don't need to memorize the shell commands that create and manage these directories — your AI agent can handle that for you.
 
 ## Billboard Hot 100
 ###
@@ -331,7 +292,7 @@ The [`billboard`](https://tidyr.tidyverse.org/reference/billboard.html) tibble i
 
 ### Exercise 1
 
-Before plotting, inspect the data. Ask AI to add a code chunk to your QMD that prints `billboard`. Render and check the HTML.
+Before plotting, inspect the data. Add a code chunk to your QMD that prints `billboard`. Render and check the HTML.
 
 Copy and paste the table from the HTML.
 
@@ -356,7 +317,7 @@ billboard
 
 ### Exercise 2
 
-Ask AI to add a chunk that prints a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render it. Copy and paste the table from the HTML.
+Change that chunk to print just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render it. Copy and paste the table from the HTML.
 
 ```{r billboard-2}
 question_text(NULL,
@@ -379,7 +340,7 @@ The weekly columns are relative to when each song entered the chart. `wk4` means
 
 ### Exercise 3
 
-Ask AI to summarize the `date.entered` column so you can see the time period covered by the dataset. Render and copy and paste the summary from the HTML.
+Summarize the `date.entered` column so you can see the time period covered by the dataset. Render and copy and paste the summary from the HTML.
 
 ```{r billboard-3}
 question_text(NULL,
@@ -404,7 +365,7 @@ Before interpreting any plot, always ask what time period and population the dat
 
 ### Exercise 4
 
-Ask AI to make a histogram of the `wk1` rankings. Tell AI to include the number of values used in the plot. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
+Make a histogram of the `wk1` rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -426,6 +387,7 @@ question_text(NULL,
 ###
 
 ```{r billboard-4-test}
+#| echo: true
 ggplot(billboard, aes(x = wk1)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
   labs(
@@ -443,7 +405,7 @@ Rankings are reversed from many numeric measures: smaller numbers are better. A 
 
 ### Exercise 5
 
-Ask AI to make a similar histogram of the `wk6` rankings. Tell AI to include the number of values used in the plot. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
+Make a similar histogram of the `wk6` rankings, including the number of values used in the plot. Update your working chunk, render, and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -465,6 +427,7 @@ question_text(NULL,
 ###
 
 ```{r billboard-5-test}
+#| echo: true
 ggplot(billboard, aes(x = wk6)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "darkseagreen", color = "white") +
   labs(
@@ -482,7 +445,7 @@ The distribution shifts toward better ranks, but the histogram alone cannot tell
 
 ### Exercise 6
 
-Ask AI to create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render and copy and paste the table from the HTML.
+Create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render and copy and paste the table from the HTML.
 
 ```{r billboard-6}
 question_text(NULL,
@@ -505,7 +468,7 @@ billboard_missing
 
 ### Exercise 7
 
-Ask AI whether any songs leave the chart and later re-enter it. Have AI create a small table that counts songs by whether they re-entered. Render and copy and paste the table from the HTML.
+Find out whether any songs leave the chart and later re-enter it. Create a small table that counts songs by whether they re-entered. Render and copy and paste the table from the HTML.
 
 ```{r billboard-7}
 question_text(NULL,
@@ -528,7 +491,7 @@ Most songs either stay on the chart for a run of weeks or drop off permanently, 
 
 ### Exercise 8
 
-Ask AI to compare each song's `wk1` and `wk6` ranks. Count how many songs improved, stayed the same, got worse, or were missing by week 6. Also report the median rank change for songs with both weeks. Render and copy and paste the tables from the HTML.
+Compare each song's `wk1` and `wk6` ranks. Count how many songs improved, stayed the same, got worse, or were missing by week 6. Also report the median rank change for songs with both weeks. Render and copy and paste the tables from the HTML.
 
 ```{r billboard-8}
 question_text(NULL,
@@ -552,7 +515,7 @@ The week 6 histogram is not just the same songs later. Some songs have dropped o
 
 ### Exercise 9
 
-Ask AI to reshape `billboard` so the week columns become two columns: `week` and `rank`. Then ask it to plot each song's ranking over time. Add the code to a new chunk, render, and inspect the plot in the rendered HTML.
+Reshape `billboard` so the week columns become two columns, `week` and `rank`, then plot each song's ranking over time. Update your working chunk, render, and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -574,6 +537,7 @@ question_text(NULL,
 ###
 
 ```{r billboard-9-test}
+#| echo: true
 billboard_longer |>
   filter(!is.na(rank)) |>
   ggplot(aes(x = week, y = rank, group = song)) +
@@ -619,7 +583,7 @@ The full trajectory plot is useful, but it is too dense to explain individual st
 
 ###
 
-Ask AI to create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then ask AI to identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render and copy and paste the table from the HTML.
+Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render and copy and paste the table from the HTML.
 
 ```{r billboard-11}
 question_text(NULL,
@@ -642,7 +606,7 @@ Filtering to top-10 songs keeps the focus on recognizable hits while still leavi
 
 ### Exercise 12
 
-Ask AI to plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML.
+Plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -664,6 +628,7 @@ question_text(NULL,
 ###
 
 ```{r billboard-12-test}
+#| echo: true
 billboard_top10_longer |>
   filter(!is.na(rank)) |>
   ggplot(aes(x = week, y = rank, group = song)) +
@@ -731,9 +696,9 @@ A good published analysis does more than show a chart. It tells readers what pat
 
 ### Exercise 14
 
-You are done iterating on the Billboard plot. Ask AI to add `#| cache: true` to the final Billboard plot chunk. Then render again.
+You are done iterating on the Billboard plot. Add `#| cache: true` to the final Billboard plot chunk, then render again.
 
-Ask AI to add the generated cache directory to `.gitignore`. In the R Terminal, run:
+Add the generated cache directory to `.gitignore`. In the R Terminal, run:
 
 ```
 list.files()
@@ -798,13 +763,13 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 
 ### Exercise 1
 
-Ask AI to download `music.csv` from this URL and save it as `data/music.csv`:
+Download `music.csv` from this URL and save it as `data/music.csv`:
 
 ```
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-1/music.csv
 ```
 
-In a bash terminal, run:
+In a bash Terminal, run:
 
 ```
 ls data
@@ -823,8 +788,6 @@ question_text(NULL,
 
 ###
 
-Your `data` directory should now include:
-
 ```
 music.csv
 ```
@@ -835,7 +798,7 @@ CSV files are plain-text tables. AI can write the download code, but you still n
 
 ### Exercise 2
 
-Ask AI to read and print `data/music.csv` with **[readr](https://readr.tidyverse.org/)** in a new chunk. Tell it to suppress the message. 
+Read and print `data/music.csv` with **[readr](https://readr.tidyverse.org/)** in a new chunk, suppressing the load message.
 
 Render, and copy and paste the printed tibble from the HTML.
 
@@ -889,7 +852,7 @@ The dotted naming convention groups variables by entity: `artist.*` columns desc
 
 ### Exercise 4
 
-Ask AI to use `glimpse()` on just the artist columns of `music`. Add the code to a new chunk, render, and copy and paste the output from the HTML.
+Show the structure of just the artist columns of `music` — the type of each column with a few example values. Update your working chunk, render, and copy and paste the output from the HTML.
 
 ```{r music-4}
 question_text(NULL,
@@ -910,15 +873,15 @@ music |>
 
 ###
 
-`glimpse()` shows one line per column — useful here because the artist group has just 11 columns, short enough to scan. 
+This compact view shows one line per column — useful here because the artist group has just 11 columns, short enough to scan.
 
 ###
 
-Notice that `artist.latitude` and `artist.longitude` have many `NA` values, and `artist.terms` holds a string of genre tags rather than a single category. A column's type (`<chr>`, `<dbl>`) tells you what operations make sense on it before you ask AI to use it.
+Notice that `artist.latitude` and `artist.longitude` have many `NA` values, and `artist.terms` holds a string of genre tags rather than a single category. A column's type (`<chr>`, `<dbl>`) tells you what operations make sense on it before you use it.
 
 ### Exercise 5
 
-Ask AI, or read the [dataset documentation](https://corgis-edu.github.io/corgis/csv/music/), to explain what `artist.familiarity` and `artist.hotttnesss` measure. Add one or two sentences to your QMD and render.
+Find out what `artist.familiarity` and `artist.hotttnesss` measure — the [dataset documentation](https://corgis-edu.github.io/corgis/csv/music/) is one good source. Add one or two sentences to your QMD and render.
 
 Copy and paste your explanation from the HTML.
 
@@ -941,7 +904,7 @@ Both variables run from 0 to 1, where higher values mean more familiarity or mor
 
 ### Exercise 6
 
-Ask AI to run `summary()` on `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Add the code to a new chunk, render, and copy and paste the summary from the HTML.
+Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Update your working chunk, render, and copy and paste the summary from the HTML.
 
 ```{r music-6}
 question_text(NULL,
@@ -962,11 +925,11 @@ music |>
 
 ###
 
-Notice the minimums. `song.year` has a minimum of 0, which is not a real release year. `artist.familiarity` and `artist.hotttnesss` also have values at or near 0 that represent missing or unusable data rather than genuinely zero-familiarity artists. `song.tempo` is measured in beats per minute — a real musical unit with a meaningful range. `summary()` is a fast way to spot placeholder values and understand the scale of any numeric column before plotting.
+Notice the minimums. `song.year` has a minimum of 0, which is not a real release year. `artist.familiarity` and `artist.hotttnesss` also have values at or near 0 that represent missing or unusable data rather than genuinely zero-familiarity artists. `song.tempo` is measured in beats per minute — a real musical unit with a meaningful range. Scanning the minimum and maximum of each numeric column is a fast way to spot placeholder values and understand the scale before plotting.
 
 ### Exercise 7
 
-`summary()` didn't provide a clear picture of the distribution of song years. Ask AI to plot the distribution of `song.year`, filtering out rows where `song.year` is 0. Ask it to include the number of songs used in the subtitle. Render and copy and paste the plot from the HTML.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and copy and paste the plot from the HTML.
 
 ```{r music-7}
 question_text(NULL,
@@ -980,6 +943,7 @@ question_text(NULL,
 ###
 
 ```{r music-7-test}
+#| echo: true
 music |>
   filter(song.year > 0) |>
   ggplot(aes(x = song.year)) +
@@ -999,7 +963,7 @@ The dataset skews heavily toward recent music: over half the songs are from the 
 
 ### Exercise 8
 
-You have now seen the full column list, the artist column types, and the numeric ranges. Ask AI to print a smaller table with the most human-readable columns: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Render and copy and paste the table from the HTML.
+You have now seen the full column list, the artist column types, and the numeric ranges. Print a smaller table with the most human-readable columns: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Render and copy and paste the table from the HTML.
 
 ```{r music-8}
 question_text(NULL,
@@ -1022,7 +986,7 @@ These columns describe what matters most for a first look at artist data: who th
 
 ### Exercise 9
 
-There were many missing song years, and we know from earlier that many of the other columns include placeholders. Ask AI to count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render and copy and paste the table from the HTML.
+There were many missing song years, and we know from earlier that many of the other columns include placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render and copy and paste the table from the HTML.
 
 ```{r music-9}
 question_text(NULL,
@@ -1045,7 +1009,7 @@ This teaching file has multiple kinds of missingness. String columns use the lit
 
 ### Exercise 10
 
-Artist locations are stored as latitude and longitude. Ask AI to count how many artists have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Then ask AI to add one sentence to your QMD noting this limitation before the map. Render and copy and paste the count table from the HTML.
+Artist locations are stored as latitude and longitude. Count how many artists have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Then add one sentence to your QMD noting this limitation before the map. Render and copy and paste the count table from the HTML.
 
 ```{r music-10}
 question_text(NULL,
@@ -1073,7 +1037,7 @@ Latitude 0, longitude 0 is a point in the Gulf of Guinea off the west coast of A
 
 ### Exercise 11
 
-Ask AI to make a world map showing the locations of artists with usable coordinates. Tell it to filter out artists where both latitude and longitude equal 0, use the **[maps](https://cran.r-project.org/package=maps)** package for the world background, and add a title and subtitle that note the coverage limitation. Also ask it to add `#| cache: true` to the chunk.
+Make a world map showing the locations of artists with usable coordinates. Filter out artists where both latitude and longitude equal 0, use the **[maps](https://cran.r-project.org/package=maps)** package for the world background, and add a title and subtitle that note the coverage limitation. Also add `#| cache: true` to the chunk.
 
 In the R Terminal, run:
 
@@ -1095,6 +1059,7 @@ question_text(NULL,
 ###
 
 ```{r music-11-test}
+#| echo: true
 ggplot() +
   geom_map(
     data = world, map = world,
@@ -1124,7 +1089,7 @@ The map reveals a strong geographic bias: most artists with usable coordinates a
 
 ### Exercise 12
 
-Iterate the map. Ask AI to color the artist points by `artist.familiarity`, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows. Also ask it to add `#| cache: true` to the new chunk.
+Iterate the map. Color the artist points by `artist.familiarity`, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows. Also add `#| cache: true` to the new chunk.
 
 In the R Terminal, run:
 
@@ -1146,6 +1111,7 @@ question_text(NULL,
 ###
 
 ```{r music-12-test}
+#| echo: true
 music_map_data |>
   filter(artist.familiarity > 0) |>
   ggplot() +
@@ -1177,7 +1143,7 @@ The geographic pattern in familiarity is partly a coverage artifact — artists 
 
 ### Exercise 13
 
-Iterate the map again. Ask AI to color the artist points by `artist.hotttnesss` instead of familiarity, filtering out artists with hotness at or below 0. Update the title and subtitle to reflect what the color now shows. Also ask it to add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map again. Color the artist points by `artist.hotttnesss` instead of familiarity, filtering out artists with hotness at or below 0. Update the title and subtitle to reflect what the color now shows. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1199,6 +1165,7 @@ question_text(NULL,
 ###
 
 ```{r music-13-test}
+#| echo: true
 music_map_data |>
   filter(artist.hotttnesss > 0) |>
   ggplot() +
@@ -1230,7 +1197,7 @@ The hotness map closely mirrors familiarity — both cluster in the US and Weste
 
 ### Exercise 14
 
-Iterate the map again. Ask AI to assign each artist a genre using these five terms in order of priority: `rock`, `pop`, `blues`, `jazz`, `metal`. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Also ask it to add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map again. Assign each artist a genre using these five terms in order of priority: `rock`, `pop`, `blues`, `jazz`, `metal`. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1252,6 +1219,7 @@ question_text(NULL,
 ###
 
 ```{r music-14-test}
+#| echo: true
 music_map_data |>
   mutate(genre = case_when(
     str_detect(artist.terms, "rock")  ~ "Rock",
@@ -1290,7 +1258,7 @@ Blues clusters heavily in the United States, metal shows notable presence in Nor
 
 ### Exercise 15
 
-Iterate the map one more time. Ask AI to color the artist points by `song.year`, filtering out rows where `song.year` is 0. Update the title and subtitle. Also ask it to add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map one more time. Color the artist points by `song.year`, filtering out rows where `song.year` is 0. Update the title and subtitle. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1312,6 +1280,7 @@ question_text(NULL,
 ###
 
 ```{r music-15-test}
+#| echo: true
 music_map_data |>
   filter(song.year > 0) |>
   ggplot() +
@@ -1369,7 +1338,7 @@ This tutorial used AI to explore two music datasets. You investigated the struct
 
 ### Exercise 1
 
-In a bash terminal, run `quarto render analysis.qmd` to ensure that everything works. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
+In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
 
 In the R Terminal, run:
 
@@ -1394,17 +1363,17 @@ Your final QMD should contain setup code, Billboard analysis, music CSV analysis
 
 ###
 
-If it includes exploratory dead ends, ask AI to clean the document while preserving the final analysis.
+If it includes exploratory dead ends, clean the document while preserving the final analysis.
 
 ### Exercise 2
 
-Publish your rendered QMD to GitHub Pages. In a bash terminal, run:
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
 ````
 quarto publish gh-pages analysis.qmd
 ````
 
-If the bash terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
 Copy/paste the resulting URL below.
 
@@ -1448,7 +1417,7 @@ Your repo should contain the source files that reproduce your published page. Th
 
 ###
 
-The functions you used today are covered in depth in [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. The chapters on [data visualization](https://r4ds.hadley.nz/data-visualize.html), [data transformation](https://r4ds.hadley.nz/data-transform.html), [data tidying](https://r4ds.hadley.nz/data-tidy.html), and [data import](https://r4ds.hadley.nz/data-import.html) are worth reading to deepen your understanding of what to ask AI for and how to evaluate its output.
+The ideas you used today are covered in depth in [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. The chapters on [data visualization](https://r4ds.hadley.nz/data-visualize.html), [data transformation](https://r4ds.hadley.nz/data-transform.html), [data tidying](https://r4ds.hadley.nz/data-tidy.html), and [data import](https://r4ds.hadley.nz/data-import.html) are worth reading to deepen your understanding of the analysis behind your work.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
