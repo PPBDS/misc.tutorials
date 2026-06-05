@@ -1313,7 +1313,7 @@ The basketball section shows a two-part finding: recruit rank predicts NBA entry
 
 This section covered key concepts from [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html), [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/eda.html), [Chapter 11: Communication](https://r4ds.hadley.nz/communication.html), and [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with tabular data from Excel files using **[readxl](https://readxl.tidyverse.org/)** and **[ggplot2](https://ggplot2.tidyverse.org/)**. Key techniques included calendar heatmaps with `geom_tile()`, ordered factors, grouped summaries, boxplots, and scatter plots with annotated outliers.
+You learned about working with tabular data from Excel files using **readxl** and **ggplot2**. Key techniques included calendar heatmaps with `geom_tile()`, ordered factors, grouped summaries, boxplots, and scatter plots with annotated outliers.
 
 ### Exercise 1
 

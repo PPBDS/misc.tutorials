@@ -246,7 +246,7 @@ This is a **choropleth** — each county drawn from its boundary and shaded by i
 
 ### Exercise 4
 
-Improve the map: give it a perceptually uniform color scale (the **viridis** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
+Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
 
 In the R Terminal, run:
 

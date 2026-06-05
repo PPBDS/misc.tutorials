@@ -119,7 +119,7 @@ if (file.exists(atus_path)) {
 
 This section covers key concepts from [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular Expressions](https://r4ds.hadley.nz/regexps.html), [Chapter 12: Logical Vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with numeric data and text patterns using core *Tidyverse* packages like **readr**, **dplyr**, and **stringr**, as well as database interaction using **dbplyr**. Key concepts include extracting numbers from strings, detecting text patterns, computing parallel maxima across vectors, and connecting to databases.
+You will learn about working with numeric data and text patterns using core *Tidyverse* packages like **[readr](https://readr.tidyverse.org/)**, **[dplyr](https://dplyr.tidyverse.org/)**, and **[stringr](https://stringr.tidyverse.org/)**, as well as database interaction using **[dbplyr](https://dbplyr.tidyverse.org/)**. Key concepts include extracting numbers from strings, detecting text patterns, computing parallel maxima across vectors, and connecting to databases.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -1660,7 +1660,7 @@ into one column, and integer division is the key that unpacks it.
 
 This tutorial covered [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular expressions](https://r4ds.hadley.nz/regexps.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned how to work with numbers, strings, and logical vectors using **readr**, **stringr**, and **dplyr**, and how to query databases using **DBI** and **dbplyr**.
+You learned how to work with numbers, strings, and logical vectors using **readr**, **stringr**, and **dplyr**, and how to query databases using **[DBI](https://dbi.r-dbi.org/)** and **dbplyr**.
 
 ### Exercise 1
 
@@ -1685,7 +1685,7 @@ question_text(NULL,
 
 ###
 
-Database operations with **[dbplyr](https://dbplyr.tidyverse.org/)** are translated to SQL and executed in the database, with the results only pulled into R when you collect them.
+Database operations with **dbplyr** are translated to SQL and executed in the database, with the results only pulled into R when you collect them.
 
 ### Exercise 2
 

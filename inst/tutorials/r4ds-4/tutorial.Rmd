@@ -218,7 +218,7 @@ suppressPackageStartupMessages({
 
 ###
 
-Like CSV, parquet is used for rectangular data, but it's a custom binary format designed for big data — not a text format you can read in any editor. Both **arrow** and **dbplyr** provide **dplyr** backends, so you can use the same **dplyr** code whether your data is in a parquet file or a database.
+Like CSV, parquet is used for rectangular data, but it's a custom binary format designed for big data — not a text format you can read in any editor. Both **arrow** and **[dbplyr](https://dbplyr.tidyverse.org/)** provide **[dplyr](https://dplyr.tidyverse.org/)** backends, so you can use the same **dplyr** code whether your data is in a parquet file or a database.
 
 ### Exercise 3
 
@@ -295,7 +295,7 @@ game.parquet  line_score.parquet
 
 ###
 
-Opening a parquet file gives you an **Arrow** dataset — a handle to data still sitting on disk, not loaded into R's memory. Only the final step, once you're ready, pulls the processed result into R.
+Opening a parquet file gives you an **[Arrow](https://arrow.apache.org/docs/r/)** dataset — a handle to data still sitting on disk, not loaded into R's memory. Only the final step, once you're ready, pulls the processed result into R.
 
 ### Exercise 2
 
@@ -396,7 +396,7 @@ open_dataset("../../extdata/r4ds-4/game.parquet") |>
 
 If your result differs from ours, replace your code with the code above before moving on, so your `nba_clean` matches for the rest of the section.
 
-**[lubridate](https://lubridate.tidyverse.org/)** parses date-times with functions named for the order of their components — year, month, day, then hour-minute-second. Building a categorical variable from a cascade of conditions (one era per range of years) is a common way to bin a continuous value, and giving the resulting **factor** an explicit level order keeps it in logical — not alphabetical — order in summaries and plots.
+**lubridate** parses date-times with functions named for the order of their components — year, month, day, then hour-minute-second. Building a categorical variable from a cascade of conditions (one era per range of years) is a common way to bin a continuous value, and giving the resulting **factor** an explicit level order keeps it in logical — not alphabetical — order in summaries and plots.
 
 ### Exercise 4
 
@@ -474,14 +474,14 @@ nba_clean |>
 
 ###
 
-A **viridis** color scale for discrete categories is perceptually uniform and colorblind-accessible. And a static **ggplot2** chart can be made interactive — hover tooltips, zoom — by handing it to **[plotly](https://plotly.com/r/)**, a big payoff for very little extra work.
+A **[viridis](https://sjmgarnier.github.io/viridis/)** color scale for discrete categories is perceptually uniform and colorblind-accessible. And a static **[ggplot2](https://ggplot2.tidyverse.org/)** chart can be made interactive — hover tooltips, zoom — by handing it to **[plotly](https://plotly.com/r/)**, a big payoff for very little extra work.
 
 ## FIFA
 ###
 
 The [FIFA 21 dataset](https://www.kaggle.com/datasets/yagunnersya/fifa-21-messy-raw-dataset-for-cleaning-exploring/data) is scraped from [Sofifa.com](https://sofifa.com) and contains raw information about thousands of players including ratings, positions, value, and club. Our parquet file `data/fifa.parquet` contains this data.
 
-Key packages you'll use: **stringr** for text cleaning, **lubridate** for date parsing, **dplyr** for conditional transformations, and **forcats** for factor manipulation.
+Key packages you'll use: **[stringr](https://stringr.tidyverse.org/)** for text cleaning, **lubridate** for date parsing, **dplyr** for conditional transformations, and **forcats** for factor manipulation.
 
 ```{r fifa-data}
 "../../extdata/r4ds-4/fifa.parquet" |>
@@ -551,7 +551,7 @@ question_text(NULL,
 
 ###
 
-**[lubridate](https://lubridate.tidyverse.org/)** can parse dates written in month-day-year order (e.g. "Jun 17, 2018"). And **[stringr](https://stringr.tidyverse.org/)** can pull the first run of digits out of a messy string like "185cm" or "76kg" — a quick way to turn text like that into a usable number.
+**lubridate** can parse dates written in month-day-year order (e.g. "Jun 17, 2018"). And **stringr** can pull the first run of digits out of a messy string like "185cm" or "76kg" — a quick way to turn text like that into a usable number.
 
 ### Exercise 3
 
@@ -648,7 +648,7 @@ question_text(NULL,
 
 ###
 
-**[forcats](https://forcats.tidyverse.org/)** is the tidyverse package for factors, and two moves come up constantly: reordering a factor's levels by another variable, so a bar or dot chart displays in a meaningful order rather than alphabetically; and lumping rare levels together into an "Other" category, keeping only the few most common ones.
+**forcats** is the tidyverse package for factors, and two moves come up constantly: reordering a factor's levels by another variable, so a bar or dot chart displays in a meaningful order rather than alphabetically; and lumping rare levels together into an "Other" category, keeping only the few most common ones.
 
 ### Exercise 5
 
@@ -704,7 +704,7 @@ An **ordered factor** tells **ggplot2** to use your chosen order for legends and
 
 This tutorial covered key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with parquet files using **[arrow](https://arrow.apache.org/docs/r/)**, manipulating categorical variables with **[forcats](https://forcats.tidyverse.org/)**, handling date/time data with **[lubridate](https://lubridate.tidyverse.org/)**, managing missing values, and performing joins.
+You learned about working with parquet files using **arrow**, manipulating categorical variables with **forcats**, handling date/time data with **lubridate**, managing missing values, and performing joins.
 
 ### Exercise 1
 
