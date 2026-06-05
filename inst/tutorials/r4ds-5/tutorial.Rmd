@@ -41,7 +41,7 @@ categorize_magnitude <- function(mag) {
   )
 }
 
-earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
+earthquake_df <- jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
   unnest_wider(data) |>
@@ -325,7 +325,7 @@ earthquake_df
 Download the GeoJSON file `earthquakes.geojson` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/earthquakes.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/earthquakes.geojson
 ```
 
 In a bash Terminal, run:
@@ -382,7 +382,7 @@ question_text(NULL,
 
 ```{r earthquakes-2-test}
 #| echo: true
-jsonlite::read_json("data/earthquakes.geojson") |>
+jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
   unnest_wider(data) |>
@@ -436,7 +436,7 @@ categorize_magnitude <- function(mag) {
   )
 }
 
-earthquake_df <- jsonlite::read_json("data/earthquakes.geojson") |>
+earthquake_df <- jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
   pluck("features") |>
   tibble(data = _) |>
   unnest_wider(data) |>

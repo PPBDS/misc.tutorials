@@ -29,9 +29,9 @@ options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
 con_names <- dbConnect(duckdb::duckdb(),
-                       dbdir = "data/nameby_year.duckdb")
+                       dbdir = "../../extdata/r4ds-3/nameby_year.duckdb")
 con_air <- dbConnect(duckdb::duckdb(),
-                     dbdir = "data/nycflights13.duckdb")
+                     dbdir = "../../extdata/r4ds-3/nycflights13.duckdb")
 
 dbplyr_names <- tbl(con_names, "babynames")
 dbplyr_fly <- tbl(con_air, "flights")
@@ -202,7 +202,7 @@ dbplyr_names
 Download the DuckDB database `nameby_year.duckdb` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/nameby_year.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/nameby_year.duckdb
 ```
 
 In a bash Terminal, run:
@@ -388,7 +388,7 @@ dbplyr_fly
 Download the DuckDB database `nycflights13.duckdb` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/nycflights13.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/nycflights13.duckdb
 ```
 
 In a bash Terminal, run:

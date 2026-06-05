@@ -27,10 +27,10 @@ knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 60,
         tutorial.storage = "local")
 
-nba_clean <- open_dataset("data/game.parquet") |>
+nba_clean <- open_dataset("../../extdata/r4ds-4/game.parquet") |>
   collect() |>
   left_join(
-    open_dataset("data/line_score.parquet") |> collect(),
+    open_dataset("../../extdata/r4ds-4/line_score.parquet") |> collect(),
     by = "game_id",
     relationship = "many-to-many"
   ) |>
@@ -70,7 +70,7 @@ nba_clean <- open_dataset("data/game.parquet") |>
   ) |>
   arrange(game_year)
 
-final_fifa <- "data/fifa.parquet" |>
+final_fifa <- "../../extdata/r4ds-4/fifa.parquet" |>
   open_dataset() |>
   collect() |>
   mutate(
@@ -258,7 +258,7 @@ The [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) is a 
 Key packages you'll use: **arrow** for reading parquet files, **lubridate** for datetime parsing, **dplyr** for joins and transformations, and **forcats** for ordered factor levels.
 
 ```{r nba-data}
-open_dataset("data/game.parquet")
+open_dataset("../../extdata/r4ds-4/game.parquet")
 ```
 
 ### Exercise 1
@@ -266,8 +266,8 @@ open_dataset("data/game.parquet")
 Download these two parquet files and save them in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/game.parquet
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/line_score.parquet
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/game.parquet
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/line_score.parquet
 ```
 
 In a bash Terminal, run:
@@ -315,7 +315,7 @@ question_text(NULL,
 ###
 
 ```{r nba-2-test}
-open_dataset("data/game.parquet") |>
+open_dataset("../../extdata/r4ds-4/game.parquet") |>
   collect()
 ```
 
@@ -348,10 +348,10 @@ question_text(NULL,
 
 ```{r nba-3-test}
 #| echo: true
-open_dataset("data/game.parquet") |>
+open_dataset("../../extdata/r4ds-4/game.parquet") |>
   collect() |>
   left_join(
-    open_dataset("data/line_score.parquet") |> collect(),
+    open_dataset("../../extdata/r4ds-4/line_score.parquet") |> collect(),
     by = "game_id",
     relationship = "many-to-many"
   ) |>
@@ -484,7 +484,7 @@ The [FIFA 21 dataset](https://www.kaggle.com/datasets/yagunnersya/fifa-21-messy-
 Key packages you'll use: **stringr** for text cleaning, **lubridate** for date parsing, **dplyr** for conditional transformations, and **forcats** for factor manipulation.
 
 ```{r fifa-data}
-"data/fifa.parquet" |>
+"../../extdata/r4ds-4/fifa.parquet" |>
   open_dataset() |>
   collect() |>
   glimpse()
@@ -495,7 +495,7 @@ Key packages you'll use: **stringr** for text cleaning, **lubridate** for date p
 Download the parquet file `fifa.parquet` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/fifa.parquet
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/fifa.parquet
 ```
 
 In a bash Terminal, run:
@@ -543,7 +543,7 @@ question_text(NULL,
 ###
 
 ```{r fifa-2-test}
-"data/fifa.parquet" |>
+"../../extdata/r4ds-4/fifa.parquet" |>
   open_dataset() |>
   collect() |>
   glimpse()
@@ -578,7 +578,7 @@ question_text(NULL,
 
 ```{r fifa-3-test}
 #| echo: true
-"data/fifa.parquet" |>
+"../../extdata/r4ds-4/fifa.parquet" |>
   open_dataset() |>
   collect() |>
   mutate(

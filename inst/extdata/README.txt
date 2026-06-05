@@ -1,7 +1,10 @@
 This directory holds stable source copies of data files used by tutorials. Each
-tutorial has its own subdirectory (e.g. r4ds-1/). Tutorial exercises download
-files from these paths via GitHub raw URLs; test chunks load them with
-system.file("extdata/<tutorial>/file", package = "vscode.tutorials").
+tutorial has its own subdirectory (e.g. r4ds-1/). Student exercises download
+these files via GitHub raw URLs into the student's own data/ directory; the
+tutorials' own test chunks read them with a relative path from the tutorial
+folder, e.g. read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx"). The
+file-per-tutorial manifest lives in R/zzz.R, which re-downloads any missing
+files on package load (needed for the CRAN build, which ships without them).
 
 r4ds-2/us_births_1994_2014.xlsx
   US daily birth counts, 1994–2014. One row per calendar day; five columns:
@@ -66,33 +69,34 @@ r4ds-1/music.csv
   and metadata derived from the Echo Nest API: artist name, song title, tempo,
   duration, loudness, key, time signature, year, and "hotttnesss" scores.
 
-Making babynames into a duckdb:
+r4ds-3/nameby_year.duckdb
+  The babynames::babynames data (American baby names, 1880–2017) stored as a
+  DuckDB database with a "babynames" table.
 
-> usethis::use_directory("inst/extdata")
-✔ Setting active project to
-  "/Users/spgn/Desktop/vscode.tutorials".
-> con <- DBI::dbConnect(
-+   duckdb::duckdb(),
-+   dbdir = "inst/extdata/babynames.duckdb"
-+ )
-> DBI::dbWriteTable(con, "babynames", babynames::babynames, overwrite = TRUE)
-+ DBI::dbDisconnect(con, shutdown = TRUE)
-                     
-> list.files("inst/extdata")
-[1] "babynames.duckdb" "README.txt"      
+r4ds-3/nycflights13.duckdb
+  The nycflights13 data stored as a DuckDB database. It holds the airlines,
+  airports, flights, planes, and weather tables; the tutorial uses "flights".
 
+r4ds-4/game.parquet, r4ds-4/line_score.parquet
+  Game and line-score data from the NBA Database on Kaggle
+  (https://www.kaggle.com/datasets/wyattowalsh/basketball), converted from CSV
+  to Parquet (64,000+ games, all 30 teams).
 
-Making flights into a duckdb:
+r4ds-4/fifa.parquet
+  The FIFA 21 messy/raw dataset on Kaggle (https://www.kaggle.com/datasets/
+  yagunnersya/fifa-21-messy-raw-dataset-for-cleaning-exploring), scraped from
+  Sofifa.com (thousands of players: ratings, positions, value, club), converted
+  to Parquet.
 
-> usethis::use_directory("inst/extdata")
-✔ Setting active project to
-  "/Users/spgn/Desktop/vscode.tutorials".
- con <- DBI::dbConnect(
-  duckdb::duckdb(),
-  dbdir = "inst/extdata/flights.duckdb"
- )
-> DBI::dbWriteTable(con, "flights", nycflights13::flights, overwrite = TRUE)
-+ DBI::dbDisconnect(con, shutdown = TRUE)
-                     
-> list.files("inst/extdata")
-[1] "babynames.duckdb" "flights.duckdb"   "README.txt"      
+r4ds-5/earthquakes.geojson
+  A snapshot of the USGS real-time earthquake feed
+  (https://earthquake.usgs.gov/earthquakes/feed/) — GeoJSON with magnitude,
+  location, depth, and timestamp per quake.
+
+census/income_tx.rds, census/edu_ca.rds, census/age_ca.rds
+  American Community Survey (ACS) 5-year estimates pulled once with
+  tidycensus::get_acs() and cached so the tutorial renders without hitting the
+  Census API. The exact get_acs() calls are recorded (commented) in the census
+  tutorial's setup chunk: median household income by TX county (income_tx),
+  educational attainment by CA county (edu_ca), and median age + population by
+  CA county (age_ca).

@@ -1,15 +1,17 @@
 # The data files used by these tutorials (r4ds-1 through r4ds-5, census) are
-# too large to include in the CRAN package. However, when a tutorial is run via
-# learnr::run_tutorial(), the working directory is set to the directory
-# containing the tutorial.Rmd file. Code like open_dataset("data/game.parquet")
-# works because it resolves relative to that directory. So the data files must
-# exist in each tutorial's data/ subdirectory within the installed package.
+# too large to include in the CRAN package. They live in inst/extdata/<tutorial>/
+# (the stable source copies). When a tutorial is run via learnr::run_tutorial(),
+# the working directory is the directory containing tutorial.Rmd, and the test
+# chunks read the data with a relative path like
+# open_dataset("../../extdata/r4ds-4/game.parquet"). So the data files must exist
+# in each tutorial's inst/extdata/<tutorial>/ subdirectory within the installed
+# package.
 #
-# When installing from GitHub, the data files are included in inst/tutorials/
-# and get installed normally. But the CRAN version ships without them. The
-# .onAttach() hook below checks for missing data files on package load and
-# downloads them from GitHub directly into the installed package directory. This
-# is safe because if a user has permission to install the package, they have
+# When installing from GitHub, inst/extdata/ is included and gets installed
+# normally. But the CRAN version ships without these large files. The .onAttach()
+# hook below checks for missing data files on package load and downloads them
+# from GitHub directly into the installed package's extdata directory. This is
+# safe because if a user has permission to install the package, they have
 # permission to write into its directory. The manifest below must be updated
 # whenever data files are added or removed from any tutorial.
 
@@ -17,8 +19,8 @@
 NULL
 
 data_manifest <- list(
-  "r4ds-1" = c("music_1.csv", "music_fake.csv", "music.csv"),
-  "r4ds-2" = c("cheeses.xlsx", "wine.xlsx"),
+  "r4ds-1" = c("music.csv"),
+  "r4ds-2" = c("us_births_1994_2014.xlsx", "nba_recruits.xlsx"),
   "r4ds-3" = c("nameby_year.duckdb", "nycflights13.duckdb"),
   "r4ds-4" = c("fifa.parquet", "game.parquet", "line_score.parquet"),
   "r4ds-5" = c("earthquakes.geojson"),
@@ -27,17 +29,16 @@ data_manifest <- list(
 
 .onAttach <- function(libname, pkgname) {
 
-  base_url <- "https://raw.githubusercontent.com/PPBDS/misc.tutorials/main/inst/tutorials"
+  base_url <- "https://raw.githubusercontent.com/PPBDS/misc.tutorials/main/inst/extdata"
   files_downloaded <- character(0)
+
+  # Installed package root; extdata/ lives directly under it.
+  pkg_dir <- system.file(package = pkgname)
+  if (!nzchar(pkg_dir)) return(invisible())
 
   for (tut in names(data_manifest)) {
 
-    local_tut_dir <- system.file("tutorials", tut, package = pkgname)
-
-    # Skip tutorials not in the installed version
-    if (!nzchar(local_tut_dir)) next
-
-    local_data_dir <- file.path(local_tut_dir, "data")
+    local_data_dir <- file.path(pkg_dir, "extdata", tut)
 
     # Check which files are missing
     if (dir.exists(local_data_dir)) {
@@ -49,7 +50,7 @@ data_manifest <- list(
 
     if (length(missing) == 0) next
 
-    # Create data directory if needed
+    # Create extdata directory if needed
     if (!dir.exists(local_data_dir)) {
       dir.create(local_data_dir, recursive = TRUE)
     }
@@ -59,7 +60,7 @@ data_manifest <- list(
       dest <- file.path(local_data_dir, f)
       result <- tryCatch({
         download.file(
-          paste0(base_url, "/", tut, "/data/", f),
+          paste0(base_url, "/", tut, "/", f),
           dest,
           mode = "wb",
           quiet = TRUE
@@ -68,7 +69,7 @@ data_manifest <- list(
       }, error = function(e) FALSE)
 
       if (result) {
-        files_downloaded <- c(files_downloaded, file.path(tut, "data", f))
+        files_downloaded <- c(files_downloaded, file.path("extdata", tut, f))
       }
     }
   }

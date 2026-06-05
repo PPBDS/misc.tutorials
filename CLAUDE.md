@@ -22,7 +22,7 @@ A collection of tutorials covering material from two companion texts:
 - **[R for Data Science (2e)](https://r4ds.hadley.nz/)** — the `r4ds-1` … `r4ds-5` tutorials.
 - **[Analyzing US Census Data](https://walker-data.com/census-r/)** by Kyle Walker — the `census` tutorial.
 
-**The organizing theme is storage technology.** Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the **[tidyverse](https://www.tidyverse.org/)**. The storage technology is the spine of each tutorial; the subject-area domain (music, cheese/wine, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.
+**The organizing theme is storage technology.** Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the **[tidyverse](https://www.tidyverse.org/)**. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.
 
 The division of the R for Data Science material into five tutorials (`r4ds-1` … `r4ds-5`) is reasonable but **arbitrary** — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see `TODO.txt` on `r4ds-4`) or merge two short ones.
 
@@ -31,7 +31,7 @@ The division of the R for Data Science material into five tutorials (`r4ds-1` �
 | Tutorial | Storage technology | Key packages | Data |
 |----------|--------------------|--------------|------|
 | `r4ds-1` | Delimited files (CSV) | readr, maps | `music.csv` |
-| `r4ds-2` | Spreadsheets | readxl | `cheeses.xlsx`, `wine.xlsx` |
+| `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
 | `r4ds-3` | Databases | DBI, dbplyr, duckdb, nycflights13, babynames | `*.duckdb` |
 | `r4ds-4` | Arrow / Parquet | arrow, plotly, scales, viridis | `*.parquet` |
 | `r4ds-5` | Spatial / web | sf-style GeoJSON, leaflet, ggrepel, httr2, rvest | `earthquakes.geojson` |
@@ -54,24 +54,26 @@ Each tutorial should teach:
 
 ## Data handling — package specifics
 
-The base guide prefers stable source copies under `inst/extdata/<tutorial>/` and says to avoid `inst/tutorials/<name>/data/` for new tutorials unless there is a learnr runtime reason. The current state of this package, migrated from `vscode.tutorials`, is mixed and **should converge toward the base-guide convention**:
+The base guide prefers stable source copies under `inst/extdata/<tutorial>/` and says to avoid `inst/tutorials/<name>/data/` unless there is a learnr runtime reason. **All tutorials now follow this convention** — the migration away from per-tutorial `data/` directories (a holdover from `vscode.tutorials`) is complete:
 
-- **`r4ds-1` follows the guide**: its test chunk reads `../../extdata/r4ds-1/music.csv` (from `inst/extdata/r4ds-1/`), and the student-facing download URL points at the same file on GitHub.
-- **`r4ds-2` … `r4ds-5` and `census` do not (yet)**: their test chunks read from a local `data/` directory via relative paths (`read_excel("data/wine.xlsx")`, `open_dataset("data/game.parquet")`, `read_rds("data/age_ca.rds")`). These resolve because a tutorial knits with its own folder as the working directory.
+- Each tutorial's data lives in `inst/extdata/<tutorial>/` (e.g. `inst/extdata/r4ds-4/game.parquet`).
+- Setup and test chunks read it with a relative path from the tutorial's own folder: `../../extdata/<tutorial>/<file>` (e.g. `open_dataset("../../extdata/r4ds-4/game.parquet")`, `read_rds("../../extdata/census/income_tx.rds")`). This resolves because a tutorial knits with its folder as the working directory.
+- Student-facing download URLs point at the same files on GitHub (`.../raw/refs/heads/main/inst/extdata/<tutorial>/<file>`). Students still download into their **own** `data/` directory and read `data/<file>` from their `analysis.qmd`; only the package's own knit reads from `extdata`. (So a build/answer chunk shows `../../extdata/...` while the student's prompt says `data/...` — an accepted cosmetic mismatch inherited from the `r4ds-2` rework.)
+- `R/zzz.R` carries a `data_manifest` of the files per tutorial and an `.onAttach()` hook that re-downloads any missing ones into the installed `extdata/<tutorial>/` (for the CRAN build, which ships without them). **Update the manifest whenever a tutorial's data files change.**
 
-New work should add data under `inst/extdata/<tutorial>/` and reference it as `../../extdata/<tutorial>/<file>`, matching `r4ds-1`. Treat the local-`data/` tutorials as legacy to migrate, not a pattern to copy.
+New work should add data under `inst/extdata/<tutorial>/`, reference it as `../../extdata/<tutorial>/<file>`, and add the filenames to the `R/zzz.R` manifest.
 
 ## CRAN / build size
 
 The tutorial data files are large (duckdb, parquet, and geojson run into multiple MB each; the package is ~48 MB on disk). The `.Rbuildignore` keeps a **commented-out** rule —
 
 ```
-# ^inst/tutorials/.*/data(/.*)?$
+# ^inst/extdata/[^/]+/
 ```
 
-— that is uncommented only when building a tarball for CRAN, to strip the `data/` directories. `R CMD check` will still report the package as large because it measures the unpacked source, not the compressed `.tar.gz` that CRAN actually evaluates; the size NOTE from that is expected. (See `TODO.txt` for the open question about why `.Rbuildignore` doesn't seem to shrink the checked size.)
+— that is uncommented only when building a tarball for CRAN, to strip the per-tutorial `inst/extdata/<tutorial>/` data directories (it keeps `inst/extdata/README.txt`). On a stripped CRAN install, `R/zzz.R`'s `.onAttach()` re-downloads the missing files from GitHub on first load. `R CMD check` will still report the package as large because it measures the unpacked source, not the compressed `.tar.gz` that CRAN actually evaluates; the size NOTE from that is expected. (See `TODO.txt` for the open question about why `.Rbuildignore` doesn't seem to shrink the checked size.)
 
-The test chunks that depend on these data directories `skip_on_cran()` for the same reason (see `tests/testthat/test-tutorials.R`).
+The test chunks that depend on these data files `skip_on_cran()` for the same reason (see `tests/testthat/test-tutorials.R`).
 
 ## DESCRIPTION
 
