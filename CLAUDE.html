@@ -53,7 +53,7 @@
 <strong><a href="https://r4ds.hadley.nz/" class="external-link">R for Data Science (2e)</a></strong> — the <code>r4ds-1</code> … <code>r4ds-5</code> tutorials.</li>
 <li>
 <strong><a href="https://walker-data.com/census-r/" class="external-link">Analyzing US Census Data</a></strong> by Kyle Walker — the <code>census</code> tutorial.</li>
-</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, cheese/wine, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.</p>
+</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.</p>
 <p>The division of the R for Data Science material into five tutorials (<code>r4ds-1</code> … <code>r4ds-5</code>) is reasonable but <strong>arbitrary</strong> — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see <code>TODO.txt</code> on <code>r4ds-4</code>) or merge two short ones.</p>
 </div>
 <div class="section level2">
@@ -70,7 +70,7 @@
 <td>Spreadsheets</td>
 <td>readxl</td>
 <td>
-<code>cheeses.xlsx</code>, <code>wine.xlsx</code>
+<code>us_births_1994_2014.xlsx</code>, <code>nba_recruits.xlsx</code>
 </td>
 </tr><tr><td><code>r4ds-3</code></td>
 <td>Databases</td>
@@ -102,19 +102,21 @@
 </div>
 <div class="section level2">
 <h2 id="data-handling--package-specifics">Data handling — package specifics<a class="anchor" aria-label="anchor" href="#data-handling--package-specifics"></a></h2>
-<p>The base guide prefers stable source copies under <code>inst/extdata/&lt;tutorial&gt;/</code> and says to avoid <code>inst/tutorials/&lt;name&gt;/data/</code> for new tutorials unless there is a learnr runtime reason. The current state of this package, migrated from <code>vscode.tutorials</code>, is mixed and <strong>should converge toward the base-guide convention</strong>:</p>
-<ul><li>
-<strong><code>r4ds-1</code> follows the guide</strong>: its test chunk reads <code>../../extdata/r4ds-1/music.csv</code> (from <code>inst/extdata/r4ds-1/</code>), and the student-facing download URL points at the same file on GitHub.</li>
+<p>The base guide prefers stable source copies under <code>inst/extdata/&lt;tutorial&gt;/</code> and says to avoid <code>inst/tutorials/&lt;name&gt;/data/</code> unless there is a learnr runtime reason. <strong>All tutorials now follow this convention</strong> — the migration away from per-tutorial <code>data/</code> directories (a holdover from <code>vscode.tutorials</code>) is complete:</p>
+<ul><li>Each tutorial’s data lives in <code>inst/extdata/&lt;tutorial&gt;/</code> (e.g. <code>inst/extdata/r4ds-4/game.parquet</code>).</li>
+<li>Setup and test chunks read it with a relative path from the tutorial’s own folder: <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code> (e.g. <code>open_dataset("../../extdata/r4ds-4/game.parquet")</code>, <code>read_rds("../../extdata/census/income_tx.rds")</code>). This resolves because a tutorial knits with its folder as the working directory.</li>
+<li>Student-facing download URLs point at the same files on GitHub (<code>.../raw/refs/heads/main/inst/extdata/&lt;tutorial&gt;/&lt;file&gt;</code>). Students still download into their <strong>own</strong> <code>data/</code> directory and read <code>data/&lt;file&gt;</code> from their <code>analysis.qmd</code>; only the package’s own knit reads from <code>extdata</code>. (So a build/answer chunk shows <code>../../extdata/...</code> while the student’s prompt says <code>data/...</code> — an accepted cosmetic mismatch inherited from the <code>r4ds-2</code> rework.)</li>
 <li>
-<strong><code>r4ds-2</code> … <code>r4ds-5</code> and <code>census</code> do not (yet)</strong>: their test chunks read from a local <code>data/</code> directory via relative paths (<code>read_excel("data/wine.xlsx")</code>, <code>open_dataset("data/game.parquet")</code>, <code>read_rds("data/age_ca.rds")</code>). These resolve because a tutorial knits with its own folder as the working directory.</li>
-</ul><p>New work should add data under <code>inst/extdata/&lt;tutorial&gt;/</code> and reference it as <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code>, matching <code>r4ds-1</code>. Treat the local-<code>data/</code> tutorials as legacy to migrate, not a pattern to copy.</p>
+<code>R/zzz.R</code> carries a <code>data_manifest</code> of the files per tutorial and an <code>.onAttach()</code> hook that re-downloads any missing ones into the installed <code>extdata/&lt;tutorial&gt;/</code> (for the CRAN build, which ships without them). <strong>Update the manifest whenever a tutorial’s data files change.</strong>
+</li>
+</ul><p>New work should add data under <code>inst/extdata/&lt;tutorial&gt;/</code>, reference it as <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code>, and add the filenames to the <code>R/zzz.R</code> manifest.</p>
 </div>
 <div class="section level2">
 <h2 id="cran--build-size">CRAN / build size<a class="anchor" aria-label="anchor" href="#cran--build-size"></a></h2>
 <p>The tutorial data files are large (duckdb, parquet, and geojson run into multiple MB each; the package is ~48 MB on disk). The <code>.Rbuildignore</code> keeps a <strong>commented-out</strong> rule —</p>
-<pre><code><span><span class="co"># ^inst/tutorials/.*/data(/.*)?$</span></span></code></pre>
-<p>— that is uncommented only when building a tarball for CRAN, to strip the <code>data/</code> directories. <code>R CMD check</code> will still report the package as large because it measures the unpacked source, not the compressed <code>.tar.gz</code> that CRAN actually evaluates; the size NOTE from that is expected. (See <code>TODO.txt</code> for the open question about why <code>.Rbuildignore</code> doesn’t seem to shrink the checked size.)</p>
-<p>The test chunks that depend on these data directories <code>skip_on_cran()</code> for the same reason (see <code>tests/testthat/test-tutorials.R</code>).</p>
+<pre><code><span><span class="co"># ^inst/extdata/[^/]+/</span></span></code></pre>
+<p>— that is uncommented only when building a tarball for CRAN, to strip the per-tutorial <code>inst/extdata/&lt;tutorial&gt;/</code> data directories (it keeps <code>inst/extdata/README.txt</code>). On a stripped CRAN install, <code>R/zzz.R</code>’s <code>.onAttach()</code> re-downloads the missing files from GitHub on first load. <code>R CMD check</code> will still report the package as large because it measures the unpacked source, not the compressed <code>.tar.gz</code> that CRAN actually evaluates; the size NOTE from that is expected. (See <code>TODO.txt</code> for the open question about why <code>.Rbuildignore</code> doesn’t seem to shrink the checked size.)</p>
+<p>The test chunks that depend on these data files <code>skip_on_cran()</code> for the same reason (see <code>tests/testthat/test-tutorials.R</code>).</p>
 </div>
 <div class="section level2">
 <h2 id="description">DESCRIPTION<a class="anchor" aria-label="anchor" href="#description"></a></h2>
