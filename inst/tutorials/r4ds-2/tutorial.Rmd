@@ -157,6 +157,16 @@ question_text(NULL,
 
 ###
 
+<!-- VK: The expected answer shows backtick fences (```{r} and ```) but my output after running show_file() doesn't output those.
+
+> show_file("analysis.qmd", chunk = "Last")
+#| message: false
+library(tidyverse)
+library(readxl)
+> 
+
+-->
+
 <pre><code>```{r}
 #| message: false
 library(tidyverse)
@@ -240,7 +250,9 @@ question_text(NULL,
 ###
 
 ```
+@ppbds-student ➜ /workspaces/r4ds-2 (main) $ ls data
 us_births_1994_2014.xlsx
+@ppbds-student ➜ /workspaces/r4ds-2 (main) $
 ```
 
 ###
@@ -797,7 +809,9 @@ question_text(NULL,
 ###
 
 ```
+@ppbds-student ➜ /workspaces/r4ds-2 (main) $ ls data
 nba_recruits.xlsx  us_births_1994_2014.xlsx
+@ppbds-student ➜ /workspaces/r4ds-2 (main) $ 
 ```
 
 ###
