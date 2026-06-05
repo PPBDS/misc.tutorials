@@ -65,7 +65,7 @@ You should be connected to a repo named `census`. If you are not, create one and
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render.
+Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -700,7 +700,7 @@ This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data]
 
 ### Exercise 1
 
-Run a final `quarto render analysis.qmd` and confirm all three figures appear in your Live Server tab. In the R Terminal, run:
+Render and confirm all three figures appear. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd")

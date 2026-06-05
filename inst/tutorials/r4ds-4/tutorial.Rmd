@@ -131,7 +131,7 @@ Create a new file, `analysis.qmd`, with the title `"NBA and FIFA"` and your name
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -185,7 +185,7 @@ execute:
   echo: false
 ```
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Render.
 
 In the R Terminal, run:
 
@@ -293,7 +293,7 @@ Opening a parquet file gives you an **[Arrow](https://arrow.apache.org/docs/r/)*
 
 ### Exercise 2
 
-Read the full `data/game.parquet` dataset into R. Don't assign the result to a variable. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Read the full `data/game.parquet` dataset into R. Don't assign the result to a variable. Render.
 
 CP/CR.
 
@@ -319,7 +319,7 @@ A **left join** adds columns from a second table while keeping every row of the 
 
 ### Exercise 3
 
-Build a cleaned, summarized NBA dataset called `nba_clean`. You want one row per season, carrying the year, the era it falls in (Pre-Three Point through 1979, Modern Era through 1999, Analytics Era through 2019, Current Era after that), the average total points scored per game, the number of games, and the home-win percentage. Combine the game data with the line scores, keep seasons from 1946 on, and pull the result into R. In a bash Terminal, run `quarto render analysis.qmd`.
+Build a cleaned, summarized NBA dataset called `nba_clean`. You want one row per season, carrying the year, the era it falls in (Pre-Three Point through 1979, Modern Era through 1999, Analytics Era through 2019, Current Era after that), the average total points scored per game, the number of games, and the home-win percentage. Combine the game data with the line scores, keep seasons from 1946 on, and pull the result into R. Render.
 
 In the R Terminal, run:
 
@@ -396,7 +396,7 @@ If your result differs from ours, replace your code with the code above before m
 
 Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `nba_clean`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
 
-In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time — by including `#| cache: true`, Quarto saves the result to disk so the next render loads from cache instead of re-running. Check your Live Server tab.
+Render. This first render will take some time — by including `#| cache: true`, Quarto saves the result to disk so the next render loads from cache instead of re-running. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -421,7 +421,7 @@ Applying one transformation **across** many columns at once — selected by name
 
 ### Exercise 5
 
-Make a line plot from `nba_clean` showing average points per game over time, colored by `game_era`, with points sized by `games_count`. Give it a proper title, subtitle, and caption. Don't assign the plot. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Make a line plot from `nba_clean` showing average points per game over time, colored by `game_era`, with points sized by `games_count`. Give it a proper title, subtitle, and caption. Don't assign the plot. Render.
 
 In the R Terminal, run:
 
@@ -521,7 +521,7 @@ The FIFA dataset is "messy" — heights and weights include units as text, finan
 
 ### Exercise 2
 
-Read `data/fifa.parquet` into R and show its structure — the column types with a few example values. Don't assign the result. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Read `data/fifa.parquet` into R and show its structure — the column types with a few example values. Don't assign the result. Render.
 
 CP/CR.
 
@@ -549,7 +549,7 @@ question_text(NULL,
 
 ### Exercise 3
 
-Build a cleaned FIFA player dataset called `final_fifa`. You want numeric height and weight pulled out of the text columns; the character columns tidied up (newlines and stray spaces removed); the join date parsed and turned into the number of years at the club, plus a TRUE/FALSE flag for more than ten years; and the player's value, wage, and release clause converted from strings like "€110.5M" or "€565K" into plain euro numbers. Drop players with no join date. In a bash Terminal, run `quarto render analysis.qmd`.
+Build a cleaned FIFA player dataset called `final_fifa`. You want numeric height and weight pulled out of the text columns; the character columns tidied up (newlines and stray spaces removed); the join date parsed and turned into the number of years at the club, plus a TRUE/FALSE flag for more than ten years; and the player's value, wage, and release clause converted from strings like "€110.5M" or "€565K" into plain euro numbers. Drop players with no join date. Render.
 
 In the R Terminal, run:
 
@@ -621,7 +621,7 @@ Applying one transformation **across** many columns at once — say, all the cha
 
 Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `final_fifa`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
 
-In a bash Terminal, run `quarto render analysis.qmd`. This first render will take some time. Check your Live Server tab.
+Render. This first render will take some time. Check your Live Server tab.
 
 In the R Terminal, run:
 
@@ -646,7 +646,7 @@ question_text(NULL,
 
 ### Exercise 5
 
-From `final_fifa`, make a scatter plot of `Age` vs `X.OVA` (overall rating), with point size and color showing `value_numeric`. Filter to players with `value_numeric > 0` and `X.OVA > 60`. Use a viridis color scale and proper labels. Don't assign the plot. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+From `final_fifa`, make a scatter plot of `Age` vs `X.OVA` (overall rating), with point size and color showing `value_numeric`. Filter to players with `value_numeric > 0` and `X.OVA > 60`. Use a viridis color scale and proper labels. Don't assign the plot. Render.
 
 In the R Terminal, run:
 
@@ -702,7 +702,7 @@ You learned about working with parquet files using **arrow**, manipulating categ
 
 ### Exercise 1
 
-In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+Render. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
 In the R Terminal, run:
 
