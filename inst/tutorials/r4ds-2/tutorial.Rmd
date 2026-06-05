@@ -364,13 +364,15 @@ question_text(NULL,
 
 ###
 
-The `glimpse()` in Exercise 4 showed 7,670 rows across 21 years — 365 × 21 plus 5 leap days (1996, 2000, 2004, 2008, 2012) — which confirms no calendar days are missing from the data. `#| cache: true` is worth adding here because `read_excel()` parses a binary format on every render, which is slower than reading a plain-text CSV; the `analysis_cache` directory is already in your `.gitignore`.
+The `glimpse()` in Exercise 4 showed 7,670 rows across 21 years — 365 × 21 plus 5 leap days (1996, 2000, 2004, 2008, 2012) — which confirms no calendar days are missing from the data. `#| cache: true` is worth adding here because `read_excel()` parses a binary format on every render, which is slower than reading a plain-text CSV.
+
+<!-- AR: Add an exercise to add analysis_cache to the `.gitignore` -->
 
 ### Exercise 6
 
 Compute the average number of births for each combination of `month` and `date_of_month`, grouped across all years. In a bash terminal, run `quarto render analysis.qmd`.
 
-Copy and paste the first ten rows of the table from the HTML.
+Copy and paste from the HTML.
 
 ```{r births-6}
 question_text(NULL,
@@ -441,6 +443,8 @@ births_tibble |>
 The overall color gradient from January/February (lightest) to late summer (darkest) encodes the seasonal birth wave — roughly 9% more births per day in September than in February. That gradient is the dominant signal in the heatmap; the holiday notches are sharp interruptions within it.
 
 ### Exercise 8
+
+<!-- AR: Remove all write-in questions. -->
 
 Look at your rendered heatmap. Write one sentence identifying the days with the fewest births. Write one more sentence identifying the days with the most births.
 
