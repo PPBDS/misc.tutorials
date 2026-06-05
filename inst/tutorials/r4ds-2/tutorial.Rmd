@@ -1337,7 +1337,7 @@ quarto publish gh-pages analysis.qmd
 
 If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
-Copy/paste the resulting URL below.
+Type Y and press Enter when prompted. Copy/paste the resulting URL below.
 
 ```{r summary-2}
 question_text(NULL,
