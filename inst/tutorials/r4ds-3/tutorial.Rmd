@@ -32,13 +32,8 @@ options(tutorial.exercise.timelimit = 600,
 
 con_seda <- dbConnect(duckdb::duckdb(),
                       dbdir = "../../extdata/r4ds-3/seda_2025.duckdb")
-con_atus <- dbConnect(duckdb::duckdb(),
-                      dbdir = "../../extdata/r4ds-3/atus.duckdb")
 
-dbplyr_dist  <- tbl(con_seda, "district_scores")
-dbplyr_act   <- tbl(con_atus, "activities")
-dbplyr_resp  <- tbl(con_atus, "respondents")
-dbplyr_codes <- tbl(con_atus, "activity_codes")
+dbplyr_dist <- tbl(con_seda, "district_scores")
 
 dist_2023 <- dbplyr_dist |>
   filter(year == 2023, !is.na(rla_score)) |>
@@ -68,41 +63,52 @@ state_change <- tbl(con_seda, "state_scores") |>
   filter(!is.na(rla_2015), !is.na(rla_2023)) |>
   mutate(rla_change = rla_2023 - rla_2015)
 
-keep_cats <- c(
-  "Personal Care Activities",
-  "Household Activities",
-  "Caring for and Helping Household Members",
-  "Socializing, Relaxing, and Leisure"
-)
+atus_path <- "../../extdata/r4ds-3/atus.duckdb"
+if (file.exists(atus_path)) {
+  con_atus     <- dbConnect(duckdb::duckdb(), dbdir = atus_path)
+  dbplyr_act   <- tbl(con_atus, "activities")
+  dbplyr_resp  <- tbl(con_atus, "respondents")
+  dbplyr_codes <- tbl(con_atus, "activity_codes")
 
-x <- dbplyr_act |>
-  left_join(dbplyr_codes |> select(activity_code, major_name),
-            by = "activity_code") |>
-  inner_join(dbplyr_resp |>
-               filter(str_starts(employment_status, "Not"),
-                      day_type == "Weekday") |>
-               select(tucaseid, sex),
-             by = "tucaseid") |>
-  group_by(tucaseid, sex, major_name) |>
-  summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
-  group_by(sex, major_name) |>
-  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
+  keep_cats <- c(
+    "Personal Care Activities",
+    "Household Activities",
+    "Caring for and Helping Household Members",
+    "Socializing, Relaxing, and Leisure"
+  )
 
-y <- dbplyr_act |>
-  mutate(hour = start_hhmm %/% 100L) |>
-  filter(hour >= 6L, hour <= 23L) |>
-  left_join(dbplyr_codes |> select(activity_code, major_name),
-            by = "activity_code") |>
-  filter(major_name %in% keep_cats) |>
-  inner_join(dbplyr_resp |>
-               filter(str_starts(employment_status, "Not"),
-                      day_type == "Weekday") |>
-               select(tucaseid, sex),
-             by = "tucaseid") |>
-  group_by(sex, hour, major_name) |>
-  summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
+  x <- dbplyr_act |>
+    left_join(dbplyr_codes |> select(activity_code, major_name),
+              by = "activity_code") |>
+    inner_join(dbplyr_resp |>
+                 filter(str_starts(employment_status, "Not"),
+                        day_type == "Weekday") |>
+                 select(tucaseid, sex),
+               by = "tucaseid") |>
+    group_by(tucaseid, sex, major_name) |>
+    summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
+    group_by(sex, major_name) |>
+    summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
+    collect()
+
+  y <- dbplyr_act |>
+    mutate(hour = start_hhmm %/% 100L) |>
+    filter(hour >= 6L, hour <= 23L) |>
+    left_join(dbplyr_codes |> select(activity_code, major_name),
+              by = "activity_code") |>
+    filter(major_name %in% keep_cats) |>
+    inner_join(dbplyr_resp |>
+                 filter(str_starts(employment_status, "Not"),
+                        day_type == "Weekday") |>
+                 select(tucaseid, sex),
+               by = "tucaseid") |>
+    group_by(sex, hour, major_name) |>
+    summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
+    collect()
+} else {
+  con_atus <- dbplyr_act <- dbplyr_resp <- dbplyr_codes <- NULL
+  x <- y <- NULL
+}
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -1001,7 +1007,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-2-test}
+```{r time-use-2-test, eval = !is.null(con_atus)}
 dbplyr_act
 ```
 
@@ -1039,7 +1045,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-3-test}
+```{r time-use-3-test, eval = !is.null(con_atus)}
 dbplyr_resp
 ```
 
@@ -1072,7 +1078,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-4-test}
+```{r time-use-4-test, eval = !is.null(con_atus)}
 dbplyr_codes |> collect()
 ```
 
@@ -1105,7 +1111,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-5-test}
+```{r time-use-5-test, eval = !is.null(con_atus)}
 #| echo: true
 list(
   activities     = dbplyr_act  |> summarize(n = n()) |> collect(),
@@ -1142,7 +1148,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-6-test}
+```{r time-use-6-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   mutate(major_code = activity_code %/% 10000L) |>
@@ -1182,7 +1188,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-7-test}
+```{r time-use-7-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1221,7 +1227,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-8-test}
+```{r time-use-8-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_resp |>
   count(sex, employment_status, sort = FALSE) |>
@@ -1256,7 +1262,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-9-test}
+```{r time-use-9-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_resp |>
   count(year) |>
@@ -1311,7 +1317,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-10-test}
+```{r time-use-10-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1368,7 +1374,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-11-test}
+```{r time-use-11-test, eval = !is.null(con_atus)}
 #| echo: true
 x |>
   filter(!is.na(major_name)) |>
@@ -1459,7 +1465,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-13-test}
+```{r time-use-13-test, eval = !is.null(con_atus)}
 #| echo: true
 keep_cats <- c(
   "Personal Care Activities",
@@ -1520,7 +1526,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-14-test}
+```{r time-use-14-test, eval = !is.null(con_atus)}
 #| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
@@ -1586,7 +1592,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-15-test}
+```{r time-use-15-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
