@@ -114,6 +114,8 @@ if (file.exists(atus_path)) {
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
 ```
 
+<!-- AR: Check this entire tutorial against the guide. I'm hoping that it will update the introduction. -->
+
 ## Introduction
 ###
 
@@ -127,7 +129,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be connected to a repo named `r4ds-3`. If you are not, create one and connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Analyzing School Districts and Flights"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Analyzing School Districts and Americans' Time Use"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
@@ -210,6 +212,8 @@ Databases are run by database management systems (DBMS's). DuckDB is an in-proce
 
 ### Exercise 3
 
+<!-- AR: Replace with something like: "Create a data directory in the root of your project". Check this against the guidance document. -->
+
 From the R Terminal, run these three commands:
 
 ```
@@ -243,19 +247,10 @@ At the simplest level, a database is a collection of data frames — called tabl
 ## US education
 ###
 
-This section uses a DuckDB database built from the Stanford Education Data Archive
-(SEDA), which converts each state's standardized test results into a common
-grade-equivalent scale so that achievement can be compared across districts and years.
-The database holds three tables: annual scores for all students (`district_scores`),
-the same data broken out by demographic subgroup (`district_demographics`), and
-state-level annual scores (`state_scores`).
+<!-- AR: Add links to article. Simplify to a single graphic, dumbbell chart is where we end. -->
 
-Before querying the data, look at what the New York Times found from this same archive
-in 2026.
-
-```{r, echo = FALSE}
-knitr::include_graphics("images/us-ed-district-score-change-nyt.png")
-```
+<!-- AR: Sentence referring to NYTimes article -->
+The Stanford Education Data Archive (SEDA), which converts each state's standardized test results into a common grade-equivalent scale so that achievement can be compared across districts and years.
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/us-ed-state-reading-change-nyt.png")
@@ -270,10 +265,9 @@ Download the DuckDB database `seda_2025.duckdb` from this URL and save it in you
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/seda_2025.duckdb
 ```
 
-Add `list.files("data")` to a new code chunk in `analysis.qmd`. In a bash Terminal,
-run `quarto render analysis.qmd`. Check your Live Server tab.
+Run `ls data` in the bash Terminal. 
 
-Copy/paste the output from your HTML below.
+CP/CR.
 
 ```{r us-education-1}
 question_text(NULL,
@@ -287,7 +281,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "seda_2025.duckdb"
+seda_2025.duckdb
 ```
 
 ###
@@ -297,9 +291,9 @@ A database holds multiple tables — typically dozens or hundreds in production 
 
 ### Exercise 2
 
-Connect to the database file, then run `dbListTables()` to see the available tables.
-Add the connection code to `analysis.qmd`. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+Make a new code chunk to `analysis.qmd` and add code to connect to the database file and run `dbListTables()` to see the available tables.
+
+Render the file.
 
 Copy/paste the output from your HTML below.
 
@@ -319,6 +313,8 @@ question_text(NULL,
 ```
 
 ###
+
+<!-- AR: Make shorter. -->
 
 The SEDA database has three tables: `district_scores` (one row per district per year,
 all students combined), `district_demographics` (the same districts broken out by race,
@@ -351,6 +347,8 @@ dbplyr_dist
 
 ###
 
+<!-- AR: Make shorter -->
+
 `district_name` is the official district name as submitted to the federal education data
 collection. Naming conventions vary by state: Texas districts end with "ISD" (Independent
 School District), California often uses "USD" (Unified School District), and many states
@@ -359,6 +357,8 @@ YS scale — a value of 0 is roughly the national average, and 1.0 is one full g
 above it. Negative values mean that district's students scored below the national average.
 
 ### Exercise 4
+
+<!-- AR: be very clear about which code chunk we're in. -->
 
 Count the number of district-year observations per year in `dbplyr_dist`. Collect the
 result. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
@@ -376,6 +376,8 @@ question_text(NULL,
 
 ###
 
+<!-- AR: make sure the table is in chronological order by year. -->
+
 ```{r us-education-4-test}
 dbplyr_dist |> count(year) |> collect()
 ```
@@ -390,7 +392,9 @@ open, close, or drop below the enrollment threshold required for SEDA to publish
 
 ### Exercise 5
 
-Filter `dbplyr_dist` to 2023 with a non-missing `rla_score`. Summarize: compute the
+<!-- AR: Start by looking at the mean across all years (no filtinger). Then in the next exercise maybe look at the mean by year -->
+
+Continue to work in the same code chunk. Filter `dbplyr_dist` to 2023 with a non-missing `rla_score`. Summarize: compute the
 number of districts, the mean reading score, and the standard deviation. Collect the
 result. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
@@ -415,13 +419,9 @@ dbplyr_dist |>
 ```
 
 ###
+<!-- AR: What is this number? -->
 
-The standard deviation of roughly 0.65 grade-equivalents means the middle 68% of
-districts fall within about two-thirds of a grade level of the mean. The mean sitting
-slightly below zero reflects the post-COVID slide pulling most districts below the
-historical benchmark. A spread of 1.3 grade-equivalents across one standard deviation is
-large: a student in a district one SD above average is expected to read more than a full
-grade level ahead of a student in a district one SD below.
+The mean sitting slightly below zero reflects the post-COVID slide pulling most districts below the historical benchmark.
 
 ### Exercise 6
 
@@ -466,6 +466,8 @@ ggplot(dist_2023, aes(x = rla_score)) +
 
 ###
 
+<!-- AR: Too much text. -->
+
 The distribution is roughly bell-shaped but with a longer left tail — more districts
 score well below average than well above it. The dashed line at 0 is the national
 benchmark: districts to its left score below average, those to its right above. The
@@ -475,11 +477,9 @@ districts whose students score roughly two grade levels below the national avera
 
 ### Exercise 7
 
-For each district, compute the change in reading score from 2015 to 2023. Filter
-`dbplyr_dist` to those two years with non-missing `rla_score`, collect, reshape to one
-row per district, and compute `rla_change`. Assign the result to `score_change` and
-print the ten districts with the largest decline. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+Calculate for each district the positive increase in RLA score from 2015 to 2023 and print the ten districts with the largest decline. 
+
+In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
 
 Copy/paste the output from your HTML below.
 
@@ -502,14 +502,13 @@ score_change |> arrange(rla_change) |> head(10)
 ###
 
 The largest declines are around −1 to −1.5 grade-equivalents over eight years — a
-substantial loss. The `pivot_wider()` step drops any district missing a score in either
-year, so `score_change` only includes districts with data for both benchmarks — roughly
-the same 10,000 or so districts that maintained stable enrollment and testing programs
-across the full 2015–2023 window.
+substantial loss. Often extreme values are dominated by small schools.
+
+<!-- AR: Investigate this in next exercise? Look at the n of these schools (if available) -->
 
 ### Exercise 8
 
-Add a chunk to `analysis.qmd` that plots the distribution of `rla_change` as a histogram.
+Update the chunk so it plots the distribution of `rla_change` as a histogram.
 Color bars differently for positive and negative changes. Add a vertical reference line at
 0. Give the plot a proper title, subtitle, and caption. In a bash Terminal, run
 `quarto render analysis.qmd`. Check your Live Server tab.
@@ -557,7 +556,11 @@ visualized in the arrow chart at the start of this section, now shown as a histo
 peak falls around −0.2 to −0.3 grade-equivalents; very few districts showed large
 positive changes, and those that did are visible only as the thin right tail.
 
+<!-- AR: Next exercise, give AI a an image of the NYTimes plot and tell it to update our plot. -->
+
 ### Exercise 9
+
+<!-- AR: Stick with reading alone. -->
 
 Filter `dbplyr_dist` to 2023 and non-missing `mth_score`, collect, then add a chunk to
 `analysis.qmd` that plots the distribution as a histogram. Add a vertical reference line
