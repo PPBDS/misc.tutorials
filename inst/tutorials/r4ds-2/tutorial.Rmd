@@ -179,13 +179,7 @@ Excel files exported from spreadsheet software often encode categorical variable
 
 ### Exercise 3
 
-From the R Terminal, run these three commands:
-
-```
-getwd()
-dir.create("data")
-list.files()
-```
+Create a data directory at the top level of the `r4ds-2` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -200,16 +194,9 @@ question_text(NULL,
 
 ###
 
-Your answer should look something like this, although your path will be different.
-
-````
-> getwd()
-[1] "/workspaces/r4ds-2"
-> dir.create("data")
-> list.files()
- [1] "analysis_files" "analysis.html"  "analysis.qmd"   "data"
->
-````
+```
+analysis.html  analysis.qmd  analysis_files  data
+```
 
 ## Births
 ###

@@ -275,14 +275,7 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 
 ### Exercise 3
 
-In the R Terminal, run:
-
-```
-dir.create("data")
-list.files()
-```
-
-This creates a `data` directory in your project for storing downloaded files.
+Create a data directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -298,7 +291,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+analysis.html  analysis.qmd  analysis_files  data
 ```
 
 ###

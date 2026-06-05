@@ -222,13 +222,7 @@ Like CSV, parquet is used for rectangular data, but it's a custom binary format 
 
 ### Exercise 3
 
-From the R Terminal, run these three commands:
-
-```
-getwd()
-dir.create("data")
-list.files()
-```
+Create a data directory at the top level of the `r4ds-4` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -244,7 +238,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+analysis.html  analysis.qmd  analysis_files  data
 ```
 
 Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there's less data to move from disk to memory.

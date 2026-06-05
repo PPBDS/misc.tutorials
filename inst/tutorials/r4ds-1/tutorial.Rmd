@@ -256,13 +256,7 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-From the R Terminal, run these three commands:
-
-```
-getwd()
-dir.create("data")
-list.files()
-```
+Create a data directory at the top level of the `r4ds-1` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -278,7 +272,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+analysis.html  analysis.qmd  analysis_files  data
 ```
 
 ###
