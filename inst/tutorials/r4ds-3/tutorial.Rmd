@@ -1042,9 +1042,7 @@ dbplyr_act |>
 
 ###
 
-<!-- FLAG: KD needs verification against actual render output. AR noted "Not true! What is 'Data codes' in the table?" — revisit after render. -->
-
-This answers a different question than Exercise 7: average record length rather than record count. A category can have many short records (Traveling) or a few long ones (Personal Care, which includes sleep). To get total time per person per day, researchers sum `duration_min` per respondent, which Exercise 12 will do.
+Record count and average duration measure different things. Traveling tops Exercise 7's count because each trip is its own record — a three-leg commute is three rows — but each trip is short, so its average duration is low. Personal Care Activities includes sleeping, which is typically one long uninterrupted record per night; that single record pulls the category's average duration far above the rest. To get total time per person per day, researchers sum `duration_min` per respondent, which Exercise 12 will do.
 
 ### Exercise 9
 
