@@ -1,6 +1,6 @@
 ---
 title: Third Tutorial for R4DS
-author: Luke Li, David Kane, and Sruthi Gandhi
+author: David Kane and Alec Rogers
 tutorial:
   id: r4ds-3
 output:
@@ -191,13 +191,13 @@ question_text(NULL,
 
 ###
 
-<pre><code>```{r}
+````
 #| message: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
-```</code></pre>
+````
 
 ###
 
@@ -281,7 +281,7 @@ A database holds multiple tables — typically dozens or hundreds in production 
 
 Create a new code chunk in `analysis.qmd`. Add code to connect to the database file and run `dbListTables()` to see the available tables. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-2}
 question_text(NULL,
@@ -294,8 +294,9 @@ question_text(NULL,
 
 ###
 
-```
-[1] "district_demographics" "district_scores"       "state_scores"
+```{r us-education-2-test}
+#| echo: true
+dbListTables(con_seda)
 ```
 
 ###
@@ -306,7 +307,7 @@ The SEDA database has three tables: `district_scores` (one row per district per 
 
 Continue to work in the same code chunk. Create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-3}
 question_text(NULL,
@@ -320,6 +321,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-3-test}
+#| echo: true
 dbplyr_dist
 ```
 
@@ -331,7 +333,7 @@ The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the n
 
 Continue to work in the same code chunk. Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-4}
 question_text(NULL,
@@ -345,6 +347,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-4-test}
+#| echo: true
 dbplyr_dist |> count(year) |> collect() |> arrange(year)
 ```
 
@@ -356,7 +359,7 @@ The dataset spans 2009–2019 and 2022–2025, with no observations for 2020 or 
 
 Continue to work in the same code chunk. Compute the mean `rla_score` across all districts and years where `rla_score` is not missing. Collect the result. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-5}
 question_text(NULL,
@@ -370,6 +373,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-5-test}
+#| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
   summarize(mean_rla = mean(rla_score)) |>
@@ -384,7 +388,7 @@ The overall mean sits slightly below zero — the typical US district has scored
 
 Continue to work in the same code chunk. Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-6}
 question_text(NULL,
@@ -398,6 +402,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-6-test}
+#| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
   group_by(year) |>
@@ -440,7 +445,9 @@ question_text(NULL,
 
 ```{r us-education-7-test}
 #| echo: true
-score_change |> arrange(rla_change) |> head(5)
+score_change |> 
+  arrange(rla_change) |> 
+  head(5)
 ```
 
 ###
@@ -539,7 +546,7 @@ The distribution is roughly bell-shaped with a longer left tail. Extreme values 
 
 Continue to work in the same code chunk. Print the 10 districts with the largest reading score decline from `score_change`. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-11}
 question_text(NULL,
@@ -608,7 +615,7 @@ The distribution sits almost entirely to the left of 0 — about 82% of district
 
 Continue to work in the same code chunk. Print `state_change` sorted by `rla_change`. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-13}
 question_text(NULL,
@@ -622,6 +629,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-13-test}
+#| echo: true
 state_change |> arrange(rla_change)
 ```
 
@@ -802,6 +810,7 @@ question_text(NULL,
 ###
 
 ```{r time-use-2-test, eval = !is.null(con_atus)}
+#| echo: true
 dbplyr_act
 ```
 
@@ -833,6 +842,7 @@ question_text(NULL,
 ###
 
 ```{r time-use-3-test, eval = !is.null(con_atus)}
+#| echo: true
 dbplyr_resp
 ```
 
@@ -842,7 +852,7 @@ Each row is one ATUS diarist. "Not in labor force" means the person was neither 
 
 ### Exercise 4
 
-Continue to work in the same code chunk. Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render. Copy and paste the printed table from the rendered HTML.
+Continue to work in the same code chunk. Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-4}
 question_text(NULL,
@@ -856,6 +866,7 @@ question_text(NULL,
 ###
 
 ```{r time-use-4-test, eval = !is.null(con_atus)}
+#| echo: true
 dbplyr_codes |> collect()
 ```
 
@@ -865,7 +876,7 @@ The 18 major categories run from Personal Care (sleeping, grooming) to Other Act
 
 ### Exercise 5
 
-Continue to work in the same code chunk. For each table in the database, count the number of rows. Render. Copy and paste the three row counts from the rendered HTML.
+Continue to work in the same code chunk. For each table in the database, count the number of rows. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-5}
 question_text(NULL,
@@ -893,7 +904,7 @@ Five million activity records justify keeping the data in DuckDB — collecting 
 
 ### Exercise 6
 
-Continue to work in the same code chunk. Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Continue to work in the same code chunk. Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-6}
 question_text(NULL,
@@ -922,7 +933,7 @@ Traveling tops the count because each trip is a separate record — a three-leg 
 
 ### Exercise 7
 
-Continue to work in the same code chunk. Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Continue to work in the same code chunk. Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-7}
 question_text(NULL,
@@ -952,7 +963,7 @@ Personal Care tops average duration because a single sleep entry lasts 7–9 hou
 
 ### Exercise 8
 
-Continue to work in the same code chunk. Count the number of respondents by `sex` and `employment_status`. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Continue to work in the same code chunk. Count the number of respondents by `sex` and `employment_status`. Collect and print. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-8}
 question_text(NULL,
@@ -979,7 +990,7 @@ The "Not in labor force" group — the focus of the NYT graphic — is smaller t
 
 ### Exercise 9
 
-Continue to work in the same code chunk. Count the number of respondents by `year`. Collect and print, arranged by year. Render. Copy and paste the table from the rendered HTML.
+Continue to work in the same code chunk. Count the number of respondents by `year`. Collect and print, arranged by year. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-9}
 question_text(NULL,
