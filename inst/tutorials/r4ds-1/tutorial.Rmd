@@ -282,8 +282,6 @@ The `data` directory is where your project stores downloaded data. You don't nee
 ## Billboard Hot 100
 ###
 
-Remember, we recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code) to help write code for these exercises.
-
 The [`billboard`](https://tidyr.tidyverse.org/reference/billboard.html) tibble is included in **[tidyr](https://tidyr.tidyverse.org/)**. It records songs that appeared in the Billboard Hot 100 in the year 2000 and tracks their rankings over time.
 
 ### Exercise 1
@@ -749,8 +747,6 @@ Ranks are ordinal, not interval — the gap between #1 and #2 isn't the same as 
 
 ## Million Song Dataset
 ###
-
-Remember, we recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code) to help write code for these exercises.
 
 The **music** CSV file comes from a teaching version of the [Million Song Dataset](https://corgis-edu.github.io/corgis/csv/music/). It includes 10,000 rows and many variables about artists, songs, and audio features. Unlike the Billboard data, which came pre-loaded and tidy, this dataset arrives as a raw CSV with 35 columns — more than you can scan at a glance — so the first step is understanding what is in it.
 
