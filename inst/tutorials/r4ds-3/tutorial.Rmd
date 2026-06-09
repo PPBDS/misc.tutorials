@@ -191,13 +191,12 @@ question_text(NULL,
 
 ###
 
-<pre><code>```{r}
-#| message: false
+<pre><code>#| message: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
-```</code></pre>
+</code></pre>
 
 ###
 
@@ -304,7 +303,7 @@ The SEDA database has three tables: `district_scores` (one row per district per 
 
 ### Exercise 3
 
-Continue to work in the same code chunk. Create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
+Create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
 
 Copy and paste the output from your HTML below.
 
@@ -329,7 +328,7 @@ The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the n
 
 ### Exercise 4
 
-Continue to work in the same code chunk. Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
+Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
 
 Copy and paste the output from your HTML below.
 
@@ -354,7 +353,7 @@ The dataset spans 2009–2019 and 2022–2025, with no observations for 2020 or 
 
 ### Exercise 5
 
-Continue to work in the same code chunk. Compute the mean `rla_score` across all districts and years where `rla_score` is not missing. Collect the result. Render.
+Compute the mean `rla_score` across all districts and years where `rla_score` is not missing. Collect the result. Render.
 
 Copy and paste the output from your HTML below.
 
@@ -382,7 +381,7 @@ The overall mean sits slightly below zero — the typical US district has scored
 
 ### Exercise 6
 
-Continue to work in the same code chunk. Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
+Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
 
 Copy and paste the output from your HTML below.
 
@@ -412,7 +411,7 @@ Scores are consistently near zero through 2019. The 2022–2025 values are notic
 
 ### Exercise 7
 
-Continue to work in the same code chunk. Compute two objects:
+Compute two objects:
 
 1. For each district, the change in reading score from 2015 to 2023, where a positive value means improvement. Keep only districts with data in both years. Assign to `score_change`.
 2. Do the same aggregation at the state level using `state_scores`. Assign to `state_change`.
@@ -449,9 +448,47 @@ score_change |> arrange(rla_change) |> head(5)
 
 ### Exercise 8
 
-Now finalize Chunk 1. Edit the chunk so it contains only: the database connection, the `dbplyr_dist` lazy reference, and the two object computations from Exercise 7. Remove all exploratory `count()`, `summarize()`, and `mean()` lines added in Exercises 3–6. Add `#| cache: true` as the first option in the chunk. Render. In the bash Terminal, run `ls`. CP/CR.
+Now finalize Chunk 1. Edit the chunk so it contains only: the database connection, the `dbplyr_dist` lazy reference, and the two object computations from Exercise 7. Remove all exploratory `count()`, `summarize()`, and `mean()` lines added in Exercises 3–6. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-8}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+<pre><code>#| cache: true
+con_seda <- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb")
+dbplyr_dist <- tbl(con_seda, "district_scores")
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change <- tbl(con_seda, "state_scores") |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(stateabb, state_name, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+</code></pre>
+
+###
+
+Caching is a refactoring step — the chunk now holds only the objects worth keeping, nothing exploratory.
+
+### Exercise 9
+
+Add `#| cache: true` as the first option in the chunk from Exercise 8. Render. In the bash Terminal, run `ls`. CP/CR.
+
+```{r us-education-9}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -470,11 +507,11 @@ analysis.qmd  analysis_cache  analysis_files  analysis.html  data
 
 The first render with caching writes `analysis_cache/` to disk. Subsequent renders reload `score_change` and `state_change` from cache and skip the database joins entirely.
 
-### Exercise 9
+### Exercise 10
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r us-education-9}
+```{r us-education-10}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -493,9 +530,9 @@ analysis_cache
 
 Cache files are machine-specific and regenerated on every render — they should never go to GitHub.
 
-### Exercise 10
+### Exercise 11
 
-Create a new code chunk in `analysis.qmd`. From `dbplyr_dist`, filter to 2023 with non-missing `rla_score`, collect, and plot the distribution as a histogram. Add a vertical reference line at 0. Give the plot a title, subtitle, and caption. Render.
+Create a new code chunk in `analysis.qmd`. From `dbplyr_dist`, filter to 2023 with non-missing `rla_score`, collect, and plot the distribution as a histogram. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -505,7 +542,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r us-education-10}
+```{r us-education-11}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -516,14 +553,14 @@ question_text(NULL,
 
 ###
 
-```{r us-education-10-test}
+```{r us-education-11-test}
 #| echo: true
 ggplot(dist_2023, aes(x = rla_score)) +
   geom_histogram(bins = 50, fill = "steelblue", color = "white") +
   geom_vline(xintercept = 0, linetype = "dashed", color = "darkred") +
   labs(
     title = "Distribution of District Reading Scores, 2023",
-    subtitle = "Most districts cluster near the national average; a left tail shows the lowest-scoring",
+    subtitle = paste0("n = ", nrow(dist_2023), " districts; most cluster near average, left tail shows the lowest-scoring"),
     x = "Reading score (grade-equivalents above/below national average)",
     y = "Number of districts",
     caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
@@ -535,13 +572,13 @@ ggplot(dist_2023, aes(x = rla_score)) +
 
 The distribution is roughly bell-shaped with a longer left tail. Extreme values on the left (−2 or below) tend to be small, high-poverty districts whose students score roughly two grade levels below average.
 
-### Exercise 11
+### Exercise 12
 
-Continue to work in the same code chunk. Print the 10 districts with the largest reading score decline from `score_change`. Render.
+Print the 10 districts with the largest reading score decline from `score_change`. Render.
 
 Copy and paste the output from your HTML below.
 
-```{r us-education-11}
+```{r us-education-12}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -552,7 +589,7 @@ question_text(NULL,
 
 ###
 
-```{r us-education-11-test}
+```{r us-education-12-test}
 #| echo: true
 score_change |> arrange(rla_change) |> head(10)
 ```
@@ -561,9 +598,9 @@ score_change |> arrange(rla_change) |> head(10)
 
 The largest declines are around −1 to −1.5 grade-equivalents over eight years. Scan the district names — extreme values in education data are often dominated by tiny or specialty districts with very small student populations, where a single cohort can swing the average dramatically.
 
-### Exercise 12
+### Exercise 13
 
-Continue to work in the same code chunk. Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Give the plot a title, subtitle, and caption. Render.
+Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -572,43 +609,6 @@ show_file("analysis.qmd", chunk = "Last")
 ```
 
 CP/CR.
-
-```{r us-education-12}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 12)
-```
-
-###
-
-```{r us-education-12-test}
-#| echo: true
-ggplot(score_change, aes(x = rla_change)) +
-  geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
-  scale_fill_manual(values = c("TRUE" = "tomato", "FALSE" = "steelblue")) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
-  labs(
-    title = "Change in District Reading Scores, 2015 to 2023",
-    subtitle = "About 82% of districts scored lower in 2023 than in 2015",
-    x = "Score change (grade-equivalents)",
-    y = "Number of districts",
-    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
-  ) +
-  theme_minimal()
-```
-
-###
-
-The distribution sits almost entirely to the left of 0 — about 82% of districts with data in both years show a negative change. This is the same finding the New York Times visualized in the arrow chart shown at the start of this section.
-
-### Exercise 13
-
-Continue to work in the same code chunk. Print `state_change` sorted by `rla_change`. Render.
-
-Copy and paste the output from your HTML below.
 
 ```{r us-education-13}
 question_text(NULL,
@@ -622,6 +622,43 @@ question_text(NULL,
 ###
 
 ```{r us-education-13-test}
+#| echo: true
+ggplot(score_change, aes(x = rla_change)) +
+  geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
+  scale_fill_manual(values = c("TRUE" = "tomato", "FALSE" = "steelblue")) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  labs(
+    title = "Change in District Reading Scores, 2015 to 2023",
+    subtitle = paste0("n = ", nrow(score_change), " districts; about 82% scored lower in 2023 than in 2015"),
+    x = "Score change (grade-equivalents)",
+    y = "Number of districts",
+    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
+  ) +
+  theme_minimal()
+```
+
+###
+
+The distribution sits almost entirely to the left of 0 — about 82% of districts with data in both years show a negative change. This is the same finding the New York Times visualized in the arrow chart shown at the start of this section.
+
+### Exercise 14
+
+Print `state_change` sorted by `rla_change`. Render.
+
+Copy and paste the output from your HTML below.
+
+```{r us-education-14}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r us-education-14-test}
 state_change |> arrange(rla_change)
 ```
 
@@ -629,9 +666,9 @@ state_change |> arrange(rla_change)
 
 With only 50 states, printing all rows makes sense. Most states declined, but two near the top improved substantially — you will see which ones in the next exercise.
 
-### Exercise 14
+### Exercise 15
 
-Continue to work in the same code chunk. Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render.
+Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render.
 
 In the R Terminal, run:
 
@@ -641,7 +678,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r us-education-14}
+```{r us-education-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -652,7 +689,7 @@ question_text(NULL,
 
 ###
 
-```{r us-education-14-test}
+```{r us-education-15-test}
 #| echo: true
 #| fig.height: 10
 state_change |>
@@ -683,7 +720,7 @@ state_change |>
 
 Mississippi and Louisiana's blue arrows stand out sharply against the field of red. Both passed aggressive phonics-based reading legislation in the years shown, and SEDA captures the result. This is the same chart the New York Times built from the SEDA data shown in the section introduction.
 
-### Exercise 15
+### Exercise 16
 
 Here is the New York Times chart this section has been building toward.
 
@@ -691,9 +728,9 @@ Here is the New York Times chart this section has been building toward.
 knitr::include_graphics("images/us-ed-state-reading-change-nyt.png")
 ```
 
-In one to two sentences, describe how your arrow chart from Exercise 14 compares to the NYT version. What does your chart get right? What does it simplify or miss?
+In one to two sentences, describe how your arrow chart from Exercise 15 compares to the NYT version. What does your chart get right? What does it simplify or miss?
 
-```{r us-education-15}
+```{r us-education-16}
 question_text(NULL,
   message = "Both charts show the same pattern: nearly universal leftward (declining) arrows, with Mississippi and Louisiana as the clear exceptions pointing right. The NYT version labels individual states and uses a cleaner visual style, but the core finding is identical.",
   answer(NULL, correct = TRUE),
@@ -706,12 +743,12 @@ question_text(NULL,
 
 This format — showing both the starting point and direction of change for each state — makes the policy story legible in a way a bar chart of 2023 scores alone would not. You have now reproduced from public data the same chart the NYT published in May 2026.
 
-### Exercise 16
+### Exercise 17
 
 Commit `analysis.qmd` with the message `"Add SEDA district reading analysis"`. You may
 use your AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r us-education-16}
+```{r us-education-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -722,7 +759,7 @@ question_text(NULL,
 
 ###
 
-About 82% of districts with comparable 2015 and 2023 data show a negative reading score change — the largest single-decade setback in modern US education measurement. The state arrow chart from Exercise 14 puts that aggregate finding into policy context: the exceptions are states that passed evidence-based literacy legislation.
+About 82% of districts with comparable 2015 and 2023 data show a negative reading score change — the largest single-decade setback in modern US education measurement. The state arrow chart from Exercise 15 puts that aggregate finding into policy context: the exceptions are states that passed evidence-based literacy legislation.
 
 ## Time use
 ###
@@ -780,7 +817,7 @@ The ATUS records every activity in a single 24-hour day for a randomly selected 
 
 ### Exercise 2
 
-Continue to work in the same code chunk. Create lazy references to all three tables: assign `dbplyr_act` for `activities`, `dbplyr_resp` for `respondents`, and `dbplyr_codes` for `activity_codes`. Remove the `dbListTables()` call and print `dbplyr_act` instead. Render.
+Create lazy references to all three tables: assign `dbplyr_act` for `activities`, `dbplyr_resp` for `respondents`, and `dbplyr_codes` for `activity_codes`. Remove the `dbListTables()` call and print `dbplyr_act` instead. Render.
 
 In the R Terminal, run:
 
@@ -811,7 +848,7 @@ The six-digit `activity_code` encodes a three-level hierarchy: for code 120303, 
 
 ### Exercise 3
 
-Continue to work in the same code chunk. Print `dbplyr_resp`. Render.
+Print `dbplyr_resp`. Render.
 
 In the R Terminal, run:
 
@@ -842,7 +879,7 @@ Each row is one ATUS diarist. "Not in labor force" means the person was neither 
 
 ### Exercise 4
 
-Continue to work in the same code chunk. Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render. Copy and paste the printed table from the rendered HTML.
+Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render. Copy and paste the printed table from the rendered HTML.
 
 ```{r time-use-4}
 question_text(NULL,
@@ -865,7 +902,7 @@ The 18 major categories run from Personal Care (sleeping, grooming) to Other Act
 
 ### Exercise 5
 
-Continue to work in the same code chunk. For each table in the database, count the number of rows. Render. Copy and paste the three row counts from the rendered HTML.
+For each table in the database, count the number of rows. Render. Copy and paste the three row counts from the rendered HTML.
 
 ```{r time-use-5}
 question_text(NULL,
@@ -893,7 +930,7 @@ Five million activity records justify keeping the data in DuckDB — collecting 
 
 ### Exercise 6
 
-Continue to work in the same code chunk. Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
 
 ```{r time-use-6}
 question_text(NULL,
@@ -922,7 +959,7 @@ Traveling tops the count because each trip is a separate record — a three-leg 
 
 ### Exercise 7
 
-Continue to work in the same code chunk. Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
 
 ```{r time-use-7}
 question_text(NULL,
@@ -952,7 +989,7 @@ Personal Care tops average duration because a single sleep entry lasts 7–9 hou
 
 ### Exercise 8
 
-Continue to work in the same code chunk. Count the number of respondents by `sex` and `employment_status`. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Count the number of respondents by `sex` and `employment_status`. Collect and print. Render. Copy and paste the table from the rendered HTML.
 
 ```{r time-use-8}
 question_text(NULL,
@@ -979,7 +1016,7 @@ The "Not in labor force" group — the focus of the NYT graphic — is smaller t
 
 ### Exercise 9
 
-Continue to work in the same code chunk. Count the number of respondents by `year`. Collect and print, arranged by year. Render. Copy and paste the table from the rendered HTML.
+Count the number of respondents by `year`. Collect and print, arranged by year. Render. Copy and paste the table from the rendered HTML.
 
 ```{r time-use-9}
 question_text(NULL,
@@ -1006,7 +1043,7 @@ Annual sample sizes are roughly stable — around 10,000–11,000 respondents pe
 
 ### Exercise 10
 
-Continue to work in the same code chunk. For weekday non-employed respondents, compute each person's total daily minutes in each major activity category, then average across people by `sex` and `major_name`. Collect and assign to `x`. Render (the first render is slow). In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+For weekday non-employed respondents, compute each person's total daily minutes in each major activity category, then average across people by `sex` and `major_name`. Collect and assign to `x`. Render (the first render is slow). In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-10}
 question_text(NULL,
@@ -1045,7 +1082,7 @@ The two-step aggregation matters: the first `summarize()` totals minutes per per
 
 ### Exercise 11
 
-Continue to work in the same code chunk. Build the time-of-day dataset for the final chart: for weekday non-employed respondents, compute the average minutes spent in activities starting in each hour of the day, broken out by `sex` and `major_name`. Keep only the four major categories: Personal Care, Household Activities, Caring for and Helping Household Members, and Socializing, Relaxing, and Leisure. Filter to hours 6 through 23. Collect and assign to `y`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Build the time-of-day dataset for the final chart: for weekday non-employed respondents, compute the average minutes spent in activities starting in each hour of the day, broken out by `sex` and `major_name`. Keep only the four major categories: Personal Care, Household Activities, Caring for and Helping Household Members, and Socializing, Relaxing, and Leisure. Filter to hours 6 through 23. Collect and assign to `y`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-11}
 question_text(NULL,
@@ -1089,9 +1126,51 @@ The `start_hhmm %/% 100` extraction is the same integer-division operation used 
 
 ### Exercise 12
 
-Now finalize Chunk 1. Edit the chunk so it contains only: the database connection, the three lazy table references, the `x` computation from Exercise 10, and the `y` computation from Exercise 11. Remove all exploratory code from Exercises 2–9. Add `#| cache: true` as the first option in the chunk. Render. In the bash Terminal, run `ls`. CP/CR.
+Now finalize Chunk 1. Edit the chunk so it contains only: the database connection, the three lazy table references, the `x` computation from Exercise 10, and the `y` computation from Exercise 11. Remove all exploratory code from Exercises 2–9. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+<pre><code>con_atus <- dbConnect(duckdb::duckdb(), dbdir = "data/atus.duckdb")
+dbplyr_act   <- tbl(con_atus, "activities")
+dbplyr_resp  <- tbl(con_atus, "respondents")
+dbplyr_codes <- tbl(con_atus, "activity_codes")
+x <- dbplyr_act |>
+  left_join(dbplyr_codes |> select(activity_code, major_name), by = "activity_code") |>
+  inner_join(dbplyr_resp |> filter(str_starts(employment_status, "Not"), day_type == "Weekday") |> select(tucaseid, sex), by = "tucaseid") |>
+  group_by(tucaseid, sex, major_name) |>
+  summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
+  group_by(sex, major_name) |>
+  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
+  collect()
+y <- dbplyr_act |>
+  mutate(hour = start_hhmm %/% 100L) |>
+  filter(hour >= 6L, hour <= 23L) |>
+  left_join(dbplyr_codes |> select(activity_code, major_name), by = "activity_code") |>
+  filter(major_name %in% keep_cats) |>
+  inner_join(dbplyr_resp |> filter(str_starts(employment_status, "Not"), day_type == "Weekday") |> select(tucaseid, sex), by = "tucaseid") |>
+  group_by(sex, hour, major_name) |>
+  summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
+  collect()
+</code></pre>
+
+###
+
+Caching is a refactoring step — the chunk now holds only the objects worth keeping, nothing exploratory.
+
+### Exercise 13
+
+Add `#| cache: true` as the first option in the chunk from Exercise 12. Render. In the bash Terminal, run `ls`. CP/CR.
+
+```{r time-use-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1110,11 +1189,11 @@ analysis.qmd  analysis_cache  analysis_files  analysis.html  data
 
 The first render with caching writes `analysis_cache/` to disk. Subsequent renders reload `x` and `y` from cache and skip all five million rows of database joins.
 
-### Exercise 13
+### Exercise 14
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r time-use-13}
+```{r time-use-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1133,7 +1212,7 @@ analysis_cache
 
 Cache files are machine-specific and regenerated on every render — they should never go to GitHub.
 
-### Exercise 14
+### Exercise 15
 
 Create a new code chunk in `analysis.qmd`. Make a horizontal grouped bar chart from `x` showing average daily minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by average minutes. Remove any rows where `major_name` is `NA`. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
@@ -1145,7 +1224,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-14}
+```{r time-use-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1156,7 +1235,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-14-test, eval = !is.null(con_atus)}
+```{r time-use-15-test, eval = !is.null(con_atus)}
 #| echo: true
 x |>
   filter(!is.na(major_name)) |>
@@ -1178,11 +1257,11 @@ x |>
 
 The Household Activities and Caring bars tell the story the NYT graphic illustrates: women's bars extend roughly 50–60 minutes farther than men's. The Leisure bar goes the other way: men average substantially more minutes, driven largely by TV.
 
-### Exercise 15
+### Exercise 16
 
 In one to two sentences, describe the most striking difference between men and women in the chart you just produced. Name the specific activity categories where the gap is largest, and state which direction (men higher or women higher).
 
-```{r time-use-15}
+```{r time-use-16}
 question_text(NULL,
   message = "Women average about 50–60 more minutes per weekday on Household Activities
 and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
@@ -1197,9 +1276,9 @@ Relaxing, and Leisure — driven largely by more TV watching.",
 
 Sociologist Arlie Hochschild named this the "second shift" in 1989: even when women join the paid labor force, they retain the bulk of household and caregiving work. The ATUS shows the pattern persists in the non-employed group — non-employed women redirect time not into leisure but into unpaid domestic work.
 
-### Exercise 16
+### Exercise 17
 
-Continue to work in the same code chunk. Build a stacked area chart from `y`, with `hour` on the x-axis, `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use `position = "stack"`. Give the chart a title, subtitle, and data source caption. Render.
+Build a stacked area chart from `y`, with `hour` on the x-axis, `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use `position = "stack"`. Give the chart a title, subtitle, and data source caption. Render.
 
 In the R Terminal, run:
 
@@ -1209,7 +1288,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-16}
+```{r time-use-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1220,7 +1299,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-16-test, eval = !is.null(con_atus)}
+```{r time-use-17-test, eval = !is.null(con_atus)}
 #| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
@@ -1245,7 +1324,7 @@ ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
 
 Your chart uses start time as a proxy for current activity, which captures the broad shape but understates activities whose duration extends past the hour boundary. Despite the simplification, the key patterns are visible: the Leisure band dominates the afternoon for both sexes and is taller for men; the Household band is wider and starts earlier for women.
 
-### Exercise 17
+### Exercise 18
 
 Here is the New York Times chart this section has been building toward.
 
@@ -1253,9 +1332,9 @@ Here is the New York Times chart this section has been building toward.
 knitr::include_graphics("images/men-v-women-atus-nyt.png")
 ```
 
-In one to two sentences, compare your stacked area chart from Exercise 16 to the NYT version. What does your chart get right? What does the NYT version show that yours does not?
+In one to two sentences, compare your stacked area chart from Exercise 17 to the NYT version. What does your chart get right? What does the NYT version show that yours does not?
 
-```{r time-use-17}
+```{r time-use-18}
 question_text(NULL,
   message = "Both charts show the same pattern: women spend more time on housework and caregiving across all waking hours, while men's afternoon leisure block is larger. The NYT version shows the fraction of people currently in each activity at each minute — a more precise measure than the start-time proxy used here.",
   answer(NULL, correct = TRUE),
@@ -1268,12 +1347,12 @@ question_text(NULL,
 
 The ATUS microdata is updated each year and freely available from the BLS. The coding scheme you used — `activity_code %/% 10000` to get the major category — is the standard first step in almost every ATUS analysis.
 
-### Exercise 18
+### Exercise 19
 
 Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"`. You may use your
 AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r time-use-18}
+```{r time-use-19}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
