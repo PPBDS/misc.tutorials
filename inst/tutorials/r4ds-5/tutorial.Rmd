@@ -496,17 +496,7 @@ You can reach into a list-column and lift out just the named values you need —
 
 ### Exercise 4
 
-Within the `earthquake_df` code chunk, add `#| cache: true` at the top. Add `analysis_cache` to your `.gitignore` if you have not already done so, since cache files should never go to GitHub.
-
-Render. This first render will take some time — Quarto runs the code and saves the result to disk — but every later render loads `earthquake_df` from the cache instead of re-rectangling the GeoJSON. Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+That GeoJSON rectangling takes real time on every render, so it earns caching. Add `#| cache: true` as the first line inside the `earthquake_df` code chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
 ```{r earthquakes-4}
 question_text(NULL,
@@ -514,14 +504,45 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 8)
+	rows = 5)
 ```
 
 ###
 
-Filtering to the last 365 days and to the continental US trims the global feed down to a few thousand quakes — small enough to map smoothly. The vast majority are minor; the few above magnitude 5 are the ones a reader's eye should land on.
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
+
+###
+
+Every later render loads `earthquake_df` from the cache instead of re-rectangling the GeoJSON.
 
 ### Exercise 5
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r earthquakes-5}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render. Filtering to the last 365 days and to the continental US trims the global feed down to a few thousand quakes — small enough to map smoothly. The vast majority are minor; the few above magnitude 5 are the ones a reader's eye should land on.
+
+### Exercise 6
 
 In a new code chunk, create an interactive **leaflet** map of `earthquake_df`. It should display circle markers sized by magnitude and colored by the `color` column, with popups showing the `tooltip_text`, plus a legend. Do not assign the plot to a variable.
 
@@ -535,7 +556,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r earthquakes-5}
+```{r earthquakes-6}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -546,7 +567,7 @@ question_text(NULL,
 
 ###
 
-```{r earthquakes-5-test}
+```{r earthquakes-6-test}
 #| echo: true
 leaflet(earthquake_df) |>
   addTiles() |>
@@ -753,17 +774,7 @@ One messy text column can be split into several clean ones with a regular expres
 
 ### Exercise 4
 
-Within the `top_movies` code chunk, add `#| cache: true` at the top.
-
-Render. This first render will take some time. Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+The IMDb scrape takes time on every render too, so it earns caching. Add `#| cache: true` as the first line inside the `top_movies` code chunk. Render the QMD. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR. (No `.gitignore` step --- `analysis_cache` is already ignored from the earthquakes section.)
 
 ```{r top-movies-4}
 question_text(NULL,
@@ -773,6 +784,10 @@ question_text(NULL,
 	incorrect = NULL,
 	rows = 8)
 ```
+
+###
+
+The student's chunk now has `#| cache: true` as the first line, followed by the IMDb scrape pipeline.
 
 ###
 

@@ -1276,17 +1276,7 @@ daily minutes in each major activity category, then averages across people by `s
 - Then group by `sex` and `major_name`; average that per-person total
 - Collect and assign to `x`
 
-Add `#| cache: true` to this chunk and add `analysis_cache` to `.gitignore` if you have
-not already. Render (the first render is slow).
-Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+Render (the first render is slow). Check your Live Server tab. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-10}
 question_text(NULL,
@@ -1331,6 +1321,54 @@ the average total TV time per person per day — a different and less useful qua
 
 ### Exercise 11
 
+That two-join, two-summarize pipeline takes real time on every render, so it earns caching. Add `#| cache: true` as the first line inside the chunk from Exercise 10. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-running the database joins each time. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r time-use-11}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
+
+###
+
+The first render writes the cache to disk; subsequent renders load `x` from cache and skip the database joins entirely.
+
+### Exercise 12
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub --- they're machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r time-use-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render.
+
+### Exercise 13
+
 Add a new chunk that makes a horizontal grouped bar chart from `x` showing average daily
 minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by
 average minutes (averaged across sexes). Remove any rows where `major_name` is `NA`.
@@ -1344,7 +1382,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-11}
+```{r time-use-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1355,7 +1393,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-11-test, eval = !is.null(con_atus)}
+```{r time-use-13-test, eval = !is.null(con_atus)}
 #| echo: true
 x |>
   filter(!is.na(major_name)) |>
@@ -1383,13 +1421,13 @@ The Leisure bar goes the other way: men average substantially more minutes. This
 gap in unpaid labor appears whether respondents are employed or not, but it is widest in
 the non-employed group, which is what the NYT graphic highlights.
 
-### Exercise 12
+### Exercise 14
 
 In one to two sentences, describe the most striking difference between men and women in
 the chart you just produced. Name the specific activity categories where the gap is
 largest, and state which direction (men higher or women higher).
 
-```{r time-use-12}
+```{r time-use-14}
 question_text(NULL,
   message = "Women average about 50–60 more minutes per weekday on Household Activities
 and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
@@ -1409,10 +1447,9 @@ simply redirect the time they would have spent working into leisure; they redire
 unpaid domestic work. The BLS has published ATUS findings on this gender gap every year
 since the survey launched in 2003, and it has narrowed only modestly over two decades.
 
-### Exercise 13
+### Exercise 15
 
-Now build toward the time-of-day view shown in the NYT graphic. Add a new chunk with
-`#| cache: true` that, for weekday non-employed respondents, computes the average minutes
+Now build toward the time-of-day view shown in the NYT graphic. Add a new chunk that, for weekday non-employed respondents, computes the average minutes
 spent in activities starting in each hour of the day, broken out by `sex` and `major_name`.
 
 Specifically:
@@ -1435,7 +1472,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-13}
+```{r time-use-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1446,7 +1483,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-13-test, eval = !is.null(con_atus)}
+```{r time-use-15-test, eval = !is.null(con_atus)}
 #| echo: true
 keep_cats <- c(
   "Personal Care Activities",
@@ -1480,7 +1517,7 @@ on typical waking hours. The `start_hhmm %/% 100` extraction is the same integer
 operation used to get departure hours from `dep_time` in the flights data — both are
 packed HHMM integers where the upper two digits hold the hour.
 
-### Exercise 14
+### Exercise 16
 
 Add a new chunk that makes a stacked area chart from `y`, with `hour` on the x-axis,
 `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use
@@ -1495,7 +1532,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-14}
+```{r time-use-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1506,7 +1543,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-14-test, eval = !is.null(con_atus)}
+```{r time-use-16-test, eval = !is.null(con_atus)}
 #| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
@@ -1538,10 +1575,9 @@ duration extends past the hour boundary. Despite the simplification, the key pat
 are visible: the Leisure band (containing TV) dominates the afternoon for both sexes and
 is taller for men; the Household band is wider and starts earlier for women.
 
-### Exercise 15
+### Exercise 17
 
-Now build toward the 2024 "Americans are homebodies" finding. Add a new chunk with
-`#| cache: true` that computes average daily leisure minutes per respondent by year,
+Now build toward the 2024 "Americans are homebodies" finding. Add a new chunk that computes average daily leisure minutes per respondent by year,
 for all respondents (not just non-employed). Specifically:
 
 - Join `dbplyr_act` to `dbplyr_codes` and keep rows where
@@ -1561,7 +1597,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-15}
+```{r time-use-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1572,7 +1608,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-15-test, eval = !is.null(con_atus)}
+```{r time-use-17-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1611,12 +1647,12 @@ that dominates the afternoon band in the previous chart. Whether this counts as 
 becoming more homebound or simply having more free time is a question the data can frame
 but not fully answer.
 
-### Exercise 16
+### Exercise 18
 
 Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"`. You may use your
 AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r time-use-16}
+```{r time-use-18}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,

@@ -394,17 +394,7 @@ If your result differs from ours, replace your code with the code above before m
 
 ### Exercise 4
 
-Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `nba_clean`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
-
-Render. This first render will take some time — by including `#| cache: true`, Quarto saves the result to disk so the next render loads from cache instead of re-running. Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+Assign the result of the pipe to `nba_clean`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r nba-4}
 question_text(NULL,
@@ -421,6 +411,54 @@ Applying one transformation **across** many columns at once — selected by name
 
 ### Exercise 5
 
+That pipeline takes time on every render, so it earns caching. Add `#| cache: true` as the first line inside the chunk that builds `nba_clean`. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r nba-5}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
+
+###
+
+The first render writes the cache to disk; subsequent renders load `nba_clean` from cache.
+
+### Exercise 6
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r nba-6}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render.
+
+### Exercise 7
+
 Make a line plot from `nba_clean` showing average points per game over time, colored by `game_era`, with points sized by `games_count`. Give it a proper title, subtitle, and caption. Don't assign the plot. Render.
 
 In the R Terminal, run:
@@ -431,7 +469,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r nba-5}
+```{r nba-7}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -442,7 +480,7 @@ question_text(NULL,
 
 ###
 
-```{r nba-5-test}
+```{r nba-7-test}
 #| echo: true
 nba_clean |>
   ggplot(aes(x = game_year, y = avg_points, color = game_era)) +
@@ -619,17 +657,7 @@ Applying one transformation **across** many columns at once — say, all the cha
 
 ### Exercise 4
 
-Within the latest code chunk, add the option: `#| cache: true`. Assign the result of the pipe to `final_fifa`. If you have not done so already, add `analysis_cache` to your `.gitignore`.
-
-Render. This first render will take some time. Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+Assign the result of the pipe to `final_fifa`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r fifa-4}
 question_text(NULL,
@@ -642,11 +670,32 @@ question_text(NULL,
 
 ###
 
-**forcats** is the tidyverse package for factors, and two moves come up constantly: reordering a factor's levels by another variable, so a bar or dot chart displays in a meaningful order rather than alphabetically; and lumping rare levels together into an "Other" category, keeping only the few most common ones.
+**forcats** is the **[tidyverse](https://www.tidyverse.org/)** package for factors, and two moves come up constantly: reordering a factor's levels by another variable, so a bar or dot chart displays in a meaningful order rather than alphabetically; and lumping rare levels together into an "Other" category, keeping only the few most common ones.
 
 ### Exercise 5
 
-From `final_fifa`, make a scatter plot of `Age` vs `X.OVA` (overall rating), with point size and color showing `value_numeric`. Filter to players with `value_numeric > 0` and `X.OVA > 60`. Use a viridis color scale and proper labels. Don't assign the plot. Render.
+That pipeline takes time on every render too, so it earns caching. Add `#| cache: true` as the first line inside the chunk that builds `final_fifa`. Render the QMD. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR. (No `.gitignore` step --- `analysis_cache` is already ignored from the NBA section.)
+
+```{r fifa-5}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+The student's chunk now has `#| cache: true` as the first line, followed by the FIFA-cleaning pipeline.
+
+###
+
+Subsequent renders will load `final_fifa` from disk instead of re-running the pipeline.
+
+### Exercise 6
+
+From `final_fifa`, make a scatter plot of `Age` vs `X.OVA` (overall rating), with point size and color showing `value_numeric`. Filter to players with `value_numeric > 0` and `X.OVA > 60`. Use a **viridis** color scale and proper labels. Don't assign the plot. Render.
 
 In the R Terminal, run:
 
@@ -656,7 +705,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r fifa-5}
+```{r fifa-6}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -667,7 +716,7 @@ question_text(NULL,
 
 ###
 
-```{r fifa-5-test}
+```{r fifa-6-test}
 #| echo: true
 final_fifa |>
   filter(value_numeric > 0, X.OVA > 60) |>
