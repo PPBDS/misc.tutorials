@@ -96,7 +96,7 @@ atus.duckdb
 
     activity_codes  ~400 rows — lookup table. Columns: activity_code (int),
                    major_code (int), major_name (chr), sub_code (int),
-                   detail_code (int).
+                   sub_name (chr), detail_code (int).
 
   Activity code structure: 6-digit packed integer.
     activity_code %/% 10000        → major category (01–18)
@@ -107,4 +107,11 @@ atus.duckdb
   Source: US Bureau of Labor Statistics. American Time Use Survey, 2003–2023.
   https://www.bls.gov/tus/database.htm
   License: Public domain (US federal government data).
+
+  Raw inputs (atusact, atusresp, atuscps zip files + activity lexicon PDF)
+  downloaded from the BLS database page above. Build script reads the CSV
+  files entirely inside DuckDB's native engine to avoid holding large data
+  frames in R memory; the lexicon PDF is parsed with pdftotext to build the
+  major/sub-category lookup tables.
+
   Build script: dataset-search/explorations/atus/build-duckdb.R
