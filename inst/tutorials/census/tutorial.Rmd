@@ -765,6 +765,104 @@ question_text(NULL,
 
 ###
 
+<pre><code>
+---
+title: "Analyzing US Census Data"
+author: "&lt;your name&gt;"
+execute:
+  echo: false
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(tidycensus)
+library(sf)
+```
+
+```{r}
+#| cache: true
+income_tx <- get_acs(
+  geography = "county",
+  state = "TX",
+  variables = "B19013_001",
+  year = 2020,
+  geometry = TRUE
+)
+```
+
+```{r}
+#| message: false
+ggplot(income_tx) +
+  geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
+  scale_fill_viridis_c(option = "plasma", name = "Median income") +
+  labs(
+    title = "Median household income by county, Texas (2020)",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_void()
+```
+
+```{r}
+#| cache: true
+edu_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  summary_var = "B15003_001",
+  year = 2020,
+  geometry = TRUE
+)
+```
+
+```{r}
+#| message: false
+edu_ca |>
+  group_by(GEOID) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = percent)) +
+  scale_fill_viridis_c(option = "C", name = "% with degree") +
+  labs(
+    title = "Adults with a bachelor's degree or higher by county, California (2020)",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_void()
+```
+
+```{r}
+#| cache: true
+age_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(median_age = "B01002_001", population = "B01003_001"),
+  year = 2020
+)
+```
+
+```{r}
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  arrange(desc(population)) |>
+  slice_head(n = 15) |>
+  ggplot(aes(x = reorder(NAME, median_age), y = median_age)) +
+  geom_col(fill = "#4daf4a") +
+  coord_flip() +
+  labs(
+    title = "Median age, 15 most populous California counties (2020)",
+    x = NULL,
+    y = "Median age",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_minimal()
+```
+</code></pre>
+
+###
+
 **tidycensus** accepts a state as a name (`"Texas"`), a postal code (`"TX"`), or a FIPS code (`"48"`), and will aggregate to whatever geographic level you ask for — county here, but also census tract, place, or state. The same request scales from a single county map to a national tract-level analysis without changing the approach.
 
 ### Exercise 2
