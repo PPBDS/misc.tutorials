@@ -610,9 +610,9 @@ question_text(NULL,
 
 ```{r us-education-12-test}
 #| echo: true
-score_change 
-|> arrange(rla_change) 
-|> head(10)
+score_change |>
+  arrange(rla_change) |>
+  head(10)
 ```
 
 ###
