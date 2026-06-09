@@ -946,9 +946,10 @@ question_text(NULL,
 
 ###
 
-```{r time-use-4-test, eval = !is.null(con_atus)}
+```{r time-use-5-test, eval = !is.null(con_atus)}
+#| echo: true
 dbplyr_codes |>
-collect()
+  collect()
 ```
 
 ###
