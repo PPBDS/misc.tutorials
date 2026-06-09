@@ -134,12 +134,10 @@ question_text(NULL,
 
 ###
 
-<pre><code>```{r}
-#| message: false
+<pre><code>#| message: false
 library(tidyverse)
 library(tidycensus)
-library(sf)
-```</code></pre>
+library(sf)</code></pre>
 
 ###
 
@@ -189,7 +187,7 @@ Every ACS request comes down to three choices: the **geographic level** (county 
 
 ### Exercise 2
 
-Add a chunk that prints `income_tx` so you can see its structure. Render, then copy and paste the printed output from the HTML below.
+Add a chunk that prints `income_tx` so you can see its structure. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r texas-income-2}
 question_text(NULL,
@@ -197,12 +195,13 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
 
 ```{r texas-income-2-test}
+#| echo: true
 income_tx
 ```
 
@@ -228,7 +227,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 5)
 ```
 
 ###
@@ -369,7 +368,7 @@ These five variable codes report *completed* degrees, not enrollment. `B15003_02
 
 ### Exercise 2
 
-Add a chunk that prints `edu_ca`. Render, then copy and paste the printed output from the HTML.
+Add a chunk that prints `edu_ca`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r california-bachelors-degrees-2}
 question_text(NULL,
@@ -377,12 +376,13 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
 
 ```{r california-bachelors-degrees-2-test}
+#| echo: true
 edu_ca
 ```
 
@@ -411,7 +411,7 @@ question_text(NULL,
 edu_ca <- get_acs(
   geography = "county",
   state     = "CA",
-  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
   summary_var = "B15003_001",
   geometry    = TRUE,
   year      = 2020
@@ -599,7 +599,7 @@ You can give each variable a readable name — `median_age`, `population` — in
 
 ### Exercise 2
 
-Add a chunk that prints `age_ca`. Render, then copy and paste the printed output from the HTML.
+Add a chunk that prints `age_ca`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r california-median-age-2}
 question_text(NULL,
@@ -607,12 +607,13 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
 
 ```{r california-median-age-2-test}
+#| echo: true
 age_ca
 ```
 
@@ -762,6 +763,90 @@ question_text(NULL,
   incorrect = NULL,
   rows = 20)
 ```
+
+###
+
+<pre><code>
+---
+title: "Analyzing US Census Data"
+author: "&lt;your name&gt;"
+execute:
+  echo: false
+---
+
+#| message: false
+library(tidyverse)
+library(tidycensus)
+library(sf)
+
+#| cache: true
+income_tx <- get_acs(
+  geography = "county",
+  state = "TX",
+  variables = "B19013_001",
+  year = 2020,
+  geometry = TRUE
+)
+
+#| message: false
+ggplot(income_tx) +
+  geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
+  scale_fill_viridis_c(option = "plasma", name = "Median income") +
+  labs(
+    title = "Median household income by county, Texas (2020)",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_void()
+
+#| cache: true
+edu_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  summary_var = "B15003_001",
+  year = 2020,
+  geometry = TRUE
+)
+
+#| message: false
+edu_ca |>
+  group_by(GEOID) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = percent)) +
+  scale_fill_viridis_c(option = "C", name = "% with degree") +
+  labs(
+    title = "Adults with a bachelor's degree or higher by county, California (2020)",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_void()
+
+#| cache: true
+age_ca <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(median_age = "B01002_001", population = "B01003_001"),
+  year = 2020
+)
+
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  arrange(desc(population)) |>
+  slice_head(n = 15) |>
+  ggplot(aes(x = reorder(NAME, median_age), y = median_age)) +
+  geom_col(fill = "#4daf4a") +
+  coord_flip() +
+  labs(
+    title = "Median age, 15 most populous California counties (2020)",
+    x = NULL,
+    y = "Median age",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_minimal()
+</code></pre>
 
 ###
 

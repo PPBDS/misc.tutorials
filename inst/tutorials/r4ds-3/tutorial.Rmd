@@ -1,6 +1,6 @@
 ---
 title: Third Tutorial for R4DS
-author: Luke Li, David Kane, and Sruthi Gandhi
+author: David Kane and Alec Rogers
 tutorial:
   id: r4ds-3
 output:
@@ -189,12 +189,13 @@ question_text(NULL,
 
 ###
 
-<pre><code>#| message: false
+````
+#| message: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
-</code></pre>
+````
 
 ###
 
@@ -332,6 +333,7 @@ The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the n
 Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-4}
 question_text(NULL,
@@ -361,6 +363,7 @@ The dataset spans 2009–2019 and 2022–2025, with no observations for 2020 or 
 Compute the mean `rla_score` across all districts and years where `rla_score` is not missing. Collect the result. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-5}
 question_text(NULL,
@@ -374,6 +377,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-5-test}
+#| echo: true
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
@@ -390,6 +394,7 @@ The overall mean sits slightly below zero — the typical US district has scored
 Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-6}
 question_text(NULL,
@@ -403,6 +408,7 @@ question_text(NULL,
 ###
 
 ```{r us-education-6-test}
+#| echo: true
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
@@ -461,7 +467,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
@@ -942,9 +948,9 @@ question_text(NULL,
 
 ###
 
-```{r time-use-5-test, eval = !is.null(con_atus)}
-#| echo: true
-dbplyr_codes |> collect()
+```{r time-use-4-test, eval = !is.null(con_atus)}
+dbplyr_codes |>
+collect()
 ```
 
 ###

@@ -250,7 +250,7 @@ FiveThirtyEight published this data under a CC-BY license alongside their 2016 a
 
 Read `data/us_births_1994_2014.xlsx` and pass the result to `glimpse()`. Render.
 
-Copy and paste the glimpse output from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-2}
 question_text(NULL,
@@ -265,6 +265,7 @@ question_text(NULL,
 
 
 ```{r births-2-test}
+#| echo: true
 glimpse(read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx"))
 ```
 
@@ -274,7 +275,7 @@ The dataset has 7,670 rows and five columns: `year`, `month`, `date_of_month`, `
 
 Read `data/us_births_1994_2014.xlsx` and pass `births` and `year` to `summary()`. Render.
 
-Copy and paste the summary output from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-3}
 question_text(NULL,
@@ -282,13 +283,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-3-test}
+#| echo: true
 read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx") |>
   select(births, year) |>
   summary()
@@ -316,13 +318,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-4-test, echo = TRUE}
+#| echo: true
 glimpse(births_tibble)
 ```
 
@@ -380,7 +383,7 @@ The Source Control change count should drop back to whatever it was before the r
 
 Compute the average number of births for each combination of `month` and `date_of_month`, grouped across all years. Render.
 
-Copy and paste from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-7}
 question_text(NULL,
@@ -388,13 +391,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-7-test}
+#| echo: true
 births_tibble |>
   group_by(month, date_of_month) |>
   summarize(mean_births = mean(births), .groups = "drop")
@@ -427,6 +431,7 @@ question_text(NULL,
 
 
 ```{r births-8-test, echo = TRUE}
+#| echo: true
 births_tibble |>
   group_by(month, date_of_month) |>
   summarize(mean_births = mean(births), .groups = "drop") |>
@@ -495,7 +500,7 @@ The September peak sits roughly nine months after the December holiday season �
 
 Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render.
 
-Copy and paste the table from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-10}
 question_text(NULL,
@@ -503,13 +508,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-10-test}
+#| echo: true
 christmas_data |>
   mutate(pct_of_baseline = round(pct_of_baseline, 3)) |>
   select(year, christmas_births, baseline, pct_of_baseline, weekday)
@@ -521,7 +527,7 @@ The `weekday` column shows Christmas falling on a different day each year — Su
 
 Pass `christmas_data` to `summary()`. Render.
 
-Copy and paste the summary output from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-11}
 question_text(NULL,
@@ -529,13 +535,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-11-test}
+#| echo: true
 summary(christmas_data)
 ```
 
@@ -566,6 +573,7 @@ question_text(NULL,
 
 
 ```{r births-12-test, echo = TRUE}
+#| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline)) +
   geom_line(color = "gray60", linewidth = 0.5) +
@@ -608,6 +616,7 @@ question_text(NULL,
 
 
 ```{r births-13-test, echo = TRUE}
+#| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline, color = weekday)) +
   geom_line(color = "gray70", linewidth = 0.4) +
@@ -635,7 +644,7 @@ The tool is a linear model. R predicts each day's birth count from year, month, 
 
 Fit `lm(births ~ factor(year) + factor(month) + day_of_week, data = births_tibble)`, assign the result to `births_model`, and print `summary(births_model)$r.squared`. Render.
 
-Copy and paste the R-squared value from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-14}
 question_text(NULL,
@@ -650,6 +659,7 @@ question_text(NULL,
 
 
 ```{r births-14-test}
+#| echo: true
 summary(births_model)$r.squared
 ```
 
@@ -673,13 +683,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-15-test, echo = TRUE}
+#| echo: true
 glimpse(births_adjusted)
 ```
 
@@ -689,7 +700,7 @@ The `pct_resid` column holds each day's residual as a percentage of the overall 
 
 Filter February 29 from `births_adjusted`, group by `month` and `date_of_month`, compute the mean `pct_resid` for each of the 365 calendar positions, and assign a calendar date using 2001 as a non-leap anchor year. Assign the result to `calendar_resid`. Render.
 
-Copy and paste the first ten rows of the table from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-16}
 question_text(NULL,
@@ -697,13 +708,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r births-16-test}
+#| echo: true
 calendar_resid
 ```
 
@@ -734,6 +746,7 @@ question_text(NULL,
 
 
 ```{r births-17-test, echo = TRUE}
+#| echo: true
 calendar_resid |>
   ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
   geom_hline(yintercept = 0, color = "gray60") +
@@ -834,7 +847,7 @@ The Pudding collected recruit rankings from 247Sports and career statistics from
 
 Read `data/nba_recruits.xlsx` with `read_excel()` and print the result. Render.
 
-Copy and paste the table from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r basketball-recruits-2}
 question_text(NULL,
@@ -842,13 +855,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r basketball-recruits-2-test}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx")
 ```
 
@@ -858,7 +872,7 @@ The first 10 rows are all `"#1–10"` recruits from the 1998 class — the data 
 
 Read `data/nba_recruits.xlsx` and pass the result to `glimpse()`. Render.
 
-Copy and paste the glimpse output from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r basketball-recruits-3}
 question_text(NULL,
@@ -866,13 +880,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r basketball-recruits-3-test}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |> glimpse()
 ```
 
@@ -882,7 +897,7 @@ read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |> glimpse()
 
 Read `data/nba_recruits.xlsx`, select `rank`, `nba_mean_ws48`, `top_mean_wa`, `total_seasons`, and `drafted`, and pass the result to `summary()`. Render.
 
-Copy and paste the summary output from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r basketball-recruits-4}
 question_text(NULL,
@@ -890,13 +905,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r basketball-recruits-4-test}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   select(rank, nba_mean_ws48, top_mean_wa, total_seasons, drafted) |>
   summary()
@@ -908,7 +924,7 @@ read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
 
 Read `data/nba_recruits.xlsx` and count players by `tier`. Render.
 
-Copy and paste the table from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r basketball-recruits-5}
 question_text(NULL,
@@ -916,13 +932,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r basketball-recruits-5-test}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   count(tier)
 ```
@@ -954,6 +971,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-6-test, echo = TRUE}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
@@ -992,6 +1010,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-7-test, echo = TRUE}
+#| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
@@ -1019,13 +1038,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 5)
 ```
 
 ###
 
 
 ```{r basketball-recruits-8-test, echo = TRUE}
+#| echo: true
 glimpse(basketball_tibble)
 ```
 
@@ -1077,6 +1097,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-10-test, echo = TRUE}
+#| echo: true
 basketball_tibble |>
   ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
   geom_bar(position = "fill") +
@@ -1137,6 +1158,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-12-test, echo = TRUE}
+#| echo: true
 basketball_tibble |>
   filter(recruit_group != "Outside top 100") |>
   ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
@@ -1181,6 +1203,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-13-test, echo = TRUE}
+#| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
   ggplot(aes(x = fct_rev(recruit_group), y = nba_mean_ws48,
@@ -1223,7 +1246,7 @@ The bar chart and the boxplot answer different questions. The bar chart shows th
 
 Replace the code in the previous chunk with a pipeline that filters `basketball_tibble` to players with non-missing `nba_mean_ws48`, arranges by descending `nba_mean_ws48`, selects `name`, `rank`, `recruit_group`, and `nba_mean_ws48`, and shows only the top 10 rows. Render.
 
-Copy and paste the table from the HTML.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r basketball-recruits-15}
 question_text(NULL,
@@ -1231,13 +1254,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 7)
 ```
 
 ###
 
 
 ```{r basketball-recruits-15-test}
+#| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
   arrange(desc(nba_mean_ws48)) |>
@@ -1272,6 +1296,7 @@ question_text(NULL,
 
 
 ```{r basketball-recruits-16-test, echo = TRUE}
+#| echo: true
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
   ggplot(aes(x = rank, y = top_mean_wa, color = tier)) +
