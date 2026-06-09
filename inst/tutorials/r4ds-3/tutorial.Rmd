@@ -380,8 +380,6 @@ dbplyr_dist |>
 
 ###
 
-<!-- AR: This is inconsistent with the evidence provided. Ask Claude: Hey is there anywhere where the KD is inconsistent with the evidence provided? -->
-
 The overall mean sits slightly below zero — the typical US district has scored a fraction below the national benchmark when averaged across all years. The next exercise breaks this down by year.
 
 ### Exercise 6
@@ -412,7 +410,7 @@ dbplyr_dist |>
 
 ###
 
-Scores are consistently near zero through 2019. The 2022–2025 values are noticeably more negative, with 2023 among the lowest — the COVID disruption lowered the national average and recovery has been slow.
+Scores are consistently above but near zero during 2012-2019. The 2022–2025 values are noticeably more negative, with scores decreasing each year. The COVID disruption lowered the national average and recovery has been slow.
 
 ### Exercise 7
 
@@ -617,7 +615,7 @@ score_change |>
 
 ###
 
-The largest declines are around −1 to −1.5 grade-equivalents over eight years. Scan the district names — extreme values in education data are often dominated by tiny or specialty districts with very small student populations, where a single cohort can swing the average dramatically.
+The largest declines are around −1 to −1.9 grade-equivalents over eight years. Scan the district names — extreme values in education data are often dominated by tiny or specialty districts with very small student populations, where a single cohort can swing the average dramatically.
 
 ### Exercise 13
 
@@ -943,7 +941,7 @@ list(
 
 ###
 
-Five million activity records justify keeping the data in DuckDB — collecting the whole table at once would load a ~400 MB data frame into R. Aggregating before `collect()` means R only ever sees the summary.
+Nearly five million activity records justify keeping the data in DuckDB — collecting the whole table at once would load a ~400 MB data frame into R. Aggregating before `collect()` means R only ever sees the summary.
 
 ### Exercise 6
 
