@@ -107,12 +107,10 @@ if (file.exists(atus_path)) {
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
 ```
 
-<!-- AR: Check this entire tutorial against the guide. I'm hoping that it will update the introduction. -->
-
 ## Introduction
 ###
 
-This section covers key concepts from [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular Expressions](https://r4ds.hadley.nz/regexps.html), [Chapter 12: Logical Vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
 You will use the  **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query two datasets recently featured in the *New York Times*: the Stanford Education Data Archive (SEDA) reading scores across 13,000 US school districts, and the American Time Use Survey (ATUS), which records how non-employed Americans spend their weekdays.
 
@@ -278,9 +276,9 @@ A database holds multiple tables — typically dozens or hundreds in production 
 
 ### Exercise 2
 
-Create a new code chunk in `analysis.qmd`. Add code to connect to the database file and run `dbListTables()` to see the available tables. Render.
+Create a new working chunk in `analysis.qmd`. Add code to connect to the database file and run `dbListTables()` to see the available tables. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-2}
 question_text(NULL,
@@ -288,13 +286,14 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 3)
+    rows = 5)
 ```
 
 ###
 
-```
-[1] "district_demographics" "district_scores"       "state_scores"
+```{r us-education-2-test}
+#| echo: true
+dbListTables(con_seda)
 ```
 
 ###
@@ -303,9 +302,9 @@ The SEDA database has three tables: `district_scores` (one row per district per 
 
 ### Exercise 3
 
-Create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
+In the current working chunk, create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-3}
 question_text(NULL,
@@ -313,24 +312,26 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 ```{r us-education-3-test}
+#| echo: true
+dbplyr_dist <- tbl(con_seda, "district_scores")
 dbplyr_dist
 ```
 
 ###
 
-The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. Negative values mean that district's students scored below the national average.
+The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. Negative values mean that district's students scored below the national average. `dbplyr_dist` is a lazy reference — it points to the table but pulls no data into R. Data only moves into memory when you call `collect()`.
 
 ### Exercise 4
 
 Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-4}
 question_text(NULL,
@@ -338,16 +339,17 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 ```{r us-education-4-test}
-dbplyr_dist |> 
-count(year) |> 
-collect() |> 
-arrange(year)
+#| echo: true
+dbplyr_dist |>
+  count(year) |>
+  collect() |>
+  arrange(year)
 ```
 
 ###
@@ -358,7 +360,7 @@ The dataset spans 2009–2019 and 2022–2025, with no observations for 2020 or 
 
 Compute the mean `rla_score` across all districts and years where `rla_score` is not missing. Collect the result. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-5}
 question_text(NULL,
@@ -366,12 +368,13 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 3)
+    rows = 5)
 ```
 
 ###
 
 ```{r us-education-5-test}
+#| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
   summarize(mean_rla = mean(rla_score)) |>
@@ -386,7 +389,7 @@ The overall mean sits slightly below zero — the typical US district has scored
 
 Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-6}
 question_text(NULL,
@@ -394,12 +397,13 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 7)
 ```
 
 ###
 
 ```{r us-education-6-test}
+#| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
   group_by(year) |>
@@ -414,29 +418,44 @@ Scores are consistently above but near zero during 2012-2019. The 2022–2025 va
 
 ### Exercise 7
 
-<!-- AR: Split to two questions. 
+For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement. Keep only districts with data in both years. Assign the result to `score_change` and print it. Render.
 
-2 approaches to 
-Just spit out the pipe, then assign to an object after. 
-
-OR Print output - say this explicitly when we are creating a permanent object. In next question remove printed output -->
-
-Compute two objects:
-
-1. For each district, the change in reading score from 2015 to 2023, where a positive value means improvement. Keep only districts with data in both years. Assign to `score_change`.
-2. Do the same aggregation at the state level using `state_scores`. Assign to `state_change`.
-
-Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r us-education-7}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r us-education-7-test}
+#| echo: true
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+score_change
+```
+
+###
+
+`score_change` has one row per district with its 2015 score, 2023 score, and their difference. The `collect()` here pulls a small derived table into memory after the database has done the heavy filtering and reshaping.
+
+### Exercise 8
+
+In the same working chunk, also compute `state_change` using the `state_scores` table — the same structure as `score_change` but aggregated at the state level. Replace the print of `score_change` with a print of `state_change`. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r us-education-8}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -447,28 +466,38 @@ question_text(NULL,
 
 ###
 
-<!-- AR: Was formatted unpleasantly. Each pipe should be on its own line. Ask Claude to review and fix. -->
-
-```{r us-education-7-test}
+```{r us-education-8-test}
 #| echo: true
-score_change |>
-arrange(rla_change) |>
-head(5)
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change <- tbl(con_seda, "state_scores") |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(stateabb, state_name, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change
 ```
 
 ###
 
-`score_change` has one row per district with its 2015 score, 2023 score, and their difference. `state_change` has the same structure at the state level. You will use both in the remaining exercises.
+`score_change` and `state_change` have the same structure at different levels of aggregation — district and state. You will use both in the remaining exercises.
 
-### Exercise 8
+### Exercise 9
 
-Now finalize the first code chunk. Edit the chunk so it contains only: the database connection, the `dbplyr_dist` lazy reference, and the two object computations from Exercise 7. 
+Now finalize the current working chunk. Edit the chunk so it contains only: the database connection, the `dbplyr_dist` lazy reference, the `score_change` computation from Exercise 7, and the `state_change` computation from Exercise 8. Remove all exploratory code from Exercises 2–6.
 
 Render.
 
- In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-8}
+```{r us-education-9}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -501,11 +530,11 @@ state_change <- tbl(con_seda, "state_scores") |>
 
 The chunk now holds only the objects worth keeping, nothing exploratory. Now we're ready to cache them for faster loading in our further work.
 
-### Exercise 9
+### Exercise 10
 
-Add `#| cache: true` as the first option in the chunk from Exercise 8. Render. In the bash Terminal, run `ls`. CP/CR.
+Add `#| cache: true` as the first option in the current working chunk. Render. In the bash Terminal, run `ls`. CP/CR.
 
-```{r us-education-9}
+```{r us-education-10}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -524,11 +553,11 @@ analysis.qmd  analysis_cache  analysis_files  analysis.html  data
 
 The first render with caching writes `analysis_cache/` to disk. Subsequent renders reload `score_change` and `state_change` from cache and skip the database joins entirely.
 
-### Exercise 10
+### Exercise 11
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r us-education-10}
+```{r us-education-11}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -547,7 +576,7 @@ analysis_cache
 
 Cache files are machine-specific and regenerated on every render — they should never go to GitHub.
 
-### Exercise 11
+### Exercise 12
 
 Create a new working code chunk in `analysis.qmd`. From `dbplyr_dist`, filter to 2023 with non-missing `rla_score`, collect, and plot the distribution as a histogram. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
@@ -559,7 +588,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r us-education-11}
+```{r us-education-12}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -570,7 +599,7 @@ question_text(NULL,
 
 ###
 
-```{r us-education-11-test}
+```{r us-education-12-test}
 #| echo: true
 ggplot(dist_2023, aes(x = rla_score)) +
   geom_histogram(bins = 50, fill = "steelblue", color = "white") +
@@ -589,24 +618,24 @@ ggplot(dist_2023, aes(x = rla_score)) +
 
 The distribution is roughly bell-shaped with a longer left tail. Extreme values on the left (−2 or below) tend to be small, high-poverty districts whose students score roughly two grade levels below average.
 
-### Exercise 12
+### Exercise 13
 
 Print the 10 districts with the largest reading score decline from `score_change`. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-12}
+```{r us-education-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
-```{r us-education-12-test}
+```{r us-education-13-test}
 #| echo: true
 score_change |>
   arrange(rla_change) |>
@@ -617,7 +646,7 @@ score_change |>
 
 The largest declines are around −1 to −1.9 grade-equivalents over eight years. Scan the district names — extreme values in education data are often dominated by tiny or specialty districts with very small student populations, where a single cohort can swing the average dramatically.
 
-### Exercise 13
+### Exercise 14
 
 Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
@@ -629,7 +658,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r us-education-13}
+```{r us-education-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -640,7 +669,7 @@ question_text(NULL,
 
 ###
 
-```{r us-education-13-test}
+```{r us-education-14-test}
 #| echo: true
 ggplot(score_change, aes(x = rla_change)) +
   geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
@@ -660,32 +689,34 @@ ggplot(score_change, aes(x = rla_change)) +
 
 The distribution sits almost entirely to the left of 0 — about 82% of districts with data in both years show a negative change. This is the same finding the New York Times visualized in the arrow chart shown at the start of this section.
 
-### Exercise 14
+### Exercise 15
 
 Print `state_change` sorted by `rla_change`. Render.
 
-Copy and paste the output from your HTML below.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-14}
+```{r us-education-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
 
-```{r us-education-14-test}
-state_change |> arrange(rla_change)
+```{r us-education-15-test}
+#| echo: true
+state_change |>
+  arrange(rla_change)
 ```
 
 ###
 
 With only 50 states, printing all rows makes sense. Most states declined, but two near the bottom of the ascending sort improved substantially — you will see which ones in the next exercise.
 
-### Exercise 15
+### Exercise 16
 
 Let's reconstruct the *New York Times* arrow chart from the beginning of this section. Recall:
 
@@ -704,7 +735,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r us-education-15}
+```{r us-education-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -715,7 +746,7 @@ question_text(NULL,
 
 ###
 
-```{r us-education-15-test}
+```{r us-education-16-test}
 #| echo: true
 #| fig.height: 10
 state_change |>
@@ -746,12 +777,12 @@ state_change |>
 
 Mississippi and Louisiana's blue arrows stand out sharply against the field of red. Both passed aggressive phonics-based reading legislation in the years shown, and SEDA captures the result. This is the same chart the New York Times built from the SEDA data shown in the section introduction.
 
-### Exercise 16
+### Exercise 17
 
 Commit `analysis.qmd` with the message `"Add SEDA district reading analysis"`. You may
 use your AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r us-education-16}
+```{r us-education-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -784,24 +815,13 @@ knitr::include_graphics("images/men-v-women-atus-nyt.png")
 
 ### Exercise 1
 
-Download the DuckDB database `atus.duckdb` from this URL and save it in your `data/`
-directory:
+Download the DuckDB database `atus.duckdb` from this URL and save it in your `data/` directory:
 
 ```
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/atus.duckdb
 ```
 
-<!-- AR: type ls data CP/CR
-
-New exercise: -->
-
-Create a new code chunk in `analysis.qmd`. Add code to connect to the database file and run `dbListTables()` to see what tables it contains. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
+In the bash Terminal, run `ls data`.
 
 CP/CR.
 
@@ -811,32 +831,24 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 5)
+    rows = 3)
 ```
 
 ###
 
 ```
-[1] "activities"     "activity_codes" "respondents"
+atus.duckdb  seda_2025.duckdb
 ```
 
 ###
 
-The ATUS records every activity in a single 24-hour day for a randomly selected American — housework, TV, childcare, sleep — and has been running annually since 2003. The three tables hold the diary records, respondent demographics, and a codebook for the numeric activity codes.
+The ATUS has been running annually since 2003 and now covers more than 220,000 respondents. The survey asks one randomly selected person per household to record every activity — housework, childcare, TV, travel — across a single 24-hour day.
 
 ### Exercise 2
 
-<!-- AR: 1. make the object and point it out. 2. Add  -->
+Create a new working chunk in `analysis.qmd`. Add code to connect to `data/atus.duckdb` and run `dbListTables()` to see what tables it contains. Render.
 
-Create lazy references to all three tables: assign `dbplyr_act` for `activities`, `dbplyr_resp` for `respondents`, and `dbplyr_codes` for `activity_codes`. Remove the `dbListTables()` call and print `dbplyr_act` instead. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-2}
 question_text(NULL,
@@ -850,6 +862,36 @@ question_text(NULL,
 ###
 
 ```{r time-use-2-test, eval = !is.null(con_atus)}
+#| echo: true
+dbListTables(con_atus)
+```
+
+###
+
+Three tables: `activities` records every diary entry with start time and duration, `respondents` holds demographic data including sex, age, and employment status, and `activity_codes` maps numeric codes to human-readable category names.
+
+### Exercise 3
+
+In the current working chunk, replace the `dbListTables()` call with lazy references to all three tables: assign `dbplyr_act` for `activities`, `dbplyr_resp` for `respondents`, and `dbplyr_codes` for `activity_codes`. Print `dbplyr_act`. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-3}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 7)
+```
+
+###
+
+```{r time-use-3-test, eval = !is.null(con_atus)}
+#| echo: true
+dbplyr_act   <- tbl(con_atus, "activities")
+dbplyr_resp  <- tbl(con_atus, "respondents")
+dbplyr_codes <- tbl(con_atus, "activity_codes")
 dbplyr_act
 ```
 
@@ -857,21 +899,13 @@ dbplyr_act
 
 The six-digit `activity_code` encodes a three-level hierarchy: for code 120303, `%/% 10000` gives major category 12 (Socializing, Relaxing, and Leisure), `%/% 100 %% 100` gives sub-category 03 (TV and Movies), and `%% 100` gives detail 03 (Watching TV). The `start_hhmm` column uses the same packed format: 1430 means 2:30 PM, and `start_hhmm %/% 100` gives the hour.
 
-### Exercise 3
+### Exercise 4
 
-<!-- AR: once we make permanent object, create a new code chunk. -->
+In the current working chunk, replace the print of `dbplyr_act` with `dbplyr_resp`. Render.
 
-In a new code chunk. Print `dbplyr_resp`. Render.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r time-use-3}
+```{r time-use-4}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -882,7 +916,8 @@ question_text(NULL,
 
 ###
 
-```{r time-use-3-test, eval = !is.null(con_atus)}
+```{r time-use-4-test, eval = !is.null(con_atus)}
+#| echo: true
 dbplyr_resp
 ```
 
@@ -890,34 +925,11 @@ dbplyr_resp
 
 Each row is one ATUS diarist. "Not in labor force" means the person was neither working nor job-hunting — retirees, full-time caregivers, and non-enrolled students all qualify. The `day_type` column separates weekday diaries from weekend/holiday ones, and `weight` adjusts each respondent to represent the full US population.
 
-### Exercise 4
-
-<!-- AR: KD about collect. What is the purpose of collect()? what is meand by "defer"? -->
-
-Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render. Copy and paste the printed table from the rendered HTML.
-
-```{r time-use-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r time-use-4-test, eval = !is.null(con_atus)}
-dbplyr_codes |> collect()
-```
-
-###
-
-The 18 major categories run from Personal Care (sleeping, grooming) to Other Activities; this section focuses on categories 2 (Household Activities), 3 (Caring), and 12 (Leisure, which contains TV). `major_name` is the only human-readable label in this build — the full codebook lives in a separate BLS PDF.
-
 ### Exercise 5
 
-For each table in the database, count the number of rows. Render. Copy and paste the three row counts from the rendered HTML.
+Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-5}
 question_text(NULL,
@@ -932,6 +944,32 @@ question_text(NULL,
 
 ```{r time-use-5-test, eval = !is.null(con_atus)}
 #| echo: true
+dbplyr_codes |> collect()
+```
+
+###
+
+The 18 major categories run from Personal Care (sleeping, grooming) to Other Activities; this section focuses on categories 2 (Household Activities), 3 (Caring), and 12 (Leisure, which contains TV). `major_name` is the only human-readable label in this build — the full codebook lives in a separate BLS PDF.
+
+### Exercise 6
+
+For each table in the database, count the number of rows. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-6}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r time-use-6-test, eval = !is.null(con_atus)}
+#| echo: true
 list(
   activities     = dbplyr_act  |> summarize(n = n()) |> collect(),
   respondents    = dbplyr_resp |> summarize(n = n()) |> collect(),
@@ -943,22 +981,24 @@ list(
 
 Nearly five million activity records justify keeping the data in DuckDB — collecting the whole table at once would load a ~400 MB data frame into R. Aggregating before `collect()` means R only ever sees the summary.
 
-### Exercise 6
+### Exercise 7
 
-Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Count activity records by major category: join `dbplyr_act` to `dbplyr_codes` to get `major_name`, count records per `major_name`, sort descending. Collect and print. Render.
 
-```{r time-use-6}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-7}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 7)
 ```
 
 ###
 
-```{r time-use-6-test, eval = !is.null(con_atus)}
+```{r time-use-7-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   mutate(major_code = activity_code %/% 10000L) |>
@@ -972,22 +1012,24 @@ dbplyr_act |>
 
 Traveling tops the count because each trip is a separate record — a three-leg commute is three rows. Sleeping is typically one long record per night, so it generates far fewer entries than its share of daily time would suggest.
 
-### Exercise 7
+### Exercise 8
 
-Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Compute the average `duration_min` per activity record by major category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, average `duration_min` grouped by `major_name`, sort descending. Collect and print. Render.
 
-```{r time-use-7}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-8}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 7)
 ```
 
 ###
 
-```{r time-use-7-test, eval = !is.null(con_atus)}
+```{r time-use-8-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1000,26 +1042,28 @@ dbplyr_act |>
 
 ###
 
-<!-- AR: Not true! What is "Data codes" in the table? -->
+<!-- FLAG: KD needs verification against actual render output. AR noted "Not true! What is 'Data codes' in the table?" — revisit after render. -->
 
-Personal Care tops average duration because a single sleep entry lasts 7–9 hours. This answers a different question than Exercise 6: record count versus average record length — a category can have many short records (Traveling) or few long ones (Sleeping). To get total time per person per day, researchers sum `duration_min` per respondent, which Exercise 10 will do.
+This answers a different question than Exercise 7: average record length rather than record count. A category can have many short records (Traveling) or a few long ones (Personal Care, which includes sleep). To get total time per person per day, researchers sum `duration_min` per respondent, which Exercise 12 will do.
 
-### Exercise 8
+### Exercise 9
 
-Count the number of respondents by `sex` and `employment_status`. Collect and print. Render. Copy and paste the table from the rendered HTML.
+Count the number of respondents by `sex` and `employment_status`. Collect and print. Render.
 
-```{r time-use-8}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-9}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 7)
 ```
 
 ###
 
-```{r time-use-8-test, eval = !is.null(con_atus)}
+```{r time-use-9-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_resp |>
   count(sex, employment_status, sort = FALSE) |>
@@ -1031,22 +1075,24 @@ dbplyr_resp |>
 
 The "Not in labor force" group — the focus of the NYT graphic — is smaller than the employed group but still a substantial sample. Women are overrepresented in it relative to men, consistent with decades of data on caregiving exit rates.
 
-### Exercise 9
+### Exercise 10
 
-Count the number of respondents by `year`. Collect and print, arranged by year. Render. Copy and paste the table from the rendered HTML.
+Count the number of respondents by `year`. Collect and print, arranged by year. Render.
 
-```{r time-use-9}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-10}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 7)
 ```
 
 ###
 
-```{r time-use-9-test, eval = !is.null(con_atus)}
+```{r time-use-10-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_resp |>
   count(year) |>
@@ -1058,13 +1104,13 @@ dbplyr_resp |>
 
 Annual sample sizes are roughly stable — around 10,000–11,000 respondents per year. The 2020 and 2021 counts may be lower: the pandemic disrupted BLS field operations and produced atypical diary-day patterns that analysts often treat separately from the longer-run trend.
 
-### Exercise 10
+### Exercise 11
 
-For weekday non-employed respondents, compute each person's total daily minutes in each major activity category, then average across people by `sex` and `major_name`. 
-<!-- AR: 2 questions. Split here. -->
-Collect and assign to `x`. Render (the first render is slow). In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+For weekday non-employed respondents, compute each person's total daily minutes in each major activity category. Join `dbplyr_act` to `dbplyr_codes` to get `major_name`, filter to non-employed weekday respondents via `dbplyr_resp`, and sum `duration_min` per person per category. Collect and print the result. Render (this first render is slow).
 
-```{r time-use-10}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-11}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1075,7 +1121,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-10-test, eval = !is.null(con_atus)}
+```{r time-use-11-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1087,23 +1133,20 @@ dbplyr_act |>
              by = "tucaseid") |>
   group_by(tucaseid, sex, major_name) |>
   summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
-  group_by(sex, major_name) |>
-  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
-  arrange(sex, desc(avg_daily_min)) |>
   collect()
 ```
 
 ###
 
-If your result differs from ours, replace your code with the code above before moving on so your `x` matches for the rest of the section.
+This first `summarize()` totals minutes per person per category. A respondent who watched TV in three stretches contributes one total, not three records. The next exercise averages these person-level totals across all respondents.
 
-The two-step aggregation matters: the first `summarize()` totals minutes per person per category, so a respondent who watched TV in three stretches contributes one total — not three records. The second `summarize()` then averages those person-level totals across respondents.
+### Exercise 12
 
-### Exercise 11
+Extend the pipeline: after the first `group_by()` + `summarize()`, add a second `group_by(sex, major_name)` + `summarize()` that averages the person-level totals across respondents. Assign the full result to `x`. Render.
 
-Build the time-of-day dataset for the final chart: for weekday non-employed respondents, compute the average minutes spent in activities starting in each hour of the day, broken out by `sex` and `major_name`. Keep only the four major categories: Personal Care, Household Activities, Caring for and Helping Household Members, and Socializing, Relaxing, and Leisure. Filter to hours 6 through 23. Collect and assign to `y`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-11}
+```{r time-use-12}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1114,7 +1157,46 @@ question_text(NULL,
 
 ###
 
-```{r time-use-11-test, eval = !is.null(con_atus)}
+```{r time-use-12-test, eval = !is.null(con_atus)}
+#| echo: true
+x <- dbplyr_act |>
+  left_join(dbplyr_codes |> select(activity_code, major_name),
+            by = "activity_code") |>
+  inner_join(dbplyr_resp |>
+               filter(str_starts(employment_status, "Not"),
+                      day_type == "Weekday") |>
+               select(tucaseid, sex),
+             by = "tucaseid") |>
+  group_by(tucaseid, sex, major_name) |>
+  summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
+  group_by(sex, major_name) |>
+  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
+  collect()
+x
+```
+
+###
+
+If your result differs from ours, replace your code with the code above before moving on so your `x` matches for the rest of the section.
+
+`x` now has one row per sex–category combination, with `avg_daily_min` representing the average weekday minutes a non-employed person of that sex spends in that category.
+
+### Exercise 13
+
+Build the time-of-day dataset for the final chart: for weekday non-employed respondents, compute the average minutes spent in activities starting in each hour of the day, broken out by `sex` and `major_name`. Keep only the four major categories: Personal Care, Household Activities, Caring for and Helping Household Members, and Socializing, Relaxing, and Leisure. Filter to hours 6 through 23. Collect and assign to `y`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-13}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r time-use-13-test, eval = !is.null(con_atus)}
 #| echo: true
 keep_cats <- c(
   "Personal Care Activities",
@@ -1143,16 +1225,11 @@ dbplyr_act |>
 
 The `start_hhmm %/% 100` extraction is the same integer-division operation used to get departure hours from `dep_time` in the flights data — both are packed HHMM integers where the upper two digits hold the hour. Filtering to hours 6–23 avoids a before-dawn ambiguity in the ATUS diary format.
 
-### Exercise 12
+### Exercise 14
 
-<!-- AR:
-chunk 1 = download data
-chunk 2 = this chunk
-chunk 3 = plots -->
+Now finalize the current working chunk. Edit the chunk so it contains only: the database connection, the three lazy table references, the `x` computation from Exercise 12, and the `y` computation from Exercise 13. Remove all exploratory code from Exercises 3–10. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-Now finalize this chunk. Edit the chunk so it contains only: the database connection, the three lazy table references, the `x` computation from Exercise 10, and the `y` computation from Exercise 11. Remove all exploratory code from Exercises 2–9. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r time-use-12}
+```{r time-use-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1190,11 +1267,11 @@ y <- dbplyr_act |>
 
 Caching is a refactoring step — the chunk now holds only the objects worth keeping, nothing exploratory.
 
-### Exercise 13
+### Exercise 15
 
-Add `#| cache: true` as the first option in the chunk from Exercise 12. Render. In the bash Terminal, run `ls`. CP/CR.
+Add `#| cache: true` as the first option in the current working chunk. Render. In the bash Terminal, run `ls`. CP/CR.
 
-```{r time-use-13}
+```{r time-use-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1213,11 +1290,11 @@ analysis.qmd  analysis_cache  analysis_files  analysis.html  data
 
 The first render with caching writes `analysis_cache/` to disk. Subsequent renders reload `x` and `y` from cache and skip all five million rows of database joins.
 
-### Exercise 14
+### Exercise 16
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r time-use-14}
+```{r time-use-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1236,75 +1313,9 @@ analysis_cache
 
 Cache files are machine-specific and regenerated on every render — they should never go to GitHub.
 
-### Exercise 15
-
-Create a new code chunk in `analysis.qmd`. Make a horizontal grouped bar chart from `x` showing average daily minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by average minutes. Remove any rows where `major_name` is `NA`. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r time-use-15}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 12)
-```
-
-###
-
-```{r time-use-15-test, eval = !is.null(con_atus)}
-#| echo: true
-x |>
-  filter(!is.na(major_name)) |>
-  mutate(major_name = fct_reorder(major_name, avg_daily_min)) |>
-  ggplot(aes(x = avg_daily_min, y = major_name, fill = sex)) +
-  geom_col(position = "dodge") +
-  labs(
-    title = "How Non-Employed Americans Spend Weekdays",
-    subtitle = "Women devote more time to housework and caregiving; men spend more on leisure",
-    x = "Average minutes per weekday",
-    y = NULL,
-    fill = "Sex",
-    caption = "Source: BLS American Time Use Survey (2003–2023). Weekday non-employed respondents."
-  ) +
-  theme_minimal()
-```
-
-###
-
-The Household Activities and Caring bars tell the story the NYT graphic illustrates: women's bars extend roughly 50–60 minutes farther than men's. The Leisure bar goes the other way: men average substantially more minutes, driven largely by TV.
-
-### Exercise 16
-
-In one to two sentences, describe the most striking difference between men and women in the chart you just produced. Name the specific activity categories where the gap is largest, and state which direction (men higher or women higher).
-
-```{r time-use-16}
-question_text(NULL,
-  message = "Women average about 50–60 more minutes per weekday on Household Activities
-and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
-Relaxing, and Leisure — driven largely by more TV watching.",
-  answer(NULL, correct = TRUE),
-  allow_retry = FALSE,
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-Sociologist Arlie Hochschild named this the "second shift" in 1989: even when women join the paid labor force, they retain the bulk of household and caregiving work. The ATUS shows the pattern persists in the non-employed group — non-employed women redirect time not into leisure but into unpaid domestic work.
-
 ### Exercise 17
 
-<!-- AR: show nytimes chart. Challenge students to make our chart more like this one. Beware downloading new packages. -->
-
-Build a stacked area chart from `y`, with `hour` on the x-axis, `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use `position = "stack"`. Give the chart a title, subtitle, and data source caption. Render.
+Create a new code chunk in `analysis.qmd`. Make a horizontal grouped bar chart from `x` showing average daily minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by average minutes. Remove any rows where `major_name` is `NA`. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
 In the R Terminal, run:
 
@@ -1327,6 +1338,70 @@ question_text(NULL,
 
 ```{r time-use-17-test, eval = !is.null(con_atus)}
 #| echo: true
+x |>
+  filter(!is.na(major_name)) |>
+  mutate(major_name = fct_reorder(major_name, avg_daily_min)) |>
+  ggplot(aes(x = avg_daily_min, y = major_name, fill = sex)) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "How Non-Employed Americans Spend Weekdays",
+    subtitle = "Women devote more time to housework and caregiving; men spend more on leisure",
+    x = "Average minutes per weekday",
+    y = NULL,
+    fill = "Sex",
+    caption = "Source: BLS American Time Use Survey (2003–2023). Weekday non-employed respondents."
+  ) +
+  theme_minimal()
+```
+
+###
+
+The Household Activities and Caring bars tell the story the NYT graphic illustrates: women's bars extend roughly 50–60 minutes farther than men's. The Leisure bar goes the other way: men average substantially more minutes, driven largely by TV.
+
+### Exercise 18
+
+In one to two sentences, describe the most striking difference between men and women in the chart you just produced. Name the specific activity categories where the gap is largest, and state which direction (men higher or women higher).
+
+```{r time-use-18}
+question_text(NULL,
+  message = "Women average about 50–60 more minutes per weekday on Household Activities
+and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
+Relaxing, and Leisure — driven largely by more TV watching.",
+  answer(NULL, correct = TRUE),
+  allow_retry = FALSE,
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+Sociologist Arlie Hochschild named this the "second shift" in 1989: even when women join the paid labor force, they retain the bulk of household and caregiving work. The ATUS shows the pattern persists in the non-employed group — non-employed women redirect time not into leisure but into unpaid domestic work.
+
+### Exercise 19
+
+Recall the New York Times chart from the beginning of this section:
+
+```{r, echo = FALSE}
+knitr::include_graphics("images/men-v-women-atus-nyt.png")
+```
+
+Build a stacked area chart from `y`, with `hour` on the x-axis, `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use `position = "stack"`. Give the chart a title, subtitle, and data source caption. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r time-use-19}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r time-use-19-test, eval = !is.null(con_atus)}
+#| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
   facet_wrap(~ sex) +
@@ -1348,37 +1423,14 @@ ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
 
 ###
 
-Your chart uses start time as a proxy for current activity, which captures the broad shape but understates activities whose duration extends past the hour boundary. Despite the simplification, the key patterns are visible: the Leisure band dominates the afternoon for both sexes and is taller for men; the Household band is wider and starts earlier for women.
+Your chart uses start time as a proxy for current activity, which captures the broad shape but understates activities whose duration extends past the hour boundary. The NYT version shows the fraction of people in each activity at each minute — a more precise measure, but the same broad pattern: the Leisure band is taller for men all afternoon, and the Household band is wider and starts earlier for women.
 
-### Exercise 18
-
-Here is the New York Times chart this section has been building toward.
-
-```{r, echo = FALSE}
-knitr::include_graphics("images/men-v-women-atus-nyt.png")
-```
-
-In one to two sentences, compare your stacked area chart from Exercise 17 to the NYT version. What does your chart get right? What does the NYT version show that yours does not?
-
-```{r time-use-18}
-question_text(NULL,
-  message = "Both charts show the same pattern: women spend more time on housework and caregiving across all waking hours, while men's afternoon leisure block is larger. The NYT version shows the fraction of people currently in each activity at each minute — a more precise measure than the start-time proxy used here.",
-  answer(NULL, correct = TRUE),
-  allow_retry = FALSE,
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-The ATUS microdata is updated each year and freely available from the BLS. The coding scheme you used — `activity_code %/% 10000` to get the major category — is the standard first step in almost every ATUS analysis.
-
-### Exercise 19
+### Exercise 20
 
 Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"`. You may use your
 AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r time-use-19}
+```{r time-use-20}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1447,9 +1499,7 @@ question_text(NULL,
 
 ###
 
-<!-- AR: New KD -->
-
-Publishing the QMD creates a public URL anyone can use to view the rendered project.
+Every plot in your published page was created without ever loading the full SEDA or ATUS tables into R — the database did the heavy lifting and `collect()` pulled only the summary you needed. That pattern — aggregate first, collect small — is what makes the DuckDB workflow practical at scale.
 
 ### Exercise 3
 
@@ -1466,9 +1516,7 @@ question_text(NULL,
 
 ###
 
-<!-- AR: New KD -->
-
-GitHub repositories are where people can view the code you used to create your project.
+SEDA and ATUS are both maintained by their original institutions and updated annually. The DuckDB workflow you used here — query in the database, collect only what you need, cache the result — scales to datasets far larger than these without changing the code.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
