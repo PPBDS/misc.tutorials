@@ -239,10 +239,13 @@ At the simplest level, a database is a collection of data frames — called tabl
 ## US education
 ###
 
-<!-- AR: Add links to article. Simplify to a single graphic, dumbbell chart is where we end. -->
+This section uses the [Stanford Education Data Archive (SEDA)](https://edopportunity.org/),
+which converts each state's standardized test results into a common
+grade-equivalent scale so that achievement can be compared across districts and
+years. 
 
-<!-- AR: Sentence referring to NYTimes article -->
-The Stanford Education Data Archive (SEDA), which converts each state's standardized test results into a common grade-equivalent scale so that achievement can be compared across districts and years.
+Here's [what the New York Times found](https://www.nytimes.com/2026/05/13/upshot/test-scores-school-districts-us.html)
+from this same data in May of 2026.
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/us-ed-state-reading-change-nyt.png")
@@ -907,14 +910,14 @@ statistical noise.
 ## Time use
 ###
 
-This section uses a DuckDB database built from the Bureau of Labor Statistics American
-Time Use Survey (ATUS), which asks one randomly selected person per household to record
-every activity they did across a single 24-hour diary day. The survey has run each year
-since 2003 and now covers more than 220,000 respondents. The database has three tables:
-`activities` (one row per recorded activity), `respondents` (one row per person), and
-`activity_codes` (a lookup table translating numeric codes to human-readable descriptions).
+This section uses a DuckDB database built from the Bureau of Labor Statistics
+[American Time Use Survey (ATUS)](https://www.bls.gov/tus/), which asks one
+randomly selected person per household to record every activity they did across
+a single 24-hour diary day. The survey has run each year since 2003 and now
+covers more than 220,000 respondents.
 
-Before querying the data, look at what the New York Times found from this same survey.
+In 2015, here's [what the New York Times found](https://www.nytimes.com/interactive/2015/01/06/upshot/how-nonemployed-americans-spend-their-weekdays-men-vs-women.html)
+from this same survey.
 
 ```{r, echo = FALSE}
 knitr::include_graphics("images/men-v-women-atus-nyt.png")
