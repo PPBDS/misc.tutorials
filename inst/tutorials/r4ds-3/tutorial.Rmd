@@ -378,7 +378,6 @@ question_text(NULL,
 
 ```{r us-education-5-test}
 #| echo: true
-#| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
   summarize(mean_rla = mean(rla_score)) |>
@@ -408,7 +407,6 @@ question_text(NULL,
 ###
 
 ```{r us-education-6-test}
-#| echo: true
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>

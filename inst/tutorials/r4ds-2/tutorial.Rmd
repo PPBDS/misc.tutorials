@@ -324,7 +324,7 @@ question_text(NULL,
 ###
 
 
-```{r births-4-test, echo = TRUE}
+```{r births-4-test}
 #| echo: true
 glimpse(births_tibble)
 ```
@@ -430,7 +430,7 @@ question_text(NULL,
 ###
 
 
-```{r births-8-test, echo = TRUE}
+```{r births-8-test}
 #| echo: true
 births_tibble |>
   group_by(month, date_of_month) |>
@@ -572,7 +572,7 @@ question_text(NULL,
 ###
 
 
-```{r births-12-test, echo = TRUE}
+```{r births-12-test}
 #| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline)) +
@@ -615,7 +615,7 @@ question_text(NULL,
 ###
 
 
-```{r births-13-test, echo = TRUE}
+```{r births-13-test}
 #| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline, color = weekday)) +
@@ -689,7 +689,7 @@ question_text(NULL,
 ###
 
 
-```{r births-15-test, echo = TRUE}
+```{r births-15-test}
 #| echo: true
 glimpse(births_adjusted)
 ```
@@ -745,7 +745,7 @@ question_text(NULL,
 ###
 
 
-```{r births-17-test, echo = TRUE}
+```{r births-17-test}
 #| echo: true
 calendar_resid |>
   ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
@@ -970,7 +970,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-6-test, echo = TRUE}
+```{r basketball-recruits-6-test}
 #| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   mutate(
@@ -1009,7 +1009,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-7-test, echo = TRUE}
+```{r basketball-recruits-7-test}
 #| echo: true
 read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
   mutate(
@@ -1044,7 +1044,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-8-test, echo = TRUE}
+```{r basketball-recruits-8-test}
 #| echo: true
 glimpse(basketball_tibble)
 ```
@@ -1096,7 +1096,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-10-test, echo = TRUE}
+```{r basketball-recruits-10-test}
 #| echo: true
 basketball_tibble |>
   ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
@@ -1157,7 +1157,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-12-test, echo = TRUE}
+```{r basketball-recruits-12-test}
 #| echo: true
 basketball_tibble |>
   filter(recruit_group != "Outside top 100") |>
@@ -1202,7 +1202,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-13-test, echo = TRUE}
+```{r basketball-recruits-13-test}
 #| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
@@ -1295,7 +1295,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-16-test, echo = TRUE}
+```{r basketball-recruits-16-test}
 #| echo: true
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
