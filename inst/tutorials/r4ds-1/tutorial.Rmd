@@ -176,7 +176,7 @@ Create a new file, `analysis.qmd`, with the title `"Analyzing Music Data"` and y
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -222,7 +222,7 @@ execute:
   echo: false
 ```
 
-In a bash Terminal, run `quarto render analysis.qmd` again. Check the rendered HTML. Only the title and author should appear in the HTML.
+Render again. Check the rendered HTML. Only the title and author should appear in the HTML.
 
 In the R Terminal, run:
 
@@ -256,13 +256,7 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-From the R Terminal, run these three commands:
-
-```
-getwd()
-dir.create("data")
-list.files()
-```
+Create a data directory at the top level of the `r4ds-1` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -278,7 +272,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+analysis.html  analysis.qmd  analysis_files  data
 ```
 
 ###
@@ -296,7 +290,7 @@ Before plotting, inspect the data. Add a code chunk to your QMD that prints `bil
 
 Copy and paste the table from the HTML.
 
-```{r billboard-1}
+```{r billboard-hot-100-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -307,7 +301,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-1-test}
+```{r billboard-hot-100-1-test}
 billboard
 ```
 
@@ -319,7 +313,7 @@ billboard
 
 Change that chunk to print just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render it. Copy and paste the table from the HTML.
 
-```{r billboard-2}
+```{r billboard-hot-100-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -330,7 +324,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-2-test}
+```{r billboard-hot-100-2-test}
 billboard_small
 ```
 
@@ -342,7 +336,7 @@ The weekly columns are relative to when each song entered the chart. `wk4` means
 
 Summarize the `date.entered` column so you can see the time period covered by the dataset. Render and copy and paste the summary from the HTML.
 
-```{r billboard-3}
+```{r billboard-hot-100-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -353,7 +347,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-3-test}
+```{r billboard-hot-100-3-test}
 summary(billboard$date.entered)
 ```
 
@@ -375,7 +369,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-4}
+```{r billboard-hot-100-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -386,7 +380,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-4-test}
+```{r billboard-hot-100-4-test}
 #| echo: true
 ggplot(billboard, aes(x = wk1)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
@@ -415,7 +409,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-5}
+```{r billboard-hot-100-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -426,7 +420,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-5-test}
+```{r billboard-hot-100-5-test}
 #| echo: true
 ggplot(billboard, aes(x = wk6)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "darkseagreen", color = "white") +
@@ -447,7 +441,7 @@ The distribution shifts toward better ranks, but the histogram alone cannot tell
 
 Create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render and copy and paste the table from the HTML.
 
-```{r billboard-6}
+```{r billboard-hot-100-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -458,7 +452,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-6-test}
+```{r billboard-hot-100-6-test}
 billboard_missing
 ```
 
@@ -470,7 +464,7 @@ billboard_missing
 
 Find out whether any songs leave the chart and later re-enter it. Create a small table that counts songs by whether they re-entered. Render and copy and paste the table from the HTML.
 
-```{r billboard-7}
+```{r billboard-hot-100-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -481,7 +475,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-7-test}
+```{r billboard-hot-100-7-test}
 billboard_reentry
 ```
 
@@ -493,7 +487,7 @@ Most songs either stay on the chart for a run of weeks or drop off permanently, 
 
 Compare each song's `wk1` and `wk6` ranks. Count how many songs improved, stayed the same, got worse, or were missing by week 6. Also report the median rank change for songs with both weeks. Render and copy and paste the tables from the HTML.
 
-```{r billboard-8}
+```{r billboard-hot-100-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -504,7 +498,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-8-test}
+```{r billboard-hot-100-8-test}
 billboard_wk6_change
 billboard_wk6_change_summary
 ```
@@ -525,7 +519,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-9}
+```{r billboard-hot-100-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -536,7 +530,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-9-test}
+```{r billboard-hot-100-9-test}
 #| echo: true
 billboard_longer |>
   filter(!is.na(rank)) |>
@@ -564,7 +558,7 @@ Look at your trajectory plot in the rendered HTML.
 
 After approximately how many weeks do most song lines end? Write one sentence describing what you see.
 
-```{r billboard-10}
+```{r billboard-hot-100-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -585,7 +579,7 @@ The full trajectory plot is useful, but it is too dense to explain individual st
 
 Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render and copy and paste the table from the HTML.
 
-```{r billboard-11}
+```{r billboard-hot-100-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -596,7 +590,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-11-test}
+```{r billboard-hot-100-11-test}
 billboard_top10_stories
 ```
 
@@ -616,7 +610,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-12}
+```{r billboard-hot-100-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -627,7 +621,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-12-test}
+```{r billboard-hot-100-12-test}
 #| echo: true
 billboard_top10_longer |>
   filter(!is.na(rank)) |>
@@ -677,7 +671,7 @@ The gray lines show the broader top-10 population; the colored lines turn three 
 
 Add a short interpretation below the top-10 trajectory plot. In two or three sentences, explain the three highlighted paths and what they show about hit songs. Render and copy and paste your interpretation from the HTML.
 
-```{r billboard-13}
+```{r billboard-hot-100-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -696,40 +690,53 @@ A good published analysis does more than show a chart. It tells readers what pat
 
 ### Exercise 14
 
-You are done iterating on the Billboard plot. Add `#| cache: true` to the final Billboard plot chunk, then render again.
+You are done iterating on the Billboard plot, so it earns caching. Add `#| cache: true` as the first line inside the Billboard plot chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved plot so Quarto can reload it on subsequent renders rather than re-running the code each time. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-Add the generated cache directory to `.gitignore`. In the R Terminal, run:
-
-```
-list.files()
-show_file(".gitignore")
-```
-
-CP/CR.
-
-```{r billboard-14}
+```{r billboard-hot-100-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 5)
 ```
 
 ###
 
-Your project files should now include a cache directory, and your `.gitignore` should include something like:
-
-```
-analysis_files
-analysis_cache
-```
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
 
 ###
 
-Cache finished expensive chunks, not rough exploratory work you are still changing. The cache is useful locally, but it is generated output and should not be pushed to GitHub.
+Cache finished expensive chunks, not rough exploratory work you are still changing.
 
 ### Exercise 15
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub --- they're machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r billboard-hot-100-15}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render. The cache is useful locally, but it is generated output and should not be pushed to GitHub.
+
+### Exercise 16
 
 Commit and push the Billboard work. Use the commit message:
 
@@ -739,7 +746,7 @@ Add Billboard chart analysis
 
 CP/CR or write a short note describing how you committed and pushed.
 
-```{r billboard-15}
+```{r billboard-hot-100-16}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -777,7 +784,7 @@ ls data
 
 CP/CR.
 
-```{r music-1}
+```{r million-song-dataset-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -802,7 +809,7 @@ Read and print `data/music.csv` with **[readr](https://readr.tidyverse.org/)** i
 
 Render, and copy and paste the printed tibble from the HTML.
 
-```{r music-2}
+```{r million-song-dataset-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -813,7 +820,7 @@ question_text(NULL,
 
 ###
 
-```{r music-2-test}
+```{r million-song-dataset-2-test}
 music
 ```
 
@@ -831,7 +838,7 @@ names(music)
 
 CP/CR.
 
-```{r music-3}
+```{r million-song-dataset-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -842,7 +849,7 @@ question_text(NULL,
 
 ###
 
-```{r music-3-test}
+```{r million-song-dataset-3-test}
 names(music)
 ```
 
@@ -854,7 +861,7 @@ The dotted naming convention groups variables by entity: `artist.*` columns desc
 
 Show the structure of just the artist columns of `music` — the type of each column with a few example values. Update your working chunk, render, and copy and paste the output from the HTML.
 
-```{r music-4}
+```{r million-song-dataset-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -865,7 +872,7 @@ question_text(NULL,
 
 ###
 
-```{r music-4-test}
+```{r million-song-dataset-4-test}
 music |>
   select(starts_with("artist")) |>
   glimpse()
@@ -885,7 +892,7 @@ Find out what `artist.familiarity` and `artist.hotttnesss` measure — the [data
 
 Copy and paste your explanation from the HTML.
 
-```{r music-5}
+```{r million-song-dataset-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -906,7 +913,7 @@ Both variables run from 0 to 1, where higher values mean more familiarity or mor
 
 Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Update your working chunk, render, and copy and paste the summary from the HTML.
 
-```{r music-6}
+```{r million-song-dataset-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -917,7 +924,7 @@ question_text(NULL,
 
 ###
 
-```{r music-6-test}
+```{r million-song-dataset-6-test}
 music |>
   select(artist.familiarity, artist.hotttnesss, song.year, song.tempo) |>
   summary()
@@ -931,7 +938,7 @@ Notice the minimums. `song.year` has a minimum of 0, which is not a real release
 
 The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and copy and paste the plot from the HTML.
 
-```{r music-7}
+```{r million-song-dataset-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -942,7 +949,7 @@ question_text(NULL,
 
 ###
 
-```{r music-7-test}
+```{r million-song-dataset-7-test}
 #| echo: true
 music |>
   filter(song.year > 0) |>
@@ -965,7 +972,7 @@ The dataset skews heavily toward recent music: over half the songs are from the 
 
 You have now seen the full column list, the artist column types, and the numeric ranges. Print a smaller table with the most human-readable columns: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Render and copy and paste the table from the HTML.
 
-```{r music-8}
+```{r million-song-dataset-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -976,7 +983,7 @@ question_text(NULL,
 
 ###
 
-```{r music-8-test}
+```{r million-song-dataset-8-test}
 music_sample
 ```
 
@@ -988,7 +995,7 @@ These columns describe what matters most for a first look at artist data: who th
 
 There were many missing song years, and we know from earlier that many of the other columns include placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render and copy and paste the table from the HTML.
 
-```{r music-9}
+```{r million-song-dataset-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -999,7 +1006,7 @@ question_text(NULL,
 
 ###
 
-```{r music-9-test}
+```{r million-song-dataset-9-test}
 music_placeholders
 ```
 
@@ -1011,7 +1018,7 @@ This teaching file has multiple kinds of missingness. String columns use the lit
 
 Artist locations are stored as latitude and longitude. Count how many artists have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Then add one sentence to your QMD noting this limitation before the map. Render and copy and paste the count table from the HTML.
 
-```{r music-10}
+```{r million-song-dataset-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1022,7 +1029,7 @@ question_text(NULL,
 
 ###
 
-```{r music-10-test}
+```{r million-song-dataset-10-test}
 music |>
   summarise(
     total = n(),
@@ -1037,7 +1044,7 @@ Latitude 0, longitude 0 is a point in the Gulf of Guinea off the west coast of A
 
 ### Exercise 11
 
-Make a world map showing the locations of artists with usable coordinates. Filter out artists where both latitude and longitude equal 0, use the **[maps](https://cran.r-project.org/package=maps)** package for the world background, and add a title and subtitle that note the coverage limitation. Also add `#| cache: true` to the chunk.
+Make a world map showing the locations of artists with usable coordinates. Filter out artists where both latitude and longitude equal 0, use the **[maps](https://cran.r-project.org/package=maps)** package for the world background, and add a title and subtitle that note the coverage limitation.
 
 In the R Terminal, run:
 
@@ -1047,7 +1054,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r music-11}
+```{r million-song-dataset-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1058,7 +1065,7 @@ question_text(NULL,
 
 ###
 
-```{r music-11-test}
+```{r million-song-dataset-11-test}
 #| echo: true
 ggplot() +
   geom_map(
@@ -1089,7 +1096,7 @@ The map reveals a strong geographic bias: most artists with usable coordinates a
 
 ### Exercise 12
 
-Iterate the map. Color the artist points by `artist.familiarity`, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows. Also add `#| cache: true` to the new chunk.
+Iterate the map. Color the artist points by `artist.familiarity`, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows.
 
 In the R Terminal, run:
 
@@ -1099,7 +1106,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r music-12}
+```{r million-song-dataset-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1110,7 +1117,7 @@ question_text(NULL,
 
 ###
 
-```{r music-12-test}
+```{r million-song-dataset-12-test}
 #| echo: true
 music_map_data |>
   filter(artist.familiarity > 0) |>
@@ -1143,7 +1150,7 @@ The geographic pattern in familiarity is partly a coverage artifact — artists 
 
 ### Exercise 13
 
-Iterate the map again. Color the artist points by `artist.hotttnesss` instead of familiarity, filtering out artists with hotness at or below 0. Update the title and subtitle to reflect what the color now shows. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map again. Color the artist points by `artist.hotttnesss` instead of familiarity, filtering out artists with hotness at or below 0. Update the title and subtitle to reflect what the color now shows. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1153,7 +1160,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r music-13}
+```{r million-song-dataset-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1164,7 +1171,7 @@ question_text(NULL,
 
 ###
 
-```{r music-13-test}
+```{r million-song-dataset-13-test}
 #| echo: true
 music_map_data |>
   filter(artist.hotttnesss > 0) |>
@@ -1197,7 +1204,7 @@ The hotness map closely mirrors familiarity — both cluster in the US and Weste
 
 ### Exercise 14
 
-Iterate the map again. Assign each artist a genre using these five terms in order of priority: `rock`, `pop`, `blues`, `jazz`, `metal`. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map again. Assign each artist a genre using these five terms in order of priority: `rock`, `pop`, `blues`, `jazz`, `metal`. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1207,7 +1214,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r music-14}
+```{r million-song-dataset-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1218,7 +1225,7 @@ question_text(NULL,
 
 ###
 
-```{r music-14-test}
+```{r million-song-dataset-14-test}
 #| echo: true
 music_map_data |>
   mutate(genre = case_when(
@@ -1258,7 +1265,7 @@ Blues clusters heavily in the United States, metal shows notable presence in Nor
 
 ### Exercise 15
 
-Iterate the map one more time. Color the artist points by `song.year`, filtering out rows where `song.year` is 0. Update the title and subtitle. Also add `#| cache: true` to the new chunk. Render and inspect the plot in the rendered HTML.
+Iterate the map one more time. Color the artist points by `song.year`, filtering out rows where `song.year` is 0. Update the title and subtitle. Render and inspect the plot in the rendered HTML.
 
 In the R Terminal, run:
 
@@ -1268,7 +1275,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r music-15}
+```{r million-song-dataset-15}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1279,7 +1286,7 @@ question_text(NULL,
 
 ###
 
-```{r music-15-test}
+```{r million-song-dataset-15-test}
 #| echo: true
 music_map_data |>
   filter(song.year > 0) |>
@@ -1314,7 +1321,7 @@ Older recordings (darker points) concentrate in the US and UK, reflecting where 
 
 Look across all four of your maps. Write two or three sentences describing the most striking geographic pattern you noticed. Which variable showed the clearest geographic signal, and what does that tell you about the data or the music industry? Render and copy and paste your interpretation from the HTML.
 
-```{r music-16}
+```{r million-song-dataset-16}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1338,7 +1345,7 @@ This tutorial used AI to explore two music datasets. You investigated the struct
 
 ### Exercise 1
 
-In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
+Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots and short interpretations.
 
 In the R Terminal, run:
 

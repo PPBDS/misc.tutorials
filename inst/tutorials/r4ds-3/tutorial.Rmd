@@ -121,7 +121,7 @@ if (file.exists(atus_path)) {
 
 This section covers key concepts from [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular Expressions](https://r4ds.hadley.nz/regexps.html), [Chapter 12: Logical Vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with numeric data and text patterns using core *Tidyverse* packages like **readr**, **dplyr**, and **stringr**, as well as database interaction using **dbplyr**. Key concepts include extracting numbers from strings, detecting text patterns, computing parallel maxima across vectors, and connecting to databases.
+You will learn about working with numeric data and text patterns using core *Tidyverse* packages like **[readr](https://readr.tidyverse.org/)**, **[dplyr](https://dplyr.tidyverse.org/)**, and **[stringr](https://stringr.tidyverse.org/)**, as well as database interaction using **[dbplyr](https://dbplyr.tidyverse.org/)**. Key concepts include extracting numbers from strings, detecting text patterns, computing parallel maxima across vectors, and connecting to databases.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -135,7 +135,7 @@ Create a new file, `analysis.qmd`, with the title `"Analyzing School Districts a
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -170,7 +170,7 @@ We will be working with databases in this tutorial. Two key differences between 
 
 ### Exercise 2
 
-In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab — it should refresh automatically.
+In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. Render.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
@@ -179,7 +179,7 @@ execute:
   echo: false
 ```
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab. In the R Terminal, run:
+Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -212,15 +212,7 @@ Databases are run by database management systems (DBMS's). DuckDB is an in-proce
 
 ### Exercise 3
 
-<!-- AR: Replace with something like: "Create a data directory in the root of your project". Check this against the guidance document. -->
-
-From the R Terminal, run these three commands:
-
-```
-getwd()
-dir.create("data")
-list.files()
-```
+Create a data directory at the top level of the `r4ds-3` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -236,7 +228,7 @@ question_text(NULL,
 ###
 
 ```
-[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+analysis.html  analysis.qmd  analysis_files  data
 ```
 
 ###
@@ -291,7 +283,7 @@ A database holds multiple tables — typically dozens or hundreds in production 
 
 ### Exercise 2
 
-Make a new code chunk to `analysis.qmd` and add code to connect to the database file and run `dbListTables()` to see the available tables.
+Make a new code chunk in `analysis.qmd` and add code to connect to the database file and run `dbListTables()` to see the available tables.
 
 Render the file.
 
@@ -325,7 +317,7 @@ why we use lazy table references and collect only what we need.
 ### Exercise 3
 
 Create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`,
-and print it. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live
+and print it. Render. Check your Live
 Server tab.
 
 Copy/paste the output from your HTML below.
@@ -361,7 +353,7 @@ above it. Negative values mean that district's students scored below the nationa
 <!-- AR: be very clear about which code chunk we're in. -->
 
 Count the number of district-year observations per year in `dbplyr_dist`. Collect the
-result. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+result. Render.
 
 Copy/paste the output from your HTML below.
 
@@ -396,7 +388,7 @@ open, close, or drop below the enrollment threshold required for SEDA to publish
 
 Continue to work in the same code chunk. Filter `dbplyr_dist` to 2023 with a non-missing `rla_score`. Summarize: compute the
 number of districts, the mean reading score, and the standard deviation. Collect the
-result. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+result. Render.
 
 Copy/paste the output from your HTML below.
 
@@ -427,8 +419,7 @@ The mean sitting slightly below zero reflects the post-COVID slide pulling most 
 
 Filter `dbplyr_dist` to 2023 and non-missing `rla_score`, collect, then add a chunk to
 `analysis.qmd` that plots the distribution as a histogram. Add a vertical reference line
-at 0. Give the plot a proper title, subtitle, and caption. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+at 0. Give the plot a proper title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -479,8 +470,7 @@ districts whose students score roughly two grade levels below the national avera
 
 Calculate for each district the positive increase in RLA score from 2015 to 2023 and print the ten districts with the largest decline. 
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
-
+Render.
 Copy/paste the output from your HTML below.
 
 ```{r us-education-7}
@@ -510,8 +500,7 @@ substantial loss. Often extreme values are dominated by small schools.
 
 Update the chunk so it plots the distribution of `rla_change` as a histogram.
 Color bars differently for positive and negative changes. Add a vertical reference line at
-0. Give the plot a proper title, subtitle, and caption. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+0. Give the plot a proper title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -564,8 +553,7 @@ positive changes, and those that did are visible only as the thin right tail.
 
 Filter `dbplyr_dist` to 2023 and non-missing `mth_score`, collect, then add a chunk to
 `analysis.qmd` that plots the distribution as a histogram. Add a vertical reference line
-at 0. Give the plot a proper title, subtitle, and caption. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+at 0. Give the plot a proper title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -615,8 +603,7 @@ look so similar.
 
 Compute the change in math score from 2015 to 2023 for each district. Follow the same
 approach as Exercise 7 but using `mth_score`. Assign the result to `mth_score_change` and
-print the ten districts with the largest decline. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+print the ten districts with the largest decline. Render.
 
 Copy/paste the output from your HTML below.
 
@@ -649,7 +636,7 @@ interventions.
 Add a chunk to `analysis.qmd` that plots the distribution of `mth_change` from
 `mth_score_change` as a histogram. Color bars differently for positive and negative
 changes. Add a vertical reference line at 0. Give the plot a proper title, subtitle, and
-caption. In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+caption. Render.
 
 In the R Terminal, run:
 
@@ -700,7 +687,7 @@ pandemic.
 Filter `dbplyr_dist` to 2023 with non-missing `rla_score` and `mth_score`, collect, then
 add a chunk to `analysis.qmd` that plots reading score on the x-axis against math score
 on the y-axis. Add reference lines at x = 0 and y = 0. Give the plot a proper title,
-subtitle, and caption. In a bash Terminal, run `quarto render analysis.qmd`. Check your
+subtitle, and caption. Render. Check your
 Live Server tab.
 
 In the R Terminal, run:
@@ -753,7 +740,7 @@ with the broad post-COVID decline visible in both subjects and in both change hi
 Create a lazy reference to the `state_scores` table. Filter to 2015 and 2023 with
 non-missing `rla_score`, collect, reshape to one row per state, and compute
 `rla_change = rla_2023 - rla_2015`. Assign the result to `state_change` and print all
-rows sorted by `rla_change`. In a bash Terminal, run `quarto render analysis.qmd`. Check
+rows sorted by `rla_change`. Render. Check
 your Live Server tab.
 
 Copy/paste the output from your HTML below.
@@ -785,8 +772,7 @@ and Louisiana.
 
 Add a chunk to `analysis.qmd` that plots the distribution of `rla_change` from
 `state_change` as a histogram. Color bars by direction. Add a vertical reference line at
-0. Give the plot a proper title, subtitle, and caption. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+0. Give the plot a proper title, subtitle, and caption. Render.
 
 In the R Terminal, run:
 
@@ -837,7 +823,7 @@ Add a chunk to `analysis.qmd` that builds a state-level arrow chart of reading s
 changes from 2015 to 2023. Sort states by their 2023 reading score. For each state draw
 an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a
 gray dot at the 2015 starting point. Give the plot a proper title, subtitle, and caption
-with no y-axis label. In a bash Terminal, run `quarto render analysis.qmd`. Check your
+with no y-axis label. Render. Check your
 Live Server tab.
 
 In the R Terminal, run:
@@ -944,8 +930,7 @@ https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/
 ```
 
 Connect to the database file, then run `dbListTables()` to see what tables it contains.
-Add the connection and `dbListTables()` code to `analysis.qmd`. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+Add the connection and `dbListTables()` code to `analysis.qmd`. Render.
 
 In the R Terminal, run:
 
@@ -985,11 +970,9 @@ before writing any queries.
 
 Create a lazy reference to the `activities` table and assign it to `dbplyr_act`. Create
 a lazy reference to the `respondents` table and assign it to `dbplyr_resp`. Create a lazy
-reference to the `activity_codes` table and assign it to `dbplyr_codes`. In a bash
-Terminal, run `quarto render analysis.qmd`.
+reference to the `activity_codes` table and assign it to `dbplyr_codes`. Render.
 
-Then add a new chunk that prints `dbplyr_act`. In a bash Terminal, run
-`quarto render analysis.qmd`. Check your Live Server tab.
+Then add a new chunk that prints `dbplyr_act`. Render.
 
 In the R Terminal, run:
 
@@ -1026,7 +1009,7 @@ in the flights data. The `start_hhmm` column works the same way: 1430 means 2:30
 
 ### Exercise 3
 
-Add a chunk that prints `dbplyr_resp`. In a bash Terminal, run `quarto render analysis.qmd`.
+Add a chunk that prints `dbplyr_resp`. Render.
 Check your Live Server tab.
 
 In the R Terminal, run:
@@ -1067,7 +1050,7 @@ selection so that weighted estimates represent the full US population.
 
 Add a chunk that collects the entire `dbplyr_codes` table and prints it. Because
 `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large
-tables we defer. In a bash Terminal, run `quarto render analysis.qmd`. Copy and paste the
+tables we defer. Render. Copy and paste the
 printed table from the rendered HTML.
 
 ```{r time-use-4}
@@ -1100,7 +1083,7 @@ requires parsing a separate BLS PDF.
 
 Add a chunk that, for each table in the database, counts the number of rows. Use
 `dbplyr_act |> summarize(n = n()) |> collect()`, and repeat for `dbplyr_resp` and
-`dbplyr_codes`. In a bash Terminal, run `quarto render analysis.qmd`. Copy and paste the
+`dbplyr_codes`. Render. Copy and paste the
 three row counts from the rendered HTML.
 
 ```{r time-use-5}
@@ -1137,7 +1120,7 @@ sees the summary you asked for, not the full five million rows.
 Add a chunk that counts activity records by major category. From `dbplyr_act`, create a
 `major_code` column equal to `activity_code %/% 10000`. Join to `dbplyr_codes` on
 `activity_code` to get `major_name`. Count records per `major_name`, sort descending by
-count. Collect and print. In a bash Terminal, run `quarto render analysis.qmd`. Copy and
+count. Collect and print. Render. Copy and
 paste the table from the rendered HTML.
 
 ```{r time-use-6}
@@ -1177,7 +1160,7 @@ the decimal left four places, so the `%/%` integer-division keeps only the leadi
 Add a chunk that computes the average `duration_min` per activity record by major category.
 Join `dbplyr_act` to `dbplyr_codes` to get `major_name`. Use `summarize()` with
 `mean(duration_min, na.rm = TRUE)` grouped by `major_name`, then sort descending by mean
-duration. Collect and print. In a bash Terminal, run `quarto render analysis.qmd`. Copy
+duration. Collect and print. Render. Copy
 and paste the table from the rendered HTML.
 
 ```{r time-use-7}
@@ -1216,8 +1199,7 @@ a step you will do in Exercise 10.
 ### Exercise 8
 
 Add a chunk that counts the number of respondents by `sex` and `employment_status`. Use
-`dbplyr_resp`, group by both columns, count, collect, and print. In a bash Terminal, run
-`quarto render analysis.qmd`. Copy and paste the table from the rendered HTML.
+`dbplyr_resp`, group by both columns, count, collect, and print. Render. Copy and paste the table from the rendered HTML.
 
 ```{r time-use-8}
 question_text(NULL,
@@ -1251,7 +1233,7 @@ estimates of their daily activity patterns.
 ### Exercise 9
 
 Add a chunk that counts the number of respondents by `year`. Use `dbplyr_resp`, group
-by `year`, count, collect, and print. In a bash Terminal, run `quarto render analysis.qmd`.
+by `year`, count, collect, and print. Render.
 Copy and paste the table from the rendered HTML.
 
 ```{r time-use-9}
@@ -1297,17 +1279,7 @@ daily minutes in each major activity category, then averages across people by `s
 - Then group by `sex` and `major_name`; average that per-person total
 - Collect and assign to `x`
 
-Add `#| cache: true` to this chunk and add `analysis_cache` to `.gitignore` if you have
-not already. In a bash Terminal, run `quarto render analysis.qmd` (first run will be slow).
-Check your Live Server tab.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
+Render (the first render is slow). Check your Live Server tab. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-10}
 question_text(NULL,
@@ -1352,11 +1324,58 @@ the average total TV time per person per day — a different and less useful qua
 
 ### Exercise 11
 
+That two-join, two-summarize pipeline takes real time on every render, so it earns caching. Add `#| cache: true` as the first line inside the chunk from Exercise 10. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-running the database joins each time. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r time-use-11}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
+
+###
+
+The first render writes the cache to disk; subsequent renders load `x` from cache and skip the database joins entirely.
+
+### Exercise 12
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub --- they're machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r time-use-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render.
+
+### Exercise 13
+
 Add a new chunk that makes a horizontal grouped bar chart from `x` showing average daily
 minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by
 average minutes (averaged across sexes). Remove any rows where `major_name` is `NA`.
-Give the chart a title, subtitle, axis labels, and a data source caption. In a bash
-Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
 In the R Terminal, run:
 
@@ -1366,7 +1385,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-11}
+```{r time-use-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1377,7 +1396,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-11-test, eval = !is.null(con_atus)}
+```{r time-use-13-test, eval = !is.null(con_atus)}
 #| echo: true
 x |>
   filter(!is.na(major_name)) |>
@@ -1405,13 +1424,13 @@ The Leisure bar goes the other way: men average substantially more minutes. This
 gap in unpaid labor appears whether respondents are employed or not, but it is widest in
 the non-employed group, which is what the NYT graphic highlights.
 
-### Exercise 12
+### Exercise 14
 
 In one to two sentences, describe the most striking difference between men and women in
 the chart you just produced. Name the specific activity categories where the gap is
 largest, and state which direction (men higher or women higher).
 
-```{r time-use-12}
+```{r time-use-14}
 question_text(NULL,
   message = "Women average about 50–60 more minutes per weekday on Household Activities
 and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
@@ -1431,10 +1450,9 @@ simply redirect the time they would have spent working into leisure; they redire
 unpaid domestic work. The BLS has published ATUS findings on this gender gap every year
 since the survey launched in 2003, and it has narrowed only modestly over two decades.
 
-### Exercise 13
+### Exercise 15
 
-Now build toward the time-of-day view shown in the NYT graphic. Add a new chunk with
-`#| cache: true` that, for weekday non-employed respondents, computes the average minutes
+Now build toward the time-of-day view shown in the NYT graphic. Add a new chunk that, for weekday non-employed respondents, computes the average minutes
 spent in activities starting in each hour of the day, broken out by `sex` and `major_name`.
 
 Specifically:
@@ -1447,7 +1465,7 @@ Specifically:
 - Group by `sex`, `hour`, and `major_name`; summarize average `duration_min`
 - Collect and assign to `y`
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Render.
 
 In the R Terminal, run:
 
@@ -1457,7 +1475,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-13}
+```{r time-use-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1468,7 +1486,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-13-test, eval = !is.null(con_atus)}
+```{r time-use-15-test, eval = !is.null(con_atus)}
 #| echo: true
 keep_cats <- c(
   "Personal Care Activities",
@@ -1502,13 +1520,12 @@ on typical waking hours. The `start_hhmm %/% 100` extraction is the same integer
 operation used to get departure hours from `dep_time` in the flights data — both are
 packed HHMM integers where the upper two digits hold the hour.
 
-### Exercise 14
+### Exercise 16
 
 Add a new chunk that makes a stacked area chart from `y`, with `hour` on the x-axis,
 `avg_min` on the y-axis, `major_name` as the fill, faceted by `sex`. Use
 `position = "stack"` for the area geometry. Give the chart a title that describes what
-it shows, a subtitle that names the key pattern, and a data source caption. In a bash
-Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+it shows, a subtitle that names the key pattern, and a data source caption. Render.
 
 In the R Terminal, run:
 
@@ -1518,7 +1535,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-14}
+```{r time-use-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1529,7 +1546,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-14-test, eval = !is.null(con_atus)}
+```{r time-use-16-test, eval = !is.null(con_atus)}
 #| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
@@ -1561,10 +1578,9 @@ duration extends past the hour boundary. Despite the simplification, the key pat
 are visible: the Leisure band (containing TV) dominates the afternoon for both sexes and
 is taller for men; the Household band is wider and starts earlier for women.
 
-### Exercise 15
+### Exercise 17
 
-Now build toward the 2024 "Americans are homebodies" finding. Add a new chunk with
-`#| cache: true` that computes average daily leisure minutes per respondent by year,
+Now build toward the 2024 "Americans are homebodies" finding. Add a new chunk that computes average daily leisure minutes per respondent by year,
 for all respondents (not just non-employed). Specifically:
 
 - Join `dbplyr_act` to `dbplyr_codes` and keep rows where
@@ -1574,7 +1590,7 @@ for all respondents (not just non-employed). Specifically:
 - Collect, assign to `z`, and make a line chart: `year` on the x-axis, average leisure
   minutes on the y-axis. Give it a title, subtitle, and caption.
 
-In a bash Terminal, run `quarto render analysis.qmd`. Check your Live Server tab.
+Render.
 
 In the R Terminal, run:
 
@@ -1584,7 +1600,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-15}
+```{r time-use-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1595,7 +1611,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-15-test, eval = !is.null(con_atus)}
+```{r time-use-17-test, eval = !is.null(con_atus)}
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1634,12 +1650,12 @@ that dominates the afternoon band in the previous chart. Whether this counts as 
 becoming more homebound or simply having more free time is a question the data can frame
 but not fully answer.
 
-### Exercise 16
+### Exercise 18
 
 Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"`. You may use your
 AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r time-use-16}
+```{r time-use-18}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1663,11 +1679,11 @@ into one column, and integer division is the key that unpacks it.
 
 This tutorial covered [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular expressions](https://r4ds.hadley.nz/regexps.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned how to work with numbers, strings, and logical vectors using **readr**, **stringr**, and **dplyr**, and how to query databases using **DBI** and **dbplyr**.
+You learned how to work with numbers, strings, and logical vectors using **readr**, **stringr**, and **dplyr**, and how to query databases using **[DBI](https://dbi.r-dbi.org/)** and **dbplyr**.
 
 ### Exercise 1
 
-In a bash Terminal, run `quarto render analysis.qmd` to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+Render. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
 In the R Terminal, run:
 
@@ -1688,7 +1704,7 @@ question_text(NULL,
 
 ###
 
-Database operations with **[dbplyr](https://dbplyr.tidyverse.org/)** are translated to SQL and executed in the database, with the results only pulled into R when you collect them.
+Database operations with **dbplyr** are translated to SQL and executed in the database, with the results only pulled into R when you collect them.
 
 ### Exercise 2
 

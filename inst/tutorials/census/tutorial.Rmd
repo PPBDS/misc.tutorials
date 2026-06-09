@@ -30,19 +30,19 @@ options(tutorial.exercise.timelimit = 600,
 # own analysis.qmd.
 
 # income_tx <- get_acs(geography = "county", variables = "B19013_001",
-#                      state = "TX", year = 2020, geometry = TRUE)
+# state = "TX", year = 2020, geometry = TRUE)
 # write_rds(income_tx, "../../extdata/census/income_tx.rds")
 income_tx <- read_rds("../../extdata/census/income_tx.rds")
 
 # edu_ca <- get_acs(geography = "county",
-#                   variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
-#                   state = "CA", year = 2020, geometry = TRUE, summary_var = "B15003_001")
+# variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+# state = "CA", year = 2020, geometry = TRUE, summary_var = "B15003_001")
 # write_rds(edu_ca, "../../extdata/census/edu_ca.rds")
 edu_ca <- read_rds("../../extdata/census/edu_ca.rds")
 
 # age_ca <- get_acs(geography = "county",
-#                   variables = c(median_age = "B01002_001", population = "B01003_001"),
-#                   state = "CA", year = 2020, geometry = FALSE)
+# variables = c(median_age = "B01002_001", population = "B01003_001"),
+# state = "CA", year = 2020, geometry = FALSE)
 # write_rds(age_ca, "../../extdata/census/age_ca.rds")
 age_ca <- read_rds("../../extdata/census/age_ca.rds")
 ```
@@ -65,7 +65,7 @@ You should be connected to a repo named `census`. If you are not, create one and
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render.
+Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -246,7 +246,7 @@ This is a **choropleth** — each county drawn from its boundary and shaded by i
 
 ### Exercise 4
 
-Improve the map: give it a perceptually uniform color scale (the **viridis** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
+Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
 
 In the R Terminal, run:
 
@@ -341,7 +341,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-bachelors-1}
+```{r california-bachelors-degrees-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -371,7 +371,7 @@ These five variable codes report *completed* degrees, not enrollment. `B15003_02
 
 Add a chunk that prints `edu_ca`. Render, then copy and paste the printed output from the HTML.
 
-```{r california-bachelors-2}
+```{r california-bachelors-degrees-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -382,7 +382,7 @@ question_text(NULL,
 
 ###
 
-```{r california-bachelors-2-test}
+```{r california-bachelors-degrees-2-test}
 edu_ca
 ```
 
@@ -392,39 +392,85 @@ The data is in **long** format: one row per county-variable combination, so each
 
 ### Exercise 3
 
-You are done changing the chunk that downloads `edu_ca`, and re-downloading it on every render is slow. Add `#| cache: true` to that chunk. Render — this first render is slower because Quarto runs the code and writes the result to disk; later renders skip the Census download and load `edu_ca` from the cache.
+You are done changing the chunk that downloads `edu_ca`, and re-downloading it on every render is slow. `edu_ca` earns its own cached create chunk. The next three exercises set that up: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
 
-Cached output should never go to GitHub. Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run:
+First, clean up. In your chunk from Exercise 1, delete the line that prints `edu_ca` (added in Exercise 2), leaving just the `edu_ca <- get_acs(...)` assignment. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```
-show_file(".gitignore")
-```
-
-CP/CR.
-
-```{r california-bachelors-3}
+```{r california-bachelors-degrees-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 4)
+  rows = 10)
 ```
 
 ###
 
-Your `.gitignore` should now contain both lines:
-
-```
-analysis_files
-analysis_cache
-```
+<pre><code>#| message: false
+edu_ca <- get_acs(
+  geography = "county",
+  state     = "CA",
+  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  summary_var = "B15003_001",
+  geometry    = TRUE,
+  year      = 2020
+)
+</code></pre>
 
 ###
 
-Caching is for finished, expensive chunks — a network download like this one, not code you are still editing. The cache is generated output: useful locally, but it does not belong on GitHub. The same `#| cache: true` is worth adding to your other Census-download chunks (Texas, and the upcoming median-age pull) so every render after the first is fast.
+A chunk ready to cache should contain only the artifact it builds.
 
 ### Exercise 4
+
+Add `#| cache: true` as the second line inside the chunk (just below `#| message: false`). Render the QMD. Rendering creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-downloading from the Census API. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r california-bachelors-degrees-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+</code></pre>
+
+###
+
+Caching is for finished, expensive chunks — a network download like this one, not code you are still editing. The cache is generated output: useful locally.
+
+### Exercise 5
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r california-bachelors-degrees-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render. The same `#| cache: true` is worth adding to your other Census-download chunks (Texas, and the upcoming median-age pull) so every render after the first is fast.
+
+### Exercise 6
 
 Change your working chunk so it computes, for each county, the percentage of adults with at least a bachelor's degree — the summed bachelor's-and-higher counts divided by the county total — and draws the result as a choropleth map with **ggplot2**. Render and check the map.
 
@@ -436,7 +482,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-bachelors-4}
+```{r california-bachelors-degrees-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -447,7 +493,7 @@ question_text(NULL,
 
 ###
 
-```{r california-bachelors-4-test}
+```{r california-bachelors-degrees-6-test}
 #| message: false
 #| echo: true
 edu_ca |>
@@ -469,11 +515,11 @@ edu_ca |>
 
 The key step is **aggregating** the five rows per county down to one. Summing the four degree counts and dividing by the county total turns raw counts into a comparable percentage. Because the data is a spatial **sf** object, collapsing those rows also dissolves each county's five identical boundaries into a single polygon — so the per-county percentages map cleanly with no extra work.
 
-### Exercise 5
+### Exercise 7
 
 In one or two sentences, describe the pattern. Which parts of California have the highest share of college graduates, and which have the lowest?
 
-```{r california-bachelors-5}
+```{r california-bachelors-degrees-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -490,13 +536,13 @@ Your answer might note that the coastal and urban counties — the Bay Area, aro
 
 Educational attainment is one of the strongest county-level correlates of income, so this map and the Texas income map are partly telling the same story through different variables. Noticing that overlap — and resisting the urge to claim one *causes* the other from a map alone — is the kind of judgment a data scientist brings to Census work.
 
-### Exercise 6
+### Exercise 8
 
 Commit your work. Stage `analysis.qmd`, commit with the message `"Add California education map"`, and push to GitHub.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-bachelors-6}
+```{r california-bachelors-degrees-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -526,7 +572,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-age-1}
+```{r california-median-age-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -555,7 +601,7 @@ You can give each variable a readable name — `median_age`, `population` — in
 
 Add a chunk that prints `age_ca`. Render, then copy and paste the printed output from the HTML.
 
-```{r california-age-2}
+```{r california-median-age-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -566,7 +612,7 @@ question_text(NULL,
 
 ###
 
-```{r california-age-2-test}
+```{r california-median-age-2-test}
 age_ca
 ```
 
@@ -586,7 +632,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-age-3}
+```{r california-median-age-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -597,7 +643,7 @@ question_text(NULL,
 
 ###
 
-```{r california-age-3-test}
+```{r california-median-age-3-test}
 #| echo: true
 age_ca |>
   select(NAME, variable, estimate) |>
@@ -623,7 +669,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-age-4}
+```{r california-median-age-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -634,7 +680,7 @@ question_text(NULL,
 
 ###
 
-```{r california-age-4-test}
+```{r california-median-age-4-test}
 #| echo: true
 age_ca |>
   select(NAME, variable, estimate) |>
@@ -661,7 +707,7 @@ Filtering to the 15 most populous counties is an analytical choice, not just a c
 
 In one or two sentences, describe what the chart shows. Among the most populous counties, which skew older and which skew younger?
 
-```{r california-age-5}
+```{r california-median-age-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -680,7 +726,7 @@ Commit your work. Stage `analysis.qmd`, commit with the message `"Add California
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-age-6}
+```{r california-median-age-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -700,7 +746,7 @@ This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data]
 
 ### Exercise 1
 
-Run a final `quarto render analysis.qmd` and confirm all three figures appear in your Live Server tab. In the R Terminal, run:
+Render and confirm all three figures appear. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd")
