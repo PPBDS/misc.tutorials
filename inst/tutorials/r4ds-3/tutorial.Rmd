@@ -1010,7 +1010,7 @@ dbplyr_act |>
 
 ###
 
-Traveling tops the count because each trip is a separate record — a three-leg commute is three rows. Sleeping is typically one long record per night, so it generates far fewer entries than its share of daily time would suggest.
+Record count is not the same as time spent: Traveling ranks near the top because each trip is its own entry — a commute from home to the bus stop, the bus to work, and the walk to the office is three rows despite being one journey. Personal Care Activities includes sleeping, which is typically one uninterrupted record per night, so it ranks much lower here despite accounting for roughly a third of the day.
 
 ### Exercise 8
 
@@ -1042,7 +1042,7 @@ dbplyr_act |>
 
 ###
 
-Record count and average duration measure different things. Traveling tops Exercise 7's count because each trip is its own record — a three-leg commute is three rows — but each trip is short, so its average duration is low. Personal Care Activities includes sleeping, which is typically one long uninterrupted record per night; that single record pulls the category's average duration far above the rest. To get total time per person per day, researchers sum `duration_min` per respondent, which Exercise 12 will do.
+This table answers a different question than the one above: average duration per record rather than record count. Traveling, which generates many short entries, ranks near the bottom here; Personal Care Activities, which includes sleeping, rises toward the top because a typical night's sleep is one long uninterrupted record.
 
 ### Exercise 9
 
