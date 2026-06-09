@@ -315,7 +315,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
@@ -341,7 +341,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
@@ -396,7 +396,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 8)
 ```
 
 ###
@@ -438,7 +438,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
@@ -554,7 +554,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
@@ -623,7 +623,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 5)
 ```
 
 ###
@@ -860,7 +860,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
@@ -971,7 +971,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 6)
 ```
 
 ###
@@ -998,7 +998,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 6)
 ```
 
 ###

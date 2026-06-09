@@ -195,7 +195,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
@@ -227,7 +227,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 5)
 ```
 
 ###
@@ -376,7 +376,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
@@ -411,7 +411,7 @@ question_text(NULL,
 edu_ca <- get_acs(
   geography = "county",
   state     = "CA",
-  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
   summary_var = "B15003_001",
   geometry    = TRUE,
   year      = 2020
@@ -607,7 +607,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 5)
 ```
 
 ###
@@ -802,7 +802,7 @@ ggplot(income_tx) +
 edu_ca <- get_acs(
   geography = "county",
   state = "CA",
-  variables = c("B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
   summary_var = "B15003_001",
   year = 2020,
   geometry = TRUE
