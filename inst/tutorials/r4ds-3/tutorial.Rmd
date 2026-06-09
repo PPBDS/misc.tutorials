@@ -114,7 +114,7 @@ if (file.exists(atus_path)) {
 
 This section covers key concepts from [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html), [Chapter 14: Strings](https://r4ds.hadley.nz/strings.html), [Chapter 15: Regular Expressions](https://r4ds.hadley.nz/regexps.html), [Chapter 12: Logical Vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will use **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** to query two datasets recently featured in the *New York Times*: the Stanford Education Data Archive (SEDA) reading scores across 13,000 US school districts, and the American Time Use Survey (ATUS), which records how non-employed Americans spend their weekdays.
+You will use the  **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query two datasets recently featured in the *New York Times*: the Stanford Education Data Archive (SEDA) reading scores across 13,000 US school districts, and the American Time Use Survey (ATUS), which records how non-employed Americans spend their weekdays.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -377,6 +377,8 @@ dbplyr_dist |>
 
 ###
 
+<!-- AR: This is inconsistent with the evidence provided. Ask Claude: Hey is there anywhere where the KD is inconsistent with the evidence provided? -->
+
 The overall mean sits slightly below zero — the typical US district has scored a fraction below the national benchmark when averaged across all years. The next exercise breaks this down by year.
 
 ### Exercise 6
@@ -437,9 +439,13 @@ question_text(NULL,
 
 ###
 
+<!-- AR: Was formatted unpleasantly. Each pipe should be on its own line. Ask Claude to review and fix. -->
+
 ```{r us-education-7-test}
 #| echo: true
-score_change |> arrange(rla_change) |> head(5)
+score_change |>
+arrange(rla_change) |>
+head(5)
 ```
 
 ###
@@ -461,8 +467,7 @@ question_text(NULL,
 
 ###
 
-<pre><code>#| cache: true
-con_seda <- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb")
+<pre><code>con_seda <- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb")
 dbplyr_dist <- tbl(con_seda, "district_scores")
 score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
@@ -664,7 +669,7 @@ state_change |> arrange(rla_change)
 
 ###
 
-With only 50 states, printing all rows makes sense. Most states declined, but two near the top improved substantially — you will see which ones in the next exercise.
+With only 50 states, printing all rows makes sense. Most states declined, but two near the bottom of the ascending sort improved substantially — you will see which ones in the next exercise.
 
 ### Exercise 15
 
