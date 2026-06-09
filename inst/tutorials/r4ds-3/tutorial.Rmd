@@ -383,7 +383,7 @@ dbplyr_dist |>
 
 ###
 
-The overall mean sits slightly below zero — the typical US district has scored a fraction below the national benchmark when averaged across all years. The next exercise breaks this down by year.
+The overall mean sits slightly below zero — the typical US district has scored a fraction below the national benchmark when averaged across all years.
 
 ### Exercise 6
 
@@ -714,7 +714,7 @@ state_change |>
 
 ###
 
-With only 50 states, printing all rows makes sense. Most states declined, but two near the bottom of the ascending sort improved substantially — you will see which ones in the next exercise.
+With only 50 states, printing all rows makes sense. Most states declined, but two near the bottom of the ascending sort improved substantially.
 
 ### Exercise 16
 
@@ -1136,7 +1136,7 @@ dbplyr_act |>
 
 ###
 
-This first `summarize()` totals minutes per person per category. A respondent who watched TV in three stretches contributes one total, not three records. The next exercise averages these person-level totals across all respondents.
+This first `summarize()` totals minutes per person per category. A respondent who watched TV in three stretches contributes one total, not three records.
 
 ### Exercise 12
 
@@ -1225,7 +1225,7 @@ The `start_hhmm %/% 100` extraction is the same integer-division operation used 
 
 ### Exercise 14
 
-Now finalize the current working chunk. Edit the chunk so it contains only: the database connection, the three lazy table references, the `x` computation from Exercise 12, and the `y` computation from Exercise 13. Remove all exploratory code from Exercises 3–10. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Now finalize the current working chunk. Edit the chunk so it contains only: the database connection, the three lazy table references, the `keep_cats` vector, the `x` computation from Exercise 12, and the `y` computation from Exercise 13. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r time-use-14}
 question_text(NULL,
@@ -1242,6 +1242,12 @@ question_text(NULL,
 dbplyr_act   <- tbl(con_atus, "activities")
 dbplyr_resp  <- tbl(con_atus, "respondents")
 dbplyr_codes <- tbl(con_atus, "activity_codes")
+keep_cats <- c(
+  "Personal Care Activities",
+  "Household Activities",
+  "Caring for and Helping Household Members",
+  "Socializing, Relaxing, and Leisure"
+)
 x <- dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name), by = "activity_code") |>
   inner_join(dbplyr_resp |> filter(str_starts(employment_status, "Not"), day_type == "Weekday") |> select(tucaseid, sex), by = "tucaseid") |>
@@ -1450,6 +1456,8 @@ This tutorial covered [Chapter 21: Databases](https://r4ds.hadley.nz/databases.h
 You used **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** to query the Stanford Education Data Archive and the American Time Use Survey, and produced two final graphics featured in the *New York Times*.
 
 ### Exercise 1
+
+<!-- AR: Need to add full, correct analysis.qmd as example answer. -->
 
 Render. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
 
