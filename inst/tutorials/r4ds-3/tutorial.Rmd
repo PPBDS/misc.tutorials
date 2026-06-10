@@ -1230,77 +1230,6 @@ The `start_hhmm %/% 100` extraction is the same integer-division operation used 
 
 ### Exercise 14
 
-Now finalize the current working chunk. Edit the chunk so it contains only: the database connection, the three lazy table references, the `keep_cats` vector, the `x` computation from Exercise 12, and the `y` computation from Exercise 13. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r time-use-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
-```
-
-###
-
-<pre><code>con_atus <- dbConnect(duckdb::duckdb(), dbdir = "data/atus.duckdb")
-dbplyr_act   <- tbl(con_atus, "activities")
-dbplyr_resp  <- tbl(con_atus, "respondents")
-dbplyr_codes <- tbl(con_atus, "activity_codes")
-keep_cats <- c(
-  "Personal Care Activities",
-  "Household Activities",
-  "Caring for and Helping Household Members",
-  "Socializing, Relaxing, and Leisure"
-)
-x <- dbplyr_act |>
-  left_join(dbplyr_codes |> select(activity_code, major_name), by = "activity_code") |>
-  inner_join(dbplyr_resp |> filter(str_starts(employment_status, "Not"), day_type == "Weekday") |> select(tucaseid, sex), by = "tucaseid") |>
-  group_by(tucaseid, sex, major_name) |>
-  summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
-  group_by(sex, major_name) |>
-  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
-y <- dbplyr_act |>
-  mutate(hour = start_hhmm %/% 100L) |>
-  filter(hour >= 6L, hour <= 23L) |>
-  left_join(dbplyr_codes |> select(activity_code, major_name), by = "activity_code") |>
-  filter(major_name %in% keep_cats) |>
-  inner_join(dbplyr_resp |> filter(str_starts(employment_status, "Not"), day_type == "Weekday") |> select(tucaseid, sex), by = "tucaseid") |>
-  group_by(sex, hour, major_name) |>
-  summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
-</code></pre>
-
-###
-
-Caching is a refactoring step — the chunk now holds only the objects worth keeping, nothing exploratory.
-
-### Exercise 15
-
-Add `#| cache: true` as the first option in the current working chunk. Render. In the bash Terminal, run `ls`. CP/CR.
-
-```{r time-use-15}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
-```
-
-###
-
-<pre><code>$ ls
-analysis.qmd  analysis_cache  analysis_files  analysis.html  data
-</code></pre>
-
-###
-
-`analysis_cache/` already exists from the first cache in the US Education section — adding `#| cache: true` here writes the `x` and `y` results into it. Subsequent renders skip all five million rows of database joins.
-
-### Exercise 16
-
 Create a new code chunk in `analysis.qmd`. Make a horizontal grouped bar chart from `x` showing average daily minutes by `major_name` on the y-axis and colored by `sex`. Reorder `major_name` by average minutes. Remove any rows where `major_name` is `NA`. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
 In the R Terminal, run:
@@ -1311,7 +1240,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r time-use-16}
+```{r time-use-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1322,7 +1251,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-16-test, eval = !is.null(con_atus)}
+```{r time-use-14-test, eval = !is.null(con_atus)}
 #| echo: true
 x |>
   filter(!is.na(major_name)) |>
@@ -1344,11 +1273,11 @@ x |>
 
 The Household Activities and Caring bars tell the story the NYT graphic illustrates: women's bars extend roughly 50–60 minutes farther than men's. The Leisure bar goes the other way: men average substantially more minutes, driven largely by TV.
 
-### Exercise 17
+### Exercise 15
 
 In one to two sentences, describe the most striking difference between men and women in the chart you just produced. Name the specific activity categories where the gap is largest, and state which direction (men higher or women higher).
 
-```{r time-use-17}
+```{r time-use-15}
 question_text(NULL,
   message = "Women average about 50–60 more minutes per weekday on Household Activities
 and Caring than non-employed men. Men average roughly 60 more minutes on Socializing,
@@ -1363,7 +1292,7 @@ Relaxing, and Leisure — driven largely by more TV watching.",
 
 Sociologist Arlie Hochschild named this the "second shift" in 1989: even when women join the paid labor force, they retain the bulk of household and caregiving work. The ATUS shows the pattern persists in the non-employed group — non-employed women redirect time not into leisure but into unpaid domestic work.
 
-### Exercise 18
+### Exercise 16
 
 Recall the New York Times chart from the beginning of this section:
 
@@ -1375,7 +1304,7 @@ Build a stacked area chart from `y`, with `hour` on the x-axis, `avg_min` on the
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-18}
+```{r time-use-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1386,7 +1315,7 @@ question_text(NULL,
 
 ###
 
-```{r time-use-18-test, eval = !is.null(con_atus)}
+```{r time-use-16-test, eval = !is.null(con_atus)}
 #| echo: true
 ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(position = "stack", alpha = 0.85) +
@@ -1411,12 +1340,12 @@ ggplot(y, aes(x = hour, y = avg_min, fill = major_name)) +
 
 Your chart uses start time as a proxy for current activity, which captures the broad shape but understates activities whose duration extends past the hour boundary. The NYT version shows the fraction of people in each activity at each minute — a more precise measure, but the same broad pattern: the Leisure band is taller for men all afternoon, and the Household band is wider and starts earlier for women.
 
-### Exercise 19
+### Exercise 17
 
 Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"`. You may use your
 AI agent, the VS Code Source Control panel, or the bash terminal.
 
-```{r time-use-19}
+```{r time-use-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
