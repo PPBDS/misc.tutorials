@@ -9,7 +9,7 @@ output:
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: 'Working with hierarchical JSON data, web scraping with rvest and httr2, and custom functions, using earthquake and IMDb movie datasets.'
+description: 'Working with hierarchical JSON data, web scraping with rvest and httr2, and iteration with purrr, using wildfire perimeter and IMDb movie datasets.'
 ---
 
 ```{r setup, include = FALSE}
@@ -21,133 +21,42 @@ library(leaflet)
 library(rvest)
 library(ggrepel)
 library(httr2)
+library(purrr)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 60,
         tutorial.storage = "local")
 
-convert_earthquake_time <- function(milliseconds) {
-  as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")
+centroid_lon <- function(coords) {
+  mean(map_dbl(coords[[1]], 1))
 }
-categorize_magnitude <- function(mag) {
-  case_when(
-    mag < 3.0 ~ "Minor",
-    mag < 4.0 ~ "Light",
-    mag < 5.0 ~ "Moderate",
-    mag < 6.0 ~ "Strong",
-    mag < 7.0 ~ "Major",
-    TRUE ~ "Great"
-  )
+centroid_lat <- function(coords) {
+  mean(map_dbl(coords[[1]], 2))
 }
 
-earthquake_df <- jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
+raw <- jsonlite::read_json("../../extdata/r4ds-5/wildfires.geojson")
+
+fires <- raw |>
   pluck("features") |>
-  tibble(data = _) |>
-  unnest_wider(data) |>
-  unnest_wider(properties, names_sep = "_") |>
-  hoist(geometry, coordinates = "coordinates") |>
-  unnest_wider(coordinates, names_sep = "_") |>
-  rename(
-    longitude = coordinates_1,
-    latitude  = coordinates_2,
-    depth     = coordinates_3
-  ) |>
-  mutate(across(where(is.character), ~ifelse(.x == "null", NA, .x))) |>
-  filter(!if_any(c(properties_mag, longitude, latitude), is.na)) |>
+  tibble(features = _) |>
+  unnest_wider(features) |>
+  unnest_wider(properties) |>
+  unnest_wider(geometry, names_sep = "_") |>
+  select(incident, gis_acres, fire_year, agency, state, geometry_coordinates) |>
   mutate(
-    datetime = convert_earthquake_time(as.numeric(properties_time)),
-    mag_category = categorize_magnitude(as.numeric(properties_mag))
-  ) |>
-  mutate(across(c(properties_mag, depth), as.numeric)) |>
-  filter(datetime >= Sys.Date() - 365) |>
-  filter(longitude >= -125, longitude <= -66, latitude >= 20, latitude <= 50) |>
-  mutate(
-    hour = hour(datetime),
-    day_of_week = wday(datetime, label = TRUE),
-    depth_category = case_when(
-      depth < 70 ~ "Shallow",
-      depth < 300 ~ "Intermediate",
-      depth < 600 ~ "Deep"
-    )
-  ) |>
-  select(longitude, latitude, properties_mag, properties_place, datetime, depth, mag_category, depth_category) |>
-  mutate(
-    tooltip_text = paste0(
-      "Magnitude: ", properties_mag, " (", mag_category, ")<br>",
-      "Location: ", properties_place, "<br>",
-      "Time: ", format(datetime, "%Y-%m-%d %H:%M"), "<br>",
-      "Depth: ", round(depth, 1), " km (", depth_category, ")"
-    )
-  ) |>
-  filter(
-    longitude >= -180, longitude <= 180,
-    latitude >= -90, latitude <= 90,
-    properties_mag >= 0, properties_mag <= 10
-  ) |>
-  mutate(
-    color = case_when(
-      properties_mag >= 6 ~ "red",
-      properties_mag >= 5 ~ "orange",
-      properties_mag >= 4 ~ "yellow",
-      properties_mag >= 3 ~ "green",
-      TRUE ~ "blue"
-    )
-  ) |>
-  arrange(desc(properties_mag))
+    gis_acres = as.numeric(gis_acres),
+    fire_year = as.integer(fire_year)
+  )
 
-top_movies <- request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_element("table") |>
-  html_table() |>
-  select(
-    rank_title_year = `Rank & Title`,
-    rating = `IMDb Rating`
-  ) |>
+big_fires <- fires |>
+  filter(gis_acres >= 100000) |>
   mutate(
-    rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
-    rating_details = request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-      req_perform() |>
-      resp_body_html() |>
-      html_elements("td strong") |>
-      html_attr("title")
-  ) |>
-  separate_wider_regex(
-    rank_title_year,
-    patterns = c(
-      rank = "\\d+", "\\. ",
-      title = ".+", " +\\(",
-      year = "\\d+", "\\)"
-    )
-  ) |>
-  separate_wider_regex(
-    rating_details,
-    patterns = c(
-      "[0-9.]+ based on ",
-      number = "[0-9,]+",
-      " user ratings"
-    )
-  ) |>
-  mutate(
-    number = parse_number(number),
-    across(c(rank, year), as.numeric),
-    decade = paste0(floor(year/10)*10, "s"),
-    rating_category = case_when(
-      rating >= 9.0 ~ "Masterpiece (9.0+)",
-      rating >= 8.5 ~ "Excellent (8.5-8.9)",
-      rating >= 8.0 ~ "Great (8.0-8.4)",
-      TRUE ~ "Good (<8.0)"
-    ),
-    popularity = case_when(
-      number >= 2000000 ~ "Very Popular (2M+)",
-      number >= 1000000 ~ "Popular (1M-2M)",
-      number >= 500000 ~ "Moderate (500K-1M)",
-      TRUE ~ "Niche (<500K)"
-    )
-  ) |>
-  select(rank, title, year, rating, number) |>
-  arrange(rank)
+    lon = map_dbl(geometry_coordinates, centroid_lon),
+    lat = map_dbl(geometry_coordinates, centroid_lat)
+  )
+
+imdb_snapshots <- readRDS("../../extdata/r4ds-5/imdb_snapshots.rds")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -158,7 +67,7 @@ top_movies <- request("https://web.archive.org/web/20220201012049/https://www.im
 
 This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/hierarchical), [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping), [Chapter 25: Functions](https://r4ds.hadley.nz/functions), and [Chapter 26: Iterations](https://r4ds.hadley.nz/iteration) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with nested data structures, web scraping techniques, and creating custom functions using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, and **[purrr](https://purrr.tidyverse.org/)**. Key concepts include extracting nested elements from lists, expanding list-columns into separate columns, extracting tables from HTML pages, and splitting text into structured columns using regex patterns.
+Using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will extract nested elements from lists, expand list-columns into tidy tables, scrape HTML tables from archived web pages, split compound text columns using regex, and render geographic polygon boundaries as interactive maps. The analysis uses two datasets: wildfire perimeter polygons from the National Interagency Fire Center and five archived snapshots of the IMDb Top 250 from the Wayback Machine.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -166,7 +75,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be connected to a repo named `r4ds-5`. If you are not, create one and connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Earthquakes and Movies"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Wildfires and Movies"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
@@ -203,20 +112,15 @@ analysis_files
 
 ###
 
-List-columns come in two basic forms, named and unnamed. A **named** list labels each element, like a record:
-
-```r
-list(place = "Loma Prieta", year = 1989, magnitude = 6.9)
-```
-
-An **unnamed** list is just an ordered sequence — `list(6.9, 7.1, 5.4)` — whose length can vary from row to row.
+This tutorial works with two very different datasets. The first is a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US — each fire's surveyed boundary stored as nested geographic coordinates. The second is five archived snapshots of the IMDb Top 250, scraped from the Wayback Machine, covering 2015 to 2022. Together they are a study in the messiest storage formats data scientists encounter: deeply nested geographic JSON and scraped HTML tables.
 
 ### Exercise 2
 
-In your QMD, paste the following `library()` commands in a new code chunk with `#| message: false`:
+In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
 
 ```
 library(tidyverse)
+library(purrr)
 library(leaflet)
 library(rvest)
 library(httr2)
@@ -251,14 +155,14 @@ question_text(NULL,
 
 ###
 
-<pre><code>```{r}
-#| message: false
+<pre><code>#| message: false
 library(tidyverse)
+library(purrr)
 library(leaflet)
 library(rvest)
 library(httr2)
 library(ggrepel)
-```</code></pre>
+</code></pre>
 
 ###
 
@@ -296,29 +200,27 @@ analysis.html  analysis.qmd  analysis_files  data
 
 ###
 
-**jsonlite** can also read JSON with automatic simplification, which often works well for simple, regular JSON. Reading it *without* simplification keeps the full nested structure, giving you more control when you need to rectangle something complex by hand.
+**jsonlite** is R's standard package for reading and writing JSON. It is used directly when loading local JSON files like the GeoJSON you are about to download, and indirectly inside packages like **httr2**, which calls jsonlite under the hood when parsing responses from web requests. JSON is a common format for transmitting data on the web, and jsonlite is how R reads it.
 
-## Earthquakes
+## Wildfire perimeters
 ###
 
-This section focuses on working with hierarchical JSON data and writing your own transformation functions, using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**. You will learn how to extract nested data from GeoJSON files, convert Unix timestamps to datetimes, and build interactive maps. Key concepts include reaching into deeply nested lists, *rectangling* them into a tidy table, and writing small custom functions.
+The **[National Interagency Fire Center](https://data-nifc.opendata.arcgis.com/)** maintains a consolidated archive of finalized wildfire perimeter polygons — one polygon per fire, with metadata on name, acreage, year, state, and managing agency — published as a GeoJSON file. GeoJSON stores geometry as deeply nested lists that often must be reformatted before they can be analyzed. Using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will flatten that nested structure, analyze 33 years of burned acreage, and render the actual fire boundaries as an interactive polygon map — the kind of visualization the [New York Times](https://www.nytimes.com/interactive/2020/us/fires-map-tracker.html) built during the 2020 fire season:
 
-###
-
-We use `earthquakes.geojson` from the **USGS real-time earthquake feed**, a live GeoJSON feed maintained by the U.S. Geological Survey providing seismic activity data including magnitude, location, depth, and timestamps.
-
-Here is the tibble we will build:
-
-```{r earthquakes-data}
-earthquake_df
+```{r}
+knitr::include_graphics("images/nyt-fire-map.png")
 ```
+
+###
+
+We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) InterAgencyFirePerimeterHistory** dataset — a consolidated archive of finalized wildfire perimeter polygons contributed by the USFS, NPS, BLM, BIA, CAL FIRE, and state agencies. Each feature is a polygon representing one fire's surveyed boundary. The 2020 season was one of the most destructive on record — the August Complex burned over a million acres, becoming the largest fire in California history.
 
 ### Exercise 1
 
-Download the GeoJSON file `earthquakes.geojson` from this URL and save it in your `data/` directory:
+Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/earthquakes.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/wildfires.geojson
 ```
 
 In a bash Terminal, run:
@@ -329,7 +231,34 @@ ls data
 
 CP/CR.
 
-```{r earthquakes-1}
+```{r wildfire-perimeters-1}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 3)
+```
+
+###
+
+```
+wildfires.geojson
+```
+
+###
+
+GeoJSON is a standard format for geographic data built on JSON. Each feature pairs a **geometry** — the spatial shape, stored as nested coordinate arrays — with a **properties** object holding tabular metadata like name, acreage, and year. This two-part structure (shape + attributes) is common to all geographic formats; GeoJSON is simply the JSON encoding of it.
+
+### Exercise 2
+
+Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the number of features it contains.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-2}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -340,29 +269,26 @@ question_text(NULL,
 
 ###
 
-```
-earthquakes.geojson
+```{r wildfire-perimeters-2-test}
+#| echo: true
+# your path will be "data/wildfires.geojson"
+raw <- jsonlite::read_json("../../extdata/r4ds-5/wildfires.geojson")
+length(raw$features)
 ```
 
 ###
 
-GeoJSON is a JSON-based format for representing geographic features. A `FeatureCollection` object contains a `features` array — each feature has `type`, `geometry` (with coordinates), and `properties` (metadata like magnitude and place).
+`raw` has two top-level keys: `type` (the string `"FeatureCollection"`, a GeoJSON standard marker) and `features` (the list of fires). `raw$features` holds 883 elements — one per fire — each a named list containing the fire's geographic shape and tabular metadata.
 
-### Exercise 2
+### Exercise 3
 
-Explore the raw JSON structure. Read `data/earthquakes.geojson`, pull out its `features` array, and rectangle it into a tibble with one row per feature. Show the first five rows, keeping each quake's `type`, `id`, magnitude, place, and time.
+Extract the first fire from `raw` and show its component names. Then navigate five levels deeper into the nested structure to extract the first coordinate pair of that fire's boundary.
 
 Render.
 
-In the R Terminal, run:
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r earthquakes-2}
+```{r wildfire-perimeters-3}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -373,132 +299,172 @@ question_text(NULL,
 
 ###
 
-```{r earthquakes-2-test}
+```{r wildfire-perimeters-3-test}
 #| echo: true
-jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
-  pluck("features") |>
-  tibble(data = _) |>
-  unnest_wider(data) |>
-  unnest_wider(properties, names_sep = "_") |>
-  select(type, id, properties_mag, properties_place, properties_time) |>
-  head(5)
+pluck(raw, "features", 1) |> names()
+pluck(raw, "features", 1, "geometry", "coordinates", 1, 1)
 ```
 
 ###
 
-Pulling a named element out of a deeply nested list, then spreading a named list-column so each element becomes its own column, are the core *rectangling* moves — they turn hierarchical JSON into a flat table. When you unnest several levels, prefixing the new column names with their parent keeps them from colliding.
+GeoJSON stores coordinates as `[longitude, latitude]` — longitude first, the opposite of the spoken convention. The path to one coordinate pair from the top level is five steps: `features → [[1]] → geometry → coordinates → [[1]] → [[1]]`. `pluck()` is designed for exactly this kind of path navigation through nested R lists.
 
-### Exercise 3
+### Exercise 4
 
-Turn the raw GeoJSON into a tidy table called `earthquake_df` with one row per earthquake. From each quake's nested record, pull out longitude, latitude, depth, and magnitude, and turn the timestamp into a real datetime. Keep only quakes from the last year and within the continental US (longitude −125 to −66, latitude 20 to 50). Add a magnitude category (Minor, Light, Moderate, Strong, Major, Great), a depth category (Shallow, Intermediate, Deep), the hour and day of week, a color keyed to magnitude, and a `tooltip_text` string for the map popups. Sort by descending magnitude.
+Wrap `raw$features` in a tibble with a column called `features`. Print the result.
 
 Render.
 
-In the R Terminal, run:
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r earthquakes-3}
+```{r wildfire-perimeters-4}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 8)
+	rows = 5)
 ```
 
 ###
 
-```{r earthquakes-3-test}
+```{r wildfire-perimeters-4-test}
 #| echo: true
-convert_earthquake_time <- function(milliseconds) {
-  as.POSIXct(milliseconds / 1000, origin = "1970-01-01", tz = "UTC")
-}
-categorize_magnitude <- function(mag) {
-  case_when(
-    mag < 3.0 ~ "Minor",
-    mag < 4.0 ~ "Light",
-    mag < 5.0 ~ "Moderate",
-    mag < 6.0 ~ "Strong",
-    mag < 7.0 ~ "Major",
-    TRUE ~ "Great"
-  )
-}
-
-earthquake_df <- jsonlite::read_json("../../extdata/r4ds-5/earthquakes.geojson") |>
-  pluck("features") |>
-  tibble(data = _) |>
-  unnest_wider(data) |>
-  unnest_wider(properties, names_sep = "_") |>
-  hoist(geometry, coordinates = "coordinates") |>
-  unnest_wider(coordinates, names_sep = "_") |>
-  rename(
-    longitude = coordinates_1,
-    latitude  = coordinates_2,
-    depth     = coordinates_3
-  ) |>
-  mutate(across(where(is.character), ~ifelse(.x == "null", NA, .x))) |>
-  filter(!if_any(c(properties_mag, longitude, latitude), is.na)) |>
-  mutate(
-    datetime = convert_earthquake_time(as.numeric(properties_time)),
-    mag_category = categorize_magnitude(as.numeric(properties_mag))
-  ) |>
-  mutate(across(c(properties_mag, depth), as.numeric)) |>
-  filter(datetime >= Sys.Date() - 365) |>
-  filter(longitude >= -125, longitude <= -66, latitude >= 20, latitude <= 50) |>
-  mutate(
-    hour = hour(datetime),
-    day_of_week = wday(datetime, label = TRUE),
-    depth_category = case_when(
-      depth < 70 ~ "Shallow",
-      depth < 300 ~ "Intermediate",
-      depth < 600 ~ "Deep"
-    )
-  ) |>
-  select(longitude, latitude, properties_mag, properties_place,
-         datetime, depth, mag_category, depth_category) |>
-  mutate(
-    tooltip_text = paste0(
-      "Magnitude: ", properties_mag, " (", mag_category, ")<br>",
-      "Location: ", properties_place, "<br>",
-      "Time: ", format(datetime, "%Y-%m-%d %H:%M"), "<br>",
-      "Depth: ", round(depth, 1), " km (", depth_category, ")"
-    )
-  ) |>
-  filter(
-    longitude >= -180, longitude <= 180,
-    latitude >= -90, latitude <= 90,
-    properties_mag >= 0, properties_mag <= 10
-  ) |>
-  mutate(
-    color = case_when(
-      properties_mag >= 6 ~ "red",
-      properties_mag >= 5 ~ "orange",
-      properties_mag >= 4 ~ "yellow",
-      properties_mag >= 3 ~ "green",
-      TRUE ~ "blue"
-    )
-  ) |>
-  arrange(desc(properties_mag))
-
-earthquake_df
+tibble(features = raw$features)
 ```
 
 ###
 
-If your result differs from ours, replace your code with the code above before moving on, so your `earthquake_df` matches for the rest of the section.
+A list-column holds an R list as a column — each row contains one complete R list (here, one fire feature). This 883 × 1 tibble is the standard starting point for rectangling: wrap the list in a tibble, then progressively widen it.
 
-You can reach into a list-column and lift out just the named values you need — here, the coordinates inside the `geometry` object — without fully unnesting everything around them. That is handy when a nested structure carries far more fields than you care about.
+### Exercise 5
 
-### Exercise 4
+Expand the `features` list-column so each named element becomes its own column.
 
-That GeoJSON rectangling takes real time on every render, so it earns caching. Add `#| cache: true` as the first line inside the `earthquake_df` code chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+Render.
 
-```{r earthquakes-4}
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-5}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 5)
+```
+
+###
+
+```{r wildfire-perimeters-5-test}
+#| echo: true
+tibble(features = raw$features) |>
+  unnest_wider(features)
+```
+
+###
+
+`unnest_wider()` takes each named element of the list-column and makes it a column. You now have `type`, `id`, `geometry`, and `properties` — three of them still list-columns. The rectangling is not done yet.
+
+### Exercise 6
+
+Continue the pipeline by expanding the `properties` list-column the same way.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-6}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 5)
+```
+
+###
+
+```{r wildfire-perimeters-6-test}
+#| echo: true
+tibble(features = raw$features) |>
+  unnest_wider(features) |>
+  unnest_wider(properties)
+```
+
+###
+
+The eight attributes — `incident`, `gis_acres`, `fire_year`, `agency`, `state`, `map_method`, `date_current`, `unique_fire_id` — are now flat columns. The `geometry` column is still a list-column; it holds the polygon coordinates and needs separate handling.
+
+### Exercise 7
+
+Continue the pipeline by expanding the `geometry` list-column, prefixing its new column names to avoid colliding with the existing `type` column. Then select the six columns you will need — `incident`, `gis_acres`, `fire_year`, `agency`, `state`, and `geometry_coordinates` — and coerce `gis_acres` to numeric and `fire_year` to integer. Assign the result to `fires`. Print `fires`.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-7}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 10)
+```
+
+###
+
+```{r wildfire-perimeters-7-test}
+#| echo: true
+fires
+```
+
+###
+
+If your `fires` does not match ours, replace your code with the pipeline from the setup chunk before continuing.
+
+`geometry` contains two fields: `type` (the string `"Polygon"`) and `coordinates`. But a `type` column already exists from the feature level — without `names_sep`, unnesting would silently overwrite it. `names_sep = "_"` prefixes the new columns as `geometry_type` and `geometry_coordinates`; then `select()` drops what you don't need.
+
+### Exercise 8
+
+That GeoJSON pipeline takes time on every render. Strip the `fires` print line from the chunk, leaving only the pipeline that defines `fires`.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-8}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 10)
+```
+
+###
+
+<pre><code>fires <- jsonlite::read_json("data/wildfires.geojson") |>
+  pluck("features") |>
+  tibble(features = _) |>
+  unnest_wider(features) |>
+  unnest_wider(properties) |>
+  unnest_wider(geometry, names_sep = "_") |>
+  select(incident, gis_acres, fire_year, agency, state, geometry_coordinates) |>
+  mutate(
+    gis_acres = as.numeric(gis_acres),
+    fire_year = as.integer(fire_year)
+  )
+</code></pre>
+
+###
+
+With the print line removed, the chunk only defines `fires` — it is ready to cache.
+
+### Exercise 9
+
+Add `#| cache: true` as the first line inside the `fires` chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r wildfire-perimeters-9}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -510,20 +476,20 @@ question_text(NULL,
 ###
 
 <pre><code>$ ls
-analysis.qmd  analysis_cache  analysis_files  analysis.html
+analysis.qmd  analysis_cache  analysis_files  analysis.html  data
 </code></pre>
 
 ###
 
-Every later render loads `earthquake_df` from the cache instead of re-rectangling the GeoJSON.
+`analysis_cache/` now holds the saved `fires` tibble. Every subsequent render loads it from disk instead of re-reading and re-rectangling the 8.8 MB GeoJSON file.
 
-### Exercise 5
+### Exercise 10
 
-The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
+The Source Control change count jumped because `analysis_cache/` now looks like untracked work to git. Cached files should never go to GitHub.
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r earthquakes-5}
+```{r wildfire-perimeters-10}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -540,244 +506,17 @@ analysis_cache
 
 ###
 
-The Source Control change count should drop back to whatever it was before the render. Filtering to the last 365 days and to the continental US trims the global feed down to a few thousand quakes — small enough to map smoothly. The vast majority are minor; the few above magnitude 5 are the ones a reader's eye should land on.
+The Source Control change count should drop back to where it was before the render.
 
-### Exercise 6
+### Exercise 11
 
-In a new code chunk, create an interactive **leaflet** map of `earthquake_df`. It should display circle markers sized by magnitude and colored by the `color` column, with popups showing the `tooltip_text`, plus a legend. Do not assign the plot to a variable.
-
-Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r earthquakes-6}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
-```
-
-###
-
-```{r earthquakes-6-test}
-#| echo: true
-leaflet(earthquake_df) |>
-  addTiles() |>
-  addCircleMarkers(
-    lng = ~longitude,
-    lat = ~latitude,
-    radius = ~properties_mag * 2,
-    color = ~color,
-    popup = ~tooltip_text,
-    fillOpacity = 0.7,
-    stroke = TRUE,
-    weight = 1
-  ) |>
-  addLegend(
-    position = "bottomright",
-    colors = c("red", "orange", "yellow", "green", "blue"),
-    labels = c("Major (6.0+)", "Strong (5.0-5.9)", "Moderate (4.0-4.9)",
-              "Light (3.0-3.9)", "Minor (<3.0)"),
-    title = "Earthquake Magnitude"
-  )
-```
-
-###
-
-**leaflet** builds interactive HTML maps: you start from a base layer of background map tiles, then add a layer of circle markers at each latitude/longitude. Marker popups accept HTML, which is why `tooltip_text` uses `<br>` for line breaks.
-
-## Top Movies
-###
-
-This section covers web scraping and data extraction from HTML tables using **rvest**, **httr2**, and **[stringr](https://stringr.tidyverse.org/)**. You will scrape the archived IMDb Top 250 movies list, clean the resulting text, and extract structured data. Key concepts include selecting elements from an HTML page, reading an HTML table into a data frame, pulling attributes off HTML nodes, and splitting one messy text column into several clean ones.
-
-We use a archived version of **The IMDb Top 250 Movies list** from February 2022, accessed via the Wayback Machine for a stable, reproducible URL.
-
-Here is the tibble we will build:
-
-```{r top-movies-data}
-top_movies
-```
-
-### Exercise 1
-
-Fetch and display the raw IMDb table. Request the archived page at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/`, perform the request, read the response as HTML, pull out the first `<table>` element, and turn it into a tibble.
+In a new working chunk, search `fires` for any fire whose name contains the word "August". How many rows come back? Then show the ten largest fires by acreage.
 
 Render.
 
-In the R Terminal, run:
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r top-movies-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
-```
-
-###
-
-```
-request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_element("table") |>
-  html_table()
-```
-
-###
-
-A `robots.txt` file tells automated bots which pages the site owner permits them to access. Always check `https://example.com/robots.txt` before scraping a new site. The Wayback Machine archives are generally permitted for research scraping.
-
-### Exercise 2
-
-Extract the rating details — the number of user votes, which the page stores in an HTML attribute rather than the visible text. Request the same archived page, read it as HTML, select the `<strong>` elements inside the table cells, pull the `title` attribute off each, and show the first five.
-
-Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r top-movies-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
-```
-
-###
-
-```
-request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_elements("td strong") |>
-  html_attr("title") |>
-  head(5)
-```
-
-###
-
-Selecting all the HTML nodes that match a CSS selector, then pulling a named attribute off each one, is how you reach data that isn't in the visible text — here the `title` attribute on the `<strong>` elements inside the table cells holds the vote-count string.
-
-### Exercise 3
-
-Scrape the archived IMDb Top 250 list at `https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/` into a tidy table called `top_movies`, with one row per film carrying its rank, title, year, rating, and number of votes, sorted by rank. (The rank, title, and year arrive mashed together in one cell, and the vote count is tucked into an HTML attribute rather than the visible text — so part of the job is prising those apart.)
-
-Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r top-movies-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
-```
-
-###
-
-```
-top_movies <- request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-  req_perform() |>
-  resp_body_html() |>
-  html_element("table") |>
-  html_table() |>
-  select(
-    rank_title_year = `Rank & Title`,
-    rating = `IMDb Rating`
-  ) |>
-  mutate(
-    rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
-    rating_details = request("https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/") |>
-      req_perform() |>
-      resp_body_html() |>
-      html_elements("td strong") |>
-      html_attr("title")
-  ) |>
-  separate_wider_regex(
-    rank_title_year,
-    patterns = c(
-      rank = "\\d+", "\\. ",
-      title = ".+", " +\\(",
-      year = "\\d+", "\\)"
-    )
-  ) |>
-  separate_wider_regex(
-    rating_details,
-    patterns = c(
-      "[0-9.]+ based on ",
-      number = "[0-9,]+",
-      " user ratings"
-    )
-  ) |>
-  mutate(
-    number = parse_number(number),
-    across(c(rank, year), as.numeric),
-    decade = paste0(floor(year/10)*10, "s"),
-    rating_category = case_when(
-      rating >= 9.0 ~ "Masterpiece (9.0+)",
-      rating >= 8.5 ~ "Excellent (8.5-8.9)",
-      rating >= 8.0 ~ "Great (8.0-8.4)",
-      TRUE ~ "Good (<8.0)"
-    ),
-    popularity = case_when(
-      number >= 2000000 ~ "Very Popular (2M+)",
-      number >= 1000000 ~ "Popular (1M-2M)",
-      number >= 500000 ~ "Moderate (500K-1M)",
-      TRUE ~ "Niche (<500K)"
-    )
-  ) |>
-  select(rank, title, year, rating, number) |>
-  arrange(rank)
-```
-
-```{r top-movies-3-test}
-#| echo: true
-top_movies
-```
-
-###
-
-If your result differs from ours, replace your code with the code above before moving on, so your `top_movies` matches for the rest of the section.
-
-One messy text column can be split into several clean ones with a regular expression made of *named* pieces: each named piece becomes a new column, while the unnamed pieces are matched and discarded. It is the workhorse for turning a string like "1. The Shawshank Redemption (1994)" into separate rank, title, and year columns.
-
-### Exercise 4
-
-The IMDb scrape takes time on every render too, so it earns caching. Add `#| cache: true` as the first line inside the `top_movies` code chunk. Render the QMD. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR. (No `.gitignore` step --- `analysis_cache` is already ignored from the earthquakes section.)
-
-```{r top-movies-4}
+```{r wildfire-perimeters-11}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -788,13 +527,296 @@ question_text(NULL,
 
 ###
 
-The student's chunk now has `#| cache: true` as the first line, followed by the IMDb scrape pipeline.
+```{r wildfire-perimeters-11-test}
+#| echo: true
+fires |> filter(str_detect(incident, "August"))
+fires |> arrange(desc(gis_acres)) |> head(10)
+```
 
 ###
 
-### Exercise 5
+The search returns zero rows — "August Complex" is not in the dataset by that name. Yet the second-largest record is "DOE" (CA, 2020, ~590k acres). DOE is the Doe component of the August Complex, which together burned over a million acres and became the largest fire in California history. The dataset records component fires under their individual names, not the complex name the news reported.
 
-In a new code chunk, create an interesting plot of `top_movies`. Give it a proper title, subtitle, and caption. Do not assign the plot to a variable.
+### Exercise 12
+
+Plot the total acres burned per year in `fires` as a line chart. Give it a proper title, axis labels, and caption.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-12}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 10)
+```
+
+###
+
+```{r wildfire-perimeters-12-test}
+#| echo: true
+fires |>
+  group_by(fire_year) |>
+  summarize(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = fire_year, y = total_acres)) +
+  geom_line() +
+  labs(
+    title = "Western US Wildfire Burned Area, 1990–2023",
+    subtitle = "Fires ≥ 10,000 acres",
+    x = "Year",
+    y = "Total acres burned",
+    caption = "Source: NIFC InterAgencyFirePerimeterHistory"
+  )
+```
+
+###
+
+Annual burned acreage in fires ≥ 10,000 acres averaged around 1.5 million acres in the 1990s and closer to 4 million by the 2010s. 2020 and 2021 stand out — both exceeded 7 million acres. Climate, accumulated fuel from decades of fire suppression, and changing land use patterns all contribute to the trend. The `state` column is a character code extracted from each fire's land-management unit identifier — geographic filtering is often this simple when the right metadata is present.
+
+### Exercise 13
+
+In a new working chunk, filter `fires` to fires of at least 100,000 acres and assign the result to `big_fires`. Print it.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-13}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 6)
+```
+
+###
+
+```{r wildfire-perimeters-13-test}
+#| echo: true
+big_fires <- fires |> filter(gis_acres >= 100000)
+big_fires
+```
+
+###
+
+100,000 acres is roughly the area of Los Angeles city. These are the fires that command national news coverage and multi-week suppression efforts. Idaho has more of them than the media count suggests — California dominates news coverage but not necessarily the acreage data.
+
+### Exercise 14
+
+Examine the `geometry_coordinates` column for the first fire in `big_fires`. How many coordinate pairs make up its boundary? Then write two helper functions — one computing the mean longitude and one computing the mean latitude from a polygon boundary's coordinate list — and use them to add `lon` and `lat` columns to `big_fires`. Print `big_fires`.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-14}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 14)
+```
+
+###
+
+```{r wildfire-perimeters-14-test}
+#| echo: true
+big_fires
+```
+
+###
+
+The first fire's boundary has hundreds of coordinate pairs. Wrapping `mean(map_dbl(coords[[1]], 1))` in a named function — rather than embedding it directly in `mutate()` — makes the pipeline readable and testable. The outer `map_dbl()` in `mutate()` applies the function once per row; the inner `map_dbl()` inside the function extracts one element from each coordinate pair within that row.
+
+### Exercise 15
+
+In a new working chunk, build a circle-marker leaflet map of `big_fires`, scaling the radius by the square root of `gis_acres`. Note what it looks like. Then replace it with a polygon map by loading `data/wildfires.geojson` as a raw text string and rendering the actual fire boundary polygons on the map. Compare the two.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r wildfire-perimeters-15}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 12)
+```
+
+###
+
+```{r wildfire-perimeters-15-test}
+#| echo: true
+geojson_text <- readr::read_file("../../extdata/r4ds-5/wildfires.geojson")
+leaflet() |>
+  addTiles() |>
+  addGeoJSON(
+    geojson_text,
+    weight      = 1,
+    color       = "#cc4400",
+    fillColor   = "#ff7733",
+    fillOpacity = 0.35
+  )
+```
+
+###
+
+`addGeoJSON()` reads a GeoJSON string and draws every feature as its actual polygon shape — no coordinate extraction required. The Dixie Fire polygon fills an area you can compare directly to county lines and city boundaries on the basemap. The shape of a fire is information that acreage alone cannot convey: whether it was a compact burn or a sprawling, wind-driven perimeter that jumped multiple ridgelines.
+
+### Exercise 16
+
+Commit `analysis.qmd` with a message like "Add wildfire perimeters analysis" and push to GitHub. Copy/paste the URL to your GitHub repo.
+
+```{r wildfire-perimeters-16}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 1)
+```
+
+###
+
+The **NIFC** also publishes current-year fire perimeters in real time — the **IRWIN** (Integrated Reporting of Wildland-Fire Information) feed is updated multiple times per day during active fire season. The historical archive used here is finalized geometry; the live feed shows boundaries as incident command teams map them in the field.
+
+## Movie Rankings
+###
+
+This section covers web scraping, text parsing, and iteration using
+**[httr2](https://httr2.r-lib.org/)**, **[rvest](https://rvest.tidyverse.org/)**,
+**[stringr](https://stringr.tidyverse.org/)**, and
+**[purrr](https://purrr.tidyverse.org/)**. You will write a scraping function that
+fetches one Wayback Machine snapshot of the IMDb Top 250, then apply it across five
+snapshot years with `map2()` and combine the results with `list_rbind()`. Key concepts
+include selecting elements from an HTML page, reading an HTML table into a data frame,
+pulling attributes off HTML nodes, parsing a messy text column with regex patterns, and
+using `map2()` to iterate a two-argument function across parallel vectors.
+
+We use five archived snapshots of the **IMDb Top 250** from January 2015, January 2017,
+January 2019, January 2021, and February 2022 — accessed via the
+[Wayback Machine](https://web.archive.org/), a digital archive that preserves frozen
+copies of web pages as they appeared on specific dates. Combined, the five snapshots form
+a 1,250-row panel dataset tracking how film rankings shifted over seven years.
+
+Here is the plot you will build:
+
+```{r movie-rankings-graphic}
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
+  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linewidth = 0.8) +
+  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
+  labs(
+    title = "Classic Films Slide, 1990s Films Hold Steady",
+    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
+    x = "Average rank change (positive = rose)",
+    y = "Film release decade",
+    fill = NULL,
+    caption = "Films appearing in both 2015 and 2022 snapshots. n = 183 films."
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Exercise 1
+
+Download the dataset into your `data/` directory. The file is `imdb_snapshots.rds` and
+the URL is:
+
+```
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/imdb_snapshots.rds
+```
+
+In a bash Terminal, run:
+
+```
+ls data
+```
+
+CP/CR.
+
+```{r movie-rankings-1}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 3)
+```
+
+###
+
+```
+imdb_snapshots.rds
+```
+
+###
+
+The Wayback Machine archives frozen copies of web pages as they appeared on a specific
+date. The IMDb Top 250 used static HTML until around 2022, which makes these five
+snapshots parseable with the same **rvest** pipeline. We pre-built this file so the
+tutorial doesn't depend on live Wayback Machine responses during setup — the scraping
+exercises come later.
+
+### Exercise 2
+
+Read `data/imdb_snapshots.rds` into a tibble called `imdb_snapshots`. Print it, then print a count of rows per snapshot year. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-2}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 6)
+```
+
+###
+
+```{r movie-rankings-2-test}
+#| echo: true
+readRDS("../../extdata/r4ds-5/imdb_snapshots.rds") |>
+  count(snap_year)
+```
+
+###
+
+1,250 rows = 5 snapshots × 250 films. The `snap_year` column is what converts a
+single-year scrape into a **panel dataset** — each film can appear up to 5 times, once per
+snapshot year, with its rank at that point in time. The `number` column is the raw vote
+count, not the displayed rating. As of 2022, The Shawshank Redemption had 2.7 million
+ratings — nearly twice as many as in 2015.
+
+### Exercise 3
+
+Using `imdb_snapshots`, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years.
 
 Render.
 
@@ -806,59 +828,471 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r top-movies-5}
+```{r movie-rankings-3}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 12)
+	rows = 8)
 ```
 
 ###
 
-```{r top-movies-5-test}
+```{r movie-rankings-3-test}
 #| echo: true
-top_movies |>
-  filter(year >= 1990, year <= 2010) |>
-  ggplot(aes(x = year, y = rating)) +
-  geom_point(aes(size = number / 1000), alpha = 0.8, stroke = 0.5) +
-  geom_smooth(method = "loess", se = TRUE, color = "navy",
-              linewidth = 1.2, alpha = 0.3) +
-  geom_text_repel(aes(label = ifelse(rating >= 9.0, str_wrap(title, 15), "")),
-                  size = 3, max.overlaps = 8,
-                  box.padding = 0.5, point.padding = 0.3) +
-  scale_size_continuous(name = "Votes\n(thousands)", range = c(2, 12),
-                        breaks = c(500, 1000, 1500, 2000, 2500),
-                        labels = c("500", "1,000", "1,500", "2,000", "2,500")) +
-  scale_x_continuous(breaks = seq(1990, 2010, 2)) +
-  scale_y_continuous(breaks = seq(8.0, 9.2, 0.2), limits = c(7.9, 9.3)) +
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(rank_change = rank_2015 - rank_2022) |>
+  arrange(desc(abs(rank_change))) |>
+  head(10)
+```
+
+###
+
+"It Happened One Night" (Frank Capra, 1934) fell from rank 149 to 243 — a drop of 94
+spots in seven years. The top 10 biggest movers are almost all fallers. The only substantial
+riser in the full list is Jurassic Park (+70 spots). This asymmetry is a clue: something is
+systematically pushing older films down, not just shuffling the deck at random.
+
+### Exercise 4
+
+Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-4}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 8)
+```
+
+###
+
+```{r movie-rankings-4-test}
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = round(mean(rank_change), 1), n = n(), .groups = "drop") |>
+  arrange(decade)
+```
+
+###
+
+Films from the 1930s fell an average of 38 spots; films from the 1990s were essentially
+flat (+0.4 average). This is the section's central pattern. The mechanism: 93 films entered
+the Top 250 after 2015, and when new films push in, older ones get crowded out at the bottom.
+The question is *which* films fall — and the answer is mostly older ones. The voter base that
+rates films on IMDb skews toward people who grew up in the streaming era, and they are more
+active on recently released films than on 1930s classics.
+
+### Exercise 5
+
+Filter `imdb_snapshots` to Christopher Nolan films and show their rank in each snapshot year
+in a wide table with one row per film.
+
+Nolan films to include: "The Dark Knight", "Inception", "Interstellar", "The Dark Knight
+Rises", "Memento", "The Prestige", "Batman Begins".
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-5}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 8)
+```
+
+###
+
+```{r movie-rankings-5-test}
+#| echo: true
+nolan_titles <- c(
+  "The Dark Knight", "Inception", "Interstellar",
+  "The Dark Knight Rises", "Memento", "The Prestige", "Batman Begins"
+)
+
+imdb_snapshots |>
+  filter(title %in% nolan_titles) |>
+  select(title, snap_year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank) |>
+  arrange(`2015`)
+```
+
+###
+
+The Dark Knight has held exactly rank 4 in all five snapshots — the flattest trajectory on
+the list. Inception has held 13–14. These films appear more stable than their release decade
+(2000s–2010s average: −7 to −14) would predict. Films with organized, active online fanbases
+accumulate votes faster than the internet-growth baseline, which keeps their weighted rating
+competitive. This is sometimes called the "fanbase effect."
+
+### Exercise 6
+
+Filter `imdb_snapshots` to Interstellar. Reshape the data so each snapshot year's rank and vote count (`number`) appear in their own columns. Add a `vote_growth` column showing how many times the vote count grew from 2015 to 2022.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-6}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 8)
+```
+
+###
+
+```{r movie-rankings-6-test}
+#| echo: true
+imdb_snapshots |>
+  filter(title == "Interstellar") |>
+  select(snap_year, rank, number) |>
+  pivot_wider(names_from = snap_year, values_from = c(rank, number)) |>
+  mutate(vote_growth = round(number_2022 / number_2015, 2))
+```
+
+###
+
+Interstellar's vote count grew 4.43× from 2015 to 2022 — the highest growth rate of any
+film on the list — yet it fell from rank 16 to 28. IMDb's rating is a **Bayesian weighted
+average**: it pulls each film's raw average toward the global mean, weighted by its vote
+count, to reduce noise from films with few ratings. As the internet user base grows, every
+film's vote count grows roughly proportionally. What matters for rank is whether a film's
+vote growth *outpaces* the list average — and Interstellar's didn't, even though its
+absolute growth looked large.
+
+### Exercise 7
+
+Count how many of the five snapshots each film appears in, then show the distribution of
+that count.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-7}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 6)
+```
+
+###
+
+```{r movie-rankings-7-test}
+#| echo: true
+imdb_snapshots |>
+  count(title, name = "n_snapshots") |>
+  count(n_snapshots, name = "n_films")
+```
+
+###
+
+71 films appear in only one snapshot — some entered the list after 2015 and climbed fast
+(Whiplash entered in 2017 at rank 43; Come and See entered in 2017 at rank 89), others left
+the list and never returned. 183 films appear in all five snapshots — those are the films
+stable enough to have held a Top 250 position through all seven years. The Top 250 is a
+living ranking, not a fixed historical record.
+
+### Exercise 8
+
+Now build the scraping pipeline that assembled this data. Do all of this in a single code
+chunk:
+
+1. Define a character vector `snap_urls` with the five Wayback Machine URLs — one for each
+   snapshot year (January 1 of 2015, 2017, 2019, 2021, and February 1 of 2022).
+2. Define an integer vector `snap_years` with the five corresponding year labels
+   (`c(2015, 2017, 2019, 2021, 2022)`).
+3. Write a function `scrape_snapshot(url, snap_year)` that: requests the URL with **httr2**,
+   reads the response as HTML with **rvest**, extracts the first HTML table, extracts the
+   vote-count strings from the `title` attribute of `<td strong>` elements, parses rank,
+   title, and year out of the compound table column using a regex pattern, and extracts the
+   vote count from the attribute string (the format varies: earlier snapshots say "based on N
+   votes"; the 2022 snapshot says "based on N user ratings"). Return a 250-row tibble with
+   columns `snap_year`, `rank`, `title`, `year`, `rating`, and `number`.
+4. Iterate the function across both vectors in parallel and row-bind the results into a
+   single tibble. Assign the result to `imdb_snapshots`.
+5. Add `#| cache: true` as the first option in the chunk — this scrape takes 30–50 seconds,
+   and you don't want it re-running on every render.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-8}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 20)
+```
+
+###
+
+<pre><code>#| cache: true
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+scrape_snapshot <- function(url, snap_year) {
+  page      <- request(url) |>
+    req_timeout(60) |>
+    req_retry(max_tries = 3, backoff = ~ 5) |>
+    req_perform() |>
+    resp_body_html()
+  tbl       <- page |> html_element("table") |> html_table()
+  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
+  tbl |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
+    mutate(
+      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
+      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
+        parse_number()
+    ) |>
+    separate_wider_regex(
+      rank_title_year,
+      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
+    ) |>
+    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
+    select(snap_year, rank, title, year, rating, number)
+}
+
+imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
+  list_rbind()
+</code></pre>
+
+###
+
+```{r movie-rankings-8-test}
+#| echo: true
+imdb_snapshots
+```
+
+###
+
+**purrr**'s two-input iteration applies a two-argument function to each corresponding pair
+drawn from two parallel vectors — here, each (URL, year) pair produces one 250-row tibble.
+The resulting list of five tibbles stacks into a single 1,250-row tibble preserving row
+order. This is the Chapter 26 pattern: one function captures the scraping logic once;
+iteration applies it across all five snapshots.
+
+The vote-count attribute string differs between snapshot years — pre-2022 snapshots say
+"9.2 based on 1,354,030 votes"; 2022 says "8.7 based on 2,432,861 user ratings".
+**stringr**'s lookbehind regex pattern `(?<=based on )` matches both formats without
+branching, so the function works identically across all five years.
+
+Not every Wayback Machine URL returns a usable page — some timestamps resolve to a redirect
+or a partial archive. The **Wayback Machine CDX API** at
+`web.archive.org/cdx/search/cdx?url=https://www.imdb.com/chart/top/&output=text` lets you
+query the full list of available captures for a URL, so you can choose timestamps with
+confirmed high-fidelity archives. The five dates used here were selected that way.
+
+### Exercise 9
+
+In a new code chunk, make a rough bar chart of the average rank change from 2015 to 2022 by release decade, with decade on the y-axis and average rank change on the x-axis. Do not assign the plot to a variable.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-9}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 10)
+```
+
+###
+
+```{r movie-rankings-9-test}
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  ggplot(aes(x = avg_change, y = decade)) +
+  geom_col()
+```
+
+###
+
+The bars sort in the right order because decade labels like "1920s", "1930s" sort
+alphabetically — which happens to be chronological here. But all bars are the same color,
+so the direction of the change (rose vs. fell) isn't immediately visible. The x-axis label
+is the raw variable name `avg_change` rather than something readable. Two things to fix in
+the next exercise.
+
+### Exercise 10
+
+Polish the bar chart. Color the bars by direction — one color for decades where the average
+rank rose, another for decades where it fell. Add a vertical reference line at zero. Give
+the chart a proper title, subtitle, axis labels, a legend label, and a caption that mentions
+the sample size (183 films appear in both the 2015 and 2022 snapshots).
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r movie-rankings-10}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 14)
+```
+
+###
+
+```{r movie-rankings-10-test}
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
+  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linewidth = 0.8) +
+  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
   labs(
-    title = "IMDb Top 250: The Golden Age (1990–2010)",
-    subtitle = "Masterpiece films labeled · Size shows popularity",
-    x = "Release Year",
-    y = "IMDb Rating",
-    caption = "Data: IMDb Top 250 archived February 2022"
+    title = "Classic Films Slide, 1990s Films Hold Steady",
+    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
+    x = "Average rank change (positive = rose)",
+    y = "Film release decade",
+    fill = NULL,
+    caption = "Films appearing in both 2015 and 2022 snapshots. n = 183 films."
   ) +
   theme_minimal() +
-  theme(
-    plot.title = element_text(size = 18, face = "bold", color = "navy"),
-    plot.subtitle = element_text(size = 12, color = "gray40"),
-    plot.caption = element_text(size = 9, color = "gray50"),
-    panel.grid.minor = element_blank()
-  )
+  theme(legend.position = "bottom")
 ```
 
 ###
 
-**[ggrepel](https://ggrepel.slowkow.com/)** places text labels that automatically nudge apart so they don't overlap each other or the data points — the standard fix for a crowded scatter plot — with a control for how many overlapping labels to allow before some are hidden.
+Films from the 1990s are essentially flat (+0.4 average). These films are still being
+actively rated by the audience that grew up with them — viewers now in their 30s and 40s
+who first used IMDb in the early 2000s. The 1930s films' audience is smaller and less
+active online. The IMDb voter base did not exist in 1934; it emerged around 1998 and is
+now dominated by viewers who have no particular attachment to films from that era.
+
+### Exercise 11
+
+Commit `analysis.qmd` with a message like "Add movie rankings analysis" and push to GitHub.
+Copy/paste the URL to your GitHub repo.
+
+```{r movie-rankings-11}
+question_text(NULL,
+	answer(NULL, correct = TRUE),
+	allow_retry = TRUE,
+	try_again_button = "Edit Answer",
+	incorrect = NULL,
+	rows = 1)
+```
+
+###
+
+The **ggplot2movies** package on CRAN includes IMDb data from a 2015 snapshot — a
+convenient alternative for offline analysis that also exposes budgets, genres, and
+MPAA ratings. **Letterboxd**, a social film platform, maintains its own community-rated
+lists; its rankings often differ substantially from IMDb's because its user base skews
+younger and more cinephile than IMDb's general audience.
 
 ## Summary
 ###
 
 This section covered key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/hierarchical), [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping), [Chapter 25: Functions](https://r4ds.hadley.nz/functions), and [Chapter 26: Iterations](https://r4ds.hadley.nz/iteration) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with nested data structures, web scraping techniques, and creating custom functions using core packages such as **jsonlite**, **rvest**, **httr2**, and **purrr**. Key concepts included extracting nested elements from lists, expanding list-columns, extracting HTML tables, and parsing complex text into structured columns using regex.
+You learned about working with nested JSON data, web scraping, and iteration using core packages such as **jsonlite**, **rvest**, **httr2**, and **purrr**. Key concepts included rectangling nested GeoJSON into tidy tables, writing custom functions with **purrr**, building interactive leaflet maps with polygon geometry, and scraping panel data from HTML tables across multiple snapshot years.
 
 ### Exercise 1
 

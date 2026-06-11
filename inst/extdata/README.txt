@@ -6,8 +6,11 @@ their provenance:
   r4ds-2/   Spreadsheets (Excel)     — us_births_1994_2014.xlsx, nba_recruits.xlsx
   r4ds-3/   Databases (DuckDB)       — nameby_year.duckdb, nycflights13.duckdb,
                                         seda_2025.duckdb, atus.duckdb
-  r4ds-4/   Arrow / Parquet          — fifa.parquet, game.parquet, line_score.parquet
-  r4ds-5/   Spatial / web            — earthquakes.geojson
+  r4ds-4/   Arrow / Parquet          — daily_prices.parquet, coin_metadata.parquet,
+                                        categories.parquet; markets.parquet,
+                                        history.parquet, groups.parquet,
+                                        market_groups.parquet
+  r4ds-5/   Spatial / web            — earthquakes.geojson, imdb_snapshots.rds
   census/   Web API cache            — income_tx.rds, edu_ca.rds, age_ca.rds
 
 Student exercises download files via GitHub raw URLs into the student's own

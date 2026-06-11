@@ -9,104 +9,19 @@ output:
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: 'This tutorial for "R for Data Science" covers Chapter 16: Factors, Chapter 17: Dates and Times, Chapter 18: Missing Values, Chapter 19: Joins, and Chapter 22: Arrow. Exercises use NBA and FIFA datasets to practice forcats, lubridate, table joins, and reading parquet files with arrow.'
+description: "Arrow / Parquet files: cryptocurrency prices and prediction markets"
 ---
 
 ```{r setup, include = FALSE}
 library(learnr)
 library(tutorial.helpers)
-
 library(tidyverse)
 library(arrow)
-library(plotly)
 library(viridis)
-library(scales)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 60,
-        tutorial.storage = "local")
-
-nba_clean <- open_dataset("../../extdata/r4ds-4/game.parquet") |>
-  collect() |>
-  left_join(
-    open_dataset("../../extdata/r4ds-4/line_score.parquet") |> collect(),
-    by = "game_id",
-    relationship = "many-to-many"
-  ) |>
-  mutate(
-    game_date = ymd_hms(game_date),
-    game_date_est = ymd_hms(game_date_est)
-  ) |>
-  drop_na(pts_home.x) |>
-  mutate(
-    game_date = as_datetime(game_date),
-    game_year = year(game_date),
-    season_label = paste0(season_id %/% 10000, "-", str_sub(season_id + 1, 3, 4))
-  ) |>
-  filter(!is.na(game_date), game_year >= 1946) |>
-  mutate(
-    wl_home = factor(wl_home, levels = c("W", "L")),
-    game_era = case_when(
-      game_year <= 1979 ~ "Pre-Three Point",
-      game_year <= 1999 ~ "Modern Era",
-      game_year <= 2019 ~ "Analytics Era",
-      TRUE ~ "Current Era"
-    ),
-    game_era = factor(game_era, levels = c("Pre-Three Point", "Modern Era", "Analytics Era", "Current Era"))
-  ) |>
-  mutate(
-    across(contains("pct"), ~replace_na(.x, 0)),
-    across(c(pts_home.x, pts_away.x), ~replace_na(.x, 0)),
-    total_points = pts_home.x + pts_away.x
-  ) |>
-  filter(total_points > 0, !is.na(pts_home.x), !is.na(pts_away.x)) |>
-  group_by(game_year, game_era, season_label) |>
-  summarise(
-    avg_points = mean(total_points, na.rm = TRUE),
-    games_count = n(),
-    home_win_pct = mean(wl_home == "W", na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  arrange(game_year)
-
-final_fifa <- "../../extdata/r4ds-4/fifa.parquet" |>
-  open_dataset() |>
-  collect() |>
-  mutate(
-    height_cm = as.numeric(str_extract(Height, "\\d+")),
-    weight_kg = as.numeric(str_extract(Weight, "\\d+"))
-  ) |>
-  mutate(across(where(is.character), ~str_replace_all(.x, "\\n", ""))) |>
-  mutate(across(where(is.character), ~str_trim(.x))) |>
-  mutate(
-    joined_date = mdy(Joined),
-    years_at_club = as.numeric(today() - joined_date) / 365.25,
-    long_tenure = years_at_club > 10
-  ) |>
-  drop_na(joined_date) |>
-  mutate(
-    value_numeric = case_when(
-      is.na(Value) | Value == "" | Value == "0" ~ 0,
-      str_detect(Value, "M") ~ parse_number(Value) * 1000000,
-      str_detect(Value, "K") ~ parse_number(Value) * 1000,
-      str_detect(Value, "^€?[0-9.]+$") ~ parse_number(Value),
-      TRUE ~ 0
-    ),
-    wage_numeric = case_when(
-      is.na(Wage) | Wage == "" | Wage == "0" ~ 0,
-      str_detect(Wage, "K") ~ parse_number(Wage) * 1000,
-      str_detect(Wage, "^€?[0-9.]+$") ~ parse_number(Wage),
-      TRUE ~ 0
-    ),
-    release_clause_numeric = case_when(
-      is.na(Release.Clause) | Release.Clause == "" | Release.Clause == "0" ~ 0,
-      str_detect(Release.Clause, "M") ~ parse_number(Release.Clause) * 1000000,
-      str_detect(Release.Clause, "K") ~ parse_number(Release.Clause) * 1000,
-      str_detect(Release.Clause, "^€?[0-9.]+$") ~ parse_number(Release.Clause),
-      TRUE ~ 0
-    )
-  )
+options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -117,7 +32,7 @@ final_fifa <- "../../extdata/r4ds-4/fifa.parquet" |>
 
 This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with parquet files using **[arrow](https://arrow.apache.org/docs/r/)**, manipulating categorical variables with **[forcats](https://forcats.tidyverse.org/)**, handling date/time data with **[lubridate](https://lubridate.tidyverse.org/)**, managing missing values, and performing joins. Key concepts include opening large datasets from disk without loading them fully into memory, reordering factor levels for plotting, parsing datetime strings, combining datasets with joins, and dropping rows with missing values.
+You will use packages including **[arrow](https://arrow.apache.org/docs/r/)** to work with parquet files, **[dplyr](https://dplyr.tidyverse.org/)** to join and summarize related tables, **[lubridate](https://lubridate.tidyverse.org/)** and **[stringr](https://stringr.tidyverse.org/)** to clean dates and text, and **[forcats](https://forcats.tidyverse.org/)** with **[viridis](https://sjmgarnier.github.io/viridis/)** to order and polish final charts. The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -125,7 +40,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be connected to a repo named `r4ds-4`. If you are not, create one and connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"NBA and FIFA"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Crypto Markets"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
@@ -147,11 +62,11 @@ CP/CR.
 
 ```{r introduction-1}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
 ```
 
 ###
@@ -162,20 +77,16 @@ analysis_files
 
 ###
 
-Parquet files are "column-oriented" — organized column-by-column like R's data frame — which leads to better performance for data analysis than row-oriented CSV files. They also support efficient compression, making them much smaller than equivalent CSV files.
+Parquet files store data by column, which is efficient for analysis because you often need only a few columns at a time. They also compress well, so the same dataset is usually much smaller as parquet than as CSV.
 
 ### Exercise 2
 
-In your QMD, put the following in a new code chunk to load all required libraries:
+In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
 
 ```
-suppressPackageStartupMessages({
-  library(tidyverse)
-  library(arrow)
-  library(plotly)
-  library(viridis)
-  library(scales)
-})
+library(tidyverse)
+library(arrow)
+library(viridis)
 ```
 
 Also add the following to the YAML header to remove all code echoes from the HTML:
@@ -185,9 +96,7 @@ execute:
   echo: false
 ```
 
-Render.
-
-In the R Terminal, run:
+Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -197,42 +106,42 @@ CP/CR.
 
 ```{r introduction-2}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
 ```
 
 ###
 
-<pre><code>```{r}
-suppressPackageStartupMessages({
-  library(tidyverse)
-  library(arrow)
-  library(plotly)
-  library(viridis)
-  library(scales)
-})
-```</code></pre>
+<pre><code>#| message: false
+library(tidyverse)
+library(arrow)
+library(viridis)
+</code></pre>
 
 ###
 
-Like CSV, parquet is used for rectangular data, but it's a custom binary format designed for big data — not a text format you can read in any editor. Both **arrow** and **[dbplyr](https://dbplyr.tidyverse.org/)** provide **[dplyr](https://dplyr.tidyverse.org/)** backends, so you can use the same **dplyr** code whether your data is in a parquet file or a database.
+Like CSV, parquet stores rectangular data, but it is a binary format designed for fast analysis rather than human reading. The package, **arrow**, lets you use familiar **dplyr**-style workflows with parquet files.
 
 ### Exercise 3
 
-Create a data directory at the top level of the `r4ds-4` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-4` repo. In the bash Terminal, run:
+
+```
+ls
+```
 
 CP/CR.
 
 ```{r introduction-3}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
 ```
 
 ###
@@ -241,30 +150,27 @@ question_text(NULL,
 analysis.html  analysis.qmd  analysis_files  data
 ```
 
-Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there's less data to move from disk to memory.
-
-
-## NBA
 ###
 
-The [NBA Database](https://www.kaggle.com/datasets/wyattowalsh/basketball) is a Kaggle dataset containing 64,000+ games, 4,800+ players, and all 30 teams. Our parquet files `data/game.parquet` and `data/line_score.parquet` contain game and scoring data converted from CSV to parquet format.
+Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there is less data to move from disk to memory.
 
-Key packages you'll use: **arrow** for reading parquet files, **lubridate** for datetime parsing, **dplyr** for joins and transformations, and **forcats** for ordered factor levels.
 
-```{r nba-data}
-open_dataset("../../extdata/r4ds-4/game.parquet")
-```
+## Crypto markets
+###
+
+Bitcoin launched the cryptocurrency market in 2009. By 2013, it represented over 90% of all crypto by market value. But by 2021, Bitcoin's share had fallen to around 40%. Where did the other 60% go?
+
+In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use packages like **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
 
 ### Exercise 1
 
-Download these two parquet files and save them in your `data/` directory:
+Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
 
-```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/game.parquet
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/line_score.parquet
-```
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/daily_prices.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/coin_metadata.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/categories.parquet`
 
-In a bash Terminal, run:
+In the bash Terminal, run:
 
 ```
 ls data
@@ -272,55 +178,28 @@ ls data
 
 CP/CR.
 
-```{r nba-1}
+```{r crypto-markets-1}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
 ```
 
 ###
 
 ```
-game.parquet  line_score.parquet
+categories.parquet    coin_metadata.parquet    daily_prices.parquet
 ```
 
 ###
 
-Opening a parquet file gives you an **[Arrow](https://arrow.apache.org/docs/r/)** dataset — a handle to data still sitting on disk, not loaded into R's memory. Only the final step, once you're ready, pulls the processed result into R.
+The three crypto files are only a little over 2 MB, but they still hold 59,436 daily price records plus coin and category lookup tables. Parquet makes that possible by storing data column-by-column and compressing repeated values efficiently.
 
 ### Exercise 2
 
-Read the full `data/game.parquet` dataset into R. Don't assign the result to a variable. Render.
-
-CP/CR.
-
-```{r nba-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
-```
-
-###
-
-```{r nba-2-test}
-#| echo: true
-open_dataset("../../extdata/r4ds-4/game.parquet") |>
-  collect()
-```
-
-###
-
-A **left join** adds columns from a second table while keeping every row of the first (left) table. When a key value can match several rows on both sides, that is a *many-to-many* relationship — worth flagging explicitly, because it can multiply rows in ways you didn't intend.
-
-### Exercise 3
-
-Build a cleaned, summarized NBA dataset called `nba_clean`. You want one row per season, carrying the year, the era it falls in (Pre-Three Point through 1979, Modern Era through 1999, Analytics Era through 2019, Current Era after that), the average total points scored per game, the number of games, and the home-win percentage. Combine the game data with the line scores, keep seasons from 1946 on, and pull the result into R. Render.
+In a new code chunk, inspect the schema of `data/daily_prices.parquet` using Arrow without pulling the full file into memory. Don't assign the result — just print it. Render.
 
 In the R Terminal, run:
 
@@ -330,74 +209,222 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r nba-3}
+```{r crypto-markets-2}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 6)
+    rows = 3)
 ```
 
 ###
 
-```{r nba-3-test}
+```{r crypto-markets-2-test}
 #| echo: true
-open_dataset("../../extdata/r4ds-4/game.parquet") |>
-  collect() |>
-  left_join(
-    open_dataset("../../extdata/r4ds-4/line_score.parquet") |> collect(),
-    by = "game_id",
-    relationship = "many-to-many"
-  ) |>
-  mutate(
-    game_date = ymd_hms(game_date),
-    game_date_est = ymd_hms(game_date_est)
-  ) |>
-  drop_na(pts_home.x) |>
-  mutate(
-    game_date = as_datetime(game_date),
-    game_year = year(game_date),
-    season_label = paste0(season_id %/% 10000, "-", str_sub(season_id + 1, 3, 4))
-  ) |>
-  filter(!is.na(game_date), game_year >= 1946) |>
-  mutate(
-    wl_home = factor(wl_home, levels = c("W", "L")),
-    game_era = case_when(
-      game_year <= 1979 ~ "Pre-Three Point",
-      game_year <= 1999 ~ "Modern Era",
-      game_year <= 2019 ~ "Analytics Era",
-      TRUE ~ "Current Era"
-    ),
-    game_era = factor(game_era, levels = c("Pre-Three Point", "Modern Era", "Analytics Era", "Current Era"))
-  ) |>
-  mutate(
-    across(contains("pct"), ~replace_na(.x, 0)),
-    across(c(pts_home.x, pts_away.x), ~replace_na(.x, 0)),
-    total_points = pts_home.x + pts_away.x
-  ) |>
-  filter(total_points > 0, !is.na(pts_home.x), !is.na(pts_away.x)) |>
-  group_by(game_year, game_era, season_label) |>
-  summarise(
-    avg_points = mean(total_points, na.rm = TRUE),
-    games_count = n(),
-    home_win_pct = mean(wl_home == "W", na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  arrange(game_year)
+# your file path will differ. It will probably be "data/daily_prices.parquet" if you downloaded the file into your data/ directory
+open_dataset("../../extdata/r4ds-4/daily_prices.parquet")
 ```
 
 ###
 
-If your result differs from ours, replace your code with the code above before moving on, so your `nba_clean` matches for the rest of the section.
+The result of `open_dataset()` is an `ArrowDataset`, not a tibble: Arrow is showing the schema without loading the rows. Notice that `date_raw` is stored as a string of text, which means you need to parse it before doing date-based analysis.
 
-**lubridate** parses date-times with functions named for the order of their components — year, month, day, then hour-minute-second. Building a categorical variable from a cascade of conditions (one era per range of years) is a common way to bin a continuous value, and giving the resulting **factor** an explicit level order keeps it in logical — not alphabetical — order in summaries and plots.
+### Exercise 3
+
+Use Arrow to do a lightweight preview of the price data: keep only observations from 2020 onward and only the fields needed for a basic market-cap analysis (`date_raw`, `coin_id`, and `market_cap_usd`). Then collect that smaller result into memory. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-3}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 4)
+```
+
+###
+
+```{r crypto-markets-3-test}
+#| echo: true
+open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+  filter(as.integer(substr(date_raw, 1, 4)) >= 2020) |>
+  select(date_raw, coin_id, market_cap_usd) |>
+  collect()
+```
+
+###
+
+Each row is one cryptocurrency on one day. For example, the first row says Aave (`aave`) had a market cap of about $1.41 billion on October 10, 2020.
+
+###
+
+With Arrow, filtering rows and selecting columns can happen before data moves into memory, where we can work with it using R. The `collect()` call is the step that moves the filtered data into R.
 
 ### Exercise 4
 
-Assign the result of the pipe to `nba_clean`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In a new code chunk, load `daily_prices.parquet` into R as an analysis table named `prices`. Print `prices` so you can inspect the daily price fields before joining. Render.
 
-```{r nba-4}
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-4}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-4-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+prices
+```
+
+###
+
+The `prices` table has one row per coin per day. The first row says [Aave](https://en.wikipedia.org/wiki/Aave), a cryptocurrency, on October 10, 2020 had a `market_cap_usd` of about $1.41 billion. Market cap is the total value of all circulating units of a coin at that day's price.
+
+### Exercise 5
+
+Load `coin_metadata.parquet` as `metadata` in the same chunk, below the `prices` line. Print `metadata` instead of `prices` so you can inspect the coin-level fields before joining. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-5}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-5-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+metadata
+```
+
+###
+
+The `metadata` table has one row per coin. `coin_id` links back to `prices`, and `category_id` links forward to `categories`. It also has a coin-level `description`.
+
+### Exercise 6
+
+Load `categories.parquet` as `categories` in the same chunk, below the `metadata` line. Print `categories` instead of `metadata` so you can inspect the category lookup table before joining. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-6}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-6-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
+categories
+```
+
+###
+
+The `categories` table has one row per crypto category, and `category_id` is the key that connects it to `metadata`. Its `category_name` is the readable label we want for plots, but its `description` duplicates a column name already used in `metadata`.
+
+### Exercise 7
+
+Our analysis needs prices, coin details, and category labels in one place.
+
+In the same chunk, build one analysis table named `crypto` from the existing `prices`, `metadata`, and `categories` tables. Start with `prices`, join `metadata` by `coin_id`, then join `categories` by `category_id` so each daily price row has coin-level details and a human-readable category name. Both lookup tables have a `description` column; keep the coin description from `metadata` and drop the category description before joining. Print the first 5 rows instead of `categories` so you can verify the joined columns look right. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-7}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-7-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
+
+crypto <- prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id")
+head(crypto, 5)
+```
+
+###
+
+A left join keeps every row from the main table and adds matching information from lookup tables. Here, the first join adds each coin's `category_id`, and the second join turns that ID into a readable category name.
+
+### Exercise 8
+
+`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a numeric audit column, `market_cap_parsed`, that converts those display strings into dollar values by respecting the `T`, `B`, `M`, and `K` suffixes. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-8}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -408,296 +435,28 @@ question_text(NULL,
 
 ###
 
-Applying one transformation **across** many columns at once — selected by name, position, or a test like "every character column" — saves repeating yourself. Replacing missing values with a default is the right move when an NA really means zero (a count of none) rather than genuinely unknown; dropping rows with missing values is right when it doesn't.
-
-### Exercise 5
-
-That pipeline takes time on every render, so it earns caching. Add `#| cache: true` as the first line inside the chunk that builds `nba_clean`. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
-
-```{r nba-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
-```
-
-###
-
-<pre><code>$ ls
-analysis.qmd  analysis_cache  analysis_files  analysis.html
-</code></pre>
-
-###
-
-The first render writes the cache to disk; subsequent renders load `nba_clean` from cache.
-
-### Exercise 6
-
-The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
-
-Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
-
-```{r nba-6}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
-```
-
-###
-
-<pre><code>analysis_files
-analysis_cache
-</code></pre>
-
-###
-
-The Source Control change count should drop back to whatever it was before the render.
-
-### Exercise 7
-
-Make a line plot from `nba_clean` showing average points per game over time, colored by `game_era`, with points sized by `games_count`. Give it a proper title, subtitle, and caption. Don't assign the plot. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r nba-7}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
-```
-
-###
-
-```{r nba-7-test}
+```{r crypto-markets-8-test}
 #| echo: true
-nba_clean |>
-  ggplot(aes(x = game_year, y = avg_points, color = game_era)) +
-  geom_line(linewidth = 1.2, alpha = 0.8) +
-  geom_point(aes(size = games_count), alpha = 0.7) +
-  scale_color_viridis_d(option = "plasma") +
-  scale_size_continuous(range = c(2, 6), guide = "none") +
-  labs(
-    title = "NBA Scoring Evolution: 75+ Years of Basketball",
-    subtitle = "Average points per game by season with era classifications",
-    x = "Season Year",
-    y = "Average Points Per Game",
-    color = "NBA Era"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    plot.subtitle = element_text(size = 12, color = "gray60"),
-    legend.position = "bottom",
-    panel.grid.minor = element_blank()
-  )
-```
-
-###
-
-A **[viridis](https://sjmgarnier.github.io/viridis/)** color scale for discrete categories is perceptually uniform and colorblind-accessible. And a static **[ggplot2](https://ggplot2.tidyverse.org/)** chart can be made interactive — hover tooltips, zoom — by handing it to **[plotly](https://plotly.com/r/)**, a big payoff for very little extra work.
-
-## FIFA
-###
-
-The [FIFA 21 dataset](https://www.kaggle.com/datasets/yagunnersya/fifa-21-messy-raw-dataset-for-cleaning-exploring/data) is scraped from [Sofifa.com](https://sofifa.com) and contains raw information about thousands of players including ratings, positions, value, and club. Our parquet file `data/fifa.parquet` contains this data.
-
-Key packages you'll use: **[stringr](https://stringr.tidyverse.org/)** for text cleaning, **lubridate** for date parsing, **dplyr** for conditional transformations, and **forcats** for factor manipulation.
-
-```{r fifa-data}
-"../../extdata/r4ds-4/fifa.parquet" |>
-  open_dataset() |>
-  collect() |>
-  glimpse()
-```
-
-### Exercise 1
-
-Download the parquet file `fifa.parquet` from this URL and save it in your `data/` directory:
-
-```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/fifa.parquet
-```
-
-In a bash Terminal, run:
-
-```
-ls data
-```
-
-CP/CR.
-
-```{r fifa-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
-```
-
-###
-
-```
-fifa.parquet  game.parquet  line_score.parquet
-```
-
-###
-
-The FIFA dataset is "messy" — heights and weights include units as text, financial values use "M" and "K" suffixes, club names contain newline characters, and dates use a non-standard format. Real data often requires this kind of cleaning before analysis.
-
-### Exercise 2
-
-Read `data/fifa.parquet` into R and show its structure — the column types with a few example values. Don't assign the result. Render.
-
-CP/CR.
-
-```{r fifa-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
-```
-
-###
-
-```{r fifa-2-test}
-#| echo: true
-"../../extdata/r4ds-4/fifa.parquet" |>
-  open_dataset() |>
-  collect() |>
-  glimpse()
-```
-
-###
-
-**lubridate** can parse dates written in month-day-year order (e.g. "Jun 17, 2018"). And **stringr** can pull the first run of digits out of a messy string like "185cm" or "76kg" — a quick way to turn text like that into a usable number.
-
-### Exercise 3
-
-Build a cleaned FIFA player dataset called `final_fifa`. You want numeric height and weight pulled out of the text columns; the character columns tidied up (newlines and stray spaces removed); the join date parsed and turned into the number of years at the club, plus a TRUE/FALSE flag for more than ten years; and the player's value, wage, and release clause converted from strings like "€110.5M" or "€565K" into plain euro numbers. Drop players with no join date. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r fifa-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
-```
-
-###
-
-```{r fifa-3-test}
-#| echo: true
-"../../extdata/r4ds-4/fifa.parquet" |>
-  open_dataset() |>
-  collect() |>
+crypto <- crypto |>
   mutate(
-    height_cm = as.numeric(str_extract(Height, "\\d+")),
-    weight_kg = as.numeric(str_extract(Weight, "\\d+"))
-  ) |>
-  mutate(across(where(is.character), ~str_replace_all(.x, "\\n", ""))) |>
-  mutate(across(where(is.character), ~str_trim(.x))) |>
-  mutate(
-    joined_date = mdy(Joined),
-    years_at_club = as.numeric(today() - joined_date) / 365.25,
-    long_tenure = years_at_club > 10
-  ) |>
-  drop_na(joined_date) |>
-  mutate(
-    value_numeric = case_when(
-      is.na(Value) | Value == "" | Value == "0" ~ 0,
-      str_detect(Value, "M") ~ parse_number(Value) * 1000000,
-      str_detect(Value, "K") ~ parse_number(Value) * 1000,
-      str_detect(Value, "^€?[0-9.]+$") ~ parse_number(Value),
-      TRUE ~ 0
-    ),
-    wage_numeric = case_when(
-      is.na(Wage) | Wage == "" | Wage == "0" ~ 0,
-      str_detect(Wage, "K") ~ parse_number(Wage) * 1000,
-      str_detect(Wage, "^€?[0-9.]+$") ~ parse_number(Wage),
-      TRUE ~ 0
-    ),
-    release_clause_numeric = case_when(
-      is.na(Release.Clause) | Release.Clause == "" | Release.Clause == "0" ~ 0,
-      str_detect(Release.Clause, "M") ~ parse_number(Release.Clause) * 1000000,
-      str_detect(Release.Clause, "K") ~ parse_number(Release.Clause) * 1000,
-      str_detect(Release.Clause, "^€?[0-9.]+$") ~ parse_number(Release.Clause),
-      TRUE ~ 0
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
     )
   )
 ```
 
 ###
 
-If your result differs from ours, replace your code with the code above before moving on, so your `final_fifa` matches for the rest of the section.
+Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. About 5% of `market_cap_str` values are missing, which is typical of exported dashboard data and should always be checked before analysis.
 
-Applying one transformation **across** many columns at once — say, all the character columns, or every column whose name contains "pct" — keeps the code short. The trickier step is the money: **[readr](https://readr.tidyverse.org/)** can pull the numeric part out of a messy string like `"€110.5M"`, ignoring the currency symbol and the suffix, which is exactly what turns these fields into clean numbers. (It also sidesteps a spurious "NAs introduced by coercion" warning that the more naive approach produces, because the cascade of conditions evaluates every branch over the whole column.)
+### Exercise 9
 
-### Exercise 4
-
-Assign the result of the pipe to `final_fifa`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r fifa-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-**forcats** is the **[tidyverse](https://www.tidyverse.org/)** package for factors, and two moves come up constantly: reordering a factor's levels by another variable, so a bar or dot chart displays in a meaningful order rather than alphabetically; and lumping rare levels together into an "Other" category, keeping only the few most common ones.
-
-### Exercise 5
-
-That pipeline takes time on every render too, so it earns caching. Add `#| cache: true` as the first line inside the chunk that builds `final_fifa`. Render the QMD. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR. (No `.gitignore` step --- `analysis_cache` is already ignored from the NBA section.)
-
-```{r fifa-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-The student's chunk now has `#| cache: true` as the first line, followed by the FIFA-cleaning pipeline.
-
-###
-
-Subsequent renders will load `final_fifa` from disk instead of re-running the pipeline.
-
-### Exercise 6
-
-From `final_fifa`, make a scatter plot of `Age` vs `X.OVA` (overall rating), with point size and color showing `value_numeric`. Filter to players with `value_numeric > 0` and `X.OVA > 60`. Use a **viridis** color scale and proper labels. Don't assign the plot. Render.
+Standardize the date fields before analysis. In `metadata`, parse the mixed-format `launch_date` values into a real date column called `launch_date_parsed`; some are written as `"Month Day, Year"` and the rest as `"YYYY-MM-DD"`. In `crypto`, parse `date_raw` into a real date column called `date`. Render.
 
 In the R Terminal, run:
 
@@ -707,53 +466,1090 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r fifa-6}
+```{r crypto-markets-9}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
 ```
 
 ###
 
-```{r fifa-6-test}
+```{r crypto-markets-9-test}
 #| echo: true
-final_fifa |>
-  filter(value_numeric > 0, X.OVA > 60) |>
-  ggplot(aes(x = Age, y = X.OVA, size = value_numeric, color = value_numeric)) +
-  geom_point(alpha = 0.7) +
-  scale_size_continuous(range = c(0.5, 8),
-                        labels = label_currency(prefix = "€", suffix = "M", scale = 1e-6),
-                        name = "Market Value") +
-  scale_color_viridis_c(option = "plasma",
-                        labels = label_currency(prefix = "€", suffix = "M", scale = 1e-6),
-                        name = "Market Value") +
+metadata <- metadata |>
+  mutate(
+    launch_date_parsed = case_when(
+      str_detect(launch_date, ",") ~ mdy(launch_date),
+      TRUE ~ ymd(launch_date)
+    )
+  )
+
+crypto <- crypto |>
+  mutate(date = ymd(date_raw))
+```
+
+###
+
+Date parsers need to know the order of month, day, and year. When one column contains multiple date formats, parse each format deliberately rather than hoping one parser guesses correctly.
+
+### Exercise 10
+
+Clean the coin descriptions so they behave like normal text fields: replace embedded newlines (`\n`) with spaces. Confirm the fix by checking the distinct descriptions for `btc` and `eth`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-10}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
+```
+
+###
+
+```{r crypto-markets-10-test}
+#| echo: true
+crypto <- crypto |>
+  mutate(description = str_replace_all(description, "\\n", " "))
+
+crypto |>
+  filter(coin_id %in% c("btc", "eth")) |>
+  distinct(coin_id, description)
+```
+
+###
+
+Embedded newlines often come from scraped web text or copied document text. They can make text fields harder to search, compare, or export, so cleaning them early prevents confusing downstream behavior.
+
+### Exercise 11
+
+Add a market-era label to `crypto` so later summaries can use meaningful time periods. Use the year of `date` to assign `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), and `"Maturation Era"` (2022 onward). Make the labels ordered chronologically, then count rows per era as a quick check. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-11}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-11-test}
+#| echo: true
+crypto <- crypto |>
+  mutate(
+    era = factor(
+      case_when(
+        year(date) <= 2016 ~ "Bitcoin Era",
+        year(date) <= 2019 ~ "ICO/Ethereum Era",
+        year(date) <= 2021 ~ "DeFi Summer",
+        TRUE ~ "Maturation Era"
+      ),
+      levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
+    )
+  )
+
+count(crypto, era)
+```
+
+###
+
+The era labels are interpretive, not official; different analysts might choose different boundaries. Making them ordered is useful because plots and tables should show the eras in chronological order, not alphabetical order.
+
+### Exercise 12
+
+The `crypto` chunk is now a reusable data-preparation step. Clean it up so it keeps only the saved objects and transformations: the three table loads, the joins, and the cleaning mutations. Remove the row-count check at the bottom.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 20)
+```
+
+###
+
+<pre><code>prices     <- open_dataset("data/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("data/coin_metadata.parquet") |> collect()
+categories <- open_dataset("data/categories.parquet") |> collect()
+
+metadata <- metadata |>
+  mutate(
+    launch_date_parsed = case_when(
+      str_detect(launch_date, ",") ~ mdy(launch_date),
+      TRUE ~ ymd(launch_date)
+    )
+  )
+
+crypto <- prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  mutate(
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
+    ),
+    date = ymd(date_raw),
+    description = str_replace_all(description, "\\n", " "),
+    era = factor(
+      case_when(
+        year(date) <= 2016 ~ "Bitcoin Era",
+        year(date) <= 2019 ~ "ICO/Ethereum Era",
+        year(date) <= 2021 ~ "DeFi Summer",
+        TRUE ~ "Maturation Era"
+      ),
+      levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
+    )
+  )
+</code></pre>
+
+###
+
+The cleaned `crypto` table has one row per coin per day: 59,436 rows for 22 coins from 2018 through 2026. The table is now ready for grouped summaries and time-series plots.
+
+### Exercise 13
+
+Add `#| cache: true` to the chunk. Render. This first render with caching will take a moment; subsequent renders will load from disk.
+
+In the bash Terminal, run:
+
+```
+ls
+```
+
+CP/CR.
+
+```{r crypto-markets-13}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```
+analysis.html  analysis.qmd  analysis_cache  analysis_files  data
+```
+
+###
+
+Stablecoin market cap can rise even when token prices stay near $1. For coins like USDT, USDC, and DAI, market-cap growth mostly reflects more dollars flowing into stable crypto-denominated assets.
+
+### Exercise 14
+
+Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r crypto-markets-14}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 4)
+```
+
+###
+
+```
+analysis_files
+analysis_cache
+```
+
+###
+
+The FTX exchange token FTT fell from roughly $7.25B on November 7, 2022 to about $724M on November 9. Sudden event-driven collapses like this are often easiest to spot in a time-series plot.
+
+### Exercise 15
+
+Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-15}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crypto-markets-15-test}
+#| echo: true
+crypto |>
+  group_by(date) |>
+  summarise(total_mcap = sum(market_cap_usd, na.rm = TRUE)) |>
+  ggplot(aes(x = date, y = total_mcap / 1e12)) +
+  geom_line() +
+  labs(x = NULL, y = "Total market cap (trillions USD)",
+       title = "Total crypto market capitalization, 2018–2026")
+```
+
+###
+
+Total market cap gives context for category-share plots. Bitcoin's share can fall even while Bitcoin's dollar value rises, because the whole market is changing at the same time.
+
+### Exercise 16
+
+Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-16}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crypto-markets-16-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
+       title = "Crypto market cap by category, 2018–2026")
+```
+
+###
+
+This chart is hard to read because Bitcoin dominates the absolute dollar scale. When one group dwarfs the others, plotting each group's share of the total often reveals patterns that the raw values hide.
+
+### Exercise 17
+
+Convert the category totals into daily market-share percentages so smaller categories are visible on a common scale. Plot category share over time as a multi-line chart. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-17}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-17-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  group_by(date) |>
+  mutate(total_mcap = sum(cat_mcap),
+         share_pct = cat_mcap / total_mcap * 100) |>
+  ungroup() |>
+  ggplot(aes(x = date, y = share_pct, color = category_name)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap share (%)", color = NULL,
+       title = "Crypto market cap share by category, 2018–2026")
+```
+
+###
+
+The share plot reveals different category trajectories that were hidden on the absolute scale. Bitcoin, stablecoins, DeFi, and meme coins each move differently, which is the answer to the tutorial's guiding question.
+
+### Exercise 18
+
+Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-18}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 14)
+```
+
+###
+
+```{r crypto-markets-18-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  group_by(date) |>
+  mutate(total_mcap = sum(cat_mcap),
+         share_pct = cat_mcap / total_mcap * 100) |>
+  ungroup() |>
+  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = share_pct, color = category_name)) +
+  geom_line(linewidth = 0.8) +
+  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
+       title = "Who ate Bitcoin's lunch?",
+       subtitle = "Crypto market cap share by category, 2018–2026",
+       caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
+```
+
+###
+
+Ordering the legend by typical category size makes the plot easier to scan. Colorblind-safe palettes are a good default because charts are often viewed in many formats and by many audiences.
+
+### Exercise 19
+
+Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-19}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r crypto-markets-19-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  group_by(date) |>
+  mutate(total_mcap = sum(cat_mcap),
+         share_pct = cat_mcap / total_mcap * 100) |>
+  ungroup() |>
+  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = share_pct, color = category_name)) +
+  geom_line(linewidth = 0.8) +
+  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  annotate("rect", xmin = as.Date("2022-05-07"), xmax = as.Date("2022-05-12"),
+           ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
+  annotate("rect", xmin = as.Date("2022-11-08"), xmax = as.Date("2022-11-11"),
+           ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
+  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
+       title = "Who ate Bitcoin's lunch?",
+       subtitle = "Crypto market cap share by category, 2018–2026",
+       caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
+```
+
+###
+
+UST was an algorithmic stablecoin, meaning it tried to hold a $1 value through a mechanism rather than dollar reserves. Its May 2022 collapse is a reminder that categories can contain very different kinds of assets.
+
+### Exercise 20
+
+Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub. In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r crypto-markets-20}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
+```
+
+###
+
+```
+abc1234 Crypto market composition analysis
+...
+```
+
+###
+
+The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins, so the category shares are approximations rather than exact measures of the full crypto market. That tradeoff is intentional: the file stays small enough for a tutorial while preserving the dominant category-level patterns.
+
+## Prediction markets
+###
+
+Picture a market where people bet on whether a future event will happen: a new
+law passes, a company goes bankrupt, a model breaks a benchmark. Each trade
+moves the price toward the bettor's belief, and the current price is the
+crowd's best estimate of the probability of YES. As the resolution date
+approaches and more information becomes available, does the crowd get smarter?
+
+In this section you will join four parquet files representing 800 resolved
+markets and 43,694 daily probability snapshots to answer that question. Along
+the way you will encounter a **many-to-many join** — a table relationship that
+silently multiplies rows if you are not careful — and use
+**[lubridate](https://lubridate.tidyverse.org/)** and
+**[forcats](https://forcats.tidyverse.org/)** to bucket time and build an
+accuracy chart.
+
+### Exercise 1
+
+Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
+
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
+
+In a new code chunk, inspect `history.parquet` with Arrow before loading it into memory. Assign the lazy table to `history_lazy` and print it so you can see the schema and row count. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r prediction-markets-1-test}
+#| echo: true
+history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
+history_lazy
+```
+
+###
+
+Manifold Markets is a play-money prediction platform launched in 2022. Users trade with Mana (Ṁ), a fictional currency, but the questions in this dataset are real events such as AI model releases, elections, and geopolitical outcomes.
+
+### Exercise 2
+
+Create the main forecasting table. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an `outcome_numeric` field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as `joined` and print the row count as a join check. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r prediction-markets-2-test}
+#| echo: true
+markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+
+joined <- history_lazy |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
+nrow(joined)
+```
+
+The row count does not change. This is a one-to-many join: one market row
+matched to many daily history rows. Each of the 43,694 history rows gets one
+matching market row appended.
+
+###
+
+In this dataset, 63% of markets resolved NO and 37% resolved YES. That outcome balance matters because averages combine two different forecasting situations: markets where the event happened and markets where it did not.
+
+### Exercise 3
+
+Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
+
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
+
+Keep the code that defines `history_lazy`, `markets`, and `joined`. Add the topic-classification files to the chunk and inspect their structure: column types, a few example values, and row counts. Use that output to understand how these tables relate to `markets`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-3-test}
+#| echo: true
+history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
+markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+
+joined <- history_lazy |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
+groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
+market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
+
+glimpse(groups)
+glimpse(market_groups)
+```
+
+###
+
+The `groups` file is a reference table: one row per topic group. The `market_groups` file is a junction table, which records a many-to-many relationship between markets and groups.
+
+### Exercise 4
+
+Stress-test the topic join before using it in analysis. Join `markets` to `market_groups` by `market_id`, print the resulting row count, and compare it to the original 800 market rows. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r prediction-markets-4-test}
+#| echo: true
+markets |>
+  left_join(market_groups, by = "market_id") |>
+  nrow()
+```
+
+The row count increases because markets can appear once for each group they belong to. Any per-market summary computed after this join would over-count markets with more topic labels.
+
+###
+
+A many-to-many join occurs when matching keys repeat on both sides of a join. Here, the safer workflow is to finish market-level calculations before joining to topic labels.
+
+### Exercise 5
+
+Use the topic lookup table to profile the dataset. Attach `groups` to `market_groups`, then count how many group memberships fall into each `broad_category`, sorted from most to least common. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r prediction-markets-5-test}
+#| echo: true
+market_groups |>
+  left_join(groups, by = "group_slug") |>
+  count(broad_category, sort = TRUE)
+```
+
+This join does not inflate the row count because each `group_slug` points to one row in the reference table. Joining from a many-row table to a one-row-per-key lookup table is usually safe.
+
+###
+
+The dataset skews toward economics, politics, AI, and geopolitics. That tells you what Manifold users were actively trading during this period, not necessarily what all prediction markets cover.
+
+### Exercise 6
+
+Measure how long these markets stay open. In `markets`, parse the creation and resolution timestamps, compute each market's duration in days, and summarize the median and maximum duration. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r prediction-markets-6-test}
+#| echo: true
+markets |>
+  mutate(
+    created_at  = ymd_hms(created_at),
+    resolved_at = ymd_hms(resolved_at),
+    duration_days = as.numeric(as.Date(resolved_at) - as.Date(created_at))
+  ) |>
+  summarise(
+    median_duration = median(duration_days),
+    max_duration    = max(duration_days)
+  )
+```
+
+###
+
+Most markets in this sample resolve within weeks; the median duration is 36 days. Short market lifetimes mean the most informative probability changes often happen close to the resolution date.
+
+### Exercise 7
+
+Add the core accuracy metric to `joined`: the absolute distance between the crowd's probability and the true outcome. Summarize the mean and median prediction error so you know the baseline before considering time-to-resolution. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-7-test}
+#| echo: true
+joined <- joined |>
+  mutate(prediction_error = abs(probability - outcome_numeric))
+
+joined |>
+  summarise(
+    mean_error   = mean(prediction_error),
+    median_error = median(prediction_error)
+  )
+```
+
+###
+
+`prediction_error` is measured in probability units from 0 to 1. An average error of 0.29 means the crowd was about 29 percentage points away from the true outcome before accounting for time to resolution.
+
+### Exercise 8
+
+Add a time-to-deadline field to `joined`: the number of calendar days remaining until resolution. As a data check, count how many snapshots are on the final day and how many are one to seven days from resolution. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-8-test}
+#| echo: true
+joined <- joined |>
+  mutate(days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date))
+
+joined |>
+  summarise(
+    final_day    = sum(days_to_resolution == 0),
+    one_to_seven = sum(days_to_resolution >= 1 & days_to_resolution <= 7)
+  )
+```
+
+There are exactly 800 final-day rows, one for each market. The 1-7 day window is larger because each market can contribute up to seven daily snapshots.
+
+###
+
+The 43,694 rows are not evenly distributed across time-to-resolution buckets. That matters because later summaries combine both accuracy and the amount of data available in each bucket.
+
+### Exercise 9
+
+Inspect one high-attention market before aggregating across all markets. Find the market with the most traders, isolate its probability history from `joined`, and plot probability over time with the final outcome encoded by line color. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r prediction-markets-9-test}
+#| echo: true
+top_market <- markets |>
+  slice_max(total_traders, n = 1) |>
+  pull(market_id)
+
+joined |>
+  filter(market_id == top_market) |>
+  ggplot(aes(x = date, y = probability, color = outcome)) +
+  geom_line(linewidth = 1.2) +
   labs(
-    title = "FIFA Player Performance vs Age",
-    subtitle = "Size and color represent market value",
-    x = "Age",
-    y = "Overall Rating",
-    caption = "Data: FIFA 21 dataset"
+    title = "Probability trajectory for most-traded market",
+    x     = "Date",
+    y     = "Crowd-implied probability",
+    color = "Outcome"
   ) +
   theme_minimal()
 ```
 
 ###
 
-An **ordered factor** tells **ggplot2** to use your chosen order for legends and axes instead of sorting alphabetically. And the **[scales](https://scales.r-lib.org/)** package formats axis numbers as currency — dollar signs, thousands separators, and scaling — so a chart of player values reads naturally.
+One market's probability path can be noisy, flat, or event-driven. The next summaries ask whether those individual paths become more accurate on average as resolution approaches.
+
+### Exercise 10
+
+Bucket each probability snapshot by how far it was from resolution. Add a `time_bucket` column to `joined` using five ordered categories:
+
+- `days_to_resolution > 90`  → `"90+ days"`
+- `days_to_resolution > 30`  → `"30–90 days"`
+- `days_to_resolution > 7`   → `"7–30 days"`
+- `days_to_resolution >= 1`  → `"1–7 days"`
+- otherwise                  → `"Final day"`
+
+Make the bucket order run from `"90+ days"` to `"Final day"`, then count rows per bucket to check the distribution of snapshots. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r prediction-markets-10-test}
+#| echo: true
+joined <- joined |>
+  mutate(
+    time_bucket = factor(
+      case_when(
+        days_to_resolution >  90 ~ "90+ days",
+        days_to_resolution >  30 ~ "30–90 days",
+        days_to_resolution >   7 ~ "7–30 days",
+        days_to_resolution >=  1 ~ "1–7 days",
+        TRUE                      ~ "Final day"
+      ),
+      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
+      ordered = TRUE
+    )
+  )
+
+count(joined, time_bucket)
+```
+
+###
+
+The 7-30 day bucket has the most rows because many markets in this sample last only a few weeks. Keeping the buckets ordered is important because alphabetical order would scramble the time sequence in plots.
+
+### Exercise 11
+
+Compare the full error distribution across time horizons with a box plot of `prediction_error` by `time_bucket`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-11}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r prediction-markets-11-test}
+#| echo: true
+joined |>
+  ggplot(aes(x = time_bucket, y = prediction_error)) +
+  geom_boxplot() +
+  labs(
+    title = "Prediction error shrinks near the deadline",
+    x     = "Days until resolution",
+    y     = "Prediction error (|probability − outcome|)"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The boxes should move lower and get tighter as resolution approaches. That pattern means forecasts are not only more accurate near the deadline, but also less variable.
+
+### Exercise 12
+
+Create a compact accuracy summary for the final chart: compute mean prediction error for each `time_bucket`, include the number of snapshots in each bucket, save it as `accuracy`, and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-12}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r prediction-markets-12-test}
+#| echo: true
+accuracy <- joined |>
+  group_by(time_bucket) |>
+  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
+
+accuracy
+```
+
+###
+
+The biggest drop in mean error happens between the final week and the final day. That does not necessarily mean traders suddenly become smarter; it often means more decisive information has arrived.
+
+### Exercise 13
+
+Use `accuracy` to make the final forecasting chart: a line-and-point plot of mean error by time bucket. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-13}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r prediction-markets-13-test}
+#| echo: true
+ggplot(accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
+  geom_line(linewidth = 1.2, color = "#2166ac") +
+  geom_point(size = 3, color = "#2166ac") +
+  labs(
+    title    = "Prediction markets get smarter near the deadline",
+    subtitle = "Mean absolute error in Manifold Markets forecasts, by days remaining",
+    x        = "Days until resolution",
+    y        = "Mean absolute error"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The line shows a clear convergence pattern: average prediction error falls as markets approach resolution. This is the main result of the section, and it is exactly the kind of pattern prediction-market analysts look for.
+
+### Exercise 14
+
+Stage `analysis.qmd`, commit with the message
+`"Add prediction market accuracy analysis"`, and push to GitHub. In the
+bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r prediction-markets-14}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+abc1234 Add prediction market accuracy analysis
+def5678 Crypto market composition analysis
+...
+```
+
+###
+
+Prediction-market accuracy improves here because resolution dates concentrate information. A final-day price is not magic; it is a market incorporating facts that often did not exist weeks earlier.
 
 ## Summary
 ###
 
 This tutorial covered key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with parquet files using **arrow**, manipulating categorical variables with **forcats**, handling date/time data with **lubridate**, managing missing values, and performing joins.
+You learned about working with parquet files using **[arrow](https://arrow.apache.org/docs/r/)**, joining multiple datasets with shared keys, parsing mixed-format date strings with **[lubridate](https://lubridate.tidyverse.org/)**, cleaning messy string fields with **[stringr](https://stringr.tidyverse.org/)**, and reordering factor levels for visualization with **[forcats](https://forcats.tidyverse.org/)**.
 
 ### Exercise 1
 
-Render. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots.
+Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plot.
 
 In the R Terminal, run:
 
@@ -765,16 +1561,16 @@ CP/CR.
 
 ```{r summary-1}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 30)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 30)
 ```
 
 ###
 
-**arrow** only understands a subset of R expressions, so before you pull data into R you may not be able to write exactly the code you normally would — the rest has to wait until the data is in R. The **arrow** documentation lists which operations it can push down to the on-disk query.
+**arrow** only understands a subset of R expressions before data is collected into memory. A good workflow is to use Arrow for filtering and selecting, then do more flexible R work after collection.
 
 ### Exercise 2
 
@@ -790,11 +1586,11 @@ Copy/paste the resulting URL below.
 
 ```{r summary-2}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 1)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 1)
 ```
 
 ###
@@ -803,15 +1599,15 @@ Publishing the QMD creates a public URL anyone can use to view the rendered proj
 
 ### Exercise 3
 
-Commit and push all your files. Copy/paste the URL to your GitHub repo.
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
 ```{r summary-3}
 question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
 ```
 
 ###
