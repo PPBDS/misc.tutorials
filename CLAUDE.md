@@ -24,7 +24,7 @@ A collection of tutorials covering material from two companion texts:
 - **[R for Data Science (2e)](https://r4ds.hadley.nz/)** — the `r4ds-1` … `r4ds-5` tutorials.
 - **[Analyzing US Census Data](https://walker-data.com/census-r/)** by Kyle Walker — the `census` tutorial.
 
-**The organizing theme is storage technology.** Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the **[tidyverse](https://www.tidyverse.org/)**. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.
+**The organizing theme is storage technology.** Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the **[tidyverse](https://www.tidyverse.org/)**. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, crypto/prediction markets, wildfires/film rankings, census demographics) is chosen to suit it.
 
 The division of the R for Data Science material into five tutorials (`r4ds-1` … `r4ds-5`) is reasonable but **arbitrary** — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see `TODO.txt` on `r4ds-4`) or merge two short ones.
 
@@ -35,7 +35,7 @@ The division of the R for Data Science material into five tutorials (`r4ds-1` �
 | `r4ds-1` | Delimited files (CSV) | readr, maps | `music.csv` |
 | `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
 | `r4ds-3` | Databases | DBI, dbplyr, duckdb, nycflights13, babynames | `*.duckdb` |
-| `r4ds-4` | Arrow / Parquet | arrow, plotly, scales, viridis | `*.parquet` |
+| `r4ds-4` | Arrow / Parquet | arrow, viridis | `*.parquet` |
 | `r4ds-5` | Spatial / web | jsonlite, leaflet, purrr, httr2, rvest | `wildfires.geojson`, `imdb_snapshots.rds` |
 | `census` | Web API | tidycensus, sf | `*.rds` |
 
@@ -58,8 +58,8 @@ Each tutorial should teach:
 
 The base guide prefers stable source copies under `inst/extdata/<tutorial>/` and says to avoid `inst/tutorials/<name>/data/` unless there is a learnr runtime reason. **All tutorials now follow this convention** — the migration away from per-tutorial `data/` directories (a holdover from `vscode.tutorials`) is complete:
 
-- Each tutorial's data lives in `inst/extdata/<tutorial>/` (e.g. `inst/extdata/r4ds-4/game.parquet`).
-- Setup and test chunks read it with a relative path from the tutorial's own folder: `../../extdata/<tutorial>/<file>` (e.g. `open_dataset("../../extdata/r4ds-4/game.parquet")`, `read_rds("../../extdata/census/income_tx.rds")`). This resolves because a tutorial knits with its folder as the working directory.
+- Each tutorial's data lives in `inst/extdata/<tutorial>/` (e.g. `inst/extdata/r4ds-4/daily_prices.parquet`).
+- Setup and test chunks read it with a relative path from the tutorial's own folder: `../../extdata/<tutorial>/<file>` (e.g. `open_dataset("../../extdata/r4ds-4/daily_prices.parquet")`, `read_rds("../../extdata/census/income_tx.rds")`). This resolves because a tutorial knits with its folder as the working directory.
 - Student-facing download URLs point at the same files on GitHub (`.../raw/refs/heads/main/inst/extdata/<tutorial>/<file>`). Students still download into their **own** `data/` directory and read `data/<file>` from their `analysis.qmd`; only the package's own knit reads from `extdata`. (So a build/answer chunk shows `../../extdata/...` while the student's prompt says `data/...` — an accepted cosmetic mismatch inherited from the `r4ds-2` rework.)
 - `R/zzz.R` carries a `data_manifest` of the files per tutorial and an `.onAttach()` hook that re-downloads any missing ones into the installed `extdata/<tutorial>/` (for the CRAN build, which ships without them). **Update the manifest whenever a tutorial's data files change.**
 
@@ -87,4 +87,4 @@ Standard base-guide checks apply (`rmarkdown::render()` for a quick syntax pass,
 
 ## Open items
 
-Active TODOs live in [`TODO.txt`](TODO.txt) (authoring conventions, the `r4ds-4` `case_when()` coercion warning, `r4ds-4` length / `r4ds-5` compile time, display options, and new-tutorial ideas). Consult it before starting non-trivial work, and keep it current.
+Active TODOs live in [`TODO.txt`](TODO.txt) (data set selection, workflow questions, display options, and new-tutorial ideas). Consult it before starting non-trivial work, and keep it current.

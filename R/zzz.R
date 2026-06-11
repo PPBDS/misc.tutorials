@@ -2,8 +2,8 @@
 # too large to include in the CRAN package. They live in inst/extdata/<tutorial>/
 # (the stable source copies). When a tutorial is run via learnr::run_tutorial(),
 # the working directory is the directory containing tutorial.Rmd, and the test
-# chunks read the data with a relative path like
-# open_dataset("../../extdata/r4ds-4/game.parquet"). So the data files must exist
+# chunks read the data with a relative path (see example in the manifest comment
+# below). So the data files must exist
 # in each tutorial's inst/extdata/<tutorial>/ subdirectory within the installed
 # package.
 #
@@ -13,7 +13,9 @@
 # from GitHub directly into the installed package's extdata directory. This is
 # safe because if a user has permission to install the package, they have
 # permission to write into its directory. The manifest below must be updated
-# whenever data files are added or removed from any tutorial.
+# whenever data files are added or removed from any tutorial. Test chunks read
+# these files with a relative path, e.g.:
+#   open_dataset("../../extdata/r4ds-4/daily_prices.parquet")
 
 #' @importFrom utils download.file
 NULL
@@ -21,7 +23,7 @@ NULL
 data_manifest <- list(
   "r4ds-1" = c("music.csv"),
   "r4ds-2" = c("us_births_1994_2014.xlsx", "nba_recruits.xlsx"),
-  "r4ds-3" = c("nameby_year.duckdb", "nycflights13.duckdb", "atus.duckdb"),
+  "r4ds-3" = c("nameby_year.duckdb", "nycflights13.duckdb", "seda_2025.duckdb", "atus.duckdb"),
   "r4ds-4" = c("categories.parquet", "coin_metadata.parquet", "daily_prices.parquet",
                "markets.parquet", "history.parquet", "groups.parquet", "market_groups.parquet"),
   "r4ds-5" = c("imdb_snapshots.rds", "wildfires.geojson"),
