@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/PPBDS/misc.tutorials/blob/main/DESCRIPTION)
 
 Kane D (2026). *misc.tutorials: Tutorials for 'R for Data Science' and
-US Census Data*. R package version 0.0.1.9002,
+US Census Data*. R package version 0.0.1.9003,
 <https://ppbds.github.io/misc.tutorials/>.
 
     @Manual{,
       title = {misc.tutorials: Tutorials for 'R for Data Science' and US Census Data},
       author = {David Kane},
       year = {2026},
-      note = {R package version 0.0.1.9002},
+      note = {R package version 0.0.1.9003},
       url = {https://ppbds.github.io/misc.tutorials/},
     }
