@@ -32,7 +32,7 @@ options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 
 This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with parquet files using **[arrow](https://arrow.apache.org/docs/r/)**, joining multiple datasets with **[dplyr](https://dplyr.tidyverse.org/)**, parsing dates with **[lubridate](https://lubridate.tidyverse.org/)**, cleaning messy strings with **[stringr](https://stringr.tidyverse.org/)**, and reordering categorical variables with **[forcats](https://forcats.tidyverse.org/)**. Key concepts include opening large datasets from disk without loading them fully into memory, joining tables through shared keys, parsing mixed-format date strings, and building an ordered factor for a final line chart.
+You will use packages including **[arrow](https://arrow.apache.org/docs/r/)** to work with parquet files, **[dplyr](https://dplyr.tidyverse.org/)** to join and summarize related tables, **[lubridate](https://lubridate.tidyverse.org/)** and **[stringr](https://stringr.tidyverse.org/)** to clean dates and text, and **[forcats](https://forcats.tidyverse.org/)** with **[viridis](https://sjmgarnier.github.io/viridis/)** to order and polish final charts. The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -77,7 +77,7 @@ analysis_files
 
 ###
 
-Parquet files are column-oriented — organized column-by-column like R's data frame — which leads to better performance for data analysis than row-oriented CSV files. They also support efficient compression, making them much smaller than equivalent CSV files.
+Parquet files store data by column, which is efficient for analysis because you often need only a few columns at a time. They also compress well, so the same dataset is usually much smaller as parquet than as CSV.
 
 ### Exercise 2
 
@@ -123,7 +123,7 @@ library(viridis)
 
 ###
 
-Like CSV, parquet is used for rectangular data, but it is a custom binary format designed for big data — not a text format you can read in any editor. Both **arrow** and **dbplyr** provide **dplyr** backends, so you can use the same **dplyr** code whether your data is in a parquet file or a database.
+Like CSV, parquet stores rectangular data, but it is a binary format designed for fast analysis rather than human reading. The package, **arrow**, lets you use familiar **dplyr**-style workflows with parquet files.
 
 ### Exercise 3
 
@@ -160,11 +160,15 @@ Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-for
 
 Bitcoin launched the cryptocurrency market in 2009. By 2013, it represented over 90% of all crypto by market value. But by 2021, Bitcoin's share had fallen to around 40%. Where did the other 60% go?
 
-In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
+In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use packages like **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
 
 ### Exercise 1
 
-Download all three parquet files into your `data/` directory. The stable URLs follow the pattern `https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/<file>` for each of `daily_prices.parquet`, `coin_metadata.parquet`, and `categories.parquet`.
+Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
+
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/daily_prices.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/coin_metadata.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/categories.parquet`
 
 In the bash Terminal, run:
 
@@ -191,11 +195,11 @@ categories.parquet    coin_metadata.parquet    daily_prices.parquet
 
 ###
 
-Parquet files are column-oriented and compressed. The three files for this section total just over 2 MB — small enough to keep in a CRAN package — but `daily_prices.parquet` holds 59,436 rows of daily price and market cap data for 22 cryptocurrencies spanning 2018 to 2026.
+The three crypto files are only a little over 2 MB, but they still hold 59,436 daily price records plus coin and category lookup tables. Parquet makes that possible by storing data column-by-column and compressing repeated values efficiently.
 
 ### Exercise 2
 
-Open `data/daily_prices.parquet` without loading it into memory. Don't assign the result — just print it. Render.
+In a new code chunk, inspect the schema of `data/daily_prices.parquet` using Arrow without pulling the full file into memory. Don't assign the result — just print it. Render.
 
 In the R Terminal, run:
 
@@ -218,16 +222,17 @@ question_text(NULL,
 
 ```{r crypto-markets-2-test}
 #| echo: true
+# your file path will differ. It will probably be "data/daily_prices.parquet" if you downloaded the file into your data/ directory
 open_dataset("../../extdata/r4ds-4/daily_prices.parquet")
 ```
 
 ###
 
-The result is not a tibble — it is an `ArrowDataset`. Arrow is showing you the schema (column names and types) without loading any rows. No data has moved from disk to memory yet. `date_raw` is a character column, not a Date — an intentional design choice so that you parse it explicitly in a later exercise.
+The result of `open_dataset()` is an `ArrowDataset`, not a tibble: Arrow is showing the schema without loading the rows. Notice that `date_raw` is stored as a string of text, which means you need to parse it before doing date-based analysis.
 
 ### Exercise 3
 
-Without loading the full dataset, filter to rows from 2020 onward and keep only the columns `date_raw`, `coin_id`, and `market_cap_usd`. Then pull those rows into memory. Render.
+Use Arrow to do a lightweight preview of the price data: keep only observations from 2020 onward and only the fields needed for a basic market-cap analysis (`date_raw`, `coin_id`, and `market_cap_usd`). Then collect that smaller result into memory. Render.
 
 In the R Terminal, run:
 
@@ -258,11 +263,15 @@ open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
 
 ###
 
-`filter()` and `select()` on an Arrow dataset execute on disk before any rows transfer to R. Only `collect()` moves data into memory. Arrow's expression engine supports most base R string functions like `substr()` but does not support `lubridate::year()` in lazy evaluation — which is why the filter uses `as.integer(substr(date_raw, 1, 4))`. For this dataset, filtering to 2020 and later reduces the transferred rows by roughly 30%.
+Each row is one cryptocurrency on one day. For example, the first row says Aave (`aave`) had a market cap of about $1.41 billion on October 10, 2020.
+
+###
+
+With Arrow, filtering rows and selecting columns can happen before data moves into memory, where we can work with it using R. The `collect()` call is the step that moves the filtered data into R.
 
 ### Exercise 4
 
-Collect all three parquet files into tibbles. Assign them to `prices`, `metadata`, and `categories`. Print `metadata`. Render.
+In a new code chunk, load `daily_prices.parquet` into R as an analysis table named `prices`. Print `prices` so you can inspect the daily price fields before joining. Render.
 
 In the R Terminal, run:
 
@@ -286,18 +295,16 @@ question_text(NULL,
 ```{r crypto-markets-4-test}
 #| echo: true
 prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
-categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
-metadata
+prices
 ```
 
 ###
 
-"January 3, 2009" is when Satoshi Nakamoto mined the Bitcoin genesis block — the date that launched the entire cryptocurrency industry. The two date formats in `launch_date` ("January 3, 2009" and "2015-07-30") reflect a common real-world data quality issue: records pulled from different sources at different times use different date conventions. **lubridate** provides `mdy()` and `ymd()` to handle both.
+The `prices` table has one row per coin per day. The first row says [Aave](https://en.wikipedia.org/wiki/Aave), a cryptocurrency, on October 10, 2020 had a `market_cap_usd` of about $1.41 billion. Market cap is the total value of all circulating units of a coin at that day's price.
 
 ### Exercise 5
 
-Left-join `prices` to `metadata` by `coin_id`, then left-join the result to `categories` by `category_id`. Both tables have a `description` column — drop the one from `categories` before joining (it is not needed). Assign the result to `crypto`. Print the first 5 rows. Render.
+Load `coin_metadata.parquet` as `metadata` in the same chunk, below the `prices` line. Print `metadata` instead of `prices` so you can inspect the coin-level fields before joining. Render.
 
 In the R Terminal, run:
 
@@ -320,19 +327,18 @@ question_text(NULL,
 
 ```{r crypto-markets-5-test}
 #| echo: true
-crypto <- prices |>
-  left_join(metadata, by = "coin_id") |>
-  left_join(select(categories, -description), by = "category_id")
-head(crypto, 5)
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+metadata
 ```
 
 ###
 
-A left join keeps every row from the left table and adds matching columns from the right. Here, each of the 59,436 daily observations in `prices` picks up its coin's name, category, launch date, and description from `metadata`, and its category display name from `categories`. Notice that `category_id` was not in `daily_prices.parquet` — it came from the first join. That is why two joins were needed: prices → metadata adds `category_id`, then metadata → categories adds the human-readable category name.
+The `metadata` table has one row per coin. `coin_id` links back to `prices`, and `category_id` links forward to `categories`. It also has a coin-level `description`.
 
 ### Exercise 6
 
-`market_cap_str` contains values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a new column `market_cap_parsed` to `crypto` that extracts the numeric value: detect the suffix letter, extract the numeric value, and multiply by the appropriate scale (1e12 for T, 1e9 for B, etc.). Render.
+Load `categories.parquet` as `categories` in the same chunk, below the `metadata` line. Print `categories` instead of `metadata` so you can inspect the category lookup table before joining. Render.
 
 In the R Terminal, run:
 
@@ -348,12 +354,88 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 ```{r crypto-markets-6-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
+categories
+```
+
+###
+
+The `categories` table has one row per crypto category, and `category_id` is the key that connects it to `metadata`. Its `category_name` is the readable label we want for plots, but its `description` duplicates a column name already used in `metadata`.
+
+### Exercise 7
+
+Our analysis needs prices, coin details, and category labels in one place.
+
+In the same chunk, build one analysis table named `crypto` from the existing `prices`, `metadata`, and `categories` tables. Start with `prices`, join `metadata` by `coin_id`, then join `categories` by `category_id` so each daily price row has coin-level details and a human-readable category name. Both lookup tables have a `description` column; keep the coin description from `metadata` and drop the category description before joining. Print the first 5 rows instead of `categories` so you can verify the joined columns look right. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-7}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-7-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
+
+crypto <- prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id")
+head(crypto, 5)
+```
+
+###
+
+A left join keeps every row from the main table and adds matching information from lookup tables. Here, the first join adds each coin's `category_id`, and the second join turns that ID into a readable category name.
+
+### Exercise 8
+
+`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a numeric audit column, `market_cap_parsed`, that converts those display strings into dollar values by respecting the `T`, `B`, `M`, and `K` suffixes. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-8}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crypto-markets-8-test}
 #| echo: true
 crypto <- crypto |>
   mutate(
@@ -370,89 +452,11 @@ crypto <- crypto |>
 
 ###
 
-`parse_number()` strips non-numeric characters like `$` but cannot handle a scale suffix (`T`, `B`, `M`). The `case_when()` + `parse_number()` pattern shown here is the standard approach for parsing formatted financial strings in R. About 5% of `market_cap_str` values are `NA` — simulating the kind of gap that appears when a dashboard exports data with occasional rendering failures. The clean numeric column `market_cap_usd` is already in the dataset; `market_cap_parsed` exists solely to practice this parsing pattern.
-
-### Exercise 7
-
-Parse dates. In `metadata`, detect which `launch_date` values use the long-form "Month Day, Year" format and parse them accordingly — the remaining values use "YYYY-MM-DD". Store the parsed result in a new column `launch_date_parsed`. Also parse `date_raw` in `crypto` into a proper date column called `date`. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-7}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r crypto-markets-7-test}
-#| echo: true
-metadata <- metadata |>
-  mutate(
-    launch_date_parsed = case_when(
-      str_detect(launch_date, ",") ~ mdy(launch_date),
-      TRUE ~ ymd(launch_date)
-    )
-  )
-
-crypto <- crypto |>
-  mutate(date = ymd(date_raw))
-```
-
-###
-
-Lubridate's `mdy()` and `ymd()` are forgiving about separators but strict about field order. When a dataset has two different date formats, conditional parsing with `case_when()` is safer than hoping one parser handles both. Bitcoin's `launch_date` parses to 2009-01-03; Ethereum's parses to 2015-07-30 — both correct despite looking completely different as strings.
-
-### Exercise 8
-
-Clean the `description` column in `crypto` by replacing embedded newlines (`\n`) with a space. Confirm the fix by filtering to `btc` and `eth` and showing their distinct `coin_id` and `description` values. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-8}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
-```
-
-###
-
-```{r crypto-markets-8-test}
-#| echo: true
-crypto <- crypto |>
-  mutate(description = str_replace_all(description, "\\n", " "))
-
-crypto |>
-  filter(coin_id %in% c("btc", "eth")) |>
-  distinct(coin_id, description)
-```
-
-###
-
-Embedded newlines appear when data is scraped from a web page or copied from a document that used visual line breaks. They silently break `str_detect()`, `str_length()`, and CSV export — the text looks fine in a print statement but causes unexpected behavior downstream. `str_replace_all()` with `"\\n"` (the regex for a literal newline) replaces every occurrence; the double backslash is required because R parses the first `\` as an escape character before the regex engine sees the string.
+Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. About 5% of `market_cap_str` values are missing, which is typical of exported dashboard data and should always be checked before analysis.
 
 ### Exercise 9
 
-Add an `era` column to `crypto` by assigning each row to an era based on the year of `date`: `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), `"Maturation Era"` (2022 onward). Convert it to an ordered factor with levels in chronological order. Count rows per era. Render.
+Standardize the date fields before analysis. In `metadata`, parse the mixed-format `launch_date` values into a real date column called `launch_date_parsed`; some are written as `"Month Day, Year"` and the rest as `"YYYY-MM-DD"`. In `crypto`, parse `date_raw` into a real date column called `date`. Render.
 
 In the R Terminal, run:
 
@@ -468,12 +472,90 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 8)
 ```
 
 ###
 
 ```{r crypto-markets-9-test}
+#| echo: true
+metadata <- metadata |>
+  mutate(
+    launch_date_parsed = case_when(
+      str_detect(launch_date, ",") ~ mdy(launch_date),
+      TRUE ~ ymd(launch_date)
+    )
+  )
+
+crypto <- crypto |>
+  mutate(date = ymd(date_raw))
+```
+
+###
+
+Date parsers need to know the order of month, day, and year. When one column contains multiple date formats, parse each format deliberately rather than hoping one parser guesses correctly.
+
+### Exercise 10
+
+Clean the coin descriptions so they behave like normal text fields: replace embedded newlines (`\n`) with spaces. Confirm the fix by checking the distinct descriptions for `btc` and `eth`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-10}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
+```
+
+###
+
+```{r crypto-markets-10-test}
+#| echo: true
+crypto <- crypto |>
+  mutate(description = str_replace_all(description, "\\n", " "))
+
+crypto |>
+  filter(coin_id %in% c("btc", "eth")) |>
+  distinct(coin_id, description)
+```
+
+###
+
+Embedded newlines often come from scraped web text or copied document text. They can make text fields harder to search, compare, or export, so cleaning them early prevents confusing downstream behavior.
+
+### Exercise 11
+
+Add a market-era label to `crypto` so later summaries can use meaningful time periods. Use the year of `date` to assign `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), and `"Maturation Era"` (2022 onward). Make the labels ordered chronologically, then count rows per era as a quick check. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-11}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-11-test}
 #| echo: true
 crypto <- crypto |>
   mutate(
@@ -493,11 +575,11 @@ count(crypto, era)
 
 ###
 
-The ICO era (2017–2018) saw hundreds of new coins raise billions through initial coin offerings — mostly on the Ethereum network. Most of those projects failed. DeFi Summer (2020) was different: the protocols that launched — Uniswap, Aave, Compound, MakerDAO — created real financial primitives that still process billions of dollars today. The era labels here are interpretive, not standardized; different analysts draw the boundaries differently. What matters for the tutorial is that `factor()` with explicit `levels` gives you control over the order ggplot2 uses for color legends and facet panels.
+The era labels are interpretive, not official; different analysts might choose different boundaries. Making them ordered is useful because plots and tables should show the eras in chronological order, not alphabetical order.
 
-### Exercise 10
+### Exercise 12
 
-The `crypto` chunk is getting long. Clean it up: keep only the code that defines `crypto` (the data loading, joins, and all the mutations), and remove the `count(crypto, era)` line at the bottom.
+The `crypto` chunk is now a reusable data-preparation step. Clean it up so it keeps only the saved objects and transformations: the three table loads, the joins, and the cleaning mutations. Remove the row-count check at the bottom.
 
 In the R Terminal, run:
 
@@ -507,7 +589,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-10}
+```{r crypto-markets-12}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -558,9 +640,9 @@ crypto <- prices |>
 
 ###
 
-The fully joined and cleaned `crypto` tibble has one row per coin per day — 59,436 rows covering 22 coins from 2018 through 2026. Bitcoin's dominance, Ethereum's rise, stablecoin growth, and the meme-coin spike of 2021 are all latent in this table, waiting to be drawn out by the grouping and plotting exercises ahead.
+The cleaned `crypto` table has one row per coin per day: 59,436 rows for 22 coins from 2018 through 2026. The table is now ready for grouped summaries and time-series plots.
 
-### Exercise 11
+### Exercise 13
 
 Add `#| cache: true` to the chunk. Render. This first render with caching will take a moment; subsequent renders will load from disk.
 
@@ -572,7 +654,7 @@ ls
 
 CP/CR.
 
-```{r crypto-markets-11}
+```{r crypto-markets-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -589,11 +671,11 @@ analysis.html  analysis.qmd  analysis_cache  analysis_files  data
 
 ###
 
-Stablecoins like USDT grew from roughly $4B market cap in early 2019 to over $80B by 2022 — not because the token's price rose, but because more dollars flowed into the crypto ecosystem seeking a stable store of value. USDT, USDC, and DAI all maintained their $1 peg throughout; their rising market cap reflects real-dollar demand for crypto-denominated stability, not speculation.
+Stablecoin market cap can rise even when token prices stay near $1. For coins like USDT, USDC, and DAI, market-cap growth mostly reflects more dollars flowing into stable crypto-denominated assets.
 
-### Exercise 12
+### Exercise 14
 
-Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back. Render.
+Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
 
 In the R Terminal, run:
 
@@ -603,7 +685,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r crypto-markets-12}
+```{r crypto-markets-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -621,87 +703,11 @@ analysis_cache
 
 ###
 
-The FTX exchange token FTT had a market cap of roughly $7.25B on November 8, 2022. By November 9 it had fallen to $1.82B — a 75% single-day drop. FTX, one of the largest crypto exchanges, filed for bankruptcy three days later. The collapse is visible as a near-vertical line in the data; it is one of the clearest single-event signals in the entire dataset.
-
-### Exercise 13
-
-In a new code chunk, compute the total market cap per day across all coins in `crypto` (sum `market_cap_usd` by `date`). Plot it as a line chart with date on the x-axis and total market cap in trillions on the y-axis. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r crypto-markets-13-test}
-#| echo: true
-crypto |>
-  group_by(date) |>
-  summarise(total_mcap = sum(market_cap_usd, na.rm = TRUE)) |>
-  ggplot(aes(x = date, y = total_mcap / 1e12)) +
-  geom_line() +
-  labs(x = NULL, y = "Total market cap (trillions USD)",
-       title = "Total crypto market capitalization, 2018–2026")
-```
-
-###
-
-The total crypto market cap grew from roughly $150B in early 2019 to over $2.5T at its November 2021 peak — a 16× increase in under three years. It then fell sharply through 2022 (the "crypto winter"), driven by the Luna/UST collapse in May and FTX in November. By 2024 it had recovered above $2T. This context is essential for the next chart: Bitcoin's *share* fell during the bull market while its *absolute value* rose.
-
-### Exercise 14
-
-Compute daily market cap per category by summing `market_cap_usd` across all coins in each `category_name`, per `date`. Plot a multi-line chart with date on the x-axis and category market cap on the y-axis, colored by `category_name`. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r crypto-markets-14-test}
-#| echo: true
-crypto |>
-  group_by(date, category_name) |>
-  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
-  geom_line() +
-  labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
-       title = "Crypto market cap by category, 2018–2026")
-```
-
-###
-
-This chart is hard to read because Bitcoin dominates the y-axis. Its absolute market cap dwarfs all other categories, compressing the other lines near zero. When one category dominates the absolute scale, relative share — each category as a percentage of the total — is the standard way to make the other trajectories visible.
+The FTX exchange token FTT fell from roughly $7.25B on November 7, 2022 to about $724M on November 9. Sudden event-driven collapses like this are often easiest to spot in a time-series plot.
 
 ### Exercise 15
 
-Compute each category's share as a percentage of the total daily market cap. Plot the same multi-line chart with share (%) on the y-axis. Render.
+Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
 
 In the R Terminal, run:
 
@@ -717,12 +723,88 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 8)
 ```
 
 ###
 
 ```{r crypto-markets-15-test}
+#| echo: true
+crypto |>
+  group_by(date) |>
+  summarise(total_mcap = sum(market_cap_usd, na.rm = TRUE)) |>
+  ggplot(aes(x = date, y = total_mcap / 1e12)) +
+  geom_line() +
+  labs(x = NULL, y = "Total market cap (trillions USD)",
+       title = "Total crypto market capitalization, 2018–2026")
+```
+
+###
+
+Total market cap gives context for category-share plots. Bitcoin's share can fall even while Bitcoin's dollar value rises, because the whole market is changing at the same time.
+
+### Exercise 16
+
+Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-16}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crypto-markets-16-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
+       title = "Crypto market cap by category, 2018–2026")
+```
+
+###
+
+This chart is hard to read because Bitcoin dominates the absolute dollar scale. When one group dwarfs the others, plotting each group's share of the total often reveals patterns that the raw values hide.
+
+### Exercise 17
+
+Convert the category totals into daily market-share percentages so smaller categories are visible on a common scale. Plot category share over time as a multi-line chart. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-17}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-17-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -739,11 +821,11 @@ crypto |>
 
 ###
 
-Now the story is visible. Bitcoin's line starts above 50% and shows a declining arc through 2021 before recovering. Stablecoins grow steadily — especially through 2022 when investors fled volatile assets. DeFi protocols spike in 2020–2021 then partially retreat. Meme coins (DOGE) cause a sharp spike in May 2021 — Elon Musk tweets drove DOGE's market cap briefly above $80B — then almost entirely collapse within weeks. The diversity of trajectories across categories is exactly the answer to the guiding mystery.
+The share plot reveals different category trajectories that were hidden on the absolute scale. Bitcoin, stablecoins, DeFi, and meme coins each move differently, which is the answer to the tutorial's guiding question.
 
-### Exercise 16
+### Exercise 18
 
-Reorder the `category_name` factor so that categories with the highest median share appear first in the legend. Apply a colorblind-safe color palette. Add a proper title, subtitle, axis labels, and a caption crediting the source. Render.
+Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. Render.
 
 In the R Terminal, run:
 
@@ -753,7 +835,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-16}
+```{r crypto-markets-18}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -764,7 +846,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-16-test}
+```{r crypto-markets-18-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -785,11 +867,11 @@ crypto |>
 
 ###
 
-`fct_reorder()` sorts factor levels by a summary statistic — here, the median share across all dates. This puts Bitcoin at the top of the legend (it has the highest median), which aligns with its line being highest in the chart. When legend order matches visual order, readers scan less. `viridis` and `viridis_d` are colorblind-safe palettes that also print clearly in grayscale — a good default for any chart that may be viewed in multiple contexts.
+Ordering the legend by typical category size makes the plot easier to scan. Colorblind-safe palettes are a good default because charts are often viewed in many formats and by many audiences.
 
-### Exercise 17
+### Exercise 19
 
-Annotate the chart to highlight two historical events: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
+Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
 
 In the R Terminal, run:
 
@@ -799,7 +881,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-17}
+```{r crypto-markets-19}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -810,7 +892,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-17-test}
+```{r crypto-markets-19-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -835,13 +917,19 @@ crypto |>
 
 ###
 
-Terra's algorithmic stablecoin UST maintained its $1 peg through a supply-demand mechanism rather than dollar reserves. In May 2022, a large sell-off broke the mechanism; both UST and its sister token Luna lost almost all their value within 72 hours — the largest single wealth-destruction event in crypto history at that time. Fiat-backed stablecoins like USDT and USDC held their pegs throughout; their divergence from UST is visible in the stablecoin category line, which dips slightly in May 2022 then resumes growth.
+UST was an algorithmic stablecoin, meaning it tried to hold a $1 value through a mechanism rather than dollar reserves. Its May 2022 collapse is a reminder that categories can contain very different kinds of assets.
 
-### Exercise 18
+### Exercise 20
 
-Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub.
+Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub. In the bash Terminal, run:
 
-```{r crypto-markets-18}
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r crypto-markets-20}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -852,7 +940,14 @@ question_text(NULL,
 
 ###
 
-The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins — category shares here are approximations, not exact measures of the full crypto market. By 2026, the top 10 coins by market cap still accounted for roughly 80% of total market value, so the broad patterns hold even though the tail is missing.
+```
+abc1234 Crypto market composition analysis
+...
+```
+
+###
+
+The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins, so the category shares are approximations rather than exact measures of the full crypto market. That tradeoff is intentional: the file stays small enough for a tutorial while preserving the dominant category-level patterns.
 
 ## Prediction markets
 ###
@@ -873,12 +968,12 @@ accuracy chart.
 
 ### Exercise 1
 
-Download `markets.parquet` and `history.parquet` into `data/`. The stable URLs are:
+Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
 
 `https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
 `https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
 
-Open `history.parquet` without loading it into memory — assign the result to `history_lazy` and print it. Render.
+In a new code chunk, inspect `history.parquet` with Arrow before loading it into memory. Assign the lazy table to `history_lazy` and print it so you can see the schema and row count. Render.
 
 In the R Terminal, run:
 
@@ -905,29 +1000,13 @@ history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
 history_lazy
 ```
 
-Expected output — the schema printed without loading data into memory:
-
-```
-FileSystemDataset with 1 Parquet file
-43,694 rows x 3 columns
-$ market_id   <string>
-$ date        <date32[day]>
-$ probability <double>
-```
-
 ###
 
-Manifold Markets is a play-money prediction platform
-launched in 2022. Users trade with Mana (Ṁ), a fictional currency — not real
-dollars. The crowd is still incentivized to be accurate because Mana has
-social and competitive value, and research suggests play-money markets are
-well-calibrated on short-horizon events. The events in this dataset are real
-— AI model releases, election outcomes, geopolitical events — even if the
-stakes are not.
+Manifold Markets is a play-money prediction platform launched in 2022. Users trade with Mana (Ṁ), a fictional currency, but the questions in this dataset are real events such as AI model releases, elections, and geopolitical outcomes.
 
 ### Exercise 2
 
-Bring `history_lazy` into memory. Left-join it to `markets.parquet`, which you should also read into memory. Add a column `outcome_numeric` that is 1 when the outcome is YES and 0 otherwise. Assign the result to `joined`. Print the number of rows. Render.
+Create the main forecasting table. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an `outcome_numeric` field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as `joined` and print the row count as a join check. Render.
 
 In the R Terminal, run:
 
@@ -960,33 +1039,22 @@ joined <- history_lazy |>
 nrow(joined)
 ```
 
-Expected output:
-
-```
-[1] 43694
-```
-
 The row count does not change. This is a one-to-many join: one market row
 matched to many daily history rows. Each of the 43,694 history rows gets one
 matching market row appended.
 
 ###
 
-Prediction markets have a YES-bias problem in reverse:
-63% of markets in this dataset resolved NO. Most questions take the form
-"Will X happen?" — and X usually doesn't. The outcome distribution (63% NO,
-37% YES) is worth keeping in mind when interpreting summary statistics,
-because averaging across outcomes is really averaging across two different
-crowd behaviors.
+In this dataset, 63% of markets resolved NO and 37% resolved YES. That outcome balance matters because averages combine two different forecasting situations: markets where the event happened and markets where it did not.
 
 ### Exercise 3
 
-Download `groups.parquet` and `market_groups.parquet` into `data/`. The stable URLs are:
+Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
 
 `https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
 `https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
 
-Read both into memory. Print the structure of each — types and a few example values per column. How many rows does each have? What is the relationship between these two files and `markets`? Render.
+Keep the code that defines `history_lazy`, `markets`, and `joined`. Add the topic-classification files to the chunk and inspect their structure: column types, a few example values, and row counts. Use that output to understand how these tables relate to `markets`. Render.
 
 In the R Terminal, run:
 
@@ -1009,6 +1077,14 @@ question_text(NULL,
 
 ```{r prediction-markets-3-test}
 #| echo: true
+history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
+markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+
+joined <- history_lazy |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
 groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
 market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
 
@@ -1016,35 +1092,13 @@ glimpse(groups)
 glimpse(market_groups)
 ```
 
-Expected output:
-
-```
-Rows: 115
-Columns: 4
-$ group_slug     <chr> "ai", "technology-default", ...
-$ group_name     <chr> "Ai", "Technology Default", ...
-$ broad_category <ord> AI / Technology, AI / Technology, ...
-$ market_count   <int> 110, 160, ...
-
-Rows: 2,820
-Columns: 2
-$ market_id  <chr> "...", ...
-$ group_slug <chr> "ai", ...
-```
-
 ###
 
-The `groups` file is a reference table: one row per topic
-group. The `market_groups` file is a **junction table**: it records which
-groups each market belongs to. A single market can belong to several groups
-(e.g., both "AI model releases" and "Technology"), and a single group contains
-many markets. This many-to-many structure is about to matter.
-
-###
+The `groups` file is a reference table: one row per topic group. The `market_groups` file is a junction table, which records a many-to-many relationship between markets and groups.
 
 ### Exercise 4
 
-Left-join `markets` to `market_groups` by `market_id`. Print the number of rows in the result. Compare to the original 800-row `markets` table and describe what happened. Render.
+Stress-test the topic join before using it in analysis. Join `markets` to `market_groups` by `market_id`, print the resulting row count, and compare it to the original 800 market rows. Render.
 
 In the R Terminal, run:
 
@@ -1072,30 +1126,15 @@ markets |>
   nrow()
 ```
 
-Expected output:
-
-```
-[1] 2885
-```
-
-800 rows became 2,885 rows. The 735 markets that belong to at least one group
-each appear multiple times — once per group membership — producing 2,820
-group-matched rows. The 65 markets with no matching groups each produce one
-row with `NA` for `group_slug`. A **many-to-many join** has silently multiplied
-rows. Any per-market summary computed on this inflated table would be wrong.
+The row count increases because markets can appear once for each group they belong to. Any per-market summary computed after this join would over-count markets with more topic labels.
 
 ###
 
-A many-to-many join occurs when the join key appears
-multiple times on *both* sides of the join: each market belongs to several
-groups, and each group contains many markets. **dplyr** warns about this when
-you pass `relationship = "many-to-many"` explicitly. The safest pattern: finish
-all market-level calculations before joining to the junction table — never join
-first and summarize second.
+A many-to-many join occurs when matching keys repeat on both sides of a join. Here, the safer workflow is to finish market-level calculations before joining to topic labels.
 
 ### Exercise 5
 
-Left-join `market_groups` to `groups` by `group_slug`. Count how many rows fall into each `broad_category`. Which category has the most? Render.
+Use the topic lookup table to profile the dataset. Attach `groups` to `market_groups`, then count how many group memberships fall into each `broad_category`, sorted from most to least common. Render.
 
 In the R Terminal, run:
 
@@ -1123,33 +1162,15 @@ market_groups |>
   count(broad_category, sort = TRUE)
 ```
 
-Expected output (approximate — verify against actual data):
-
-```
-# A tibble: 9 x 2
-  broad_category               n
-  <ord>                    <int>
-1 AI / Technology            ...
-2 Politics                   ...
-3 Economics / Finance        ...
-4 World / Geopolitics        ...
-...
-```
-
-The direction of this join matters: you are joining the junction table *up* to
-the reference table, which is a many-to-one relationship with no row explosion.
+This join does not inflate the row count because each `group_slug` points to one row in the reference table. Joining from a many-row table to a one-row-per-key lookup table is usually safe.
 
 ###
 
-The dataset skews heavily toward AI, politics, and
-economics — the three domains most actively traded on Manifold in late 2025.
-AI topics dominate partly because the Manifold user base overlaps heavily with
-the AI research and developer communities who have strong opinions (and
-sometimes insider knowledge) about model releases and benchmark results.
+The dataset skews toward economics, politics, AI, and geopolitics. That tells you what Manifold users were actively trading during this period, not necessarily what all prediction markets cover.
 
 ### Exercise 6
 
-In `markets`, parse the `created_at` and `resolved_at` columns into proper datetime objects. Compute `duration_days` — the number of days between creation and resolution. What is the median duration? The maximum? Render.
+Measure how long these markets stay open. In `markets`, parse the creation and resolution timestamps, compute each market's duration in days, and summarize the median and maximum duration. Render.
 
 In the R Terminal, run:
 
@@ -1184,29 +1205,13 @@ markets |>
   )
 ```
 
-Expected output:
-
-```
-# A tibble: 1 x 2
-  median_duration max_duration
-            <dbl>        <dbl>
-1              37          241
-```
-
 ###
 
-Most Manifold markets are created in response to breaking
-news and resolve within weeks. The median duration of 37 days reflects this.
-The data covers Sep 2025 – May 2026, a period that included Trump's second-term
-policy rollout, ongoing AI model releases, the Iran nuclear negotiations, and
-several crypto market events. Short median durations mean most of the
-interesting probability movement happens in a short window — which is exactly
-why the bucket analysis will reveal a sharp accuracy improvement near the
-deadline.
+Most markets in this sample resolve within weeks; the median duration is 36 days. Short market lifetimes mean the most informative probability changes often happen close to the resolution date.
 
 ### Exercise 7
 
-In your joined table, compute `prediction_error` — the absolute difference between the crowd's probability and the true outcome. Summarize its distribution: what is the mean error? The median? Render.
+Add the core accuracy metric to `joined`: the absolute distance between the crowd's probability and the true outcome. Summarize the mean and median prediction error so you know the baseline before considering time-to-resolution. Render.
 
 In the R Terminal, run:
 
@@ -1239,27 +1244,13 @@ joined |>
   )
 ```
 
-Expected output (approximately):
-
-```
-# A tibble: 1 x 2
-  mean_error median_error
-       <dbl>        <dbl>
-1      0.277        0.214
-```
-
 ###
 
-The unit of `prediction_error` is probability units (0 to
-1). An error of 0.28 means the crowd's forecast was 28 percentage points away
-from the true outcome, on average. An error of 0 is a perfect prediction; an
-error of 1 is completely wrong. The wide spread (some predictions close to 0,
-others close to 1) suggests that averaging across all time horizons masks a
-lot of variation — which the bucketing exercise will reveal.
+`prediction_error` is measured in probability units from 0 to 1. An average error of 0.29 means the crowd was about 29 percentage points away from the true outcome before accounting for time to resolution.
 
 ### Exercise 8
 
-Still in your joined table, compute `days_to_resolution` — the number of calendar days remaining until each market's resolution date. Summarize: how many rows have zero days remaining (the final day)? How many have one to seven days remaining? Render.
+Add a time-to-deadline field to `joined`: the number of calendar days remaining until resolution. As a data check, count how many snapshots are on the final day and how many are one to seven days from resolution. Render.
 
 In the R Terminal, run:
 
@@ -1292,32 +1283,15 @@ joined |>
   )
 ```
 
-Expected output:
-
-```
-# A tibble: 1 x 2
-  final_day one_to_seven
-      <int>        <int>
-1       800         5600
-```
-
-Exactly 800 final-day rows — one per market, since `resolved_at` is the
-calendar day of resolution. The 5,600 rows in the 1–7 day window come from
-800 markets each with up to 7 days in that range.
+There are exactly 800 final-day rows, one for each market. The 1-7 day window is larger because each market can contribute up to seven daily snapshots.
 
 ###
 
-The 43,694 total rows are not evenly distributed across
-time. Most rows fall in the 7–90 day window because that is where most of a
-typical market's lifetime is spent. The 800 final-day rows and 5,600
-one-to-seven-day rows together represent the "late game" — where the accuracy
-signal will be strongest.
+The 43,694 rows are not evenly distributed across time-to-resolution buckets. That matters because later summaries combine both accuracy and the amount of data available in each bucket.
 
 ### Exercise 9
 
-Find the market with the most traders. Extract its `market_id`, filter the
-joined table to that market's history rows, and plot `probability` over `date`,
-coloring the line by `outcome`. Render.
+Inspect one high-attention market before aggregating across all markets. Find the market with the most traders, isolate its probability history from `joined`, and plot probability over time with the final outcome encoded by line color. Render.
 
 In the R Terminal, run:
 
@@ -1357,23 +1331,13 @@ joined |>
   theme_minimal()
 ```
 
-Expected: a single probability trajectory from market creation to resolution.
-The line wanders and then converges toward 0 or 1 as the deadline approaches.
-Students see concretely what they are about to aggregate across all 800 markets.
-
 ###
 
-No two markets look alike. Some start at 0.5 and barely
-move for weeks; others spike wildly on a news event and then stabilize. What
-the aggregate analysis will reveal is whether, **on average**, markets are
-closer to the truth at the end than at the beginning — regardless of how
-erratic the individual path was. The aggregate story is in the mean; the
-individual story is in this plot.
+One market's probability path can be noisy, flat, or event-driven. The next summaries ask whether those individual paths become more accurate on average as resolution approaches.
 
 ### Exercise 10
 
-Add a `time_bucket` column to your joined table. Assign each row to one of
-five ordered categories based on `days_to_resolution`:
+Bucket each probability snapshot by how far it was from resolution. Add a `time_bucket` column to `joined` using five ordered categories:
 
 - `days_to_resolution > 90`  → `"90+ days"`
 - `days_to_resolution > 30`  → `"30–90 days"`
@@ -1381,9 +1345,7 @@ five ordered categories based on `days_to_resolution`:
 - `days_to_resolution >= 1`  → `"1–7 days"`
 - otherwise                  → `"Final day"`
 
-Then convert it to an ordered factor with levels running from `"90+ days"`
-(first) to `"Final day"` (last). Count rows per bucket. Which bucket has the
-most rows? Render.
+Make the bucket order run from `"90+ days"` to `"Final day"`, then count rows per bucket to check the distribution of snapshots. Render.
 
 In the R Terminal, run:
 
@@ -1424,32 +1386,13 @@ joined <- joined |>
 count(joined, time_bucket)
 ```
 
-Expected output:
-
-```
-# A tibble: 5 x 2
-  time_bucket     n
-  <ord>       <int>
-1 90+ days     5239
-2 30–90 days  15588
-3 7–30 days   16467
-4 1–7 days     5600
-5 Final day     800
-```
-
 ###
 
-The 7–30 day window has the most rows because most markets
-in this dataset last 30–60 days: a market created today and resolving in 45
-days spends roughly 15 of its days in the "7–30 days" window and 30 days in
-the "30–90 days" window. The sparse "90+ days" bucket comes from the small
-fraction of long-running markets (maximum duration: 241 days). Ordered factors
-preserve this natural ordering in plots — without them, **ggplot2** would sort
-the buckets alphabetically and the downward trend would disappear.
+The 7-30 day bucket has the most rows because many markets in this sample last only a few weeks. Keeping the buckets ordered is important because alphabetical order would scramble the time sequence in plots.
 
 ### Exercise 11
 
-Plot a box plot of `prediction_error` by `time_bucket`. Render.
+Compare the full error distribution across time horizons with a box plot of `prediction_error` by `time_bucket`. Render.
 
 In the R Terminal, run:
 
@@ -1483,23 +1426,13 @@ joined |>
   theme_minimal()
 ```
 
-Expected: five boxes ordered from left (90+ days: tall, centered around 0.35)
-to right (Final day: short, hugging 0). Both the median and the IQR shrink
-steadily toward the deadline.
-
 ###
 
-The shrinking **spread** matters as much as the shrinking
-**center**. A market 90 days from resolution might have any probability — the
-crowd has not locked in. On the final day, almost all markets have converged to
-a tight range near 0 or 1. The remaining outliers are the genuinely surprising
-outcomes: events that looked decided until they weren't. These are visible as
-the high-error points above the Final day box.
+The boxes should move lower and get tighter as resolution approaches. That pattern means forecasts are not only more accurate near the deadline, but also less variable.
 
 ### Exercise 12
 
-Aggregate the joined table to compute `mean_error` per `time_bucket`. Assign
-the result to `accuracy`. Print it. Render.
+Create a compact accuracy summary for the final chart: compute mean prediction error for each `time_bucket`, include the number of snapshots in each bucket, save it as `accuracy`, and print it. Render.
 
 In the R Terminal, run:
 
@@ -1529,35 +1462,13 @@ accuracy <- joined |>
 accuracy
 ```
 
-Expected output:
-
-```
-# A tibble: 5 x 3
-  time_bucket mean_error n_rows
-  <ord>            <dbl>  <int>
-1 90+ days         0.398   5239
-2 30–90 days       0.311  15588
-3 7–30 days        0.279  16467
-4 1–7 days         0.180   5600
-5 Final day        0.0901   800
-```
-
 ###
 
-The biggest single drop is from "1–7 days" (0.180) to
-"Final day" (0.090). This acceleration in the final week likely reflects a
-burst of concrete information: election results arriving overnight, company
-earnings released, game scores finalized — all of which resolve uncertainty
-that was unresolvable even a day earlier. Markets that were genuinely
-undecided at 7 days often have a clear answer by the final day. The crowd
-is not getting smarter — it is getting more information.
+The biggest drop in mean error happens between the final week and the final day. That does not necessarily mean traders suddenly become smarter; it often means more decisive information has arrived.
 
 ### Exercise 13
 
-Using `accuracy`, plot `time_bucket` on the x-axis and `mean_error` on the
-y-axis as a line-and-point chart. Title: `"Prediction markets get smarter near
-the deadline"`. Subtitle: `"Mean absolute error in Manifold Markets forecasts,
-by days remaining"`. Render.
+Use `accuracy` to make the final forecasting chart: a line-and-point plot of mean error by time bucket. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
 
 In the R Terminal, run:
 
@@ -1592,24 +1503,21 @@ ggplot(accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
   theme_minimal()
 ```
 
-Expected: a clear downward-sloping line from 0.398 (90+ days) to 0.090 (Final
-day), with five visible points. The mystery resolves.
-
 ###
 
-When `time_bucket` is a factor, `geom_line()` needs `group = 1` to know it should connect all five points into a single line — without it, ggplot2 sees no continuous grouping variable and draws nothing. This is one of the most common ggplot2 gotchas with discrete x-axes. The pattern here matches what forecasting researchers call **wisdom-of-crowds convergence**: as more information arrives and participants update their beliefs, the aggregate probability reflects reality more accurately. Philip Tetlock's work on superforecasters shows similar patterns — the best forecasters update aggressively in the final days as concrete evidence arrives. But notice that even Manifold's crowd — ordinary users, not professional forecasters — achieves a 4× accuracy improvement near the deadline. The improvement comes as much from the market mechanism as from the skill of individual bettors.
+The line shows a clear convergence pattern: average prediction error falls as markets approach resolution. This is the main result of the section, and it is exactly the kind of pattern prediction-market analysts look for.
 
 ### Exercise 14
 
 Stage `analysis.qmd`, commit with the message
 `"Add prediction market accuracy analysis"`, and push to GitHub. In the
-Terminal, run:
+bash Terminal, run:
 
 ```
 git log --oneline -3
 ```
 
-Paste the output below. CP/CR.
+CP/CR.
 
 ```{r prediction-markets-14}
 question_text(NULL,
@@ -1622,15 +1530,15 @@ question_text(NULL,
 
 ###
 
-Expected output (hashes will differ):
-
 ```
 abc1234 Add prediction market accuracy analysis
-def5678 Add crypto market price analysis
+def5678 Crypto market composition analysis
 ...
 ```
 
 ###
+
+Prediction-market accuracy improves here because resolution dates concentrate information. A final-day price is not magic; it is a market incorporating facts that often did not exist weeks earlier.
 
 ## Summary
 ###
@@ -1662,7 +1570,7 @@ question_text(NULL,
 
 ###
 
-**arrow** only understands a subset of R expressions, so before you pull data into R you may not be able to write exactly the code you normally would — the rest has to wait until the data is in R. The **arrow** documentation lists which operations it can push down to the on-disk query.
+**arrow** only understands a subset of R expressions before data is collected into memory. A good workflow is to use Arrow for filtering and selecting, then do more flexible R work after collection.
 
 ### Exercise 2
 

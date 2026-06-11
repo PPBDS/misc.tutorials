@@ -75,7 +75,10 @@ market_groups.parquet   2,820 rows x 2 cols
 
 Source: Manifold Markets public API (https://api.manifold.markets/v0)
 Vintage: Resolved binary markets, Sep 2025 – May 2026; built 2026-06-10
-License: Manifold API is fully public; no stated restrictions on data reuse
+Reuse: Public API data used for educational/non-commercial analysis. Use is
+  subject to Manifold's Terms of Service; current API docs prohibit scraping
+  outside the API, circumventing rate limits, and commercial AI/ML training on
+  API data without a separate data license.
 
 Preparation: acquire.py fetched markets + bets via Manifold API with beforeTime
   pagination; build-parquet.R converted ms timestamps to ISO-8601 strings,
