@@ -901,6 +901,7 @@ question_text(NULL,
 The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins — category shares here are approximations, not exact measures of the full crypto market. By 2026, the top 10 coins by market cap still accounted for roughly 80% of total market value, so the broad patterns hold even though the tail is missing.
 
 ## Prediction markets
+###
 
 Picture a market where people bet on whether a future event will happen: a new
 law passes, a company goes bankrupt, a model breaks a benchmark. Each trade
@@ -916,24 +917,30 @@ silently multiplies rows if you are not careful — and use
 **[forcats](https://forcats.tidyverse.org/)** to bucket time and build an
 accuracy chart.
 
----
+### Exercise 1
 
-### Phase 1 — Download and load
+Download `markets.parquet` and `history.parquet` into `data/`. The stable URLs are:
 
-```{r prediction-markets-1, echo=FALSE}
-question_text(
-  "Exercise 1: Download `markets.parquet` and `history.parquet` into `data/`.
-  Then open `history.parquet` with `open_dataset()` — do not collect it.
-  Assign the result to `history_lazy` and print it. Render. CP/CR.
+`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
+`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
 
-  Download URLs:
-  `https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
-  `https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/history.parquet`",
+Open `history.parquet` without loading it into memory — assign the result to `history_lazy` and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-1}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 4)
 ```
 
 ###
@@ -963,19 +970,25 @@ well-calibrated on short-horizon events. The events in this dataset are real
 — AI model releases, election outcomes, geopolitical events — even if the
 stakes are not.
 
-###
+### Exercise 2
 
-```{r prediction-markets-2, echo=FALSE}
-question_text(
-  "Exercise 2: `collect()` the lazy history dataset into memory. Left-join it
-  to `markets.parquet` (read with `read_parquet()`). Add a new column:
-  `outcome_numeric = if_else(outcome == \"YES\", 1, 0)`. Assign the result to
-  `joined`. How many rows does `joined` have? Render. CP/CR.",
+Bring `history_lazy` into memory. Left-join it to `markets.parquet`, which you should also read into memory. Add a column `outcome_numeric` that is 1 when the outcome is YES and 0 otherwise. Assign the result to `joined`. Print the number of rows. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-2}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 8)
 ```
 
 ###
@@ -1004,25 +1017,30 @@ matching market row appended.
 because averaging across outcomes is really averaging across two different
 crowd behaviors.
 
-###
+### Exercise 3
 
-```{r prediction-markets-3, echo=FALSE}
-question_text(
-  "Exercise 3: Download `groups.parquet` and `market_groups.parquet` into
-  `data/`. Read both with `read_parquet()`. `glimpse()` each one. How many
-  rows does each have? What do you think the relationship is between these
-  two files and `markets`?
+Download `groups.parquet` and `market_groups.parquet` into `data/`. The stable URLs are:
 
-  Download URLs:
-  `https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
-  `https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
+`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
+`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
 
-  Render. CP/CR.",
+Read both into memory. Print the structure of each — types and a few example values per column. How many rows does each have? What is the relationship between these two files and `markets`? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-3}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 6)
 ```
 
 ###
@@ -1059,20 +1077,25 @@ many markets. This many-to-many structure is about to matter.
 
 ###
 
----
+### Exercise 4
 
-### Phase 2 — Exploratory data analysis
+Left-join `markets` to `market_groups` by `market_id`. Print the number of rows in the result. Compare to the original 800-row `markets` table and describe what happened. Render.
 
-```{r prediction-markets-4, echo=FALSE}
-question_text(
-  "Exercise 4: Left-join `markets` to `market_groups` by `market_id`. How
-  many rows does the result have? Compare to the original 800-row markets
-  table and describe what happened. Render. CP/CR.",
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-4}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 5)
 ```
 
 ###
@@ -1105,19 +1128,25 @@ you pass `relationship = "many-to-many"` explicitly. The safest pattern: finish
 all market-level calculations before joining to the junction table — never join
 first and summarize second.
 
-###
+### Exercise 5
 
-```{r prediction-markets-5, echo=FALSE}
-question_text(
-  "Exercise 5: Left-join `market_groups` to `groups` by `group_slug`. This is
-  a many-to-one join (many junction rows, one reference row per group). Count
-  how many junction rows fall into each `broad_category`. Which category has
-  the most? Render. CP/CR.",
+Left-join `market_groups` to `groups` by `group_slug`. Count how many rows fall into each `broad_category`. Which category has the most? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-5}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 5)
 ```
 
 ###
@@ -1153,19 +1182,25 @@ AI topics dominate partly because the Manifold user base overlaps heavily with
 the AI research and developer communities who have strong opinions (and
 sometimes insider knowledge) about model releases and benchmark results.
 
-###
+### Exercise 6
 
-```{r prediction-markets-6, echo=FALSE}
-question_text(
-  "Exercise 6: Parse `created_at` and `resolved_at` in `markets` using
-  `ymd_hms()`. Compute `duration_days = as.numeric(as.Date(resolved_at) -
-  as.Date(created_at))`. What is the median market duration? The maximum?
-  Render. CP/CR.",
+In `markets`, parse the `created_at` and `resolved_at` columns into proper datetime objects. Compute `duration_days` — the number of days between creation and resolution. What is the median duration? The maximum? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-6}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 8)
 ```
 
 ###
@@ -1203,19 +1238,25 @@ interesting probability movement happens in a short window — which is exactly
 why the bucket analysis will reveal a sharp accuracy improvement near the
 deadline.
 
-###
+### Exercise 7
 
-```{r prediction-markets-7, echo=FALSE}
-question_text(
-  "Exercise 7: In your joined table (history left-joined to markets with
-  `outcome_numeric`), compute `prediction_error = abs(probability -
-  outcome_numeric)`. Summarize the distribution: what is the mean error?
-  The median? Render. CP/CR.",
+In your joined table, compute `prediction_error` — the absolute difference between the crowd's probability and the true outcome. Summarize its distribution: what is the mean error? The median? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-7}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 6)
 ```
 
 ###
@@ -1247,20 +1288,25 @@ error of 1 is completely wrong. The wide spread (some predictions close to 0,
 others close to 1) suggests that averaging across all time horizons masks a
 lot of variation — which the bucketing exercise will reveal.
 
-###
+### Exercise 8
 
-```{r prediction-markets-8, echo=FALSE}
-question_text(
-  "Exercise 8: Still in your joined table, compute `days_to_resolution =
-  as.numeric(as.Date(resolved_at) - date)`. This is how many days remain
-  until the market resolves for each row. Summarize: how many rows have
-  `days_to_resolution == 0` (the final day)? How many have
-  `days_to_resolution >= 1 & days_to_resolution <= 7`? Render. CP/CR.",
+Still in your joined table, compute `days_to_resolution` — the number of calendar days remaining until each market's resolution date. Summarize: how many rows have zero days remaining (the final day)? How many have one to seven days remaining? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-8}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 6)
 ```
 
 ###
@@ -1297,36 +1343,37 @@ signal will be strongest.
 
 ###
 
----
+### Exercise 9
 
-### Phase 3 — Cache the analysis
+Your working chunk now builds the joined table with `outcome_numeric`,
+`prediction_error`, and `days_to_resolution`. Clean it up: remove any
+`glimpse()`, `count()`, `summarise()`, or `nrow()` calls. Keep only the
+pipeline that defines the joined table and assigns it to a name. Label the
+chunk `prediction-markets-data` by adding `#| label: prediction-markets-data`
+to the chunk options. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r prediction-markets-9, echo=FALSE}
-question_text(
-  "Exercise 9: Your working chunk now builds the joined table with
-  `outcome_numeric`, `prediction_error`, and `days_to_resolution`. Strip
-  it down: remove any `glimpse()`, `count()`, `summarise()`, or `nrow()`
-  calls. Keep only the pipeline that defines the joined table and assigns it
-  to a name. Label the chunk `prediction-markets-data` (add
-  `#| label: prediction-markets-data` to the chunk options). Then add
-  `#| cache: true`. Render the document. When it finishes, run
-  `ls analysis_cache/` in the Terminal. Paste the output below. CP/CR.",
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 10)
 ```
 
 ###
 
-Terminal command: `ls analysis_cache/`
-
-Expected output: a subdirectory named after the cached chunk, something like:
-
-```
-prediction-markets-data_<hash>/
-```
+Expected: the chunk should contain only the pipeline that builds the joined
+table (with `outcome_numeric`, `prediction_error`, `days_to_resolution`),
+labeled `prediction-markets-data`, with no diagnostic calls.
 
 ###
 
@@ -1338,18 +1385,62 @@ events — elections with unexpected results, negotiation collapses, rapid
 policy reversals — where new information arrives without warning and the
 crowd has no privileged knowledge.
 
-###
+### Exercise 10
+
+Add `#| cache: true` to the `prediction-markets-data` chunk. Render. In the
+Terminal, run:
+
+```
+ls analysis_cache/
+```
+
+Paste the output below. CP/CR.
 
 ```{r prediction-markets-10, echo=FALSE}
-question_text(
-  "Exercise 10: Add `analysis_cache/` to your `.gitignore`. Run
-  `show_file(\".gitignore\")` in the R Console and paste the output below.
-  CP/CR.",
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Expected output: a subdirectory named after the cached chunk, something like:
+
+```
+prediction-markets-data_<hash>/
+```
+
+###
+
+**Knowledge drop:** `#| cache: true` stores the R objects a chunk produces in
+`analysis_cache/`. On the next render, Quarto checks whether the chunk's source
+code has changed; if not, it loads the cached objects instead of re-running the
+code. For Arrow pipelines this saves time because `collect()` and joins over
+large datasets can be slow. The `market_groups` junction table also illustrates
+why row counts deserve attention: joining `markets` (800 rows) to
+`market_groups` yields 2,820 rows — each market appears once per group it
+belongs to. Caching means you pay that cost only once.
+
+### Exercise 11
+
+Add `analysis_cache/` to your `.gitignore`. In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+Paste the output below. CP/CR.
+
+```{r prediction-markets-11, echo=FALSE}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
 ```
 
 ###
@@ -1367,26 +1458,32 @@ genuinely unpredictable events, no matter how close the deadline is.
 
 ###
 
----
+### Exercise 12
 
-### Phase 4 — Build toward the final graphic
+Find the market with the most traders. Extract its `market_id`, filter the
+joined table to that market's history rows, and plot `probability` over `date`,
+coloring the line by `outcome`. Render.
 
-```{r prediction-markets-11, echo=FALSE}
-question_text(
-  "Exercise 11: Find the market with the most traders using
-  `slice_max(total_traders, n = 1)` on `markets`. Extract its `market_id`.
-  Filter the joined table to just that market's history rows and plot
-  `probability` over `date`, coloring the line by `outcome`. Render. CP/CR.",
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-12, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 8)
 ```
 
 ###
 
-```{r prediction-markets-11-test}
+```{r prediction-markets-12-test}
 #| echo: true
 pm_joined |>
   filter(market_id == pm_top_market) |>
@@ -1409,38 +1506,46 @@ Students see concretely what they are about to aggregate across all 800 markets.
 
 **Knowledge drop:** No two markets look alike. Some start at 0.5 and barely
 move for weeks; others spike wildly on a news event and then stabilize. What
-the aggregate analysis in Exercise 15 will reveal is whether, **on average**,
-markets are closer to the truth at the end than at the beginning — regardless
-of how erratic the individual path was. The aggregate story is in the mean;
-the individual story is in this plot.
+the aggregate analysis will reveal is whether, **on average**, markets are
+closer to the truth at the end than at the beginning — regardless of how
+erratic the individual path was. The aggregate story is in the mean; the
+individual story is in this plot.
 
-###
+### Exercise 13
 
-```{r prediction-markets-12, echo=FALSE}
-question_text(
-  "Exercise 12: Add a `time_bucket` column to your joined table. Use
-  `case_when()` to assign each row to one of five ordered categories based
-  on `days_to_resolution`:
+Add a `time_bucket` column to your joined table. Use `case_when()` to assign
+each row to one of five ordered categories based on `days_to_resolution`:
 
-  - `days_to_resolution > 90`  → `\"90+ days\"`
-  - `days_to_resolution > 30`  → `\"30-90 days\"`
-  - `days_to_resolution > 7`   → `\"7-30 days\"`
-  - `days_to_resolution >= 1`  → `\"1-7 days\"`
-  - otherwise                  → `\"Final day\"`
+- `days_to_resolution > 90`  → `"90+ days"`
+- `days_to_resolution > 30`  → `"30–90 days"`
+- `days_to_resolution > 7`   → `"7–30 days"`
+- `days_to_resolution >= 1`  → `"1–7 days"`
+- otherwise                  → `"Final day"`
 
-  Then convert it to an ordered factor with `factor(..., ordered = TRUE)`,
-  levels running from `\"90+ days\"` (first) to `\"Final day\"` (last).
-  Count rows per bucket. Which bucket has the most rows? Render. CP/CR.",
+Then convert it to an ordered factor with `factor(..., ordered = TRUE)`, levels
+running from `"90+ days"` (first) to `"Final day"` (last). Count rows per
+bucket. Which bucket has the most rows? Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-13, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 12)
 ```
 
 ###
 
-```{r prediction-markets-12-test}
+```{r prediction-markets-13-test}
 #| echo: true
 pm_joined |>
   count(time_bucket)
@@ -1469,23 +1574,30 @@ fraction of long-running markets (maximum duration: 241 days). Ordered factors
 preserve this natural ordering in plots — without them, **ggplot2** would sort
 the buckets alphabetically and the downward trend would disappear.
 
-###
+### Exercise 14
 
-```{r prediction-markets-13, echo=FALSE}
-question_text(
-  "Exercise 13: Plot a box plot of `prediction_error` by `time_bucket`. Use
-  `theme_minimal()`. What do you observe about the center and spread of the
-  boxes as you move from '90+ days' to 'Final day'? Render. CP/CR.",
+Plot a box plot of `prediction_error` by `time_bucket`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-14, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 8)
 ```
 
 ###
 
-```{r prediction-markets-13-test}
+```{r prediction-markets-14-test}
 #| echo: true
 pm_joined |>
   ggplot(aes(x = time_bucket, y = prediction_error)) +
@@ -1511,22 +1623,31 @@ a tight range near 0 or 1. The remaining outliers are the genuinely surprising
 outcomes: events that looked decided until they weren't. These are visible as
 the high-error points above the Final day box.
 
-###
+### Exercise 15
 
-```{r prediction-markets-14, echo=FALSE}
-question_text(
-  "Exercise 14: Aggregate the joined table to compute `mean_error` per
-  `time_bucket`. Assign the result to `accuracy`. Print it. Render. CP/CR.",
+Aggregate the joined table to compute `mean_error` per `time_bucket`. Assign
+the result to `accuracy`. Print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-15, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 5)
 ```
 
 ###
 
-```{r prediction-markets-14-test}
+```{r prediction-markets-15-test}
 #| echo: true
 pm_accuracy
 ```
@@ -1554,26 +1675,35 @@ that was unresolvable even a day earlier. Markets that were genuinely
 undecided at 7 days often have a clear answer by the final day. The crowd
 is not getting smarter — it is getting more information.
 
-###
+### Exercise 16
 
-```{r prediction-markets-15, echo=FALSE}
-question_text(
-  "Exercise 15: Build the final line chart using `accuracy`. Plot `time_bucket`
-  on the x-axis and `mean_error` on the y-axis. Add `group = 1` in the
-  aesthetic so `geom_line()` connects all five points. Add `geom_line()` and
-  `geom_point()`. Title: 'Prediction markets get smarter near the deadline'.
-  Subtitle: 'Mean absolute error in Manifold Markets forecasts, by days
-  remaining'. Render. CP/CR.",
+Build the final line chart using `accuracy`. Plot `time_bucket` on the x-axis
+and `mean_error` on the y-axis. Add `group = 1` in the aesthetic so
+`geom_line()` connects all five points. Add `geom_line()` and `geom_point()`.
+Use a line-and-point chart. Title: `"Prediction markets get smarter near the
+deadline"`. Subtitle: `"Mean absolute error in Manifold Markets forecasts, by
+days remaining"`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-16, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 10)
 ```
 
 ###
 
-```{r prediction-markets-15-test}
+```{r prediction-markets-16-test}
 #| echo: true
 ggplot(pm_accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
   geom_line(linewidth = 1.2, color = "#2166ac") +
@@ -1604,25 +1734,28 @@ individual bettors.
 
 ###
 
----
+### Exercise 17
 
-### Phase 5 — Commit and push
+Stage `analysis.qmd`, commit with the message
+`"Add prediction market accuracy analysis"`, and push to GitHub. In the
+Terminal, run:
 
-```{r prediction-markets-16, echo=FALSE}
-question_text(
-  "Exercise 16: Stage `analysis.qmd`, commit with the message
-  `\"Add prediction market accuracy analysis\"`, and push to GitHub. Run
-  `git log --oneline -3` in the Terminal and paste the output below. CP/CR.",
+```
+git log --oneline -3
+```
+
+Paste the output below. CP/CR.
+
+```{r prediction-markets-17, echo=FALSE}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
-  incorrect = NULL
-)
+  incorrect = NULL,
+  rows = 5)
 ```
 
 ###
-
-Terminal command: `git log --oneline -3`
 
 Expected output (hashes will differ):
 
