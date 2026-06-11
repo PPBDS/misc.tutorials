@@ -554,30 +554,9 @@ billboard_longer |>
 
 ###
 
-Each line required AI to reshape the Billboard table from wide format — one column per week — to long format with one row per song-week. Many songs climb after entering the chart, but only a fraction stay long enough to keep rising.
+Each line required AI to reshape the Billboard table from wide format — one column per week — to long format with one row per song-week. Many songs climb after entering the chart, but only a fraction stay long enough to keep rising. Look closely and most lines end around week 20 — partly because songs fell off the chart, but also because this dataset covers songs that *entered* the Hot 100 in 2000, and data collection stopped in April 2001. A December 2000 debut could accumulate only a few weeks of data regardless of how long it actually charted. This is **right-censoring**: late arrivals appear short-lived because the observation window closed, not because the songs stopped charting.
 
 ### Exercise 10
-
-Look at your trajectory plot in the rendered HTML.
-
-###
-
-After approximately how many weeks do most song lines end? Write one sentence describing what you see.
-
-```{r billboard-hot-100-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
-```
-
-###
-
-Most lines end around week 20 — partly because songs fell off the chart, but also because this dataset covers songs that *entered* the Hot 100 in 2000, and data collection stopped in April 2001. A December 2000 debut could accumulate only a few weeks of data regardless of how long it actually charted. This is right-censoring: late arrivals appear short-lived because the observation window closed, not because the songs stopped charting.
-
-### Exercise 11
 
 The full trajectory plot is useful, but it is too dense to explain individual stories. Focus on songs that reached the top 10 and look for different kinds of hit trajectories.
 
@@ -585,7 +564,7 @@ The full trajectory plot is useful, but it is too dense to explain individual st
 
 Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-11}
+```{r billboard-hot-100-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -596,7 +575,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-hot-100-11-test}
+```{r billboard-hot-100-10-test}
 #| echo: true
 billboard_top10_stories
 ```
@@ -605,7 +584,7 @@ billboard_top10_stories
 
 Filtering to top-10 songs keeps the focus on recognizable hits while still leaving different stories to compare. Some hits peak quickly, some climb for months, and some last a long time without ever reaching number one.
 
-### Exercise 12
+### Exercise 11
 
 Plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML.
 
@@ -617,7 +596,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r billboard-hot-100-12}
+```{r billboard-hot-100-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -628,7 +607,7 @@ question_text(NULL,
 
 ###
 
-```{r billboard-hot-100-12-test}
+```{r billboard-hot-100-11-test}
 #| echo: true
 billboard_top10_longer |>
   filter(!is.na(rank)) |>
@@ -672,34 +651,13 @@ billboard_top10_longer |>
 
 ###
 
-The gray lines show the broader top-10 population; the colored lines turn three rows of the summary table into stories readers can follow. This is a common analysis move: filter to a meaningful subset, then highlight examples that explain variation inside that subset.
+The gray lines show the broader top-10 population; the colored lines turn three rows of the summary table into stories readers can follow. This is a common analysis move: filter to a meaningful subset, then highlight examples that explain variation inside that subset. The three highlighted paths show that top-10 hits do not all follow the same shape: some reach number one quickly, some climb slowly, and some stay on the chart for many weeks without ever reaching the top. A good published analysis does more than show a chart — it tells readers what pattern to notice and describes the evidence without claiming more than the data can support.
 
-### Exercise 13
-
-Add a short interpretation below the top-10 trajectory plot. In two or three sentences, explain the three highlighted paths and what they show about hit songs. Render. Paste your interpretation below.
-
-```{r billboard-hot-100-13}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-Your interpretation should say something like: top-10 hits do not all follow the same path. Some reach number one quickly, some climb slowly, and some stay on the chart for many weeks without reaching number one.
-
-###
-
-A good published analysis does more than show a chart. It tells readers what pattern to notice and describes the evidence without claiming more than the data can support.
-
-### Exercise 14
+### Exercise 12
 
 You are done iterating on the Billboard plot, so it earns caching. Add `#| cache: true` as the first line inside the Billboard plot chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved plot so Quarto can reload it on subsequent renders rather than re-running the code each time. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r billboard-hot-100-14}
+```{r billboard-hot-100-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -718,13 +676,13 @@ analysis.qmd  analysis_cache  analysis_files  analysis.html
 
 Cache finished expensive chunks, not rough exploratory work you are still changing.
 
-### Exercise 15
+### Exercise 13
 
 The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub --- they're machine-specific and regenerated on every render.
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r billboard-hot-100-15}
+```{r billboard-hot-100-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -743,7 +701,7 @@ analysis_cache
 
 The Source Control change count should drop back to whatever it was before the render. The cache is useful locally, but it is generated output and should not be pushed to GitHub.
 
-### Exercise 16
+### Exercise 14
 
 Commit and push the Billboard work. Use the commit message:
 
@@ -753,7 +711,7 @@ Add Billboard chart analysis
 
 CP/CR or write a short note describing how you committed and pushed.
 
-```{r billboard-hot-100-16}
+```{r billboard-hot-100-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -947,7 +905,7 @@ Notice the minimums. `song.year` has a minimum of 0, which is not a real release
 
 ### Exercise 7
 
-The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and in the R Terminal, run `show_file("analysis.qmd", chunk = "Last")` CP/CR.
 
 ```{r million-song-dataset-7}
 question_text(NULL,
@@ -1329,28 +1287,7 @@ music_map_data |>
 
 ###
 
-Older recordings (darker points) concentrate in the US and UK, reflecting where the recording industry was established earliest. Newer recordings (brighter points) spread more globally as recording technology and distribution became accessible worldwide. This connects the year histogram from earlier to geography: the dataset's recency bias is not uniform — it varies by region. The 54% of artists with `song.year` of 0 are excluded here, so this map is even sparser than the others.
-
-### Exercise 16
-
-Look across all four of your maps. Write two or three sentences describing the most striking geographic pattern you noticed. Which variable showed the clearest geographic signal, and what does that tell you about the data or the music industry? Render. Paste your interpretation below.
-
-```{r million-song-dataset-16}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-A strong interpretation names a specific pattern (e.g., blues clustering in the US, metal in Northern Europe, older recordings concentrated in a few countries), explains what it reflects, and acknowledges what the map can't show — the 63% of artists with missing coordinates.
-
-###
-
-A map that shows a geographic pattern is not the same as a map that explains it. Naming the limitation is part of the analysis — it tells readers what to trust and what to treat with caution.
+Older recordings (darker points) concentrate in the US and UK, reflecting where the recording industry was established earliest. Newer recordings (brighter points) spread more globally as recording technology and distribution became accessible worldwide. This connects the year histogram from earlier to geography: the dataset's recency bias is not uniform — it varies by region. The 54% of artists with `song.year` of 0 are excluded here, so this map is even sparser than the others. Across all four maps together, the clearest geographic signals come from genre and from recording age — blues clustering in the US, metal in Northern Europe, older recordings concentrated in a few countries. A map that shows a geographic pattern is not the same as a map that explains it, and naming the limitation — here, the 63% of artists with missing coordinates — is part of the analysis, because it tells readers what to trust and what to treat with caution.
 
 ## Summary
 ###
