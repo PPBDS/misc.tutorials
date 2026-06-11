@@ -32,6 +32,8 @@ options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 
 This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
+<!-- AR: don't need to tell students about dplyr, lubridate, stringr, forcats. Keep arrow. -->
+
 You will use packages including **[arrow](https://arrow.apache.org/docs/r/)** to work with parquet files, **[dplyr](https://dplyr.tidyverse.org/)** to join and summarize related tables, **[lubridate](https://lubridate.tidyverse.org/)** and **[stringr](https://stringr.tidyverse.org/)** to clean dates and text, and **[forcats](https://forcats.tidyverse.org/)** with **[viridis](https://sjmgarnier.github.io/viridis/)** to order and polish final charts. The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
@@ -152,17 +154,23 @@ analysis.html  analysis.qmd  analysis_files  data
 
 ###
 
+<!-- AR: maybe improve this one. -->
+
 Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there is less data to move from disk to memory.
 
 
 ## Crypto markets
 ###
 
+<!-- AR: Add a motivating plot at the beginning. -->
+
 Bitcoin launched the cryptocurrency market in 2009. By 2013, it represented over 90% of all crypto by market value. But by 2021, Bitcoin's share had fallen to around 40%. Where did the other 60% go?
 
 In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use packages like **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
 
 ### Exercise 1
+
+<!-- AR: Need to testing these downloads. Make sure that the data we tell kids to download is available. Use this as an opportunity to learn about testing in this package. Don't need to fully download. Just make sure the files are accessible. -->
 
 Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
 
@@ -231,6 +239,8 @@ open_dataset("../../extdata/r4ds-4/daily_prices.parquet")
 The result of `open_dataset()` is an `ArrowDataset`, not a tibble: Arrow is showing the schema without loading the rows. Notice that `date_raw` is stored as a string of text, which means you need to parse it before doing date-based analysis.
 
 ### Exercise 3
+
+<!-- AR: Load 10 random rows, then we get more variety. -->
 
 Use Arrow to do a lightweight preview of the price data: keep only observations from 2020 onward and only the fields needed for a basic market-cap analysis (`date_raw`, `coin_id`, and `market_cap_usd`). Then collect that smaller result into memory. Render.
 
@@ -373,9 +383,11 @@ The `categories` table has one row per crypto category, and `category_id` is the
 
 ### Exercise 7
 
+<!-- AR: split the join into 3 steps. Spread it out to show details of the joining.  -->
+
 Our analysis needs prices, coin details, and category labels in one place.
 
-In the same chunk, build one analysis table named `crypto` from the existing `prices`, `metadata`, and `categories` tables. Start with `prices`, join `metadata` by `coin_id`, then join `categories` by `category_id` so each daily price row has coin-level details and a human-readable category name. Both lookup tables have a `description` column; keep the coin description from `metadata` and drop the category description before joining. Print the first 5 rows instead of `categories` so you can verify the joined columns look right. Render.
+In a new chunk, build one analysis table named `crypto` from the existing `prices`, `metadata`, and `categories` tables. Start with `prices`, join `metadata` by `coin_id`, then join `categories` by `category_id` so each daily price row has coin-level details and a human-readable category name. Both lookup tables have a `description` column; keep the coin description from `metadata` and drop the category description before joining. Print the first 5 rows instead of `categories` so you can verify the joined columns look right. Render.
 
 In the R Terminal, run:
 
@@ -455,6 +467,8 @@ crypto <- crypto |>
 Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. About 5% of `market_cap_str` values are missing, which is typical of exported dashboard data and should always be checked before analysis.
 
 ### Exercise 9
+
+<!-- AR: weird to be working with metadata here...  -->
 
 Standardize the date fields before analysis. In `metadata`, parse the mixed-format `launch_date` values into a real date column called `launch_date_parsed`; some are written as `"Month Day, Year"` and the rest as `"YYYY-MM-DD"`. In `crypto`, parse `date_raw` into a real date column called `date`. Render.
 
@@ -600,6 +614,8 @@ question_text(NULL,
 
 ###
 
+<!-- AR: metadata processing is in the wrong location!! just start with the prices pipe and keep working forward from there. When there's an interesting output, do some EDAs on it (hist, plot, etc...) -->
+
 <pre><code>prices     <- open_dataset("data/daily_prices.parquet") |> collect()
 metadata   <- open_dataset("data/coin_metadata.parquet") |> collect()
 categories <- open_dataset("data/categories.parquet") |> collect()
@@ -641,6 +657,8 @@ crypto <- prices |>
 ###
 
 The cleaned `crypto` table has one row per coin per day: 59,436 rows for 22 coins from 2018 through 2026. The table is now ready for grouped summaries and time-series plots.
+
+<!-- Do the cache on the download or the data processing -->
 
 ### Exercise 13
 
@@ -703,9 +721,13 @@ analysis_cache
 
 ###
 
+<!-- AR: not wild about this KD right here. -->
+
 The FTX exchange token FTT fell from roughly $7.25B on November 7, 2022 to about $724M on November 9. Sudden event-driven collapses like this are often easiest to spot in a time-series plot.
 
 ### Exercise 15
+
+<!-- AR: look at more simple plots earlier to help us get a better sense of the data. -->
 
 Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
 
@@ -892,6 +914,8 @@ question_text(NULL,
 
 ###
 
+<!-- AR: Straight-laced title. Just name variables. Subtitle notes that bitcoin and smart contract platforms generally move opposite to each other. -->
+
 ```{r crypto-markets-19-test}
 #| echo: true
 crypto |>
@@ -951,6 +975,8 @@ The 22 coins in this dataset represent the major categories but exclude thousand
 
 ## Prediction markets
 ###
+
+<!-- AR: Show motivating plot at the beginning. -->
 
 Picture a market where people bet on whether a future event will happen: a new
 law passes, a company goes bankrupt, a model breaks a benchmark. Each trade
@@ -1549,7 +1575,7 @@ You learned about working with parquet files using **[arrow](https://arrow.apach
 
 ### Exercise 1
 
-Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plot.
+Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots.
 
 In the R Terminal, run:
 
