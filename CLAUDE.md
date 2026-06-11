@@ -15,6 +15,8 @@ These tutorials inherit the **base tutorial guide** — the default contract for
 
 **Precedence.** On workflow and shared conventions, the base guide wins. On `misc.tutorials`-specific content this file wins. Any departure from the base guide must be an **explicit, on-the-record override** stated here — never a silent difference. (The base guide already carries the *Choosing topics (misc.tutorials-specific)* section; this file does not repeat it.)
 
+**Override — no interpretation exercises.** The base guide (§4, *Analysis path*) requires a dedicated interpretation exercise after each significant visualization, asking students to write one or two sentences about what the plot shows. `misc.tutorials` does **not** follow this rule. The tutorials here are structured around AI-assisted artifact creation; students steer the analysis and judge the output, but are not asked to write prose interpretations in the QMD. Knowledge drops carry the interpretive commentary instead. Do not add interpretation exercises to any tutorial in this package.
+
 ## What this package is
 
 A collection of tutorials covering material from two companion texts:
@@ -34,7 +36,7 @@ The division of the R for Data Science material into five tutorials (`r4ds-1` �
 | `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
 | `r4ds-3` | Databases | DBI, dbplyr, duckdb, nycflights13, babynames | `*.duckdb` |
 | `r4ds-4` | Arrow / Parquet | arrow, plotly, scales, viridis | `*.parquet` |
-| `r4ds-5` | Spatial / web | sf-style GeoJSON, leaflet, ggrepel, httr2, rvest | `earthquakes.geojson` |
+| `r4ds-5` | Spatial / web | jsonlite, leaflet, purrr, httr2, rvest | `wildfires.geojson`, `imdb_snapshots.rds` |
 | `census` | Web API | tidycensus, sf | `*.rds` |
 
 ## Choosing topics
