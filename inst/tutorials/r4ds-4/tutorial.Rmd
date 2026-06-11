@@ -309,6 +309,7 @@ question_text(NULL,
 ###
 
 ```{r nba-2-test}
+#| echo: true
 open_dataset("../../extdata/r4ds-4/game.parquet") |>
   collect()
 ```
@@ -575,6 +576,7 @@ question_text(NULL,
 ###
 
 ```{r fifa-2-test}
+#| echo: true
 "../../extdata/r4ds-4/fifa.parquet" |>
   open_dataset() |>
   collect() |>
