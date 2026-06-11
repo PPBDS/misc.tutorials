@@ -22,7 +22,8 @@ data_manifest <- list(
   "r4ds-1" = c("music.csv"),
   "r4ds-2" = c("us_births_1994_2014.xlsx", "nba_recruits.xlsx"),
   "r4ds-3" = c("nameby_year.duckdb", "nycflights13.duckdb", "atus.duckdb"),
-  "r4ds-4" = c("categories.parquet", "coin_metadata.parquet", "daily_prices.parquet"),
+  "r4ds-4" = c("categories.parquet", "coin_metadata.parquet", "daily_prices.parquet",
+               "markets.parquet", "history.parquet", "groups.parquet", "market_groups.parquet"),
   "r4ds-5" = c("earthquakes.geojson"),
   "census" = c("age_ca.rds", "edu_ca.rds", "income_tx.rds")
 )
