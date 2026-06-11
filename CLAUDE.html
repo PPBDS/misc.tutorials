@@ -45,6 +45,7 @@
 <code>echo = FALSE</code>, test-chunk discipline, code-chunk labeling, the setup-chunk skeleton, data handling, and formatting conventions.</li>
 </ul><p><code>misc.tutorials</code> is one of the packages the base guide governs by default — it is <strong>not</strong> an exception (those are <code>vscode.tutorials</code> and <code>tutorial.helpers</code>).</p>
 <p><strong>Precedence.</strong> On workflow and shared conventions, the base guide wins. On <code>misc.tutorials</code>-specific content this file wins. Any departure from the base guide must be an <strong>explicit, on-the-record override</strong> stated here — never a silent difference. (The base guide already carries the <em>Choosing topics (misc.tutorials-specific)</em> section; this file does not repeat it.)</p>
+<p><strong>Override — no interpretation exercises.</strong> The base guide (§4, <em>Analysis path</em>) requires a dedicated interpretation exercise after each significant visualization, asking students to write one or two sentences about what the plot shows. <code>misc.tutorials</code> does <strong>not</strong> follow this rule. The tutorials here are structured around AI-assisted artifact creation; students steer the analysis and judge the output, but are not asked to write prose interpretations in the QMD. Knowledge drops carry the interpretive commentary instead. Do not add interpretation exercises to any tutorial in this package.</p>
 </div>
 <div class="section level2">
 <h2 id="what-this-package-is">What this package is<a class="anchor" aria-label="anchor" href="#what-this-package-is"></a></h2>
@@ -53,7 +54,7 @@
 <strong><a href="https://r4ds.hadley.nz/" class="external-link">R for Data Science (2e)</a></strong> — the <code>r4ds-1</code> … <code>r4ds-5</code> tutorials.</li>
 <li>
 <strong><a href="https://walker-data.com/census-r/" class="external-link">Analyzing US Census Data</a></strong> by Kyle Walker — the <code>census</code> tutorial.</li>
-</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, FIFA/NBA, earthquakes, census demographics) is chosen to suit it.</p>
+</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, crypto/prediction markets, wildfires/film rankings, census demographics) is chosen to suit it.</p>
 <p>The division of the R for Data Science material into five tutorials (<code>r4ds-1</code> … <code>r4ds-5</code>) is reasonable but <strong>arbitrary</strong> — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see <code>TODO.txt</code> on <code>r4ds-4</code>) or merge two short ones.</p>
 </div>
 <div class="section level2">
@@ -78,12 +79,14 @@
 <td><code>*.duckdb</code></td>
 </tr><tr><td><code>r4ds-4</code></td>
 <td>Arrow / Parquet</td>
-<td>arrow, plotly, scales, viridis</td>
+<td>arrow, viridis</td>
 <td><code>*.parquet</code></td>
 </tr><tr><td><code>r4ds-5</code></td>
 <td>Spatial / web</td>
-<td>sf-style GeoJSON, leaflet, ggrepel, httr2, rvest</td>
-<td><code>earthquakes.geojson</code></td>
+<td>jsonlite, leaflet, purrr, httr2, rvest</td>
+<td>
+<code>wildfires.geojson</code>, <code>imdb_snapshots.rds</code>
+</td>
 </tr><tr><td><code>census</code></td>
 <td>Web API</td>
 <td>tidycensus, sf</td>
@@ -103,8 +106,8 @@
 <div class="section level2">
 <h2 id="data-handling--package-specifics">Data handling — package specifics<a class="anchor" aria-label="anchor" href="#data-handling--package-specifics"></a></h2>
 <p>The base guide prefers stable source copies under <code>inst/extdata/&lt;tutorial&gt;/</code> and says to avoid <code>inst/tutorials/&lt;name&gt;/data/</code> unless there is a learnr runtime reason. <strong>All tutorials now follow this convention</strong> — the migration away from per-tutorial <code>data/</code> directories (a holdover from <code>vscode.tutorials</code>) is complete:</p>
-<ul><li>Each tutorial’s data lives in <code>inst/extdata/&lt;tutorial&gt;/</code> (e.g. <code>inst/extdata/r4ds-4/game.parquet</code>).</li>
-<li>Setup and test chunks read it with a relative path from the tutorial’s own folder: <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code> (e.g. <code>open_dataset("../../extdata/r4ds-4/game.parquet")</code>, <code>read_rds("../../extdata/census/income_tx.rds")</code>). This resolves because a tutorial knits with its folder as the working directory.</li>
+<ul><li>Each tutorial’s data lives in <code>inst/extdata/&lt;tutorial&gt;/</code> (e.g. <code>inst/extdata/r4ds-4/daily_prices.parquet</code>).</li>
+<li>Setup and test chunks read it with a relative path from the tutorial’s own folder: <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code> (e.g. <code>open_dataset("../../extdata/r4ds-4/daily_prices.parquet")</code>, <code>read_rds("../../extdata/census/income_tx.rds")</code>). This resolves because a tutorial knits with its folder as the working directory.</li>
 <li>Student-facing download URLs point at the same files on GitHub (<code>.../raw/refs/heads/main/inst/extdata/&lt;tutorial&gt;/&lt;file&gt;</code>). Students still download into their <strong>own</strong> <code>data/</code> directory and read <code>data/&lt;file&gt;</code> from their <code>analysis.qmd</code>; only the package’s own knit reads from <code>extdata</code>. (So a build/answer chunk shows <code>../../extdata/...</code> while the student’s prompt says <code>data/...</code> — an accepted cosmetic mismatch inherited from the <code>r4ds-2</code> rework.)</li>
 <li>
 <code>R/zzz.R</code> carries a <code>data_manifest</code> of the files per tutorial and an <code>.onAttach()</code> hook that re-downloads any missing ones into the installed <code>extdata/&lt;tutorial&gt;/</code> (for the CRAN build, which ships without them). <strong>Update the manifest whenever a tutorial’s data files change.</strong>
@@ -128,7 +131,7 @@
 </div>
 <div class="section level2">
 <h2 id="open-items">Open items<a class="anchor" aria-label="anchor" href="#open-items"></a></h2>
-<p>Active TODOs live in <a href="TODO.txt"><code>TODO.txt</code></a> (authoring conventions, the <code>r4ds-4</code> <code>case_when()</code> coercion warning, <code>r4ds-4</code> length / <code>r4ds-5</code> compile time, display options, and new-tutorial ideas). Consult it before starting non-trivial work, and keep it current.</p>
+<p>Active TODOs live in <a href="TODO.txt"><code>TODO.txt</code></a> (data set selection, workflow questions, display options, and new-tutorial ideas). Consult it before starting non-trivial work, and keep it current.</p>
 </div>
 </div>
 
