@@ -260,7 +260,7 @@ GeoJSON is a JSON-based geographic format. A `FeatureCollection` object holds a 
 
 ### Exercise 2
 
-Read `data/wildfires.geojson` with `read_json()` and assign it to `raw`. Print `names(raw)` and `length(raw$features)`.
+Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the top-level names of `raw` and the number of features it contains.
 
 Render.
 
@@ -289,7 +289,7 @@ length(raw$features)
 
 ### Exercise 3
 
-Pull the first fire out of `raw` with `pluck()` and show its component names. Then navigate five levels deeper to extract the first coordinate pair of that fire's boundary.
+Extract the first fire from `raw` and show its component names. Then navigate five levels deeper into the nested structure to extract the first coordinate pair of that fire's boundary.
 
 Render.
 
@@ -346,7 +346,7 @@ A list-column holds an R list as a column — each row contains one complete R l
 
 ### Exercise 5
 
-Unnest the `features` column wider. What four columns appear?
+Expand the `features` list-column so each named element becomes its own column.
 
 Render.
 
@@ -375,7 +375,7 @@ tibble(features = raw$features) |>
 
 ### Exercise 6
 
-Continue the pipeline: unnest `properties`. What eight fire attributes appear as flat columns?
+Continue the pipeline by expanding the `properties` list-column the same way.
 
 Render.
 
@@ -405,7 +405,7 @@ The eight attributes — `incident`, `gis_acres`, `fire_year`, `agency`, `state`
 
 ### Exercise 7
 
-Continue the pipeline: unnest `geometry` wider, using `names_sep` to avoid a naming collision. Then select the six columns you will need — `incident`, `gis_acres`, `fire_year`, `agency`, `state`, and `geometry_coordinates` — and coerce `gis_acres` to numeric and `fire_year` to integer. Assign the result to `fires`. Print `fires`.
+Continue the pipeline by expanding the `geometry` list-column, prefixing its new column names to avoid colliding with the existing `type` column. Then select the six columns you will need — `incident`, `gis_acres`, `fire_year`, `agency`, `state`, and `geometry_coordinates` — and coerce `gis_acres` to numeric and `fire_year` to integer. Assign the result to `fires`. Print `fires`.
 
 Render.
 
@@ -546,7 +546,7 @@ The search returns zero rows — "August Complex" is not in the dataset by that 
 
 ### Exercise 12
 
-Group `fires` by `fire_year`, sum the total acres burned each year, and plot the result as a line chart. Give it a proper title, axis labels, and caption.
+Plot the total acres burned per year in `fires` as a line chart. Give it a proper title, axis labels, and caption.
 
 Render.
 
@@ -581,11 +581,11 @@ fires |>
 
 ###
 
-Annual burned acreage in fires ≥ 10,000 acres averaged around 1.5 million acres in the 1990s and closer to 4 million by the 2010s. 2020 and 2021 stand out — both exceeded 7 million acres. Climate, accumulated fuel from decades of fire suppression, and changing land use patterns all contribute to the trend.
+Annual burned acreage in fires ≥ 10,000 acres averaged around 1.5 million acres in the 1990s and closer to 4 million by the 2010s. 2020 and 2021 stand out — both exceeded 7 million acres. Climate, accumulated fuel from decades of fire suppression, and changing land use patterns all contribute to the trend. The `state` column is a character code extracted from each fire's land-management unit identifier — geographic filtering is often this simple when the right metadata is present.
 
 ### Exercise 13
 
-Filter `fires` to the Pacific Coast states (CA, OR, WA) and re-plot the annual burned acreage. Which Pacific Coast state has the most total acres burned since 2000?
+In a new working chunk, filter `fires` to fires of at least 100,000 acres and assign the result to `big_fires`. Print it.
 
 Render.
 
@@ -597,35 +597,24 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 10)
+	rows = 6)
 ```
 
 ###
 
 ```{r wildfire-perimeters-13-test}
 #| echo: true
-fires |>
-  filter(state %in% c("CA", "OR", "WA")) |>
-  group_by(fire_year) |>
-  summarize(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
-  ggplot(aes(x = fire_year, y = total_acres)) +
-  geom_line() +
-  labs(
-    title = "Pacific Coast Wildfire Burned Area, 1990–2023",
-    subtitle = "CA, OR, WA — fires ≥ 10,000 acres",
-    x = "Year",
-    y = "Total acres burned",
-    caption = "Source: NIFC InterAgencyFirePerimeterHistory"
-  )
+big_fires <- fires |> filter(gis_acres >= 100000)
+big_fires
 ```
 
 ###
 
-Filtering to state uses a character column, not geographic coordinates — the state code was extracted from each fire's land-management unit identifier during preprocessing. Geographic filtering can be as simple as a string match when the right metadata is present.
+100,000 acres is roughly the area of Los Angeles city. These are the fires that command national news coverage and multi-week suppression efforts. Idaho has more of them than the media count suggests — California dominates news coverage but not necessarily the acreage data.
 
 ### Exercise 14
 
-In a new working chunk, filter `fires` to fires of at least 100,000 acres and assign the result to `big_fires`. Print it.
+Examine the `geometry_coordinates` column for the first fire in `big_fires`. How many coordinate pairs make up its boundary? Then write two helper functions — one computing the mean longitude and one computing the mean latitude from a polygon boundary's coordinate list — and use them to add `lon` and `lat` columns to `big_fires`. Print `big_fires`.
 
 Render.
 
@@ -637,24 +626,23 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 6)
+	rows = 14)
 ```
 
 ###
 
 ```{r wildfire-perimeters-14-test}
 #| echo: true
-big_fires <- fires |> filter(gis_acres >= 100000)
 big_fires
 ```
 
 ###
 
-100,000 acres is roughly the area of Los Angeles city. These are the fires that command national news coverage and multi-week suppression efforts. Idaho has more of them than the media count suggests — California dominates news coverage but not necessarily the acreage data.
+The first fire's boundary has hundreds of coordinate pairs. Wrapping `mean(map_dbl(coords[[1]], 1))` in a named function — rather than embedding it directly in `mutate()` — makes the pipeline readable and testable. The outer `map_dbl()` in `mutate()` applies the function once per row; the inner `map_dbl()` inside the function extracts one element from each coordinate pair within that row.
 
 ### Exercise 15
 
-Examine the `geometry_coordinates` column for the first fire in `big_fires`. How many coordinate pairs make up its boundary? Then write two functions — one returning the mean longitude and one returning the mean latitude of all points in the first ring of a `coordinates` list — and apply them to `big_fires` with `mutate()`, creating new columns `lon` and `lat`. Print `big_fires`.
+In a new working chunk, build a circle-marker leaflet map of `big_fires`, scaling the radius by the square root of `gis_acres`. Note what it looks like. Then replace it with a polygon map by loading `data/wildfires.geojson` as a raw text string and rendering the actual fire boundary polygons on the map. Compare the two.
 
 Render.
 
@@ -666,40 +654,12 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 14)
-```
-
-###
-
-```{r wildfire-perimeters-15-test}
-#| echo: true
-big_fires
-```
-
-###
-
-The first fire's boundary has hundreds of coordinate pairs. Wrapping `mean(map_dbl(coords[[1]], 1))` in a named function — rather than embedding it directly in `mutate()` — makes the pipeline readable and testable. The outer `map_dbl()` in `mutate()` applies the function once per row; the inner `map_dbl()` inside the function extracts one element from each coordinate pair within that row.
-
-### Exercise 16
-
-In a new working chunk, build a circle-marker leaflet map of `big_fires`, scaling the radius by the square root of `gis_acres`. Note what it looks like. Then replace the circle-marker code with a polygon map: read `data/wildfires.geojson` as a text string and pass it directly to leaflet using `addGeoJSON()`. Compare the two maps.
-
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r wildfire-perimeters-16}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
 	rows = 12)
 ```
 
 ###
 
-```{r wildfire-perimeters-16-test}
+```{r wildfire-perimeters-15-test}
 #| echo: true
 geojson_text <- readr::read_file("../../extdata/r4ds-5/wildfires.geojson")
 leaflet() |>
@@ -717,11 +677,11 @@ leaflet() |>
 
 `addGeoJSON()` reads a GeoJSON string and draws every feature as its actual polygon shape — no coordinate extraction required. The Dixie Fire polygon fills an area you can compare directly to county lines and city boundaries on the basemap. The shape of a fire is information that acreage alone cannot convey: whether it was a compact burn or a sprawling, wind-driven perimeter that jumped multiple ridgelines.
 
-### Exercise 17
+### Exercise 16
 
 Commit `analysis.qmd` with a message like "Add wildfire perimeters analysis" and push to GitHub. Copy/paste the URL to your GitHub repo.
 
-```{r wildfire-perimeters-17}
+```{r wildfire-perimeters-16}
 question_text(NULL,
 	answer(NULL, correct = TRUE),
 	allow_retry = TRUE,
@@ -826,8 +786,7 @@ exercises come later.
 
 ### Exercise 2
 
-Read `data/imdb_snapshots.rds` into a tibble called `imdb_snapshots`. Print it. Then
-add a `count(snap_year)` call to confirm the snapshot structure. Render.
+Read `data/imdb_snapshots.rds` into a tibble called `imdb_snapshots`. Print it, then print a count of rows per snapshot year. Render.
 
 In the R Terminal, run:
 
@@ -864,9 +823,7 @@ ratings — nearly twice as many as in 2015.
 
 ### Exercise 3
 
-Using `imdb_snapshots`, compare the 2015 and 2022 snapshots: pivot each film's rank from
-both years into its own column, drop films that appear in only one snapshot, compute how
-much each film's rank changed, and print the ten films with the largest absolute change.
+Using `imdb_snapshots`, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years.
 
 Render.
 
@@ -910,8 +867,7 @@ systematically pushing older films down, not just shuffling the deck at random.
 
 ### Exercise 4
 
-Add the film's release decade to the rank-change data. Group by decade, compute the average
-rank change per decade, and print the table sorted chronologically.
+Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically.
 
 Render.
 
@@ -1012,9 +968,7 @@ competitive. This is sometimes called the "fanbase effect."
 
 ### Exercise 6
 
-Filter `imdb_snapshots` to Interstellar. Pivot so each snapshot year's rank and vote count
-(`number`) become their own columns. Add a `vote_growth` column showing how many times the
-vote count multiplied from 2015 to 2022.
+Filter `imdb_snapshots` to Interstellar. Reshape the data so each snapshot year's rank and vote count (`number`) appear in their own columns. Add a `vote_growth` column showing how many times the vote count grew from 2015 to 2022.
 
 Render.
 
@@ -1204,10 +1158,7 @@ confirmed high-fidelity archives. The five dates used here were selected that wa
 
 ### Exercise 9
 
-In a new code chunk, build a bar chart showing the average rank change from 2015 to 2022
-for films grouped by their release decade. Use a rough first pass — `geom_col()` with
-the decade on the y-axis and the average rank change on the x-axis — and do not assign the
-plot to a variable.
+In a new code chunk, make a rough bar chart of the average rank change from 2015 to 2022 by release decade, with decade on the y-axis and average rank change on the x-axis. Do not assign the plot to a variable.
 
 Render.
 

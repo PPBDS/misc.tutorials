@@ -21,50 +21,7 @@ library(viridis)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 60, tutorial.storage = "local")
-
-# ── Prediction Markets ────────────────────────────────────────────────────────
-
-pm_markets <- read_parquet("../../extdata/r4ds-4/markets.parquet") |>
-  mutate(
-    created_at  = ymd_hms(created_at),
-    closed_at   = ymd_hms(closed_at),
-    resolved_at = ymd_hms(resolved_at)
-  )
-
-pm_history <- open_dataset("../../extdata/r4ds-4/history.parquet") |>
-  collect()
-
-pm_groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
-pm_market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
-
-pm_joined <- pm_history |>
-  left_join(pm_markets, by = "market_id") |>
-  mutate(
-    outcome_numeric    = if_else(outcome == "YES", 1, 0),
-    prediction_error   = abs(probability - outcome_numeric),
-    days_to_resolution = as.numeric(as.Date(resolved_at) - date),
-    time_bucket = factor(
-      case_when(
-        days_to_resolution >  90 ~ "90+ days",
-        days_to_resolution >  30 ~ "30–90 days",
-        days_to_resolution >   7 ~ "7–30 days",
-        days_to_resolution >=  1 ~ "1–7 days",
-        TRUE                      ~ "Final day"
-      ),
-      levels = c("90+ days", "30–90 days", "7–30 days",
-                 "1–7 days", "Final day"),
-      ordered = TRUE
-    )
-  )
-
-pm_accuracy <- pm_joined |>
-  group_by(time_bucket) |>
-  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
-
-pm_top_market <- pm_markets |>
-  slice_max(total_traders, n = 1) |>
-  pull(market_id)
+options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -124,14 +81,12 @@ Parquet files are column-oriented — organized column-by-column like R's data f
 
 ### Exercise 2
 
-In your QMD, put the following in a new code chunk to load all required libraries:
+In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
 
 ```
-suppressPackageStartupMessages({
-  library(tidyverse)
-  library(arrow)
-  library(viridis)
-})
+library(tidyverse)
+library(arrow)
+library(viridis)
 ```
 
 Also add the following to the YAML header to remove all code echoes from the HTML:
@@ -160,11 +115,10 @@ question_text(NULL,
 
 ###
 
-<pre><code>suppressPackageStartupMessages({
-  library(tidyverse)
-  library(arrow)
-  library(viridis)
-})
+<pre><code>#| message: false
+library(tidyverse)
+library(arrow)
+library(viridis)
 </code></pre>
 
 ###
@@ -206,7 +160,7 @@ Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-for
 
 Bitcoin launched the cryptocurrency market in 2009. By 2013, it represented over 90% of all crypto by market value. But by 2021, Bitcoin's share had fallen to around 40%. Where did the other 60% go?
 
-In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2024. Along the way you will use **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
+In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
 
 ### Exercise 1
 
@@ -241,7 +195,7 @@ Parquet files are column-oriented and compressed. The three files for this secti
 
 ### Exercise 2
 
-Open `data/daily_prices.parquet` with `open_dataset()`. Don't assign it or collect it — just print the result. Render.
+Open `data/daily_prices.parquet` without loading it into memory. Don't assign the result — just print it. Render.
 
 In the R Terminal, run:
 
@@ -273,7 +227,7 @@ The result is not a tibble — it is an `ArrowDataset`. Arrow is showing you the
 
 ### Exercise 3
 
-Chain a `filter()` and a `select()` onto the `open_dataset()` call, then `collect()`. Filter to years 2020 and later, and select `date_raw`, `coin_id`, and `market_cap_usd`. Render.
+Without loading the full dataset, filter to rows from 2020 onward and keep only the columns `date_raw`, `coin_id`, and `market_cap_usd`. Then pull those rows into memory. Render.
 
 In the R Terminal, run:
 
@@ -378,7 +332,7 @@ A left join keeps every row from the left table and adds matching columns from t
 
 ### Exercise 6
 
-`market_cap_str` contains values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a new column `market_cap_parsed` to `crypto` that extracts the numeric value: detect the suffix letter, extract the number with `parse_number()`, and multiply by the appropriate scale (1e12 for T, 1e9 for B, etc.). Render.
+`market_cap_str` contains values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a new column `market_cap_parsed` to `crypto` that extracts the numeric value: detect the suffix letter, extract the numeric value, and multiply by the appropriate scale (1e12 for T, 1e9 for B, etc.). Render.
 
 In the R Terminal, run:
 
@@ -498,7 +452,7 @@ Embedded newlines appear when data is scraped from a web page or copied from a d
 
 ### Exercise 9
 
-Add an `era` column to `crypto` using `case_when()` on `year(date)`: `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), `"Maturation Era"` (2022 onward). Convert it to an ordered factor with levels in chronological order. Count rows per era. Render.
+Add an `era` column to `crypto` by assigning each row to an era based on the year of `date`: `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), `"Maturation Era"` (2022 onward). Convert it to an ordered factor with levels in chronological order. Count rows per era. Render.
 
 In the R Terminal, run:
 
@@ -700,7 +654,7 @@ crypto |>
   ggplot(aes(x = date, y = total_mcap / 1e12)) +
   geom_line() +
   labs(x = NULL, y = "Total market cap (trillions USD)",
-       title = "Total crypto market capitalization, 2020–2026")
+       title = "Total crypto market capitalization, 2018–2026")
 ```
 
 ###
@@ -738,7 +692,7 @@ crypto |>
   ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
   geom_line() +
   labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
-       title = "Crypto market cap by category, 2020–2026")
+       title = "Crypto market cap by category, 2018–2026")
 ```
 
 ###
@@ -780,7 +734,7 @@ crypto |>
   ggplot(aes(x = date, y = share_pct, color = category_name)) +
   geom_line() +
   labs(x = NULL, y = "Market cap share (%)", color = NULL,
-       title = "Crypto market cap share by category, 2020–2026")
+       title = "Crypto market cap share by category, 2018–2026")
 ```
 
 ###
@@ -825,7 +779,7 @@ crypto |>
   scale_color_viridis_d(option = "plasma", end = 0.9) +
   labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
        title = "Who ate Bitcoin's lunch?",
-       subtitle = "Crypto market cap share by category, 2020–2026",
+       subtitle = "Crypto market cap share by category, 2018–2026",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
@@ -835,7 +789,7 @@ crypto |>
 
 ### Exercise 17
 
-Add annotations to highlight two historical events: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Use `annotate("rect", ...)` or `geom_vline()` — your choice. Render.
+Annotate the chart to highlight two historical events: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
 
 In the R Terminal, run:
 
@@ -875,7 +829,7 @@ crypto |>
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
   labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
        title = "Who ate Bitcoin's lunch?",
-       subtitle = "Crypto market cap share by category, 2020–2026",
+       subtitle = "Crypto market cap share by category, 2018–2026",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
@@ -921,8 +875,8 @@ accuracy chart.
 
 Download `markets.parquet` and `history.parquet` into `data/`. The stable URLs are:
 
-`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
-`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
 
 Open `history.parquet` without loading it into memory — assign the result to `history_lazy` and print it. Render.
 
@@ -947,7 +901,8 @@ question_text(NULL,
 
 ```{r prediction-markets-1-test}
 #| echo: true
-open_dataset("../../extdata/r4ds-4/history.parquet")
+history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
+history_lazy
 ```
 
 Expected output — the schema printed without loading data into memory:
@@ -962,7 +917,7 @@ $ probability <double>
 
 ###
 
-**Knowledge drop:** Manifold Markets is a play-money prediction platform
+Manifold Markets is a play-money prediction platform
 launched in 2022. Users trade with Mana (Ṁ), a fictional currency — not real
 dollars. The crowd is still incentivized to be accurate because Mana has
 social and competitive value, and research suggests play-money markets are
@@ -995,7 +950,14 @@ question_text(NULL,
 
 ```{r prediction-markets-2-test}
 #| echo: true
-nrow(pm_joined)
+markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+
+joined <- history_lazy |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
+nrow(joined)
 ```
 
 Expected output:
@@ -1010,7 +972,7 @@ matching market row appended.
 
 ###
 
-**Knowledge drop:** Prediction markets have a YES-bias problem in reverse:
+Prediction markets have a YES-bias problem in reverse:
 63% of markets in this dataset resolved NO. Most questions take the form
 "Will X happen?" — and X usually doesn't. The outcome distribution (63% NO,
 37% YES) is worth keeping in mind when interpreting summary statistics,
@@ -1021,8 +983,8 @@ crowd behaviors.
 
 Download `groups.parquet` and `market_groups.parquet` into `data/`. The stable URLs are:
 
-`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
-`https://raw.githubusercontent.com/ptweeet/misc.tutorials/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
 
 Read both into memory. Print the structure of each — types and a few example values per column. How many rows does each have? What is the relationship between these two files and `markets`? Render.
 
@@ -1047,8 +1009,11 @@ question_text(NULL,
 
 ```{r prediction-markets-3-test}
 #| echo: true
-glimpse(pm_groups)
-glimpse(pm_market_groups)
+groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
+market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
+
+glimpse(groups)
+glimpse(market_groups)
 ```
 
 Expected output:
@@ -1069,7 +1034,7 @@ $ group_slug <chr> "ai", ...
 
 ###
 
-**Knowledge drop:** The `groups` file is a reference table: one row per topic
+The `groups` file is a reference table: one row per topic
 group. The `market_groups` file is a **junction table**: it records which
 groups each market belongs to. A single market can belong to several groups
 (e.g., both "AI model releases" and "Technology"), and a single group contains
@@ -1102,8 +1067,8 @@ question_text(NULL,
 
 ```{r prediction-markets-4-test}
 #| echo: true
-pm_markets |>
-  left_join(pm_market_groups, by = "market_id") |>
+markets |>
+  left_join(market_groups, by = "market_id") |>
   nrow()
 ```
 
@@ -1121,7 +1086,7 @@ rows. Any per-market summary computed on this inflated table would be wrong.
 
 ###
 
-**Knowledge drop:** A many-to-many join occurs when the join key appears
+A many-to-many join occurs when the join key appears
 multiple times on *both* sides of the join: each market belongs to several
 groups, and each group contains many markets. **dplyr** warns about this when
 you pass `relationship = "many-to-many"` explicitly. The safest pattern: finish
@@ -1153,8 +1118,8 @@ question_text(NULL,
 
 ```{r prediction-markets-5-test}
 #| echo: true
-pm_market_groups |>
-  left_join(pm_groups, by = "group_slug") |>
+market_groups |>
+  left_join(groups, by = "group_slug") |>
   count(broad_category, sort = TRUE)
 ```
 
@@ -1176,7 +1141,7 @@ the reference table, which is a many-to-one relationship with no row explosion.
 
 ###
 
-**Knowledge drop:** The dataset skews heavily toward AI, politics, and
+The dataset skews heavily toward AI, politics, and
 economics — the three domains most actively traded on Manifold in late 2025.
 AI topics dominate partly because the Manifold user base overlaps heavily with
 the AI research and developer communities who have strong opinions (and
@@ -1207,14 +1172,15 @@ question_text(NULL,
 
 ```{r prediction-markets-6-test}
 #| echo: true
-pm_markets |>
+markets |>
+  mutate(
+    created_at  = ymd_hms(created_at),
+    resolved_at = ymd_hms(resolved_at),
+    duration_days = as.numeric(as.Date(resolved_at) - as.Date(created_at))
+  ) |>
   summarise(
-    median_duration = median(as.numeric(
-      as.Date(resolved_at) - as.Date(created_at)
-    )),
-    max_duration = max(as.numeric(
-      as.Date(resolved_at) - as.Date(created_at)
-    ))
+    median_duration = median(duration_days),
+    max_duration    = max(duration_days)
   )
 ```
 
@@ -1229,7 +1195,7 @@ Expected output:
 
 ###
 
-**Knowledge drop:** Most Manifold markets are created in response to breaking
+Most Manifold markets are created in response to breaking
 news and resolve within weeks. The median duration of 37 days reflects this.
 The data covers Sep 2025 – May 2026, a period that included Trump's second-term
 policy rollout, ongoing AI model releases, the Iran nuclear negotiations, and
@@ -1263,7 +1229,10 @@ question_text(NULL,
 
 ```{r prediction-markets-7-test}
 #| echo: true
-pm_joined |>
+joined <- joined |>
+  mutate(prediction_error = abs(probability - outcome_numeric))
+
+joined |>
   summarise(
     mean_error   = mean(prediction_error),
     median_error = median(prediction_error)
@@ -1281,7 +1250,7 @@ Expected output (approximately):
 
 ###
 
-**Knowledge drop:** The unit of `prediction_error` is probability units (0 to
+The unit of `prediction_error` is probability units (0 to
 1). An error of 0.28 means the crowd's forecast was 28 percentage points away
 from the true outcome, on average. An error of 0 is a perfect prediction; an
 error of 1 is completely wrong. The wide spread (some predictions close to 0,
@@ -1313,7 +1282,10 @@ question_text(NULL,
 
 ```{r prediction-markets-8-test}
 #| echo: true
-pm_joined |>
+joined <- joined |>
+  mutate(days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date))
+
+joined |>
   summarise(
     final_day    = sum(days_to_resolution == 0),
     one_to_seven = sum(days_to_resolution >= 1 & days_to_resolution <= 7)
@@ -1335,130 +1307,13 @@ calendar day of resolution. The 5,600 rows in the 1–7 day window come from
 
 ###
 
-**Knowledge drop:** The 43,694 total rows are not evenly distributed across
+The 43,694 total rows are not evenly distributed across
 time. Most rows fall in the 7–90 day window because that is where most of a
 typical market's lifetime is spent. The 800 final-day rows and 5,600
 one-to-seven-day rows together represent the "late game" — where the accuracy
 signal will be strongest.
 
-###
-
 ### Exercise 9
-
-Your working chunk now builds the joined table with `outcome_numeric`,
-`prediction_error`, and `days_to_resolution`. Clean it up: remove any
-`glimpse()`, `count()`, `summarise()`, or `nrow()` calls. Keep only the
-pipeline that defines the joined table and assigns it to a name. Label the
-chunk `prediction-markets-data` by adding `#| label: prediction-markets-data`
-to the chunk options. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r prediction-markets-9, echo=FALSE}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
-```
-
-###
-
-Expected: the chunk should contain only the pipeline that builds the joined
-table (with `outcome_numeric`, `prediction_error`, `days_to_resolution`),
-labeled `prediction-markets-data`, with no diagnostic calls.
-
-###
-
-**Knowledge drop:** The markets in this dataset span a wide range of topics.
-The most accurately predicted markets tend to be AI model release dates —
-where the research community follows development timelines closely and has
-strong priors. The least accurately predicted tend to be sudden geopolitical
-events — elections with unexpected results, negotiation collapses, rapid
-policy reversals — where new information arrives without warning and the
-crowd has no privileged knowledge.
-
-### Exercise 10
-
-Add `#| cache: true` to the `prediction-markets-data` chunk. Render. In the
-Terminal, run:
-
-```
-ls analysis_cache/
-```
-
-Paste the output below. CP/CR.
-
-```{r prediction-markets-10, echo=FALSE}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
-```
-
-###
-
-Expected output: a subdirectory named after the cached chunk, something like:
-
-```
-prediction-markets-data_<hash>/
-```
-
-###
-
-**Knowledge drop:** `#| cache: true` stores the R objects a chunk produces in
-`analysis_cache/`. On the next render, Quarto checks whether the chunk's source
-code has changed; if not, it loads the cached objects instead of re-running the
-code. For Arrow pipelines this saves time because `collect()` and joins over
-large datasets can be slow. The `market_groups` junction table also illustrates
-why row counts deserve attention: joining `markets` (800 rows) to
-`market_groups` yields 2,820 rows — each market appears once per group it
-belongs to. Caching means you pay that cost only once.
-
-### Exercise 11
-
-Add `analysis_cache/` to your `.gitignore`. In the R Terminal, run:
-
-```
-show_file(".gitignore")
-```
-
-Paste the output below. CP/CR.
-
-```{r prediction-markets-11, echo=FALSE}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
-```
-
-###
-
-Expected: `.gitignore` contains `analysis_cache/` on its own line.
-
-###
-
-**Knowledge drop:** The final-day mean absolute error across all 800 markets
-is 0.090. This means that even on the last day, the crowd is still meaningfully
-uncertain about roughly 1 in 10 markets. These are the "black swan" resolutions
-— events that looked nearly certain until they weren't. Prediction markets are
-not oracles. They are very good at pooling information, but they cannot predict
-genuinely unpredictable events, no matter how close the deadline is.
-
-###
-
-### Exercise 12
 
 Find the market with the most traders. Extract its `market_id`, filter the
 joined table to that market's history rows, and plot `probability` over `date`,
@@ -1472,7 +1327,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r prediction-markets-12, echo=FALSE}
+```{r prediction-markets-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1483,10 +1338,14 @@ question_text(NULL,
 
 ###
 
-```{r prediction-markets-12-test}
+```{r prediction-markets-9-test}
 #| echo: true
-pm_joined |>
-  filter(market_id == pm_top_market) |>
+top_market <- markets |>
+  slice_max(total_traders, n = 1) |>
+  pull(market_id)
+
+joined |>
+  filter(market_id == top_market) |>
   ggplot(aes(x = date, y = probability, color = outcome)) +
   geom_line(linewidth = 1.2) +
   labs(
@@ -1504,17 +1363,17 @@ Students see concretely what they are about to aggregate across all 800 markets.
 
 ###
 
-**Knowledge drop:** No two markets look alike. Some start at 0.5 and barely
+No two markets look alike. Some start at 0.5 and barely
 move for weeks; others spike wildly on a news event and then stabilize. What
 the aggregate analysis will reveal is whether, **on average**, markets are
 closer to the truth at the end than at the beginning — regardless of how
 erratic the individual path was. The aggregate story is in the mean; the
 individual story is in this plot.
 
-### Exercise 13
+### Exercise 10
 
-Add a `time_bucket` column to your joined table. Use `case_when()` to assign
-each row to one of five ordered categories based on `days_to_resolution`:
+Add a `time_bucket` column to your joined table. Assign each row to one of
+five ordered categories based on `days_to_resolution`:
 
 - `days_to_resolution > 90`  → `"90+ days"`
 - `days_to_resolution > 30`  → `"30–90 days"`
@@ -1522,9 +1381,9 @@ each row to one of five ordered categories based on `days_to_resolution`:
 - `days_to_resolution >= 1`  → `"1–7 days"`
 - otherwise                  → `"Final day"`
 
-Then convert it to an ordered factor with `factor(..., ordered = TRUE)`, levels
-running from `"90+ days"` (first) to `"Final day"` (last). Count rows per
-bucket. Which bucket has the most rows? Render.
+Then convert it to an ordered factor with levels running from `"90+ days"`
+(first) to `"Final day"` (last). Count rows per bucket. Which bucket has the
+most rows? Render.
 
 In the R Terminal, run:
 
@@ -1534,7 +1393,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r prediction-markets-13, echo=FALSE}
+```{r prediction-markets-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1545,10 +1404,24 @@ question_text(NULL,
 
 ###
 
-```{r prediction-markets-13-test}
+```{r prediction-markets-10-test}
 #| echo: true
-pm_joined |>
-  count(time_bucket)
+joined <- joined |>
+  mutate(
+    time_bucket = factor(
+      case_when(
+        days_to_resolution >  90 ~ "90+ days",
+        days_to_resolution >  30 ~ "30–90 days",
+        days_to_resolution >   7 ~ "7–30 days",
+        days_to_resolution >=  1 ~ "1–7 days",
+        TRUE                      ~ "Final day"
+      ),
+      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
+      ordered = TRUE
+    )
+  )
+
+count(joined, time_bucket)
 ```
 
 Expected output:
@@ -1566,7 +1439,7 @@ Expected output:
 
 ###
 
-**Knowledge drop:** The 7–30 day window has the most rows because most markets
+The 7–30 day window has the most rows because most markets
 in this dataset last 30–60 days: a market created today and resolving in 45
 days spends roughly 15 of its days in the "7–30 days" window and 30 days in
 the "30–90 days" window. The sparse "90+ days" bucket comes from the small
@@ -1574,7 +1447,7 @@ fraction of long-running markets (maximum duration: 241 days). Ordered factors
 preserve this natural ordering in plots — without them, **ggplot2** would sort
 the buckets alphabetically and the downward trend would disappear.
 
-### Exercise 14
+### Exercise 11
 
 Plot a box plot of `prediction_error` by `time_bucket`. Render.
 
@@ -1586,7 +1459,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r prediction-markets-14, echo=FALSE}
+```{r prediction-markets-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1597,9 +1470,9 @@ question_text(NULL,
 
 ###
 
-```{r prediction-markets-14-test}
+```{r prediction-markets-11-test}
 #| echo: true
-pm_joined |>
+joined |>
   ggplot(aes(x = time_bucket, y = prediction_error)) +
   geom_boxplot() +
   labs(
@@ -1616,14 +1489,14 @@ steadily toward the deadline.
 
 ###
 
-**Knowledge drop:** The shrinking **spread** matters as much as the shrinking
+The shrinking **spread** matters as much as the shrinking
 **center**. A market 90 days from resolution might have any probability — the
 crowd has not locked in. On the final day, almost all markets have converged to
 a tight range near 0 or 1. The remaining outliers are the genuinely surprising
 outcomes: events that looked decided until they weren't. These are visible as
 the high-error points above the Final day box.
 
-### Exercise 15
+### Exercise 12
 
 Aggregate the joined table to compute `mean_error` per `time_bucket`. Assign
 the result to `accuracy`. Print it. Render.
@@ -1636,7 +1509,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r prediction-markets-15, echo=FALSE}
+```{r prediction-markets-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1647,9 +1520,13 @@ question_text(NULL,
 
 ###
 
-```{r prediction-markets-15-test}
+```{r prediction-markets-12-test}
 #| echo: true
-pm_accuracy
+accuracy <- joined |>
+  group_by(time_bucket) |>
+  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
+
+accuracy
 ```
 
 Expected output:
@@ -1667,7 +1544,7 @@ Expected output:
 
 ###
 
-**Knowledge drop:** The biggest single drop is from "1–7 days" (0.180) to
+The biggest single drop is from "1–7 days" (0.180) to
 "Final day" (0.090). This acceleration in the final week likely reflects a
 burst of concrete information: election results arriving overnight, company
 earnings released, game scores finalized — all of which resolve uncertainty
@@ -1675,14 +1552,12 @@ that was unresolvable even a day earlier. Markets that were genuinely
 undecided at 7 days often have a clear answer by the final day. The crowd
 is not getting smarter — it is getting more information.
 
-### Exercise 16
+### Exercise 13
 
-Build the final line chart using `accuracy`. Plot `time_bucket` on the x-axis
-and `mean_error` on the y-axis. Add `group = 1` in the aesthetic so
-`geom_line()` connects all five points. Add `geom_line()` and `geom_point()`.
-Use a line-and-point chart. Title: `"Prediction markets get smarter near the
-deadline"`. Subtitle: `"Mean absolute error in Manifold Markets forecasts, by
-days remaining"`. Render.
+Using `accuracy`, plot `time_bucket` on the x-axis and `mean_error` on the
+y-axis as a line-and-point chart. Title: `"Prediction markets get smarter near
+the deadline"`. Subtitle: `"Mean absolute error in Manifold Markets forecasts,
+by days remaining"`. Render.
 
 In the R Terminal, run:
 
@@ -1692,7 +1567,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r prediction-markets-16, echo=FALSE}
+```{r prediction-markets-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1703,9 +1578,9 @@ question_text(NULL,
 
 ###
 
-```{r prediction-markets-16-test}
+```{r prediction-markets-13-test}
 #| echo: true
-ggplot(pm_accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
+ggplot(accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
   geom_line(linewidth = 1.2, color = "#2166ac") +
   geom_point(size = 3, color = "#2166ac") +
   labs(
@@ -1722,19 +1597,9 @@ day), with five visible points. The mystery resolves.
 
 ###
 
-**Knowledge drop:** The pattern here matches what forecasting researchers call
-**wisdom-of-crowds convergence**: as more information arrives and participants
-update their beliefs, the aggregate probability reflects reality more accurately.
-Philip Tetlock's work on superforecasters shows similar patterns — the best
-forecasters update aggressively in the final days as concrete evidence arrives.
-But notice that even Manifold's crowd — ordinary users, not professional
-forecasters — achieves a 4× accuracy improvement near the deadline. The
-improvement comes as much from the market mechanism as from the skill of
-individual bettors.
+When `time_bucket` is a factor, `geom_line()` needs `group = 1` to know it should connect all five points into a single line — without it, ggplot2 sees no continuous grouping variable and draws nothing. This is one of the most common ggplot2 gotchas with discrete x-axes. The pattern here matches what forecasting researchers call **wisdom-of-crowds convergence**: as more information arrives and participants update their beliefs, the aggregate probability reflects reality more accurately. Philip Tetlock's work on superforecasters shows similar patterns — the best forecasters update aggressively in the final days as concrete evidence arrives. But notice that even Manifold's crowd — ordinary users, not professional forecasters — achieves a 4× accuracy improvement near the deadline. The improvement comes as much from the market mechanism as from the skill of individual bettors.
 
-###
-
-### Exercise 17
+### Exercise 14
 
 Stage `analysis.qmd`, commit with the message
 `"Add prediction market accuracy analysis"`, and push to GitHub. In the
@@ -1746,7 +1611,7 @@ git log --oneline -3
 
 Paste the output below. CP/CR.
 
-```{r prediction-markets-17, echo=FALSE}
+```{r prediction-markets-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
