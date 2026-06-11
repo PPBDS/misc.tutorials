@@ -947,7 +947,7 @@ Notice the minimums. `song.year` has a minimum of 0, which is not a real release
 
 ### Exercise 7
 
-The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and in the R Terminal, run `show_file("analysis.qmd", chunk = "Last")` CP/CR.
 
 ```{r million-song-dataset-7}
 question_text(NULL,
