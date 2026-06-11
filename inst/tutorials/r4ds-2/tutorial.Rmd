@@ -453,13 +453,13 @@ births_tibble |>
 
 `geom_tile()` maps a two-variable grid to color — it is a natural extension of `geom_col()` and `geom_point()` to a matrix layout. `scale_y_reverse()` flips the month axis so January appears at the top, matching the convention of a wall calendar. The September cluster is immediately visible as the darkest band; the holiday notches are unmistakable dark vertical cuts.
 
-The overall color gradient from January/February (lightest) to late summer (darkest) encodes the seasonal birth wave — roughly 9% more births per day in September than in February. That gradient is the dominant signal in the heatmap; the holiday notches are sharp interruptions within it.
+The overall color gradient from January/February (lightest) to late summer (darkest) encodes the seasonal birth wave — roughly 9% more births per day in September than in February. That gradient is the dominant signal in the heatmap; the holiday notches are sharp interruptions within it. The five lightest cells are all major US holidays — December 25, December 24, January 1, July 4, and Thanksgiving (the fourth Thursday of November) — while the darkest cells run through the summer, peaking in September. That September peak sits roughly nine months after the December holiday season, a pattern sometimes called the "holiday baby boom."
 
 ### Exercise 9
 
-<!-- AR: Remove all write-in questions. -->
+Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render.
 
-Look at your rendered heatmap. Write one sentence identifying the days with the fewest births. Write one more sentence identifying the days with the most births.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-9}
 question_text(NULL,
@@ -467,38 +467,24 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 3)
+    rows = 5)
 ```
-
-```{r births-8-plot}
-births_tibble |>
-  group_by(month, date_of_month) |>
-  summarize(mean_births = mean(births), .groups = "drop") |>
-  ggplot(aes(x = date_of_month, y = month, fill = mean_births)) +
-  geom_tile(color = "white", linewidth = 0.1) +
-  scale_y_reverse(breaks = 1:12, labels = month.abb) +
-  scale_fill_gradient(low = "#fff7ec", high = "#7f0000",
-                      labels = scales::comma,
-                      name = "Mean births") +
-  labs(
-    title = "Mean US Births by Calendar Day (1994–2014)",
-    subtitle = "September peaks; holidays show deep dips (1994–2014)",
-    x = "Day of month",
-    y = NULL,
-    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
-  ) +
-  theme_minimal()
-```
-
-One possible answer: The five lightest cells, those days with the least births in the calendar, are all major US holidays: December 25, December 24, January 1, July 4, and Thanksgiving (the fourth Thursday of November). There are long spans of darker cells in the summer months, with a clear peak in September — the most births occur in late summer and early fall.
 
 ###
 
-The September peak sits roughly nine months after the December holiday season — a pattern sometimes called the "holiday baby boom." The color gradient running from lightest in January and February (the slowest birth months) to darkest in September is the dominant seasonal wave; the holiday notches are sharp vertical interruptions within it.
+
+```{r births-9-test}
+#| echo: true
+christmas_data |>
+  mutate(pct_of_baseline = round(pct_of_baseline, 3)) |>
+  select(year, christmas_births, baseline, pct_of_baseline, weekday)
+```
+
+The `weekday` column shows Christmas falling on a different day each year — Sunday in 1994, Monday in 1995, Wednesday in 1996. The `pct_of_baseline` moves noticeably from row to row, but the table alone does not reveal how much of that movement comes from the weekday, year-to-year differences in overall birth rates, or simply noise.
 
 ### Exercise 10
 
-Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render.
+Pass `christmas_data` to `summary()`. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -516,18 +502,22 @@ question_text(NULL,
 
 ```{r births-10-test}
 #| echo: true
-christmas_data |>
-  mutate(pct_of_baseline = round(pct_of_baseline, 3)) |>
-  select(year, christmas_births, baseline, pct_of_baseline, weekday)
+summary(christmas_data)
 ```
 
-The `weekday` column shows Christmas falling on a different day each year — Sunday in 1994, Monday in 1995, Wednesday in 1996. The `pct_of_baseline` moves noticeably from row to row, but the table alone does not reveal how much of that movement comes from the weekday, year-to-year differences in overall birth rates, or simply noise.
+The `pct_of_baseline` ranges from roughly 48% to 75% — a 27-point swing across just 21 Christmases, with a median around 64%. The `weekday` factor shows Christmas cycling through all seven days across the window. A 27-point spread is too large to attribute to noise alone; something systematic is driving the variation.
 
 ### Exercise 11
 
-Pass `christmas_data` to `summary()`. Render.
+Make a line and point chart of `pct_of_baseline` by year. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r births-11}
 question_text(NULL,
@@ -535,7 +525,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 5)
+    rows = 10)
 ```
 
 ###
@@ -543,14 +533,26 @@ question_text(NULL,
 
 ```{r births-11-test}
 #| echo: true
-summary(christmas_data)
+christmas_data |>
+  ggplot(aes(x = year, y = pct_of_baseline)) +
+  geom_line(color = "gray60", linewidth = 0.5) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  labs(
+    title = "Dec 25 Births as a Share of Surrounding-Day Baseline",
+    subtitle = "Year-over-year comparison looks noisy",
+    x = "Year",
+    y = "Dec 25 births as % of baseline",
+    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
+  ) +
+  theme_minimal()
 ```
 
-The `pct_of_baseline` ranges from roughly 48% to 75% — a 27-point swing across just 21 Christmases, with a median around 64%. The `weekday` factor shows Christmas cycling through all seven days across the window. A 27-point spread is too large to attribute to noise alone; something systematic is driving the variation.
+There seems to be a general downward trend as well as an oscillating pattern. Two things vary year to year that could cause this: which weekday Christmas falls on, and the underlying level of US births — 2007 was a near-record birth year while 2011–2012 were noticeably lower.
 
 ### Exercise 12
 
-Make a line and point chart of `pct_of_baseline` by year. Render.
+Update the plot to color each point by the weekday that December 25 fell on that year. Render.
 
 In the R Terminal, run:
 
@@ -575,49 +577,6 @@ question_text(NULL,
 ```{r births-12-test}
 #| echo: true
 christmas_data |>
-  ggplot(aes(x = year, y = pct_of_baseline)) +
-  geom_line(color = "gray60", linewidth = 0.5) +
-  geom_point(size = 2) +
-  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
-  labs(
-    title = "Dec 25 Births as a Share of Surrounding-Day Baseline",
-    subtitle = "Year-over-year comparison looks noisy",
-    x = "Year",
-    y = "Dec 25 births as % of baseline",
-    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
-  ) +
-  theme_minimal()
-```
-
-There seems to be a general downward trend as well as an oscillating pattern. Two things vary year to year that could cause this: which weekday Christmas falls on, and the underlying level of US births — 2007 was a near-record birth year while 2011–2012 were noticeably lower.
-
-### Exercise 13
-
-Update the plot to color each point by the weekday that December 25 fell on that year. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r births-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
-```
-
-###
-
-
-```{r births-13-test}
-#| echo: true
-christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline, color = weekday)) +
   geom_line(color = "gray70", linewidth = 0.4) +
   geom_point(size = 3) +
@@ -636,7 +595,7 @@ christmas_data |>
 
 Sunday and Saturday years cluster near the bottom of every vertical slice; Tuesday and Wednesday years cluster near the top — the confound is the day of the week. Weekends already produce roughly 40% fewer births than weekdays from scheduled deliveries alone, so a Sunday Christmas compounds the holiday effect, while a Wednesday Christmas barely adds to it.
 
-### Exercise 14
+### Exercise 13
 
 The Christmas analysis revealed two confounds blurring the year-over-year comparison: which weekday December 25 falls on, and year-to-year variation in overall birth rates. The FiveThirtyEight graphic shown at the top of this section removes all three effects — year, season, and day of week — before measuring the residual. The next four exercises build a version of that graphic.
 
@@ -646,7 +605,7 @@ Fit `lm(births ~ factor(year) + factor(month) + day_of_week, data = births_tibbl
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-14}
+```{r births-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -658,14 +617,14 @@ question_text(NULL,
 ###
 
 
-```{r births-14-test}
+```{r births-13-test}
 #| echo: true
 summary(births_model)$r.squared
 ```
 
 The model's R² of roughly 0.87 means year, month, and weekday together explain about 87% of the day-to-day variation in US birth counts. The remaining 13% is what the three factors cannot account for — and that unexplained portion is what we want: it holds the holiday signal, isolated from season and schedule.
 
-### Exercise 15
+### Exercise 14
 
 Mutate `births_tibble` to add a column `pct_resid`, equal to the residuals from `births_model` divided by the overall mean of `births` and multiplied by 100. Assign the result to `births_adjusted`. Render.
 
@@ -676,6 +635,31 @@ show_file("analysis.qmd", chunk = "Last")
 ```
 
 CP/CR.
+
+```{r births-14}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+
+```{r births-14-test}
+#| echo: true
+glimpse(births_adjusted)
+```
+
+The `pct_resid` column holds each day's residual as a percentage of the overall mean — how many percentage points above or below the model's prediction for a day with that year, season, and weekday. Most ordinary days hover near zero. The largest negative values belong to major holidays: Christmas, New Year's Day, July 4, and Thanksgiving.
+
+### Exercise 15
+
+Filter February 29 from `births_adjusted`, group by `month` and `date_of_month`, compute the mean `pct_resid` for each of the 365 calendar positions, and assign a calendar date using 2001 as a non-leap anchor year. Assign the result to `calendar_resid`. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r births-15}
 question_text(NULL,
@@ -691,37 +675,12 @@ question_text(NULL,
 
 ```{r births-15-test}
 #| echo: true
-glimpse(births_adjusted)
-```
-
-The `pct_resid` column holds each day's residual as a percentage of the overall mean — how many percentage points above or below the model's prediction for a day with that year, season, and weekday. Most ordinary days hover near zero. The largest negative values belong to major holidays: Christmas, New Year's Day, July 4, and Thanksgiving.
-
-### Exercise 16
-
-Filter February 29 from `births_adjusted`, group by `month` and `date_of_month`, compute the mean `pct_resid` for each of the 365 calendar positions, and assign a calendar date using 2001 as a non-leap anchor year. Assign the result to `calendar_resid`. Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r births-16}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
-```
-
-###
-
-
-```{r births-16-test}
-#| echo: true
 calendar_resid
 ```
 
 This collapses 7,670 daily residuals to 365 calendar positions. Each row shows how far the average birth count on that date deviates from what year, season, and weekday would predict. The December 25 row will show around −35 to −45, meaning Christmas averages roughly that many percentage points below the adjusted baseline. In contrast, typical September dates should show residuals near zero — the September peak is fully captured by the month predictor.
 
-### Exercise 17
+### Exercise 16
 
 Plot `calendar_resid` as a line chart with `calendar_date` on the x-axis and `mean_pct_resid` on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render.
 
@@ -733,7 +692,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r births-17}
+```{r births-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -745,7 +704,7 @@ question_text(NULL,
 ###
 
 
-```{r births-17-test}
+```{r births-16-test}
 #| echo: true
 calendar_resid |>
   ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
@@ -776,13 +735,13 @@ The pattern matches the FiveThirtyEight original: deep dips at Christmas, New Ye
 
 FiveThirtyEight used a Bayesian smoothing model to achieve a similar decomposition; `lm()` produces a comparable result by a more direct route. The main practical difference is that their model uses prior information to smooth estimates for rare dates like Feb 29; ours averages the few observed values directly.
 
-### Exercise 18
+### Exercise 17
 
 Commit `analysis.qmd` with the message `"Add births analysis"` and push to GitHub.
 
 CP/CR.
 
-```{r births-18}
+```{r births-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1114,11 +1073,19 @@ basketball_tibble |>
   theme_minimal()
 ```
 
-Among the four ranked groups, the funnel is clear: the "Never played" segment shrinks steadily from "#51–100" to "#1–10," while the share of players with solid, All-Star, or superstar careers grows. The top-10 group has the largest proportion of meaningful NBA careers by a wide margin. `geom_bar(position = "fill")` rescales every bar to the same total height so proportions are directly comparable across groups regardless of how many players are in each.
+Among the four ranked groups, the funnel is clear: the "Never played" segment shrinks steadily from "#51–100" to "#1–10," while the share of players with solid, All-Star, or superstar careers grows. The top-10 group has the largest proportion of meaningful NBA careers by a wide margin. `geom_bar(position = "fill")` rescales every bar to the same total height so proportions are directly comparable across groups regardless of how many players are in each. One bar breaks the funnel, though: the "Outside top 100" group shows no "Never played" segment at all, which looks better than even the top-10 group. That is a sampling artifact — those players entered the dataset through the NBA draft, so by definition they all reached the NBA, and the thousands of unranked high school players who were never drafted are simply absent, leaving that group's "Never played" denominator missing entirely.
 
 ### Exercise 11
 
-Look at your rendered bar chart. Write one sentence identifying something about one of the bars that seems off or inconsistent with the pattern in the other bars.
+Replace the code in the previous chunk to filter `basketball_tibble` to the four ranked groups (excluding `"Outside top 100"`) before plotting the proportional bar chart, so all groups share the same data structure. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r basketball-recruits-11}
 question_text(NULL,
@@ -1126,16 +1093,36 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 3)
+    rows = 10)
 ```
 
 ###
 
-The "Outside top 100" bar contains no "Never played" segment — which looks better than even the top-10 group. This is a sampling artifact: those players entered the dataset through the NBA draft, so by definition they all reached the NBA. The thousands of unranked high school players who were never drafted are simply absent, making the "Never played" denominator missing entirely for that group.
+
+```{r basketball-recruits-11-test}
+#| echo: true
+basketball_tibble |>
+  filter(recruit_group != "Outside top 100") |>
+  ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
+  geom_bar(position = "fill") +
+  coord_flip() +
+  scale_fill_brewer(palette = "RdYlGn", direction = 1) +
+  labs(
+    title = "Career Outcomes by High School Recruit Rank",
+    subtitle = "Top-100 recruits only — all groups include players who never reached the NBA",
+    x = "Recruit group",
+    y = "Proportion",
+    fill = "Career tier",
+    caption = "Source: The Pudding, 2019"
+  ) +
+  theme_minimal()
+```
+
+With the "Outside top 100" group removed, the four bars represent comparable cohorts — every group includes players who made the NBA and players who did not. The funnel is now honest: "Never played" is highest in the "#51–100" group and falls steadily toward the "#1–10" group. Removing a group that lacks a key structural feature shared by the others is a routine step in exploratory analysis; leaving it in would have led to a misleading conclusion.
 
 ### Exercise 12
 
-Replace the code in the previous chunk to filter `basketball_tibble` to the four ranked groups (excluding `"Outside top 100"`) before plotting the proportional bar chart, so all groups share the same data structure. Render.
+Replace the code in the previous chunk with a pipeline that filters `basketball_tibble` to players with non-missing `nba_mean_ws48` and creates a boxplot of career Win Shares per 48 minutes by recruit group, with recruit groups on the y-axis. Render.
 
 In the R Terminal, run:
 
@@ -1160,51 +1147,6 @@ question_text(NULL,
 ```{r basketball-recruits-12-test}
 #| echo: true
 basketball_tibble |>
-  filter(recruit_group != "Outside top 100") |>
-  ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
-  geom_bar(position = "fill") +
-  coord_flip() +
-  scale_fill_brewer(palette = "RdYlGn", direction = 1) +
-  labs(
-    title = "Career Outcomes by High School Recruit Rank",
-    subtitle = "Top-100 recruits only — all groups include players who never reached the NBA",
-    x = "Recruit group",
-    y = "Proportion",
-    fill = "Career tier",
-    caption = "Source: The Pudding, 2019"
-  ) +
-  theme_minimal()
-```
-
-With the "Outside top 100" group removed, the four bars represent comparable cohorts — every group includes players who made the NBA and players who did not. The funnel is now honest: "Never played" is highest in the "#51–100" group and falls steadily toward the "#1–10" group. Removing a group that lacks a key structural feature shared by the others is a routine step in exploratory analysis; leaving it in would have led to a misleading conclusion.
-
-### Exercise 13
-
-Replace the code in the previous chunk with a pipeline that filters `basketball_tibble` to players with non-missing `nba_mean_ws48` and creates a boxplot of career Win Shares per 48 minutes by recruit group, with recruit groups on the y-axis. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r basketball-recruits-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
-```
-
-###
-
-
-```{r basketball-recruits-13-test}
-#| echo: true
-basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
   ggplot(aes(x = fct_rev(recruit_group), y = nba_mean_ws48,
              fill = fct_rev(recruit_group))) +
@@ -1221,34 +1163,15 @@ basketball_tibble |>
   theme_minimal()
 ```
 
-This plot filters to the 369 players with real career statistics — the 1,504 with missing `nba_mean_ws48` are excluded. The medians shift slightly across groups, but the boxes overlap almost completely. Among players who actually reached the NBA, recruit rank barely predicts how good they became.
+This plot filters to the 369 players with real career statistics — the 1,504 with missing `nba_mean_ws48` are excluded. The medians shift slightly across groups, but the boxes overlap almost completely. Among players who actually reached the NBA, recruit rank barely predicts how good they became. The bar chart and the boxplot answer different questions: the bar chart showed that rank strongly predicts whether a player reaches the NBA at all, while the boxplot shows that among those who did make it, the spread within every recruit group is enormous and the medians barely differ. A higher high school rank improves your odds of an NBA career; it does not predict whether you will be good once you get there.
 
-### Exercise 14
-
-Look at your rendered boxplot. Thinking back to the proportion bar chart from Exercise 9, write one or two sentences about how the picture changes when you shift from asking "did they make the NBA?" to "how good were they once they got there?"
-
-```{r basketball-recruits-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
-```
-
-###
-
-A higher high school rank improves your odds of an NBA career; it does not necessarilypredict whether you will be good once you get there.
-
-The bar chart and the boxplot answer different questions. The bar chart shows that rank strongly predicts whether a player reaches the NBA at all. The boxplot shows that among those who did make it, the spread within every recruit group is enormous and the medians barely differ. 
-
-### Exercise 15
+### Exercise 13
 
 Replace the code in the previous chunk with a pipeline that filters `basketball_tibble` to players with non-missing `nba_mean_ws48`, arranges by descending `nba_mean_ws48`, selects `name`, `rank`, `recruit_group`, and `nba_mean_ws48`, and shows only the top 10 rows. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r basketball-recruits-15}
+```{r basketball-recruits-13}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1260,7 +1183,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-15-test}
+```{r basketball-recruits-13-test}
 #| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
@@ -1271,7 +1194,7 @@ basketball_tibble |>
 
 Stephen Curry (`rank` NA, "Outside top 100") and Damian Lillard (also "Outside top 100") appear in this table alongside players ranked first or second overall. The high school ranking services never evaluated either of them as top-100 prospects — yet both produced among the best career WS48 values in the dataset.
 
-### Exercise 16
+### Exercise 14
 
 Replace the code in the previous chunk with a pipeline that filters `basketball_tibble` to players with non-missing `rank` and `top_mean_wa`, creates a scatter plot of recruit `rank` on the x-axis and `top_mean_wa` on the y-axis colored by `tier`, adds a linear trend line, and labels at least four notable players by name. Render.
 
@@ -1283,7 +1206,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r basketball-recruits-16}
+```{r basketball-recruits-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1295,7 +1218,7 @@ question_text(NULL,
 ###
 
 
-```{r basketball-recruits-16-test}
+```{r basketball-recruits-14-test}
 #| echo: true
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
@@ -1335,13 +1258,13 @@ basketball_tibble |>
 
 The trendline is nearly flat — the correlation between recruit rank and peak career performance among players who made the NBA is approximately −0.09. LeBron James (rank 1) anchors the top left as an outlier in both dimensions. Draymond Green (#95), Klay Thompson (#58), and Gilbert Arenas (#99) all appear at the top right with high peak Wins Added. Stephen Curry and Damian Lillard do not appear here at all because their `rank` is missing — this plot actually understates how flat the relationship is.
 
-### Exercise 17
+### Exercise 15
 
 Commit `analysis.qmd` with the message `"Add basketball recruits analysis"` and push to GitHub.
 
 CP/CR.
 
-```{r basketball-recruits-17}
+```{r basketball-recruits-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -1407,7 +1330,7 @@ question_text(NULL,
 
 ###
 
-A GitHub Pages URL makes the rendered HTML publicly accessible. Unlike the Live Server URL (which only works in your Codespace), the `gh-pages` URL persists after the Codespace stops and can be shared with anyone.
+A GitHub Pages URL makes the rendered HTML publicly accessible. Unlike the Live Server URL (which only works on your own machine while the server is running), the `gh-pages` URL persists afterward and can be shared with anyone.
 
 ### Exercise 3
 

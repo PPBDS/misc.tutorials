@@ -281,36 +281,15 @@ ggplot(income_tx) +
 
 ###
 
-The **viridis** color scales are designed to be perceptually uniform and readable by colorblind viewers, which is why they have become a default for choropleths; **ggplot2** ships them, and the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice. Clearing away the gray panel and the latitude/longitude gridlines a map does not need leaves the counties to carry the message.
+The **viridis** color scales are designed to be perceptually uniform and readable by colorblind viewers, which is why they have become a default for choropleths; **ggplot2** ships them, and the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice. Clearing away the gray panel and the latitude/longitude gridlines a map does not need leaves the counties to carry the message. Reading the finished map, the highest incomes cluster in the suburban counties around the big metros — Austin, Dallas–Fort Worth, and Houston — while many rural counties, especially along the Rio Grande border in the south, carry the lowest median incomes. A published choropleth earns its place by making that pattern legible at a glance: the map tells the reader *where*, and the title and caption tell them *what to take away* and what the numbers can support.
 
 ### Exercise 5
-
-In one or two sentences, describe what the map shows. Where is median household income highest and lowest across Texas, and what pattern do you notice?
-
-```{r texas-income-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-Your answer might note that the highest incomes cluster in suburban counties around the big metros — Austin, Dallas–Fort Worth, and Houston — while many rural counties, especially along the Rio Grande border in the south, have the lowest median incomes.
-
-###
-
-A published map earns its place by making a pattern legible at a glance. The map tells the reader *where*; the caption and a sentence of interpretation tell them *what to take away* and *what the numbers can support*.
-
-### Exercise 6
 
 Commit your work. Stage `analysis.qmd`, commit with the message `"Add Texas income map"`, and push to GitHub. You can do this with your AI agent, the VS Code Source Control panel, or `git` on the command line.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r texas-income-6}
+```{r texas-income-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -513,36 +492,15 @@ edu_ca |>
 
 ###
 
-The key step is **aggregating** the five rows per county down to one. Summing the four degree counts and dividing by the county total turns raw counts into a comparable percentage. Because the data is a spatial **sf** object, collapsing those rows also dissolves each county's five identical boundaries into a single polygon — so the per-county percentages map cleanly with no extra work.
+The key step is **aggregating** the five rows per county down to one. Summing the four degree counts and dividing by the county total turns raw counts into a comparable percentage. Because the data is a spatial **sf** object, collapsing those rows also dissolves each county's five identical boundaries into a single polygon — so the per-county percentages map cleanly with no extra work. On the finished map, the coastal and urban counties — the Bay Area, around Los Angeles, and a few mountain-resort counties — show the highest shares of adults with a bachelor's degree, while many inland agricultural counties in the Central Valley and the far north show the lowest. Educational attainment is one of the strongest county-level correlates of income, so this map and the Texas income map are partly telling the same story through different variables — noticing that overlap, while resisting the urge to claim one *causes* the other from a map alone, is the kind of judgment a data scientist brings to Census work.
 
 ### Exercise 7
-
-In one or two sentences, describe the pattern. Which parts of California have the highest share of college graduates, and which have the lowest?
-
-```{r california-bachelors-degrees-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-Your answer might note that the coastal and urban counties — the Bay Area, around Los Angeles, and a few mountain-resort counties — have the highest shares of adults with a bachelor's degree, while many inland agricultural counties in the Central Valley and the far north have the lowest.
-
-###
-
-Educational attainment is one of the strongest county-level correlates of income, so this map and the Texas income map are partly telling the same story through different variables. Noticing that overlap — and resisting the urge to claim one *causes* the other from a map alone — is the kind of judgment a data scientist brings to Census work.
-
-### Exercise 8
 
 Commit your work. Stage `analysis.qmd`, commit with the message `"Add California education map"`, and push to GitHub.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-bachelors-degrees-8}
+```{r california-bachelors-degrees-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -702,32 +660,15 @@ age_ca |>
 
 ###
 
-Filtering to the 15 most populous counties is an analytical choice, not just a cosmetic one: it focuses the chart on where most Californians actually live. Sorting the bars by median age makes the comparison immediate — an unordered bar chart forces the reader to hunt — and dropping the redundant axis label keeps the focus on the counties themselves.
+Filtering to the 15 most populous counties is an analytical choice, not just a cosmetic one: it focuses the chart on where most Californians actually live. Sorting the bars by median age makes the comparison immediate — an unordered bar chart forces the reader to hunt — and dropping the redundant axis label keeps the focus on the counties themselves. Even across these largest counties the spread in median age is only several years, with college-heavy and immigrant-heavy counties skewing somewhat younger and others a few years older — a reminder that median age varies far less between places than income or education does.
 
 ### Exercise 5
-
-In one or two sentences, describe what the chart shows. Among the most populous counties, which skew older and which skew younger?
-
-```{r california-median-age-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-Your answer might note that even across the largest counties the spread in median age is only several years, with college-heavy and immigrant-heavy counties skewing somewhat younger and others a few years older — a reminder that median age varies far less between places than income or education does.
-
-### Exercise 6
 
 Commit your work. Stage `analysis.qmd`, commit with the message `"Add California age chart"`, and push to GitHub.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-median-age-6}
+```{r california-median-age-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
