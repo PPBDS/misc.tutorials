@@ -8,7 +8,7 @@ their provenance:
                                         seda_2025.duckdb, atus.duckdb
   r4ds-4/   Arrow / Parquet          — daily_prices.parquet, coin_metadata.parquet,
                                         categories.parquet
-  r4ds-5/   Spatial / web            — earthquakes.geojson
+  r4ds-5/   Spatial / web            — wildfires.geojson
   census/   Web API cache            — income_tx.rds, edu_ca.rds, age_ca.rds
 
 Student exercises download files via GitHub raw URLs into the student's own
