@@ -67,7 +67,7 @@ imdb_snapshots <- readRDS("../../extdata/r4ds-5/imdb_snapshots.rds")
 
 This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/hierarchical), [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping), [Chapter 25: Functions](https://r4ds.hadley.nz/functions), and [Chapter 26: Iterations](https://r4ds.hadley.nz/iteration) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will learn about working with nested data structures, web scraping techniques, and creating custom functions using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, and **[purrr](https://purrr.tidyverse.org/)**. Key concepts include extracting nested elements from lists, expanding list-columns into separate columns, extracting tables from HTML pages, and splitting text into structured columns using regex patterns.
+Using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will extract nested elements from lists, expand list-columns into tidy tables, scrape HTML tables from archived web pages, split compound text columns using regex, and render geographic polygon boundaries as interactive maps. The analysis uses two datasets: wildfire perimeter polygons from the National Interagency Fire Center and five archived snapshots of the IMDb Top 250 from the Wayback Machine.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -112,17 +112,11 @@ analysis_files
 
 ###
 
-List-columns come in two basic forms, named and unnamed. A **named** list labels each element, like a record:
-
-```r
-list(incident = "DIXIE", state = "CA", fire_year = 2021)
-```
-
-An **unnamed** list is just an ordered sequence — `list(-121.703, 40.182)` — whose length can vary from row to row.
+This tutorial works with two very different datasets. The first is a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US — each fire's surveyed boundary stored as nested geographic coordinates. The second is five archived snapshots of the IMDb Top 250, scraped from the Wayback Machine, covering 2015 to 2022. Together they are a study in the messiest storage formats data scientists encounter: deeply nested geographic JSON and scraped HTML tables.
 
 ### Exercise 2
 
-In your QMD, paste the following `library()` commands in a new code chunk with `#| message: false`:
+In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
 
 ```
 library(tidyverse)
@@ -206,22 +200,20 @@ analysis.html  analysis.qmd  analysis_files  data
 
 ###
 
-**jsonlite** can also read JSON with automatic simplification, which often works well for simple, regular JSON. Reading it *without* simplification keeps the full nested structure, giving you more control when you need to rectangle something complex by hand.
+**jsonlite** is R's standard package for reading and writing JSON. It is used directly when loading local JSON files like the GeoJSON you are about to download, and indirectly inside packages like **httr2**, which calls jsonlite under the hood when parsing responses from web requests. JSON is a common format for transmitting data on the web, and jsonlite is how R reads it.
 
 ## Wildfire perimeters
 ###
 
-This section focuses on working with hierarchical GeoJSON data and writing your own helper functions, using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **[leaflet](https://rstudio.github.io/leaflet/)**, and **[purrr](https://purrr.tidyverse.org/)**. You will read a GeoJSON file of finalized wildfire boundaries, rectangle it into a tidy table by unnesting several levels of nested lists, chart 33 years of burned acreage across the western US, write custom centroid functions, and build two leaflet maps — one with circle markers and one that draws the actual fire perimeters. Key concepts include navigating deeply nested lists with `pluck()`, widening list-columns with `unnest_wider()`, handling naming collisions with `names_sep`, and passing a GeoJSON string directly to leaflet.
+The **[National Interagency Fire Center](https://data-nifc.opendata.arcgis.com/)** maintains a consolidated archive of finalized wildfire perimeter polygons — one polygon per fire, with metadata on name, acreage, year, state, and managing agency — published as a GeoJSON file. GeoJSON stores geometry as deeply nested lists that often must be reformatted before they can be analyzed. Using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will flatten that nested structure, analyze 33 years of burned acreage, and render the actual fire boundaries as an interactive polygon map — the kind of visualization the [New York Times](https://www.nytimes.com/interactive/2020/us/fires-map-tracker.html) built during the 2020 fire season:
+
+```{r}
+knitr::include_graphics("images/nyt-fire-map.png")
+```
 
 ###
 
-We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) InterAgencyFirePerimeterHistory** dataset — a consolidated archive of finalized wildfire perimeter polygons contributed by the USFS, NPS, BLM, BIA, CAL FIRE, and state agencies. Each feature is a polygon representing one fire's surveyed boundary.
-
-Here is the tibble we will build:
-
-```{r wildfire-perimeters-data}
-fires
-```
+We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) InterAgencyFirePerimeterHistory** dataset — a consolidated archive of finalized wildfire perimeter polygons contributed by the USFS, NPS, BLM, BIA, CAL FIRE, and state agencies. Each feature is a polygon representing one fire's surveyed boundary. The 2020 season was one of the most destructive on record — the August Complex burned over a million acres, becoming the largest fire in California history.
 
 ### Exercise 1
 
@@ -256,11 +248,11 @@ wildfires.geojson
 
 ###
 
-GeoJSON is a JSON-based geographic format. A `FeatureCollection` object holds a `features` array in which each element is one geographic feature — here, one fire's boundary polygon along with its metadata.
+GeoJSON is a standard format for geographic data built on JSON. Each feature pairs a **geometry** — the spatial shape, stored as nested coordinate arrays — with a **properties** object holding tabular metadata like name, acreage, and year. This two-part structure (shape + attributes) is common to all geographic formats; GeoJSON is simply the JSON encoding of it.
 
 ### Exercise 2
 
-Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the top-level names of `raw` and the number of features it contains.
+Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the number of features it contains.
 
 Render.
 
@@ -272,20 +264,21 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 6)
+	rows = 5)
 ```
 
 ###
 
 ```{r wildfire-perimeters-2-test}
 #| echo: true
-names(raw)
+# your path will be "data/wildfires.geojson"
+raw <- jsonlite::read_json("../../extdata/r4ds-5/wildfires.geojson")
 length(raw$features)
 ```
 
 ###
 
-`raw$features` is a list of 883 elements — one per fire. Each element is itself a named list with components for its type, identifier, geographic shape, and tabular metadata.
+`raw` has two top-level keys: `type` (the string `"FeatureCollection"`, a GeoJSON standard marker) and `features` (the list of fires). `raw$features` holds 883 elements — one per fire — each a named list containing the fire's geographic shape and tabular metadata.
 
 ### Exercise 3
 
