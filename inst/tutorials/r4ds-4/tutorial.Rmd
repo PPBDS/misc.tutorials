@@ -32,7 +32,7 @@ options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 
 This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will use packages including **[arrow](https://arrow.apache.org/docs/r/)** to work with parquet files, **[dplyr](https://dplyr.tidyverse.org/)** to join and summarize related tables, **[lubridate](https://lubridate.tidyverse.org/)** and **[stringr](https://stringr.tidyverse.org/)** to clean dates and text, and **[forcats](https://forcats.tidyverse.org/)** with **[viridis](https://sjmgarnier.github.io/viridis/)** to order and polish final charts. The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution.
+The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution. Both sections use **[arrow](https://arrow.apache.org/docs/r/)** to read parquet files efficiently.
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
 
@@ -152,7 +152,7 @@ analysis.html  analysis.qmd  analysis_files  data
 
 ###
 
-Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-format/data-pages/encodings/) to keep file size down and supports file compression. This helps make parquet files fast because there is less data to move from disk to memory.
+Unlike CSV, which stores data row-by-row, parquet stores data **column-by-column**. When a query reads only the `close` column from a fifty-column file, parquet skips the rest of the columns entirely. Combined with built-in compression, a parquet file is typically 5–10× smaller than the equivalent CSV and loads proportionally faster.
 
 
 ## Crypto markets
@@ -160,7 +160,11 @@ Parquet relies on [efficient encodings](https://parquet.apache.org/docs/file-for
 
 Bitcoin launched the cryptocurrency market in 2009. By 2013, it represented over 90% of all crypto by market value. But by 2021, Bitcoin's share had fallen to around 40%. Where did the other 60% go?
 
-In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a line chart showing how each category's share of the total crypto market evolved from 2018 to 2026. Along the way you will use packages like **[arrow](https://arrow.apache.org/docs/r/)** to open files lazily, **[lubridate](https://lubridate.tidyverse.org/)** to parse dates, **[stringr](https://stringr.tidyverse.org/)** to clean messy fields, and **[forcats](https://forcats.tidyverse.org/)** to reorder categories for the final visualization.
+```{r}
+knitr::include_graphics("images/morningstar-chart.png")
+```
+
+In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a chart, similar to the one above from [this *Morningstar* article](https://global.morningstar.com/en-gb/economy/5-charts-on-crypto-s-past-present-and-future), showing how each category's share of the total crypto market evolved. **[Arrow](https://arrow.apache.org/docs/r/)** makes it practical to inspect and filter those files before pulling data into memory.
 
 ### Exercise 1
 
@@ -232,7 +236,7 @@ The result of `open_dataset()` is an `ArrowDataset`, not a tibble: Arrow is show
 
 ### Exercise 3
 
-Use Arrow to do a lightweight preview of the price data: keep only observations from 2020 onward and only the fields needed for a basic market-cap analysis (`date_raw`, `coin_id`, and `market_cap_usd`). Then collect that smaller result into memory. Render.
+Take a random sample of 10 rows from `data/daily_prices.parquet` and collect the result into a tibble. Do not assign it — just print it so you can see a variety of coins and dates. Render.
 
 In the R Terminal, run:
 
@@ -256,18 +260,13 @@ question_text(NULL,
 ```{r crypto-markets-3-test}
 #| echo: true
 open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
-  filter(as.integer(substr(date_raw, 1, 4)) >= 2020) |>
-  select(date_raw, coin_id, market_cap_usd) |>
-  collect()
+  collect() |>
+  slice_sample(n = 10)
 ```
 
 ###
 
-Each row is one cryptocurrency on one day. For example, the first row says Aave (`aave`) had a market cap of about $1.41 billion on October 10, 2020.
-
-###
-
-With Arrow, filtering rows and selecting columns can happen before data moves into memory, where we can work with it using R. The `collect()` call is the step that moves the filtered data into R.
+Each row records one coin on one day — for example, an `eth` row might show `market_cap_usd` near $200 billion alongside the human-readable `market_cap_str` like `$200.5B`. The data is sorted by coin ID, so the top rows would all show the same coin; a random sample gives a mix of coins and time periods.
 
 ### Exercise 4
 
@@ -294,13 +293,15 @@ question_text(NULL,
 
 ```{r crypto-markets-4-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
-prices
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+  collect()
+prices |>
+  slice_sample(n = 10)
 ```
 
 ###
 
-The `prices` table has one row per coin per day. The first row says [Aave](https://en.wikipedia.org/wiki/Aave), a cryptocurrency, on October 10, 2020 had a `market_cap_usd` of about $1.41 billion. Market cap is the total value of all circulating units of a coin at that day's price.
+The `prices` table has one row per coin per day. Each row records that coin's `price_usd`, `market_cap_usd`, and `volume_usd` for that date. Market cap is the total value of all circulating units at that day's price.
 
 ### Exercise 5
 
@@ -327,8 +328,10 @@ question_text(NULL,
 
 ```{r crypto-markets-5-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+  collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+  collect()
 metadata
 ```
 
@@ -361,9 +364,12 @@ question_text(NULL,
 
 ```{r crypto-markets-6-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
-categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+  collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+  collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |>
+  collect()
 categories
 ```
 
@@ -373,9 +379,7 @@ The `categories` table has one row per crypto category, and `category_id` is the
 
 ### Exercise 7
 
-Our analysis needs prices, coin details, and category labels in one place.
-
-In the same chunk, build one analysis table named `crypto` from the existing `prices`, `metadata`, and `categories` tables. Start with `prices`, join `metadata` by `coin_id`, then join `categories` by `category_id` so each daily price row has coin-level details and a human-readable category name. Both lookup tables have a `description` column; keep the coin description from `metadata` and drop the category description before joining. Print the first 5 rows instead of `categories` so you can verify the joined columns look right. Render.
+Let's get a feel for the raw price data. In a new chunk, filter `prices` to Bitcoin (`coin_id == "btc"`), convert `date_raw` to a proper date with `ymd()`, and draw a line chart of `price_usd` against date. Render.
 
 In the R Terminal, run:
 
@@ -398,23 +402,22 @@ question_text(NULL,
 
 ```{r crypto-markets-7-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |> collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |> collect()
-categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |> collect()
-
-crypto <- prices |>
-  left_join(metadata, by = "coin_id") |>
-  left_join(select(categories, -description), by = "category_id")
-head(crypto, 5)
+prices |>
+  filter(coin_id == "btc") |>
+  mutate(date = ymd(date_raw)) |>
+  ggplot(aes(x = date, y = price_usd)) +
+  geom_line() +
+  labs(x = NULL, y = "Price (USD)", title = "Bitcoin daily price") +
+  theme_minimal()
 ```
 
 ###
 
-A left join keeps every row from the main table and adds matching information from lookup tables. Here, the first join adds each coin's `category_id`, and the second join turns that ID into a readable category name.
+Bitcoin has gone through two distinct cycles: a peak near $65K in late 2021, and a second peak near that level in 2024.
 
 ### Exercise 8
 
-`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Add a numeric audit column, `market_cap_parsed`, that converts those display strings into dollar values by respecting the `T`, `B`, `M`, and `K` suffixes. Render.
+Now plot Bitcoin's market cap over time. Filter `prices` to `coin_id == "btc"`, convert `date_raw` with `ymd()`, and draw a line chart of `market_cap_usd` in trillions against date. Render.
 
 In the R Terminal, run:
 
@@ -430,33 +433,29 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 8)
+    rows = 5)
 ```
 
 ###
 
 ```{r crypto-markets-8-test}
 #| echo: true
-crypto <- crypto |>
-  mutate(
-    market_cap_parsed = case_when(
-      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
-      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
-      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
-      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
-      !is.na(market_cap_str) ~ parse_number(market_cap_str),
-      TRUE ~ NA_real_
-    )
-  )
+prices |>
+  filter(coin_id == "btc") |>
+  mutate(date = ymd(date_raw)) |>
+  ggplot(aes(x = date, y = market_cap_usd / 1e12)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap (USD trillions)", title = "Bitcoin market cap over time") +
+  theme_minimal()
 ```
 
 ###
 
-Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. About 5% of `market_cap_str` values are missing, which is typical of exported dashboard data and should always be checked before analysis.
+Price and market cap tell related but distinct stories. Price is what one unit costs; market cap is price × circulating supply. For Bitcoin, supply grows slowly and predictably, so the two charts look nearly identical in shape — but market cap is the right unit for comparing coins of different supply sizes, which is why it drives the analysis in later exercises.
 
 ### Exercise 9
 
-Standardize the date fields before analysis. In `metadata`, parse the mixed-format `launch_date` values into a real date column called `launch_date_parsed`; some are written as `"Month Day, Year"` and the rest as `"YYYY-MM-DD"`. In `crypto`, parse `date_raw` into a real date column called `date`. Render.
+Now compare market cap across all 22 coins. In a new chunk, draw a boxplot of `market_cap_usd` (in billions) per coin, ordered by median market cap, with a log-scale y-axis. Render.
 
 In the R Terminal, run:
 
@@ -479,25 +478,24 @@ question_text(NULL,
 
 ```{r crypto-markets-9-test}
 #| echo: true
-metadata <- metadata |>
-  mutate(
-    launch_date_parsed = case_when(
-      str_detect(launch_date, ",") ~ mdy(launch_date),
-      TRUE ~ ymd(launch_date)
-    )
-  )
-
-crypto <- crypto |>
-  mutate(date = ymd(date_raw))
+prices |>
+  ggplot(aes(x = fct_reorder(coin_id, market_cap_usd, .fun = median, na.rm = TRUE),
+             y = market_cap_usd / 1e9)) +
+  geom_boxplot() +
+  coord_flip() +
+  scale_y_log10() +
+  labs(x = NULL, y = "Market cap (USD billions, log scale)",
+       title = "Market cap distribution by coin") +
+  theme_minimal()
 ```
 
 ###
 
-Date parsers need to know the order of month, day, and year. When one column contains multiple date formats, parse each format deliberately rather than hoping one parser guesses correctly.
+Bitcoin and Ethereum sit well above the rest — roughly 10–100× larger than the next tier. The log scale is essential here: on a linear scale, every non-BTC coin collapses to near zero. The wide boxes for coins like SOL and BNB reflect high variability over time; narrow boxes reflect either stable coins (stablecoins) or coins that entered the dataset late.
 
 ### Exercise 10
 
-Clean the coin descriptions so they behave like normal text fields: replace embedded newlines (`\n`) with spaces. Confirm the fix by checking the distinct descriptions for `btc` and `eth`. Render.
+In a new chunk, join `prices` to `metadata` by `coin_id` to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render.
 
 In the R Terminal, run:
 
@@ -513,28 +511,24 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 6)
+    rows = 3)
 ```
 
 ###
 
 ```{r crypto-markets-10-test}
 #| echo: true
-crypto <- crypto |>
-  mutate(description = str_replace_all(description, "\\n", " "))
-
-crypto |>
-  filter(coin_id %in% c("btc", "eth")) |>
-  distinct(coin_id, description)
+prices |>
+  left_join(metadata, by = "coin_id")
 ```
 
 ###
 
-Embedded newlines often come from scraped web text or copied document text. They can make text fields harder to search, compare, or export, so cleaning them early prevents confusing downstream behavior.
+A left join keeps all 59,436 rows from `prices` and adds matching columns from `metadata`. Row count is unchanged because each coin appears exactly once in `metadata`.
 
 ### Exercise 11
 
-Add a market-era label to `crypto` so later summaries can use meaningful time periods. Use the year of `date` to assign `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), and `"Maturation Era"` (2022 onward). Make the labels ordered chronologically, then count rows per era as a quick check. Render.
+Before joining `categories`, check whether it shares any column names with the table you just built. Extend the pipe to handle any collision and add the join to `categories` by `category_id`. Still do not assign — just print the result. Render.
 
 In the R Terminal, run:
 
@@ -550,36 +544,25 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 5)
 ```
 
 ###
 
 ```{r crypto-markets-11-test}
 #| echo: true
-crypto <- crypto |>
-  mutate(
-    era = factor(
-      case_when(
-        year(date) <= 2016 ~ "Bitcoin Era",
-        year(date) <= 2019 ~ "ICO/Ethereum Era",
-        year(date) <= 2021 ~ "DeFi Summer",
-        TRUE ~ "Maturation Era"
-      ),
-      levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
-    )
-  )
-
-count(crypto, era)
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id")
 ```
 
 ###
 
-The era labels are interpretive, not official; different analysts might choose different boundaries. Making them ordered is useful because plots and tables should show the eras in chronological order, not alphabetical order.
+Both `metadata` and `categories` have a `description` column. Joining without resolving that collision creates `description.x` and `description.y` — confusing names that require extra cleanup. Dropping the unwanted column before joining is cleaner than renaming afterward.
 
 ### Exercise 12
 
-The `crypto` chunk is now a reusable data-preparation step. Clean it up so it keeps only the saved objects and transformations: the three table loads, the joins, and the cleaning mutations. Remove the row-count check at the bottom.
+The join pipeline is ready. Extend it to print the first 5 rows of the joined result. Render.
 
 In the R Terminal, run:
 
@@ -595,22 +578,250 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 20)
+    rows = 5)
 ```
 
 ###
 
-<pre><code>prices     <- open_dataset("data/daily_prices.parquet") |> collect()
-metadata   <- open_dataset("data/coin_metadata.parquet") |> collect()
-categories <- open_dataset("data/categories.parquet") |> collect()
+```{r crypto-markets-12-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  head(5)
+```
 
-metadata <- metadata |>
+###
+
+The `crypto` table has 59,436 rows and all the columns needed: daily prices from `prices`, coin metadata including `category_id`, and the readable `category_name` from `categories`.
+
+### Exercise 13
+
+`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Extend the pipe with a `mutate()` that adds `market_cap_parsed`, converting those display strings to numeric dollar values using the `T`, `B`, `M`, and `K` suffixes. End with a sample of 5 rows showing `coin_id`, `market_cap_str`, and `market_cap_parsed` to verify the conversion. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-13}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-13-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
   mutate(
-    launch_date_parsed = case_when(
-      str_detect(launch_date, ",") ~ mdy(launch_date),
-      TRUE ~ ymd(launch_date)
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
     )
-  )
+  ) |>
+  select(coin_id, market_cap_str, market_cap_parsed) |>
+  drop_na(market_cap_str) |>
+  slice_sample(n = 5)
+```
+
+###
+
+Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. Eyeball the sample: wherever you see a `T`-suffixed string, `market_cap_parsed` should be in the trillions; a `B`-suffix means billions.
+
+### Exercise 14
+
+The `date_raw` column is a character string, not a proper date, which means sorting, filtering by date range, and time-series plots all behave unexpectedly. Add a proper date field to the pipe so that subsequent steps can use it correctly. End with the range of dates as a sanity check. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-14}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 4)
+```
+
+###
+
+```{r crypto-markets-14-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  mutate(
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
+    ),
+    date = ymd(date_raw)
+  ) |>
+  pull(date) |>
+  range()
+```
+
+###
+
+Parquet stored `date_raw` as an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) string — the international standard format `"YYYY-MM-DD"` (e.g. `"2021-11-09"`). `ymd()` is named after that format and parses it into a proper R Date that can be sorted, subtracted, and used in time-series plots. The range confirms the dataset spans early 2018 through early 2026.
+
+### Exercise 15
+
+Add a description clean-up to the pipe's `mutate()`: replace embedded newlines (`\n`) with spaces. End with the distinct descriptions for `btc` and `eth` to confirm the fix. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-15}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
+```
+
+###
+
+```{r crypto-markets-15-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  mutate(
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
+    ),
+    date = ymd(date_raw),
+    description = str_replace_all(description, "\\n", " ")
+  ) |>
+  filter(coin_id %in% c("btc", "eth")) |>
+  distinct(coin_id, description)
+```
+
+###
+
+Embedded newlines often come from scraped web text or copied document text. They can make text fields harder to search, compare, or export, so cleaning them early prevents confusing downstream behavior.
+
+### Exercise 16
+
+Add `era` to the pipe's `mutate()` using the year of `date`: `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), and `"Maturation Era"` (2022 onward). Make the labels ordered chronologically. End with a count of rows per era. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-16}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-16-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  mutate(
+    market_cap_parsed = case_when(
+      str_detect(market_cap_str, "T") ~ parse_number(market_cap_str) * 1e12,
+      str_detect(market_cap_str, "B") ~ parse_number(market_cap_str) * 1e9,
+      str_detect(market_cap_str, "M") ~ parse_number(market_cap_str) * 1e6,
+      str_detect(market_cap_str, "K") ~ parse_number(market_cap_str) * 1e3,
+      !is.na(market_cap_str) ~ parse_number(market_cap_str),
+      TRUE ~ NA_real_
+    ),
+    date = ymd(date_raw),
+    description = str_replace_all(description, "\\n", " "),
+    era = factor(
+      case_when(
+        year(date) <= 2016 ~ "Bitcoin Era",
+        year(date) <= 2019 ~ "ICO/Ethereum Era",
+        year(date) <= 2021 ~ "DeFi Summer",
+        TRUE ~ "Maturation Era"
+      ),
+      levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
+    )
+  ) |>
+  count(era)
+```
+
+###
+
+The era labels are interpretive, not official; different analysts might choose different boundaries. Making them ordered is useful because plots and tables should show the eras in chronological order, not alphabetical order.
+
+### Exercise 17
+
+Finalize the data-preparation chunk. Add `crypto <-` to assign the pipe, and remove the `count(era)` verification at the end. Then merge the loads and the `crypto` pipe into one permanent chunk. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-17}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 20)
+```
+
+```{r crypto-markets-17-test}
+#| echo: true
+prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+  collect()
+metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+  collect()
+categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |>
+  collect()
 
 crypto <- prices |>
   left_join(metadata, by = "coin_id") |>
@@ -636,13 +847,15 @@ crypto <- prices |>
       levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
     )
   )
-</code></pre>
+
+crypto
+```
 
 ###
 
 The cleaned `crypto` table has one row per coin per day: 59,436 rows for 22 coins from 2018 through 2026. The table is now ready for grouped summaries and time-series plots.
 
-### Exercise 13
+### Exercise 18
 
 Add `#| cache: true` to the chunk. Render. This first render with caching will take a moment; subsequent renders will load from disk.
 
@@ -654,7 +867,7 @@ ls
 
 CP/CR.
 
-```{r crypto-markets-13}
+```{r crypto-markets-18}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -673,7 +886,7 @@ analysis.html  analysis.qmd  analysis_cache  analysis_files  data
 
 Stablecoin market cap can rise even when token prices stay near $1. For coins like USDT, USDC, and DAI, market-cap growth mostly reflects more dollars flowing into stable crypto-denominated assets.
 
-### Exercise 14
+### Exercise 19
 
 Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
 
@@ -685,7 +898,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r crypto-markets-14}
+```{r crypto-markets-19}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -703,9 +916,9 @@ analysis_cache
 
 ###
 
-The FTX exchange token FTT fell from roughly $7.25B on November 7, 2022 to about $724M on November 9. Sudden event-driven collapses like this are often easiest to spot in a time-series plot.
+Cache files are fully reproducible — anyone can regenerate them by rendering — so committing them just adds binary noise to the repo and can cause spurious merge conflicts if two contributors run the document on machines where the cache hashes differ.
 
-### Exercise 15
+### Exercise 20
 
 Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
 
@@ -717,7 +930,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-15}
+```{r crypto-markets-20}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -728,7 +941,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-15-test}
+```{r crypto-markets-20-test}
 #| echo: true
 crypto |>
   group_by(date) |>
@@ -743,7 +956,7 @@ crypto |>
 
 Total market cap gives context for category-share plots. Bitcoin's share can fall even while Bitcoin's dollar value rises, because the whole market is changing at the same time.
 
-### Exercise 16
+### Exercise 21
 
 Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
 
@@ -755,7 +968,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-16}
+```{r crypto-markets-21}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -766,7 +979,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-16-test}
+```{r crypto-markets-21-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -781,9 +994,9 @@ crypto |>
 
 This chart is hard to read because Bitcoin dominates the absolute dollar scale. When one group dwarfs the others, plotting each group's share of the total often reveals patterns that the raw values hide.
 
-### Exercise 17
+### Exercise 22
 
-Convert the category totals into daily market-share percentages so smaller categories are visible on a common scale. Plot category share over time as a multi-line chart. Render.
+Now build a stacked area chart of category market-cap shares over time. The total height of the chart should always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render.
 
 In the R Terminal, run:
 
@@ -793,7 +1006,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-17}
+```{r crypto-markets-22}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -804,26 +1017,23 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-17-test}
+```{r crypto-markets-22-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
-  geom_line() +
-  labs(x = NULL, y = "Market cap share (%)", color = NULL,
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
        title = "Crypto market cap share by category, 2018–2026")
 ```
 
 ###
 
-The share plot reveals different category trajectories that were hidden on the absolute scale. Bitcoin, stablecoins, DeFi, and meme coins each move differently, which is the answer to the tutorial's guiding question.
+The stacked area chart reveals each category's relative dominance at every point in time. `position = "fill"` handles the normalisation automatically — ggplot divides each layer's value by the column total, so no manual percentage calculation is needed. Bitcoin's band narrows visibly over the period as smart-contract platforms and stablecoins claimed more of the market.
 
-### Exercise 18
+### Exercise 23
 
 Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. Render.
 
@@ -835,7 +1045,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-18}
+```{r crypto-markets-23}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -846,22 +1056,19 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-18-test}
+```{r crypto-markets-23-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
-  geom_line(linewidth = 0.8) +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
-  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
-       title = "Who ate Bitcoin's lunch?",
-       subtitle = "Crypto market cap share by category, 2018–2026",
+  mutate(category_name = fct_reorder(category_name, cat_mcap, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_fill_viridis_d(option = "plasma", end = 0.9) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
+       title = "Crypto market cap share by category, 2018–2026",
+       subtitle = "Bitcoin's share fell as smart-contract platforms and stablecoins grew",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
@@ -869,7 +1076,7 @@ crypto |>
 
 Ordering the legend by typical category size makes the plot easier to scan. Colorblind-safe palettes are a good default because charts are often viewed in many formats and by many audiences.
 
-### Exercise 19
+### Exercise 24
 
 Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
 
@@ -881,7 +1088,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-19}
+```{r crypto-markets-24}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -892,34 +1099,31 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-19-test}
+```{r crypto-markets-24-test}
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
-  geom_line(linewidth = 0.8) +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  mutate(category_name = fct_reorder(category_name, cat_mcap, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_fill_viridis_d(option = "plasma", end = 0.9) +
+  scale_y_continuous(labels = scales::percent) +
   annotate("rect", xmin = as.Date("2022-05-07"), xmax = as.Date("2022-05-12"),
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
   annotate("rect", xmin = as.Date("2022-11-08"), xmax = as.Date("2022-11-11"),
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
-  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
-       title = "Who ate Bitcoin's lunch?",
-       subtitle = "Crypto market cap share by category, 2018–2026",
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
+       title = "Crypto market cap share by category, 2018–2026",
+       subtitle = "Bitcoin's share fell as smart-contract platforms and stablecoins grew",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
 ###
 
-UST was an algorithmic stablecoin, meaning it tried to hold a $1 value through a mechanism rather than dollar reserves. Its May 2022 collapse is a reminder that categories can contain very different kinds of assets.
+UST was an algorithmic stablecoin — it tried to hold a $1 value through a mechanism rather than dollar reserves. Its May 2022 collapse wiped roughly $40B from the market in days. The FTX exchange token FTT then fell from roughly $7.25B on November 7, 2022 to about $724M on November 9 when FTX halted withdrawals. The two events are distinct in kind (algorithmic failure vs. exchange insolvency) but both show how quickly confidence can evaporate in less-regulated markets.
 
-### Exercise 20
+### Exercise 25
 
 Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub. In the bash Terminal, run:
 
@@ -929,7 +1133,7 @@ git log --oneline -3
 
 CP/CR.
 
-```{r crypto-markets-20}
+```{r crypto-markets-25}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -958,13 +1162,17 @@ moves the price toward the bettor's belief, and the current price is the
 crowd's best estimate of the probability of YES. As the resolution date
 approaches and more information becomes available, does the crowd get smarter?
 
+```{r}
+knitr::include_graphics("images/pm-accuracy-chart.png")
+```
+
 In this section you will join four parquet files representing 800 resolved
 markets and 43,694 daily probability snapshots to answer that question. Along
 the way you will encounter a **many-to-many join** — a table relationship that
-silently multiplies rows if you are not careful — and use
-**[lubridate](https://lubridate.tidyverse.org/)** and
-**[forcats](https://forcats.tidyverse.org/)** to bucket time and build an
-accuracy chart.
+silently multiplies rows if you are not careful — and build two charts: one
+that tracks whether prediction markets converge as the resolution date
+approaches, and a calibration curve that tests whether crowd probabilities are
+accurate in a deeper sense.
 
 ### Exercise 1
 
@@ -1036,7 +1244,7 @@ joined <- history_lazy |>
   left_join(markets, by = "market_id") |>
   mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
 
-nrow(joined)
+joined |> nrow()
 ```
 
 The row count does not change. This is a one-to-many join: one market row
@@ -1088,8 +1296,8 @@ joined <- history_lazy |>
 groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
 market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
 
-glimpse(groups)
-glimpse(market_groups)
+groups |> glimpse()
+market_groups |> glimpse()
 ```
 
 ###
@@ -1383,7 +1591,7 @@ joined <- joined |>
     )
   )
 
-count(joined, time_bucket)
+joined |> count(time_bucket)
 ```
 
 ###
@@ -1491,7 +1699,8 @@ question_text(NULL,
 
 ```{r prediction-markets-13-test}
 #| echo: true
-ggplot(accuracy, aes(x = time_bucket, y = mean_error, group = 1)) +
+accuracy |>
+  ggplot(aes(x = time_bucket, y = mean_error, group = 1)) +
   geom_line(linewidth = 1.2, color = "#2166ac") +
   geom_point(size = 3, color = "#2166ac") +
   labs(
@@ -1509,6 +1718,125 @@ The line shows a clear convergence pattern: average prediction error falls as ma
 
 ### Exercise 14
 
+Convergence tells you markets get more accurate over time, but a deeper question is whether they are well-calibrated — meaning a 70% prediction actually resolves YES 70% of the time. Before testing calibration, get a feel for how the final-day probabilities are distributed. Filter `joined` to snapshots where `days_to_resolution == 0` and plot a histogram of `probability`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-14}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-14-test}
+#| echo: true
+joined |>
+  filter(days_to_resolution == 0) |>
+  ggplot(aes(x = probability)) +
+  geom_histogram(bins = 20, fill = "#2166ac", alpha = 0.7) +
+  labs(x = "Final-day probability", y = "Number of markets",
+       title = "Most markets resolve near certainty") +
+  theme_minimal()
+```
+
+###
+
+The histogram should show a sharp bimodal spike near 0 and 1 — most markets have already converged to near certainty by resolution day. That pattern also tells you where calibration data will be sparse: the middle bins (40–60%) have few markets because genuine uncertainty rarely persists to the final day.
+
+### Exercise 15
+
+Build the calibration table. From the final-day snapshots, bin each market's probability to the nearest 10 percentage points with `round(probability * 10) / 10`, then for each bin compute the fraction that actually resolved YES (`actual_rate`) and the count of markets (`n`). Save the result as `calibration` and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-15}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-15-test}
+#| echo: true
+calibration <- joined |>
+  filter(days_to_resolution == 0) |>
+  mutate(prob_bin = round(probability * 10) / 10) |>
+  group_by(prob_bin) |>
+  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
+
+calibration
+```
+
+###
+
+The calibration table is the building block of any probabilistic evaluation. For each predicted-probability bin, it records what fraction of events actually happened. If the market is perfectly calibrated, the 0.7 bin's `actual_rate` should be 0.70. Notice that the extreme bins (0 and 1) have the most markets — confirming what the histogram showed.
+
+### Exercise 16
+
+Plot the calibration curve using `calibration`. Put predicted probability on the x-axis, actual resolution rate on the y-axis, and add a dashed 45° reference line to show perfect calibration. Scale both axes as percentages and size each point by `n`, the number of markets in that bin. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-16}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r prediction-markets-16-test}
+#| echo: true
+calibration |>
+  ggplot(aes(x = prob_bin, y = actual_rate)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray60") +
+  geom_line(color = "#2166ac") +
+  geom_point(aes(size = n), color = "#2166ac", alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = "Predicted probability", y = "Actual resolution rate",
+       title = "Manifold Markets is well-calibrated",
+       subtitle = "Points near the dashed line indicate accurate probability estimates",
+       size = "Markets") +
+  theme_minimal()
+```
+
+###
+
+A well-calibrated forecaster lies on the diagonal: the stated probability matches the long-run frequency of the event. The large dots near 0 and 1 — where most of the data lives — sit close to the reference line, which is the meaningful result. The small dots in the middle (sparse bins with fewer than 25 markets) are noisy; small sample sizes make `actual_rate` unreliable there. Dot size is therefore carrying real information: trust the big dots, treat the small ones skeptically.
+
+### Exercise 17
+
 Stage `analysis.qmd`, commit with the message
 `"Add prediction market accuracy analysis"`, and push to GitHub. In the
 bash Terminal, run:
@@ -1519,7 +1847,7 @@ git log --oneline -3
 
 CP/CR.
 
-```{r prediction-markets-14}
+```{r prediction-markets-17}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1545,11 +1873,11 @@ Prediction-market accuracy improves here because resolution dates concentrate in
 
 This tutorial covered key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with parquet files using **[arrow](https://arrow.apache.org/docs/r/)**, joining multiple datasets with shared keys, parsing mixed-format date strings with **[lubridate](https://lubridate.tidyverse.org/)**, cleaning messy string fields with **[stringr](https://stringr.tidyverse.org/)**, and reordering factor levels for visualization with **[forcats](https://forcats.tidyverse.org/)**.
+You loaded parquet files from disk with **[arrow](https://arrow.apache.org/docs/r/)**'s `open_dataset()`, inspected schemas without pulling data into memory, and joined multiple tables by shared keys. In two independent analyses — crypto market composition and prediction market accuracy — you cleaned, aggregated, and visualized the joined data using **tidyverse** tools, then published the results to GitHub Pages.
 
 ### Exercise 1
 
-Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plot.
+Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots.
 
 In the R Terminal, run:
 
