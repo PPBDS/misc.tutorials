@@ -1169,9 +1169,10 @@ knitr::include_graphics("images/pm-accuracy-chart.png")
 In this section you will join four parquet files representing 800 resolved
 markets and 43,694 daily probability snapshots to answer that question. Along
 the way you will encounter a **many-to-many join** — a table relationship that
-silently multiplies rows if you are not careful — and build an accuracy chart
+silently multiplies rows if you are not careful — and build two charts: one
 that tracks whether prediction markets converge as the resolution date
-approaches.
+approaches, and a calibration curve that tests whether crowd probabilities are
+accurate in a deeper sense.
 
 ### Exercise 1
 
@@ -1717,6 +1718,125 @@ The line shows a clear convergence pattern: average prediction error falls as ma
 
 ### Exercise 14
 
+Convergence tells you markets get more accurate over time, but a deeper question is whether they are well-calibrated — meaning a 70% prediction actually resolves YES 70% of the time. Before testing calibration, get a feel for how the final-day probabilities are distributed. Filter `joined` to snapshots where `days_to_resolution == 0` and plot a histogram of `probability`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-14}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-14-test}
+#| echo: true
+joined |>
+  filter(days_to_resolution == 0) |>
+  ggplot(aes(x = probability)) +
+  geom_histogram(bins = 20, fill = "#2166ac", alpha = 0.7) +
+  labs(x = "Final-day probability", y = "Number of markets",
+       title = "Most markets resolve near certainty") +
+  theme_minimal()
+```
+
+###
+
+The histogram should show a sharp bimodal spike near 0 and 1 — most markets have already converged to near certainty by resolution day. That pattern also tells you where calibration data will be sparse: the middle bins (40–60%) have few markets because genuine uncertainty rarely persists to the final day.
+
+### Exercise 15
+
+Build the calibration table. From the final-day snapshots, bin each market's probability to the nearest 10 percentage points with `round(probability * 10) / 10`, then for each bin compute the fraction that actually resolved YES (`actual_rate`) and the count of markets (`n`). Save the result as `calibration` and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-15}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r prediction-markets-15-test}
+#| echo: true
+calibration <- joined |>
+  filter(days_to_resolution == 0) |>
+  mutate(prob_bin = round(probability * 10) / 10) |>
+  group_by(prob_bin) |>
+  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
+
+calibration
+```
+
+###
+
+The calibration table is the building block of any probabilistic evaluation. For each predicted-probability bin, it records what fraction of events actually happened. If the market is perfectly calibrated, the 0.7 bin's `actual_rate` should be 0.70. Notice that the extreme bins (0 and 1) have the most markets — confirming what the histogram showed.
+
+### Exercise 16
+
+Plot the calibration curve using `calibration`. Put predicted probability on the x-axis, actual resolution rate on the y-axis, and add a dashed 45° reference line to show perfect calibration. Scale both axes as percentages and size each point by `n`, the number of markets in that bin. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r prediction-markets-16}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r prediction-markets-16-test}
+#| echo: true
+calibration |>
+  ggplot(aes(x = prob_bin, y = actual_rate)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray60") +
+  geom_line(color = "#2166ac") +
+  geom_point(aes(size = n), color = "#2166ac", alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = "Predicted probability", y = "Actual resolution rate",
+       title = "Manifold Markets is well-calibrated",
+       subtitle = "Points near the dashed line indicate accurate probability estimates",
+       size = "Markets") +
+  theme_minimal()
+```
+
+###
+
+A well-calibrated forecaster lies on the diagonal: the stated probability matches the long-run frequency of the event. The large dots near 0 and 1 — where most of the data lives — sit close to the reference line, which is the meaningful result. The small dots in the middle (sparse bins with fewer than 25 markets) are noisy; small sample sizes make `actual_rate` unreliable there. Dot size is therefore carrying real information: trust the big dots, treat the small ones skeptically.
+
+### Exercise 17
+
 Stage `analysis.qmd`, commit with the message
 `"Add prediction market accuracy analysis"`, and push to GitHub. In the
 bash Terminal, run:
@@ -1727,7 +1847,7 @@ git log --oneline -3
 
 CP/CR.
 
-```{r prediction-markets-14}
+```{r prediction-markets-17}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
