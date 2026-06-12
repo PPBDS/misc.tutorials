@@ -1068,7 +1068,7 @@ crypto |>
   scale_y_continuous(labels = scales::percent) +
   labs(x = NULL, y = "Share of total market cap", fill = NULL,
        title = "Crypto market cap share by category, 2018–2026",
-       subtitle = "Bitcoin's share fell as smart-contract platforms grew; the two tend to move in opposite directions",
+       subtitle = "Bitcoin's share fell as smart-contract platforms and stablecoins grew",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
@@ -1115,7 +1115,7 @@ crypto |>
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
   labs(x = NULL, y = "Share of total market cap", fill = NULL,
        title = "Crypto market cap share by category, 2018–2026",
-       subtitle = "Bitcoin's share fell as smart-contract platforms grew; the two tend to move in opposite directions",
+       subtitle = "Bitcoin's share fell as smart-contract platforms and stablecoins grew",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
 ```
 
