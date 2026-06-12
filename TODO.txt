@@ -1,17 +1,22 @@
-## Alec
+## Alex
 
-> You should be in a repo named r4ds-2. If you are not, create one and move to it.
+Fix census. There should be a data/ directory which includes the rds files which we use. Don't forget to save, in the setup chunk, the commented out code which creates those data sets. 
 
-How? This belongs somewhere in vscode.tutorials. Can you do this straight from PPBDS/codebase-starter? That would be cool. If so, teach in infrastructure.
+https://ppbds.github.io/tutorial.helpers/articles/ai.html#data
 
-Search for cooler data sets.
+No data sets, or even a census directory in extdata.
+
+Clean up census tutorial. Lots of questions telling AI to download some data, building question to question
+
+Data on education by state
+
 
 
 ## Items
 
-Find better data sets than the ones we are using. We want something in which there is a weird mystery (plots which we can't understand) which we eventually solve and, in the end, create a plot which teaches us something.
+Data sets should go in inst/tutorials/<name>/data. Then our code would look like student code. And we could get rid of inst/extdata (except for the documentation). But, if we go this path, we can't put the repo on CRAN. But who really cares?
 
-Do we want to always (ever?) supply the code which downloads the data we want into the data/ directory? Probably not. In the real world, we just tell AI to download.
+Find better data sets than the ones we are using. We want something in which there is a weird mystery (plots which we can't understand) which we eventually solve and, in the end, create a plot which teaches us something.
 
 `census` should have a data directory and various rds files should be placed there, with the code set to cache so that it doesn't run every time. Later QMD code then just loads the rds file it wants.
 
