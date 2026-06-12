@@ -295,12 +295,13 @@ question_text(NULL,
 #| echo: true
 prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
   collect()
-prices
+prices |>
+  slice_sample(n = 10)
 ```
 
 ###
 
-The `prices` table has one row per coin per day. The first row says [Aave](https://en.wikipedia.org/wiki/Aave), a cryptocurrency, on October 10, 2020 had a `market_cap_usd` of about $1.41 billion. Market cap is the total value of all circulating units of a coin at that day's price.
+The `prices` table has one row per coin per day. Each row records that coin's `price_usd`, `market_cap_usd`, and `volume_usd` for that date. Market cap is the total value of all circulating units at that day's price.
 
 ### Exercise 5
 
@@ -378,7 +379,7 @@ The `categories` table has one row per crypto category, and `category_id` is the
 
 ### Exercise 7
 
-Before joining the tables, get a feel for the raw price data. In a new chunk, filter `prices` to Bitcoin (`coin_id == "btc"`), convert `date_raw` to a proper date with `ymd()`, and draw a line chart of `price_usd` against date. Render.
+Let's get a feel for the raw price data. In a new chunk, filter `prices` to Bitcoin (`coin_id == "btc"`), convert `date_raw` to a proper date with `ymd()`, and draw a line chart of `price_usd` against date. Render.
 
 In the R Terminal, run:
 
@@ -412,11 +413,11 @@ prices |>
 
 ###
 
-Bitcoin has gone through three distinct cycles: a run to ~$20K in late 2017, a larger peak near $65K in late 2021, and a third near that level in 2024. Most other coins track the same cycle shape — their market-cap share story is layered on top of these price swings.
+Bitcoin has gone through two distinct cycles: a peak near $65K in late 2021, and a second peak near that level in 2024.
 
 ### Exercise 8
 
-In a new chunk, join `prices` to `metadata` by `coin_id` to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render.
+Now plot Bitcoin's market cap over time. Filter `prices` to `coin_id == "btc"`, convert `date_raw` with `ymd()`, and draw a line chart of `market_cap_usd` in trillions against date. Render.
 
 In the R Terminal, run:
 
@@ -432,7 +433,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 3)
+    rows = 5)
 ```
 
 ###
@@ -440,16 +441,21 @@ question_text(NULL,
 ```{r crypto-markets-8-test}
 #| echo: true
 prices |>
-  left_join(metadata, by = "coin_id")
+  filter(coin_id == "btc") |>
+  mutate(date = ymd(date_raw)) |>
+  ggplot(aes(x = date, y = market_cap_usd / 1e12)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap (USD trillions)", title = "Bitcoin market cap over time") +
+  theme_minimal()
 ```
 
 ###
 
-A left join keeps all 59,436 rows from `prices` and adds matching columns from `metadata`. Row count is unchanged because each coin appears exactly once in `metadata`.
+Price and market cap tell related but distinct stories. Price is what one unit costs; market cap is price × circulating supply. For Bitcoin, supply grows slowly and predictably, so the two charts look nearly identical in shape — but market cap is the right unit for comparing coins of different supply sizes, which is why it drives the analysis in later exercises.
 
 ### Exercise 9
 
-Before joining `categories`, check whether it shares any column names with the table you just built. Extend the pipe to handle any collision and add the join to `categories` by `category_id`. Still do not assign — just print the result. Render.
+Now compare market cap across all 22 coins. In a new chunk, draw a boxplot of `market_cap_usd` (in billions) per coin, ordered by median market cap, with a log-scale y-axis. Render.
 
 In the R Terminal, run:
 
@@ -465,7 +471,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 5)
+    rows = 8)
 ```
 
 ###
@@ -473,17 +479,23 @@ question_text(NULL,
 ```{r crypto-markets-9-test}
 #| echo: true
 prices |>
-  left_join(metadata, by = "coin_id") |>
-  left_join(select(categories, -description), by = "category_id")
+  ggplot(aes(x = fct_reorder(coin_id, market_cap_usd, .fun = median, na.rm = TRUE),
+             y = market_cap_usd / 1e9)) +
+  geom_boxplot() +
+  coord_flip() +
+  scale_y_log10() +
+  labs(x = NULL, y = "Market cap (USD billions, log scale)",
+       title = "Market cap distribution by coin") +
+  theme_minimal()
 ```
 
 ###
 
-Both `metadata` and `categories` have a `description` column. Joining without resolving that collision creates `description.x` and `description.y` — confusing names that require extra cleanup. Dropping the unwanted column before joining is cleaner than renaming afterward.
+Bitcoin and Ethereum sit well above the rest — roughly 10–100× larger than the next tier. The log scale is essential here: on a linear scale, every non-BTC coin collapses to near zero. The wide boxes for coins like SOL and BNB reflect high variability over time; narrow boxes reflect either stable coins (stablecoins) or coins that entered the dataset late.
 
 ### Exercise 10
 
-The join pipeline is ready. Extend it to print the first 5 rows of the joined result. Do not assign — just display. Render.
+In a new chunk, join `prices` to `metadata` by `coin_id` to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render.
 
 In the R Terminal, run:
 
@@ -499,7 +511,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 5)
+    rows = 3)
 ```
 
 ###
@@ -507,18 +519,16 @@ question_text(NULL,
 ```{r crypto-markets-10-test}
 #| echo: true
 prices |>
-  left_join(metadata, by = "coin_id") |>
-  left_join(select(categories, -description), by = "category_id") |>
-  head(5)
+  left_join(metadata, by = "coin_id")
 ```
 
 ###
 
-The `crypto` table has 59,436 rows and all the columns needed: daily prices from `prices`, coin metadata including `category_id`, and the readable `category_name` from `categories`.
+A left join keeps all 59,436 rows from `prices` and adds matching columns from `metadata`. Row count is unchanged because each coin appears exactly once in `metadata`.
 
 ### Exercise 11
 
-`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Extend the pipe with a `mutate()` that adds `market_cap_parsed`, converting those display strings to numeric dollar values using the `T`, `B`, `M`, and `K` suffixes. End with a sample of 5 rows showing `coin_id`, `market_cap_str`, and `market_cap_parsed` to verify the conversion. Render.
+Before joining `categories`, check whether it shares any column names with the table you just built. Extend the pipe to handle any collision and add the join to `categories` by `category_id`. Still do not assign — just print the result. Render.
 
 In the R Terminal, run:
 
@@ -534,12 +544,81 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 5)
 ```
 
 ###
 
 ```{r crypto-markets-11-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id")
+```
+
+###
+
+Both `metadata` and `categories` have a `description` column. Joining without resolving that collision creates `description.x` and `description.y` — confusing names that require extra cleanup. Dropping the unwanted column before joining is cleaner than renaming afterward.
+
+### Exercise 12
+
+The join pipeline is ready. Extend it to print the first 5 rows of the joined result. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crypto-markets-12-test}
+#| echo: true
+prices |>
+  left_join(metadata, by = "coin_id") |>
+  left_join(select(categories, -description), by = "category_id") |>
+  head(5)
+```
+
+###
+
+The `crypto` table has 59,436 rows and all the columns needed: daily prices from `prices`, coin metadata including `category_id`, and the readable `category_name` from `categories`.
+
+### Exercise 13
+
+`market_cap_str` contains human-readable values like `"$1.24T"`, `"$450.2B"`, `"$37.5M"`, and some `NA`. Extend the pipe with a `mutate()` that adds `market_cap_parsed`, converting those display strings to numeric dollar values using the `T`, `B`, `M`, and `K` suffixes. End with a sample of 5 rows showing `coin_id`, `market_cap_str`, and `market_cap_parsed` to verify the conversion. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-13}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 10)
+```
+
+###
+
+```{r crypto-markets-13-test}
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -561,11 +640,11 @@ prices |>
 
 ###
 
-Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. Eyeball the sample: wherever you see a `T`-suffixed string, `market_cap_parsed` should be in the trillions; a `B`-suffix means billions. About 5% of `market_cap_str` values are missing, which is typical of exported dashboard data.
+Formatted financial strings need extra care because suffixes like `T`, `B`, and `M` change the scale of the number. Eyeball the sample: wherever you see a `T`-suffixed string, `market_cap_parsed` should be in the trillions; a `B`-suffix means billions.
 
-### Exercise 12
+### Exercise 14
 
-Add `date = ymd(date_raw)` to the pipe's `mutate()`, parsing `date_raw` into a proper date. End with the range of dates to confirm the conversion. Render.
+The `date_raw` column is a character string, not a proper date, which means sorting, filtering by date range, and time-series plots all behave unexpectedly. Add a proper date field to the pipe so that subsequent steps can use it correctly. End with the range of dates as a sanity check. Render.
 
 In the R Terminal, run:
 
@@ -575,7 +654,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-12}
+```{r crypto-markets-14}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -586,7 +665,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-12-test}
+```{r crypto-markets-14-test}
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -608,9 +687,9 @@ prices |>
 
 ###
 
-Parquet stored `date_raw` as character text. `ymd()` parses that ISO 8601 string into a proper R Date that can be sorted, subtracted, and used in time-series plots. The range confirms the dataset spans early 2018 through early 2026.
+Parquet stored `date_raw` as an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) string — the international standard format `"YYYY-MM-DD"` (e.g. `"2021-11-09"`). `ymd()` is named after that format and parses it into a proper R Date that can be sorted, subtracted, and used in time-series plots. The range confirms the dataset spans early 2018 through early 2026.
 
-### Exercise 13
+### Exercise 15
 
 Add a description clean-up to the pipe's `mutate()`: replace embedded newlines (`\n`) with spaces. End with the distinct descriptions for `btc` and `eth` to confirm the fix. Render.
 
@@ -622,7 +701,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-13}
+```{r crypto-markets-15}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -633,7 +712,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-13-test}
+```{r crypto-markets-15-test}
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -658,7 +737,7 @@ prices |>
 
 Embedded newlines often come from scraped web text or copied document text. They can make text fields harder to search, compare, or export, so cleaning them early prevents confusing downstream behavior.
 
-### Exercise 14
+### Exercise 16
 
 Add `era` to the pipe's `mutate()` using the year of `date`: `"Bitcoin Era"` (2016 and earlier), `"ICO/Ethereum Era"` (2017–2019), `"DeFi Summer"` (2020–2021), and `"Maturation Era"` (2022 onward). Make the labels ordered chronologically. End with a count of rows per era. Render.
 
@@ -670,7 +749,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-14}
+```{r crypto-markets-16}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -681,7 +760,7 @@ question_text(NULL,
 
 ###
 
-```{r crypto-markets-14-test}
+```{r crypto-markets-16-test}
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -714,7 +793,7 @@ prices |>
 
 The era labels are interpretive, not official; different analysts might choose different boundaries. Making them ordered is useful because plots and tables should show the eras in chronological order, not alphabetical order.
 
-### Exercise 15
+### Exercise 17
 
 Finalize the data-preparation chunk. Add `crypto <-` to assign the pipe, and remove the `count(era)` verification at the end. Then merge the loads and the `crypto` pipe into one permanent chunk. Render.
 
@@ -726,7 +805,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-15}
+```{r crypto-markets-17}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -735,7 +814,7 @@ question_text(NULL,
     rows = 20)
 ```
 
-```{r crypto-markets-15-test}
+```{r crypto-markets-17-test}
 #| echo: true
 prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
   collect()
@@ -768,13 +847,15 @@ crypto <- prices |>
       levels = c("Bitcoin Era", "ICO/Ethereum Era", "DeFi Summer", "Maturation Era")
     )
   )
+
+crypto
 ```
 
 ###
 
 The cleaned `crypto` table has one row per coin per day: 59,436 rows for 22 coins from 2018 through 2026. The table is now ready for grouped summaries and time-series plots.
 
-### Exercise 16
+### Exercise 18
 
 Add `#| cache: true` to the chunk. Render. This first render with caching will take a moment; subsequent renders will load from disk.
 
@@ -786,7 +867,7 @@ ls
 
 CP/CR.
 
-```{r crypto-markets-16}
+```{r crypto-markets-18}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -805,7 +886,7 @@ analysis.html  analysis.qmd  analysis_cache  analysis_files  data
 
 Stablecoin market cap can rise even when token prices stay near $1. For coins like USDT, USDC, and DAI, market-cap growth mostly reflects more dollars flowing into stable crypto-denominated assets.
 
-### Exercise 17
+### Exercise 19
 
 Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
 
@@ -817,7 +898,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r crypto-markets-17}
+```{r crypto-markets-19}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
@@ -837,85 +918,9 @@ analysis_cache
 
 Cache files are fully reproducible — anyone can regenerate them by rendering — so committing them just adds binary noise to the repo and can cause spurious merge conflicts if two contributors run the document on machines where the cache hashes differ.
 
-### Exercise 18
-
-Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-18}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r crypto-markets-18-test}
-#| echo: true
-crypto |>
-  group_by(date) |>
-  summarise(total_mcap = sum(market_cap_usd, na.rm = TRUE)) |>
-  ggplot(aes(x = date, y = total_mcap / 1e12)) +
-  geom_line() +
-  labs(x = NULL, y = "Total market cap (trillions USD)",
-       title = "Total crypto market capitalization, 2018–2026")
-```
-
-###
-
-Total market cap gives context for category-share plots. Bitcoin's share can fall even while Bitcoin's dollar value rises, because the whole market is changing at the same time.
-
-### Exercise 19
-
-Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-19}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
-```
-
-###
-
-```{r crypto-markets-19-test}
-#| echo: true
-crypto |>
-  group_by(date, category_name) |>
-  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
-  geom_line() +
-  labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
-       title = "Crypto market cap by category, 2018–2026")
-```
-
-###
-
-This chart is hard to read because Bitcoin dominates the absolute dollar scale. When one group dwarfs the others, plotting each group's share of the total often reveals patterns that the raw values hide.
-
 ### Exercise 20
 
-Convert the category totals into daily market-share percentages so smaller categories are visible on a common scale. Plot category share over time as a multi-line chart. Render.
+Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
 
 In the R Terminal, run:
 
@@ -931,7 +936,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 10)
+    rows = 8)
 ```
 
 ###
@@ -939,25 +944,21 @@ question_text(NULL,
 ```{r crypto-markets-20-test}
 #| echo: true
 crypto |>
-  group_by(date, category_name) |>
-  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
   group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
+  summarise(total_mcap = sum(market_cap_usd, na.rm = TRUE)) |>
+  ggplot(aes(x = date, y = total_mcap / 1e12)) +
   geom_line() +
-  labs(x = NULL, y = "Market cap share (%)", color = NULL,
-       title = "Crypto market cap share by category, 2018–2026")
+  labs(x = NULL, y = "Total market cap (trillions USD)",
+       title = "Total crypto market capitalization, 2018–2026")
 ```
 
 ###
 
-The share plot reveals different category trajectories that were hidden on the absolute scale. Bitcoin, stablecoins, DeFi, and meme coins each move differently, which is the answer to the tutorial's guiding question.
+Total market cap gives context for category-share plots. Bitcoin's share can fall even while Bitcoin's dollar value rises, because the whole market is changing at the same time.
 
 ### Exercise 21
 
-Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. Render.
+Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
 
 In the R Terminal, run:
 
@@ -973,7 +974,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 14)
+    rows = 8)
 ```
 
 ###
@@ -983,27 +984,19 @@ question_text(NULL,
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
-  geom_line(linewidth = 0.8) +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
-  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
-       title = "Crypto market cap share by category, 2018–2026",
-       subtitle = "Bitcoin's share fell as smart-contract platforms grew; the two tend to move in opposite directions",
-       caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
+  ggplot(aes(x = date, y = cat_mcap / 1e12, color = category_name)) +
+  geom_line() +
+  labs(x = NULL, y = "Market cap (trillions USD)", color = NULL,
+       title = "Crypto market cap by category, 2018–2026")
 ```
 
 ###
 
-Ordering the legend by typical category size makes the plot easier to scan. Colorblind-safe palettes are a good default because charts are often viewed in many formats and by many audiences.
+This chart is hard to read because Bitcoin dominates the absolute dollar scale. When one group dwarfs the others, plotting each group's share of the total often reveals patterns that the raw values hide.
 
 ### Exercise 22
 
-Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
+Now build a stacked area chart of category market-cap shares over time. The total height of the chart should always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render.
 
 In the R Terminal, run:
 
@@ -1019,7 +1012,7 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 12)
+    rows = 10)
 ```
 
 ###
@@ -1029,19 +1022,98 @@ question_text(NULL,
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  group_by(date) |>
-  mutate(total_mcap = sum(cat_mcap),
-         share_pct = cat_mcap / total_mcap * 100) |>
-  ungroup() |>
-  mutate(category_name = fct_reorder(category_name, share_pct, .fun = median, .desc = TRUE)) |>
-  ggplot(aes(x = date, y = share_pct, color = category_name)) +
-  geom_line(linewidth = 0.8) +
-  scale_color_viridis_d(option = "plasma", end = 0.9) +
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
+       title = "Crypto market cap share by category, 2018–2026")
+```
+
+###
+
+The stacked area chart reveals each category's relative dominance at every point in time. `position = "fill"` handles the normalisation automatically — ggplot divides each layer's value by the column total, so no manual percentage calculation is needed. Bitcoin's band narrows visibly over the period as smart-contract platforms and stablecoins claimed more of the market.
+
+### Exercise 23
+
+Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-23}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 14)
+```
+
+###
+
+```{r crypto-markets-23-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  mutate(category_name = fct_reorder(category_name, cat_mcap, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_fill_viridis_d(option = "plasma", end = 0.9) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
+       title = "Crypto market cap share by category, 2018–2026",
+       subtitle = "Bitcoin's share fell as smart-contract platforms grew; the two tend to move in opposite directions",
+       caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
+```
+
+###
+
+Ordering the legend by typical category size makes the plot easier to scan. Colorblind-safe palettes are a good default because charts are often viewed in many formats and by many audiences.
+
+### Exercise 24
+
+Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crypto-markets-24}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r crypto-markets-24-test}
+#| echo: true
+crypto |>
+  group_by(date, category_name) |>
+  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
+  mutate(category_name = fct_reorder(category_name, cat_mcap, .fun = median, .desc = TRUE)) |>
+  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
+  geom_area(position = "fill") +
+  scale_fill_viridis_d(option = "plasma", end = 0.9) +
+  scale_y_continuous(labels = scales::percent) +
   annotate("rect", xmin = as.Date("2022-05-07"), xmax = as.Date("2022-05-12"),
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
   annotate("rect", xmin = as.Date("2022-11-08"), xmax = as.Date("2022-11-11"),
            ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
-  labs(x = NULL, y = "Share of total market cap (%)", color = NULL,
+  labs(x = NULL, y = "Share of total market cap", fill = NULL,
        title = "Crypto market cap share by category, 2018–2026",
        subtitle = "Bitcoin's share fell as smart-contract platforms grew; the two tend to move in opposite directions",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
@@ -1051,7 +1123,7 @@ crypto |>
 
 UST was an algorithmic stablecoin — it tried to hold a $1 value through a mechanism rather than dollar reserves. Its May 2022 collapse wiped roughly $40B from the market in days. The FTX exchange token FTT then fell from roughly $7.25B on November 7, 2022 to about $724M on November 9 when FTX halted withdrawals. The two events are distinct in kind (algorithmic failure vs. exchange insolvency) but both show how quickly confidence can evaporate in less-regulated markets.
 
-### Exercise 23
+### Exercise 25
 
 Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub. In the bash Terminal, run:
 
@@ -1061,7 +1133,7 @@ git log --oneline -3
 
 CP/CR.
 
-```{r crypto-markets-23}
+```{r crypto-markets-25}
 question_text(NULL,
     answer(NULL, correct = TRUE),
     allow_retry = TRUE,
