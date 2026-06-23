@@ -1,3 +1,44 @@
+## Harshil and Var
+
+Our next project is to write a few more misc tutorials. We need to give students more practice in just making things. Advice:
+
+    * Start by reading: https://github.com/PPBDS/ai-rules/blob/main/claude-md/tutorials/CLAUDE.md. As you can see, you can just tell your favorite AI to follow these instructions and it will do a pretty good first draft!
+
+    * You can assume that students have done all the r4ds tutorials, so they have a good amount of practice.
+
+    * The big change here is that we should have the final project be a website instead of a single GitHub page. That is, you can assume that students have the vscode tutorials related to websites, or at least the first one.
+
+    * Therefore, you need to give a bit more thought to what the website will look like. (This is different from the r4ds tutorials, in which we just slap together a couple of graphics in the one published page.)
+
+    * Have the students add some text to the website, with the help of AI, of course.
+
+    * The tutorial names will be the basic topic, like `baseball`.
+
+
+### Possible tutorial topics
+
+I am flexible on the topics you might select. Anything which at least some college students might be interested in is good. Especially interested in topics which students might use for final projects.
+
+    * baseball (or any other sport)
+
+    * text (like tidytext package, using babynames, perhaps)
+
+    * stocks
+
+    * Bitcoin
+
+    * weather
+
+    * US maps (will probably follow `census`, so you can assume that a student has done that tutorial).
+
+### Other considerations
+
+    * A tutorial about working with large, complex projects? And fixing it? Each topic would involve forking an already existing project and then making a bunch of changes, perhaps including getting the raw data.
+
+    * Cover material from "What They Forgot to Teach You About R": https://rstats.wtf/ Might cover things like the **here** package. This is, sort of, a follow on to the vscode infrastructure package.
+
+
+
 ## Alex
 
 Fix census. There should be a data/ directory which includes the rds files which we use. Don't forget to save, in the setup chunk, the commented out code which creates those data sets. 
@@ -26,16 +67,3 @@ Tutorials now are about concepts, not books.
 
 Should we be using duckdplyr more and/or in place of other databases?
 
-## New tutorial ideas
-
-    * baseball
-
-    * text (like tidytext package, using babynames, perhaps)
-
-    * stocks
-
-    * Bitcoin.
-
-    * A tutorial about working with large, complex projects? And fixing it? Each topic would involve forking an already existing project and then making a bunch of changes, perhaps including getting the raw data.
-
-    * Cover material from "What They Forgot to Teach You About R": https://rstats.wtf/ Might cover things like the **here** package. This is, sort of, a follow on to the vscode infrastructure package.
