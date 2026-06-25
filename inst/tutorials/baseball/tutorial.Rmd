@@ -1,0 +1,893 @@
+---
+title: Baseball
+author: David Kane
+tutorial:
+  id: baseball
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: 'Build a multi-page Quarto website about Major League Baseball history using the Lahman database. Students discover why total home runs appear to collapse in certain seasons, normalize to home runs per game to expose the sport''s real eras, and profile the career home run leaders.'
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(tidyverse)
+library(Lahman)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+options(tutorial.exercise.timelimit = 60,
+        tutorial.storage = "local")
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+###
+
+In this tutorial you will build a small **website** about the history of Major League Baseball. You will use AI to do the analysis and the **[Lahman](https://cran.r-project.org/package=Lahman)** baseball database as your data source. Your job is to steer the analysis, render often, inspect the output, and write the words that turn a few charts into a page worth reading.
+
+###
+
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files without copy/pasting. You may also use a chat-based AI (such as ChatGPT or Claude on the web), though this will require manually copying code into your files. Our instructions are written assuming you are using an agentic coding tool, but the choice is yours. Use AI however you like.
+
+### Exercise 1
+
+You should be connected to a repo named `baseball`. If you are not, create one and connect to it.
+
+In this repo, create a new Quarto **website** project, just as you did in the website tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Baseball"`.
+
+In a bash Terminal, render the whole site:
+
+```
+quarto render
+```
+
+Quarto builds the site into a `_site` directory. Open `_site/index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes every time you render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
+
+```
+/_site/
+/.quarto/
+/*_files/
+```
+
+Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+Your `.gitignore` should include:
+
+```
+/_site/
+/.quarto/
+/*_files/
+```
+
+###
+
+A Quarto website is a *project*: `quarto render` builds every `.qmd` in the folder into a linked set of HTML pages under `_site/`. That output is generated, so it does not belong in your repo --- `.gitignore` keeps `_site/`, the `.quarto/` working directory, and the per-page `_files/` figure directories out of git, leaving only your source.
+
+### Exercise 2
+
+Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
+
+```
+execute:
+  echo: false
+```
+
+Render. In the R Terminal, run:
+
+```
+show_file("_quarto.yml")
+```
+
+CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+Your `_quarto.yml` should look something like this:
+
+<pre><code>project:
+  type: website
+
+website:
+  title: "Baseball"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme: cosmo
+
+execute:
+  echo: false
+</code></pre>
+
+###
+
+Setting `echo: false` once in `_quarto.yml` applies it to every page, so you never repeat it. A configuration file like this is the difference between a single document and a website: it holds the settings, the theme, and the navigation that all the pages share.
+
+### Exercise 3
+
+Make the home page welcoming. In `index.qmd`, replace the placeholder content with a short title and one or two sentences introducing the project: that this site explores the history of Major League Baseball through its data, using the Lahman database. Draft the prose with AI, then decide what to keep.
+
+Render. In the R Terminal, run:
+
+```
+show_file("index.qmd")
+```
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+Your `index.qmd` might look like this:
+
+<pre><code>---
+title: "Baseball"
+---
+
+## Welcome
+
+This site explores the history of Major League Baseball through its
+data. Using the Lahman database --- a complete record of every team and
+player season since 1871 --- we look at how the game has changed,
+starting with its signature event: the home run.
+</code></pre>
+
+###
+
+A published analysis is read by people, not just rendered by a machine. The words around a chart are what tell a reader why it matters --- AI can draft them, but you decide what the page actually claims. You now have a working site with one page; the next sections add the analysis pages and link them in.
+
+## Home runs
+###
+
+Major League Baseball has kept detailed records since 1871, and the **Lahman** database packages that history for R. Its `Teams` table holds one row per team per season; its `Batting` table holds one row per player per season. We start with the home run --- the sport's signature event --- and a puzzle hiding in plain sight.
+
+### Exercise 1
+
+Create a new page in your website named `home-runs.qmd`, and add it to the site navigation in `_quarto.yml` so it appears in the navbar with the label `Home runs`.
+
+The Lahman data comes from an R package you may need to install. In the R Terminal, run:
+
+```
+install.packages("Lahman")
+```
+
+At the top of `home-runs.qmd`, add a code chunk that loads `library(tidyverse)` and `library(Lahman)`, with `#| message: false` so startup messages stay out of the page. In the same chunk, print the `Teams` table.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r home-runs-1-test}
+#| echo: true
+#| message: false
+library(tidyverse)
+library(Lahman)
+
+Teams
+```
+
+###
+
+`Teams` has 48 columns and one row for every team in every season since 1871 --- the unit of observation is a *team-season*. The **Lahman** database, maintained from Sean Lahman's long-running project, is the gold-standard free source for season-level baseball history. For finer detail, analysts reach for **Retrosheet** (play-by-play for every game) or **Statcast** (pitch-by-pitch tracking since 2015, available in R through the **baseballr** package); Lahman is the right grain for questions about whole seasons.
+
+### Exercise 2
+
+That table is too wide to read. Change the chunk to show just the columns we need: the season, team name, games played, and home runs.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r home-runs-2-test}
+#| echo: true
+Teams |>
+  select(yearID, name, G, HR)
+```
+
+###
+
+Each row is one team's season: `G` is games played (about 162 in a modern full season) and `HR` is that team's home runs. Around 30 teams play each year today, far fewer in the early decades. To see league-wide trends, we need to add these team-seasons up by year.
+
+### Exercise 3
+
+Add up all teams' home runs and all teams' games within each season. Produce a table with one row per season holding the total home runs and the total team-games.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r home-runs-3-test}
+#| echo: true
+Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            team_games = sum(G),
+            .groups = "drop")
+```
+
+###
+
+Now the unit of observation is a *season*: one row per year, from 1871 to 2025. We use `na.rm = TRUE` because one 1932 team is missing its home run total in the source data --- a small reminder that even a polished database has gaps. With a season-level table in hand, we can plot the trend.
+
+### Exercise 4
+
+Plot total home runs by season as a line. Aggregate the home runs per year inside the chunk and put `yearID` on the x-axis and total home runs on the y-axis. Give it a title, axis labels, and a source caption.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r home-runs-4-test}
+#| echo: true
+Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE), .groups = "drop") |>
+  ggplot(aes(x = yearID, y = HR)) +
+  geom_line(color = "grey60") +
+  geom_point(size = 0.7, color = "navy") +
+  labs(
+    title = "Total home runs per season, with some puzzling collapses",
+    subtitle = "Major League Baseball, 1871-2025",
+    x = "Season",
+    y = "Total home runs",
+    caption = "Source: Lahman Teams table"
+  )
+```
+
+###
+
+The long climb makes sense: more teams, more games, and a livelier game all push the total up. But look at the sudden cliffs. In 2020 the total crashes to about 2,300 home runs --- a level last seen in the 1950s --- and there are sharp dips in 1981 and 1994 too. Did hitters suddenly forget how to hit home runs in those years? Before believing a number, ask what could make it drop that fast.
+
+### Exercise 5
+
+Investigate those collapses. Build a small table comparing a normal recent season (2019) with the three suspicious ones (1981, 1994, 2020), showing each season's total home runs, total team-games, and home runs per game.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 7)
+```
+
+###
+
+```{r home-runs-5-test}
+#| echo: true
+Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            team_games = sum(G),
+            .groups = "drop") |>
+  mutate(hr_per_game = HR / team_games) |>
+  filter(yearID %in% c(2019, 1981, 1994, 2020))
+```
+
+###
+
+The mystery dissolves. In 2020 the season was cut to 60 games by the COVID-19 pandemic --- about 1,800 team-games instead of the usual 4,860 --- so the *total* fell even though the *rate* was 1.28 home runs per game, near an all-time high. 1981 and 1994 were strike-shortened seasons (so was 1918, cut short by World War I). The dips were never about hitting; they were about how many games got played. The fix is to divide by games.
+
+### Exercise 6
+
+Redo the plot using home runs per game instead of the total: divide each season's total home runs by its total team-games, and plot that rate against the season. Keep a title, labels, and caption.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r home-runs-6-test}
+#| echo: true
+Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            team_games = sum(G),
+            .groups = "drop") |>
+  mutate(hr_per_game = HR / team_games) |>
+  ggplot(aes(x = yearID, y = hr_per_game)) +
+  geom_line(color = "grey60") +
+  geom_point(size = 0.7, color = "navy") +
+  labs(
+    title = "Home runs per game reveal baseball's real eras",
+    subtitle = "MLB home runs per team per game, 1871-2025",
+    x = "Season",
+    y = "Home runs per game",
+    caption = "Source: Lahman Teams table"
+  )
+```
+
+###
+
+The artifact dips are gone, and the real story appears. The rate sits near zero through the **dead-ball era** before 1920, jumps sharply in the 1920s (Babe Ruth, a livelier ball, and a ban on the spitball), sags during World War II as players left for military service, climbs through the late-1990s and 2000s **steroid era**, and spikes to a record 1.39 in 2019 --- the season of the so-called "juiced ball." Normalizing by games turned a misleading total into a measure that actually tracks how the sport changed.
+
+### Exercise 7
+
+Polish the plot. Flag the shortened seasons --- 1918, 1919, 1981, 1994, 1995, and 2020 --- in a different color so a reader can see that the very seasons that fooled us earlier are ordinary once we use a rate. Add a legend and update the labels.
+
+Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+
+```{r home-runs-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 16)
+```
+
+###
+
+```{r home-runs-7-test}
+#| echo: true
+Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            team_games = sum(G),
+            .groups = "drop") |>
+  mutate(hr_per_game = HR / team_games,
+         shortened = yearID %in% c(1918, 1919, 1981, 1994, 1995, 2020)) |>
+  ggplot(aes(x = yearID, y = hr_per_game)) +
+  geom_line(color = "grey70") +
+  geom_point(aes(color = shortened), size = 1.1) +
+  scale_color_manual(
+    values = c(`FALSE` = "navy", `TRUE` = "red"),
+    labels = c("Full season", "Shortened season"),
+    name = NULL
+  ) +
+  labs(
+    title = "Home runs per game reveal baseball's real eras",
+    subtitle = "MLB home runs per team per game, 1871-2025",
+    x = "Season",
+    y = "Home runs per game",
+    caption = "Source: Lahman Teams table"
+  )
+```
+
+###
+
+The red points sit right on the trend line: once we measure a rate, the strike and pandemic years are unremarkable. This is the payoff of the whole section --- the same seasons that looked like collapses in the first plot are now visibly normal. A good chart does not just show data; it answers the question the previous chart raised.
+
+### Exercise 8
+
+You are done iterating on this plot, so it earns caching. Add `#| cache: true` as the first line inside the home-runs plot chunk. Render. Caching saves the chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `home-runs_cache/` directory next to `home-runs.qmd`.
+
+To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+
+```{r home-runs-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+_quarto.yml  _site  home-runs.qmd  home-runs_cache  home-runs_files  index.qmd
+</code></pre>
+
+###
+
+Our aggregation is fast, so caching saves little here --- but it is a habit worth building, like `.gitignore`. The payoff grows with the data: a Statcast analysis reads millions of pitch-level rows, and caching the slow step means you wait once, not on every render. Cache finished work you have stopped changing, never code you are still exploring.
+
+### Exercise 9
+
+The Source Control change count just jumped, because `home-runs_cache/` and everything inside it now look like untracked work to git. Cached files are machine-specific and regenerated on every render, so they should never go to GitHub.
+
+Add a line to your `.gitignore` that ignores the cache directories:
+
+```
+/*_cache/
+```
+
+In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r home-runs-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>/_site/
+/.quarto/
+/*_files/
+/*_cache/
+</code></pre>
+
+###
+
+The Source Control change count should drop back to where it was before the render. The cache is useful locally but is generated output, so the same rule that kept `_site/` out of git keeps the cache out too.
+
+### Exercise 10
+
+Commit and push the home runs page. Use the commit message:
+
+```
+Add home runs analysis
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r home-runs-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used to commit and push.
+
+###
+
+Home runs per game is one of the cleanest ways to see baseball's history in a single line, but it hides who actually hit them. The 2019 spike and the late-1990s climb were the work of specific players --- and that is the subject of the next page.
+
+## Sluggers
+###
+
+The league trend is made of individual careers. The **Lahman** `Batting` table records every player's batting line for every season, and the `People` table holds their names and biographical details. We will find the career home run leaders and connect them back to the eras we just discovered.
+
+### Exercise 1
+
+Create a new page named `sluggers.qmd`, and add it to the navbar in `_quarto.yml` with the label `Sluggers`.
+
+At the top of the page, add a code chunk that loads `library(tidyverse)` and `library(Lahman)` with `#| message: false`, then prints the `Batting` table.
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r sluggers-1-test}
+#| echo: true
+#| message: false
+library(tidyverse)
+library(Lahman)
+
+Batting
+```
+
+###
+
+`Batting` has about 128,000 rows --- one per player per season per team, going back to 1871. A player who batted for fifteen seasons contributes roughly fifteen rows, so to rank players by career home runs we have to add their seasons together. Notice the `playerID` column: it is the key that links a batting line to a person.
+
+### Exercise 2
+
+Add up each player's home runs across all of their seasons, and show the 15 players with the most career home runs.
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r sluggers-2-test}
+#| echo: true
+Batting |>
+  group_by(playerID) |>
+  summarise(HR = sum(HR, na.rm = TRUE), .groups = "drop") |>
+  slice_max(HR, n = 15)
+```
+
+###
+
+The counts are right, but the players are unreadable: `bondsba01` is a `playerID`, not a name. Lahman splits its data across tables --- batting in one, biographical details in another --- and joins them on `playerID`. To label the leaders, we need to bring in names from the `People` table.
+
+### Exercise 3
+
+Join the `People` table to attach each leader's name. Build a clean table showing the player's full name, their career home run total, and the span of seasons they played (first year to last year).
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r sluggers-3-test}
+#| echo: true
+Batting |>
+  group_by(playerID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            first = min(yearID),
+            last = max(yearID),
+            .groups = "drop") |>
+  slice_max(HR, n = 15) |>
+  left_join(People, by = "playerID") |>
+  mutate(player = paste(nameFirst, nameLast),
+         span = paste0(first, "-", last)) |>
+  select(player, HR, span)
+```
+
+###
+
+Barry Bonds leads with 762, ahead of Hank Aaron (755) and Babe Ruth (714). Joining tables on a shared key is one of the most common moves in real data work --- the information you want is almost never all in one place. Look at the career spans: several of these players were active in the same window, which is the thread we pull on next.
+
+### Exercise 4
+
+Turn the leaders into a bar chart. Put career home runs on the x-axis and player names on the y-axis, ordered so the leader is on top. Add a title, labels, and a caption.
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 14)
+```
+
+###
+
+```{r sluggers-4-test}
+#| echo: true
+Batting |>
+  group_by(playerID) |>
+  summarise(HR = sum(HR, na.rm = TRUE), .groups = "drop") |>
+  slice_max(HR, n = 15) |>
+  left_join(People, by = "playerID") |>
+  mutate(player = paste(nameFirst, nameLast)) |>
+  ggplot(aes(x = HR, y = fct_reorder(player, HR))) +
+  geom_col(fill = "navy") +
+  labs(
+    title = "Career home run leaders",
+    subtitle = "Top 15 in MLB history",
+    x = "Career home runs",
+    y = NULL,
+    caption = "Source: Lahman Batting and People tables"
+  )
+```
+
+###
+
+Ordering the bars with `fct_reorder()` makes the ranking instantly legible --- an unordered bar chart forces the reader to do the sorting in their head. The totals are close at the top, but the names cluster in time in a way the bars alone do not show. Coloring by era will make that visible.
+
+### Exercise 5
+
+Color the bars by whether each player was active during the steroid era. Treat a player as active in that era if their career overlapped the years 1994 to 2009 (their last season was 1994 or later and their first season was 2009 or earlier). Add a legend and update the title.
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 16)
+```
+
+###
+
+```{r sluggers-5-test}
+#| echo: true
+Batting |>
+  group_by(playerID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            first = min(yearID),
+            last = max(yearID),
+            .groups = "drop") |>
+  slice_max(HR, n = 15) |>
+  left_join(People, by = "playerID") |>
+  mutate(player = paste(nameFirst, nameLast),
+         steroid_era = last >= 1994 & first <= 2009) |>
+  ggplot(aes(x = HR, y = fct_reorder(player, HR), fill = steroid_era)) +
+  geom_col() +
+  scale_fill_manual(
+    values = c(`FALSE` = "grey65", `TRUE` = "navy"),
+    labels = c("No", "Yes"),
+    name = "Active 1994-2009"
+  ) +
+  labs(
+    title = "Most career home run leaders played in the steroid era",
+    subtitle = "Top 15 in MLB history",
+    x = "Career home runs",
+    y = NULL,
+    caption = "Source: Lahman Batting and People tables"
+  )
+```
+
+###
+
+Nine of the top fifteen were active between 1994 and 2009 --- the same window where the per-game rate on the previous page climbed to its modern peak. That is not a coincidence: Bonds, Sosa, McGwire, Rodriguez, and Palmeiro all played in an era later marked by performance-enhancing drug scandals. The league-wide trend and the individual leaderboard are two views of one story.
+
+### Exercise 6
+
+Zoom in on the career home run leader, Barry Bonds. Plot his home runs in each season of his career as a bar chart, with season on the x-axis. Add a title and labels.
+
+Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+
+```{r sluggers-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r sluggers-6-test}
+#| echo: true
+Batting |>
+  filter(playerID == "bondsba01") |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR), .groups = "drop") |>
+  ggplot(aes(x = yearID, y = HR)) +
+  geom_col(fill = "navy") +
+  labs(
+    title = "Barry Bonds hit more home runs in his late 30s than ever before",
+    subtitle = "Home runs per season; the 73 in 2001 is still the single-season record",
+    x = "Season",
+    y = "Home runs",
+    caption = "Source: Lahman Batting table"
+  )
+```
+
+###
+
+Most hitters peak in their late twenties and decline. Bonds did the opposite: his biggest seasons came after age 35, capped by a record 73 home runs in 2001. A career-shaped like this is exactly the kind of anomaly that, in context with the era around it, drove the questions baseball spent the next decade asking. The data shows the pattern; explaining it takes the history around the numbers.
+
+### Exercise 7
+
+Commit and push the sluggers page. Use the commit message:
+
+```
+Add sluggers analysis
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r sluggers-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used to commit and push.
+
+###
+
+You now have a two-page analysis: a league-wide trend and the players behind it. The last step is to tie them together on the home page and put the site on the web.
+
+## Summary
+###
+
+This tutorial used AI to build a multi-page website about Major League Baseball history with the **Lahman** database. You discovered why total home runs appear to collapse in shortened seasons, normalized to home runs per game to expose the sport's real eras, and ranked the career home run leaders --- connecting nine of the top fifteen back to the steroid-era spike in the league rate.
+
+### Exercise 1
+
+Turn the home page into a real introduction to the finished site. In `index.qmd`, expand the prose into a short paragraph or two that tells a visitor what the site found --- the home-runs-per-game story and the career leaders --- and mentions that the analysis pages are in the navbar. Draft it with AI and keep what reads well.
+
+Render. In the R Terminal, run:
+
+```
+show_file("index.qmd")
+```
+
+CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+Your `index.qmd` might look like this:
+
+<pre><code>---
+title: "Baseball"
+---
+
+## Welcome
+
+This site explores the history of Major League Baseball through the
+Lahman database, a record of every team and player season since 1871.
+
+The **Home runs** page starts with a puzzle: total home runs seem to
+collapse in 1981, 1994, and 2020. The collapse is an illusion of
+shortened seasons --- measured per game, those years are ordinary, and
+the rate instead reveals baseball's real eras, from the dead-ball era to
+the 2019 "juiced ball." The **Sluggers** page ranks the career home run
+leaders and finds most of them clustered in the steroid era, the same
+years the per-game rate peaked.
+</code></pre>
+
+###
+
+A website's landing page is where a visitor decides whether to keep reading. Stating the findings up front --- and pointing to the pages that back them up --- is what makes a collection of charts feel like one coherent project.
+
+### Exercise 2
+
+Publish the site to GitHub Pages. In a bash Terminal, run:
+
+````
+quarto publish gh-pages
+````
+
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+
+Copy/paste the resulting URL below.
+
+```{r summary-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 1)
+```
+
+###
+
+Your answer should be the public `https://...` URL created by `quarto publish gh-pages`.
+
+###
+
+`quarto publish gh-pages` builds the whole project and pushes it to a `gh-pages` branch, so the entire multi-page site --- home page, both analysis pages, and the navbar that links them --- goes live at once. Publishing turns your local project into a public artifact someone else can read without opening your development environment.
+
+### Exercise 3
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Your answer should be the GitHub repository URL for the project that contains your website.
+
+###
+
+Your repo holds the source that reproduces the published site; the published site shows the result. Together they are a complete piece of work: a reader can both see what you found and check how you found it. The home-runs-per-game pattern, the career leaders, and the link between them are a small but genuine finding about how baseball changed --- the kind of self-contained, honest analysis that makes a good final project.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```

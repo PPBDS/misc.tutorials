@@ -33,6 +33,7 @@ Suggests:
     httr2,
     jsonlite,
     knitr,
+    Lahman,
     leaflet,
     learnr,
     maps,

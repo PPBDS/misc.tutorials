@@ -15,11 +15,32 @@ Our next project is to write a few more misc tutorials. We need to give students
     * The tutorial names will be the basic topic, like `baseball`.
 
 
+### Progress
+
+    * baseball — DONE (first project-tier tutorial; its project type is a
+      multi-page Quarto website). Site is index + home-runs + sluggers, using
+      the Lahman R data package directly (no extdata/manifest). Future
+      project-tier tutorials may instead build Shiny apps, Quarto dashboards,
+      etc. — same tier, different project type. Anomaly: total HR appears to collapse in 1981/1994/
+      2020, but those are shortened seasons (strike/COVID) — normalizing to HR per
+      game reveals the real eras (dead-ball, 1920 jump, WWII dip, steroid era,
+      2019 juiced ball). Sluggers page ties 9 of the top-15 career HR leaders to
+      the steroid-era spike. See CLAUDE.md "Website tutorials" for the recorded
+      overrides (website artifact, AI-prose-as-content, topic-driven not storage-
+      driven, package-data exemption from extdata).
+      Open follow-ups for baseball:
+        - Lahman updates ~yearly; the "1.39 in 2019 / 762 Bonds" numbers in the
+          knowledge drops are version-pinned (Lahman 14.0.0, data through 2025).
+          Re-check the KD figures if the package is bumped.
+        - Consider a Statcast/baseballr appendix to give caching a genuinely
+          expensive chunk (currently the cache arc is on a fast aggregation,
+          justified as habit-building like .gitignore).
+
 ### Possible tutorial topics
 
 I am flexible on the topics you might select. Anything which at least some college students might be interested in is good. Especially interested in topics which students might use for final projects.
 
-    * baseball (or any other sport)
+    * baseball (or any other sport) — DONE, see Progress above.
 
     * text (like tidytext package, using babynames, perhaps)
 
