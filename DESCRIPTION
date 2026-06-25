@@ -36,6 +36,7 @@ Suggests:
     Lahman,
     leaflet,
     learnr,
+    lubridate,
     maps,
     nycflights13,
     plotly,
