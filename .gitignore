@@ -24,4 +24,3 @@ docs/
 
 # All HTML files
 **/*.html
-inst/extdata/movies/rotten_tomatoes_movies.csv
