@@ -27,7 +27,8 @@ data_manifest <- list(
   "r4ds-4" = c("categories.parquet", "coin_metadata.parquet", "daily_prices.parquet",
                "markets.parquet", "history.parquet", "groups.parquet", "market_groups.parquet"),
   "r4ds-5" = c("imdb_snapshots.rds", "wildfires.geojson"),
-  "census" = c("age_ca.rds", "edu_ca.rds", "income_tx.rds")
+  "census" = c("age_ca.rds", "edu_ca.rds", "income_tx.rds"),
+  "movies" = c("rotten_tomatoes_movies.csv")
 )
 
 .onAttach <- function(libname, pkgname) {
