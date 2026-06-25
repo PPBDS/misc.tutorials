@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9003</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9004</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,7 +91,25 @@
 <td>Web API</td>
 <td>tidycensus, sf</td>
 <td><code>*.rds</code></td>
+</tr><tr><td><code>baseball</code></td>
+<td>R data package (Lahman)</td>
+<td>Lahman, tidyverse</td>
+<td>
+<code><a href="http://cdalzell.github.io/Lahman/reference/Teams.html" class="external-link">Lahman::Teams</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/Batting.html" class="external-link">Lahman::Batting</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/People.html" class="external-link">Lahman::People</a></code>
+</td>
 </tr></tbody></table></div>
+<div class="section level2">
+<h2 id="project-tutorials-baseball-and-later">Project tutorials (<code>baseball</code> and later)<a class="anchor" aria-label="anchor" href="#project-tutorials-baseball-and-later"></a></h2>
+<p><code>baseball</code> is the first of a newer tier of tutorials (topics like baseball, stocks, Bitcoin, weather, US maps) whose distinguishing feature is that <strong>the final artifact is a <em>project</em> — not a single published <code>analysis.qmd</code> page.</strong> A “project” is any multi-file Quarto/R artifact a student creates and publishes: a simple multi-page <strong>website</strong> (baseball’s form), but equally a <strong>Shiny app</strong>, a <strong>Quarto dashboard</strong>, or similar. Students are assumed to have done the <code>vscode.tutorials</code> material for whichever project type a tutorial uses, so the project <em>mechanics</em> are not re-taught. The following base-guide defaults are written for the single-page model and are <strong>overridden on the record</strong> for this tier (the first three are general to every project type; the fourth is specific to the website form <code>baseball</code> uses):</p>
+<ul><li>
+<strong>A project, not <code>analysis.qmd</code>.</strong> The student builds a multi-file project with its own config (e.g. <code>_quarto.yml</code>) and a natural place for each topic, rather than one evolving <code>analysis.qmd</code>. The base guide’s “one evolving working chunk per topic” maps onto “one unit of the project per topic” — for a website, <strong>one page per topic</strong> (<code>home-runs.qmd</code>, <code>sluggers.qmd</code>); for a dashboard, one card/section; for Shiny, one view. Site/app-wide settings like <code>execute: echo: false</code> go in the project config once, not in each file’s YAML.</li>
+<li>
+<strong>Students write AI-drafted prose as project content.</strong> The TODO asks that students add text to the project; they draft framing/landing prose with AI and submit it via <code>show_file()</code> on the relevant file. <strong>This is not the forbidden interpretation exercise.</strong> The <em>no-interpretation-exercises</em> override still holds: we never ask a student to write graded prose explaining what a plot shows. Writing the project’s framing copy is <strong>artifact-content creation</strong> — words the project genuinely needs — and our shown answer is a model paragraph of that copy. Keep prose tasks to framing, not per-plot interpretation.</li>
+<li>
+<strong>Topic-driven, not a new storage technology.</strong> Per the TODO (“tutorials now are about concepts, not books”), this tier is organized around a <strong>domain plus its gold-standard R data infrastructure</strong>, and need not introduce an unused storage technology. <code>baseball</code> does not: its “storage” is simply the <strong>Lahman</strong> R data package. The storage-spine framing in <em>What this package is</em> applies to the <code>r4ds-*</code>/<code>census</code> tutorials; for this tier the spine relaxes to “domain + canonical data source.” Still teach the data ecosystem in knowledge drops (for baseball: Lahman as the season-level gold standard, with Retrosheet/Statcast/<strong>baseballr</strong> as the finer-grained frontier).</li>
+<li>
+<strong>Website form (baseball’s project type).</strong> A Quarto <em>website</em>: <code>_quarto.yml</code> + <code>index.qmd</code> + one analysis page per topic. Render the whole site with bare <code>quarto render</code>; open <code>_site/index.html</code> with Live Server (output lives in <code>_site/</code>). <code>.gitignore</code> ignores <code>/_site/</code>, <code>/.quarto/</code>, <code>/*_files/</code>, and (after the caching arc) <code>/*_cache/</code>. A page’s <code>#| cache: true</code> chunk creates a top-level <code>&lt;page&gt;_cache/</code> directory — same caching arc as the base guide, on a per-page chunk. The Summary publishes the <strong>whole project</strong> with <code>quarto publish gh-pages</code> (no filename) and its final evidence is <code>show_file("index.qmd")</code>. Other project types will have their own analogous specifics (a dashboard’s <code>_quarto.yml</code> <code>format: dashboard</code>, a Shiny app’s <code>app.R</code>/<code>shinyapps.io</code> deploy); record them here as they are built.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="choosing-topics">Choosing topics<a class="anchor" aria-label="anchor" href="#choosing-topics"></a></h2>
 <p>This is <code>misc.tutorials</code>’ content model — how it picks each tutorial’s subject. The base guide routes topic selection to each project; this is the routed section. Other projects’ models differ (the Primer fixes its topics as the four Cardinal Virtues), so this lives here, not in the base guide.</p>
@@ -113,6 +131,7 @@
 <code>R/zzz.R</code> carries a <code>data_manifest</code> of the files per tutorial and an <code>.onAttach()</code> hook that re-downloads any missing ones into the installed <code>extdata/&lt;tutorial&gt;/</code> (for the CRAN build, which ships without them). <strong>Update the manifest whenever a tutorial’s data files change.</strong>
 </li>
 </ul><p>New work should add data under <code>inst/extdata/&lt;tutorial&gt;/</code>, reference it as <code>../../extdata/&lt;tutorial&gt;/&lt;file&gt;</code>, and add the filenames to the <code>R/zzz.R</code> manifest.</p>
+<p><strong>Exception — tutorials whose data is an R package.</strong> When a tutorial’s data ships <em>inside an R package</em> (e.g. <code>baseball</code> uses <strong>Lahman</strong>), there is no file to host: students <code><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages()</a></code> and <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> the package, and the tutorial’s test chunks reference the package’s tables directly (<code>Teams</code>, <code>Batting</code>, <code>People</code>). Such a tutorial has <strong>no <code>inst/extdata/&lt;tutorial&gt;/</code> directory, no download-to-<code>data/</code> step, and no <code>R/zzz.R</code> manifest entry</strong> — just add the package to <code>DESCRIPTION</code> <code>Suggests</code>. This is more honest about how analysts in that domain actually work (loading the canonical data package) and is the default for the project tier where it applies.</p>
 </div>
 <div class="section level2">
 <h2 id="cran--build-size">CRAN / build size<a class="anchor" aria-label="anchor" href="#cran--build-size"></a></h2>
