@@ -1,0 +1,1085 @@
+---
+title: Movies
+author: David Kane
+tutorial:
+  id: movies
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: 'Explores Rotten Tomatoes movie data to ask whether critics and audiences systematically disagree. Students separate multi-genre values with tidyr, compute critic-minus-audience gaps by genre, and publish a polished Quarto analysis.'
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(tidyverse)
+library(knitr)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+options(tutorial.exercise.timelimit = 600,
+        tutorial.storage = "local")
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+###
+
+You will use AI to analyze Rotten Tomatoes movie data. The central question: do critics and audiences systematically disagree about movies, and which genres drive the biggest gap between their scores? You will build and publish a Quarto analysis that answers this question with data.
+
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files without copy/pasting. You may also use a chat-based AI (such as ChatGPT or Claude on the web), though this will require manually copying code into your Quarto document. Our instructions are written assuming you are using an agentic coding tool, but the choice is yours.
+
+### Exercise 1
+
+You should be connected to a repo named `movies`. If you are not, create one and connect to it.
+
+Create a new file, `analysis.qmd`, with the title `"Movies"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line.
+
+Use AI however you like.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Your `.gitignore` should include:
+
+```
+analysis_files
+```
+
+###
+
+The rendered HTML creates a support directory called `analysis_files/` that holds fonts, scripts, and images. It does not belong in your repo because it is generated output — Git should track source files, not derived artifacts.
+
+### Exercise 2
+
+In your QMD, put `library(tidyverse)` in a new code chunk. Add `#| message: false` to the chunk so package startup messages do not appear in the rendered HTML.
+
+Also add this to the YAML header to hide code in the HTML:
+
+```
+execute:
+  echo: false
+```
+
+Render again. Only the title and author should appear in the HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+Your last chunk should look like this:
+
+<pre><code>#| message: false
+library(tidyverse)
+</code></pre>
+
+###
+
+`execute: echo: false` hides all code globally. The HTML becomes a clean results page — no code blocks, no package loading messages — which is what a reader expects from a published analysis.
+
+### Exercise 3
+
+Create a `data` directory at the top level of the `movies` repo. In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+analysis.html  analysis.qmd  analysis_files  data
+```
+
+###
+
+Keeping data files in a `data/` subdirectory separates raw inputs from analysis outputs. When a project grows, this makes it easy to find the source data and to `.gitignore` large files if needed.
+
+### Exercise 4
+
+Download `rotten_tomatoes_movies.csv` and save it as `data/rotten_tomatoes_movies.csv`. The file is available at:
+
+```
+https://www.kaggle.com/datasets/stefanoleone992/rotten-tomatoes-movies-and-critic-reviews-dataset
+```
+
+You may need to create a free Kaggle account to download it. Download the file named `rotten_tomatoes_movies.csv` from that dataset.
+
+In the bash Terminal, run:
+
+```
+ls data
+```
+
+CP/CR.
+
+```{r introduction-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+rotten_tomatoes_movies.csv
+```
+
+###
+
+Rotten Tomatoes publishes two scores for each movie. The **tomatoMeter** is the percentage of approved critics who gave a positive review — a score of 60% or higher earns the "Certified Fresh" label. The **audienceScore** comes from verified ticket buyers on Fandango who rate movies on a 0–5 scale, converted to a 0–100 percentage. The same movie can score very differently on each scale.
+
+### Exercise 5
+
+Commit and push the files you have so far. Use the commit message:
+
+```
+Initial setup
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r introduction-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
+
+###
+
+Committing before any real analysis creates a clean baseline. If something later goes wrong — a chunk breaks, an accidental deletion — you can always return to this point.
+
+## Exploring the Data
+###
+
+The `rotten_tomatoes_movies.csv` file has 16 columns. Two matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). Both are numbers from 0 to 100. A third column, `genre`, will require cleaning before it is useful.
+
+### Exercise 1
+
+In a new code chunk, read `data/rotten_tomatoes_movies.csv` into a tibble named `movies`. Print `movies` and Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r explore-1-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE)
+```
+
+###
+
+The dataset has 16 columns covering movies released in theaters and on streaming platforms. The `genre` column immediately stands out: entries like `"Drama, Romance"` or `"Comedy, Horror, Sci-fi"` pack multiple genres into one cell. That structure will need to be separated before any genre-level comparison is possible.
+
+### Exercise 2
+
+In the R Terminal, run:
+
+```
+names(movies)
+```
+
+CP/CR.
+
+```{r explore-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r explore-2-test}
+#| echo: true
+#| warning: false
+names(read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+               show_col_types = FALSE))
+```
+
+###
+
+`audienceScore` and `tomatoMeter` are the two key numeric outcomes. `boxOffice` stores the domestic gross as a character string (with dollar signs and commas), `runtimeMinutes` is numeric, and most other columns are character strings. When asking AI to work with a specific column, always use its exact name — `tomatoMeter`, not `tomato` or `critic_score` — to avoid ambiguity.
+
+### Exercise 3
+
+Update your working chunk to show a histogram of `audienceScore`. Include the number of non-missing values in the subtitle. Render and inspect the plot.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r explore-3-test}
+#| echo: true
+#| warning: false
+movies <- read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+                   show_col_types = FALSE)
+ggplot(movies, aes(x = audienceScore)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
+  labs(
+    title = "Distribution of audience scores on Rotten Tomatoes",
+    subtitle = paste0("n = ", sum(!is.na(movies$audienceScore)),
+                      " movies with an audience score"),
+    x = "Audience score",
+    y = "Movies",
+    caption = "Source: Rotten Tomatoes via Kaggle"
+  )
+```
+
+###
+
+The audience score distribution is left-skewed — most movies score between 60 and 90. This reflects selection bias: people who pay to see a movie in theaters already have some interest in it, so they tend to rate it generously. Movies that are very polarizing or poorly targeted to their audience score lower.
+
+### Exercise 4
+
+Update your working chunk to show a histogram of `tomatoMeter` instead. Include the number of non-missing values in the subtitle. Render and inspect the plot.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r explore-4-test}
+#| echo: true
+#| warning: false
+movies <- read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+                   show_col_types = FALSE)
+ggplot(movies, aes(x = tomatoMeter)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "tomato", color = "white") +
+  labs(
+    title = "Distribution of tomatoMeter scores on Rotten Tomatoes",
+    subtitle = paste0("n = ", sum(!is.na(movies$tomatoMeter)),
+                      " movies with a tomatoMeter"),
+    x = "tomatoMeter",
+    y = "Movies",
+    caption = "Source: Rotten Tomatoes via Kaggle"
+  )
+```
+
+###
+
+The tomatoMeter distribution is much more spread out than the audience score — critics award scores across the full 0–100 range rather than clustering near the top. The gap between the two distributions is already visible: audiences score movies higher on average than critics do.
+
+### Exercise 5
+
+The `genre` column stores multiple genres per row as a comma-separated string, like `"Comedy, Horror, Sci-fi"`. Update your working chunk to create a new tibble called `movies_long` where each row has exactly one genre. Filter out any rows where `genre` is missing or empty. Print `movies_long` and Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r explore-5-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "")
+```
+
+###
+
+`separate_longer_delim()` lengthens the tibble: one row with `genre = "Comedy, Horror"` becomes two rows — one with `genre = "Comedy"` and one with `genre = "Horror"`. A movie tagged with three genres becomes three rows. This is tidy data for genre analysis: each row is one movie-genre combination.
+
+### Exercise 6
+
+Update your working chunk to count how many rows `movies_long` has per genre, sorted from most to least common. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r explore-6-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "") |>
+  count(genre, sort = TRUE)
+```
+
+###
+
+Drama has the most entries by a wide margin, followed by Comedy and Action. Some genres — like "Stand-up" or "Travel" — appear only a few dozen times. When computing average scores by genre, genres with too few movies produce noisy estimates; a genre with 10 movies could have a wildly high or low average from just one unusual film.
+
+### Exercise 7
+
+Your working chunk now mixes exploration (histograms, prints) with data preparation. Clean it up: remove everything except the lines that assign `movies` and `movies_long`. The final chunk should load the data and prepare it — nothing else. Render to confirm it still works.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r explore-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+<pre><code>#| message: false
+movies <- read_csv("data/rotten_tomatoes_movies.csv")
+
+movies_long <- movies |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "")
+</code></pre>
+
+###
+
+A clean data-loading chunk is easier to cache, and caching it means re-reading and reshaping the file on every render stops costing time. Exploratory prints belong in the exploration phase; they do not belong in the final document.
+
+### Exercise 8
+
+Add `#| cache: true` as the first option inside the data chunk. Render. Rendering with caching creates an `analysis_cache/` directory next to your `analysis.qmd`. To confirm the directory is there, run `ls` in the **bash Terminal**.
+
+CP/CR.
+
+```{r explore-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>$ ls
+analysis.html  analysis.qmd  analysis_cache  analysis_files  data
+</code></pre>
+
+###
+
+The cache stores the result of the chunk — `movies` and `movies_long` — as binary files on disk. On the next render, Quarto reloads the saved objects instead of re-running `read_csv()` and `separate_longer_delim()`. This is worthwhile for any chunk that reads or reshapes a large file.
+
+### Exercise 9
+
+The `analysis_cache/` directory now looks like untracked work to Git. Cached files should never go to GitHub — they are machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r explore-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control change count should drop back to whatever it was before the render. The cache is useful locally but is generated output — its presence on GitHub would mislead anyone who clones the repo into thinking they do not need to re-render.
+
+### Exercise 10
+
+Commit and push. Use the commit message:
+
+```
+Add data exploration
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r explore-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
+
+###
+
+Both `audienceScore` and `tomatoMeter` have `NA` values — movies that have not yet accumulated enough reviews on one or both scales. Any analysis of the gap between the two scores must filter to movies where both values are present, otherwise subtracting `NA` from a number produces `NA` throughout.
+
+## Critic vs. Audience Gap
+###
+
+The gap is `tomatoMeter - audienceScore`. A positive value means critics rated the movie higher than audiences; a negative value means audiences rated it higher. The question is whether that gap is systematic across genres, or whether critics and audiences mostly agree.
+
+### Exercise 1
+
+In a new code chunk, start from `movies`, add a column `gap = tomatoMeter - audienceScore`, and filter to rows where `gap` is not `NA`. Assign the result to `movies_gap`, print it, and Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r gap-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r gap-1-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  filter(!is.na(gap))
+```
+
+###
+
+`gap` is measured in percentage points. A movie with a `tomatoMeter` of 85 and an `audienceScore` of 60 has a gap of +25 — critics are 25 points more enthusiastic. A gap of −35 means the audience is 35 points more enthusiastic than the critics. Filtering to non-`NA` gaps keeps only movies that have been scored by both audiences and critics.
+
+### Exercise 2
+
+Update your working chunk to show a histogram of `gap`. Add a vertical reference line at zero. Include the number of movies in the subtitle. Render and inspect the plot.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r gap-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r gap-2-test}
+#| echo: true
+#| warning: false
+movies_gap <- read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+                       show_col_types = FALSE) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  filter(!is.na(gap))
+ggplot(movies_gap, aes(x = gap)) +
+  geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
+  geom_vline(xintercept = 0, color = "firebrick", linetype = "dashed") +
+  labs(
+    title = "Critics and audiences disagree about movies",
+    subtitle = paste0("Gap = tomatoMeter − audienceScore, n = ",
+                      nrow(movies_gap), " movies"),
+    x = "Gap (critic score minus audience score)",
+    y = "Movies",
+    caption = "Source: Rotten Tomatoes via Kaggle"
+  )
+```
+
+###
+
+The distribution of gaps is wide — many movies have gaps larger than 20 points in either direction. The center sits slightly above zero, meaning that on average across all movies, critics rate slightly higher than audiences. But the aggregate average masks enormous variation across genres.
+
+### Exercise 3
+
+Update your working chunk to compute the average gap for each genre. Split the `genre` column so each row has one genre, group by `genre`, and compute the mean gap and movie count. Keep only genres with at least 50 movies and sort from most audience-favored to most critic-favored. Assign the result to `gap_by_genre` and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r gap-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 14)
+```
+
+###
+
+```{r gap-3-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  filter(!is.na(gap)) |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "") |>
+  group_by(genre) |>
+  summarise(
+    avg_gap = mean(gap, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |>
+  filter(n >= 50) |>
+  arrange(avg_gap)
+```
+
+###
+
+The average gap varies considerably by genre — some genres average strongly positive (critics rate higher), others average negative (audiences rate higher). The 50-movie threshold removes niche genres where one unusually reviewed film could dominate the average. The table is already sorted from most audience-favored to most critic-favored, which will make the plot easy to read.
+
+### Exercise 4
+
+Update your working chunk to make a horizontal bar plot from `gap_by_genre`, ordered from most audience-favored to most critic-favored. Color bars by the direction of the gap. Render and inspect the plot.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r gap-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 14)
+```
+
+###
+
+```{r gap-4-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  filter(!is.na(gap)) |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "") |>
+  group_by(genre) |>
+  summarise(avg_gap = mean(gap, na.rm = TRUE), n = n(), .groups = "drop") |>
+  filter(n >= 50) |>
+  mutate(genre = fct_reorder(genre, avg_gap)) |>
+  ggplot(aes(x = avg_gap, y = genre, fill = avg_gap > 0)) +
+  geom_col(show.legend = FALSE) +
+  geom_vline(xintercept = 0, color = "gray40", linewidth = 0.5) +
+  scale_fill_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +
+  labs(
+    title = "Which genres do critics and audiences disagree about most?",
+    subtitle = "Positive gap = critics rate higher; negative = audiences rate higher",
+    x = "Average gap (tomatoMeter − audienceScore, in percentage points)",
+    y = NULL,
+    caption = "Source: Rotten Tomatoes via Kaggle"
+  )
+```
+
+###
+
+Action and Kids & family sit at the audience-favored end — fans of these genres rate them far above what critics give them. Documentary sits at the critic-favored end — critics reward craft, journalism, and social impact in ways that do not always match what general audiences seek out. This reflects a real difference in evaluation criteria: critics often reward ambition and originality, while audiences reward entertainment and emotional payoff.
+
+### Exercise 5
+
+Look at the genre gap plot. Add one or two sentences to your `analysis.qmd` — as regular text outside a code chunk — that describe what the plot shows: which genres have the largest gaps and what direction they go in. Render and confirm the text appears in the HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r gap-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+Your text should name the genre with the largest audience-favored gap (Action) and the genre with the largest critic-favored gap (Documentary), and note the direction of each.
+
+###
+
+Action fans go to the theater to see high-energy spectacle; critics often penalize the same films for thin characters or repetitive plots. Documentaries attract a self-selected audience of curious viewers, but critics evaluate them by journalistic rigor, filmmaking craft, and social relevance — criteria that align more closely with the critical establishment than with the general public.
+
+### Exercise 6
+
+Commit and push. Use the commit message:
+
+```
+Add gap analysis
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r gap-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
+
+###
+
+Box office gross tells a different story from critical reception. Action films are among the most profitable genres despite often having large negative critic-audience gaps — their core audience is highly motivated, and spectacle sells tickets regardless of critical opinion. The `boxOffice` column in this dataset lets you explore this separately: a movie can be widely panned by critics, beloved by fans, and financially successful all at once.
+
+## Polish
+###
+
+The analysis is complete. Now make it look like something worth publishing: a page that tells the data story clearly to someone who arrives without context.
+
+### Exercise 1
+
+Update your gap-by-genre plot with a title that states the finding rather than describing the chart, a subtitle that shows what the bars represent, and a caption that credits the data source. Apply a clean, minimal theme. Render and inspect the result.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r polish-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 16)
+```
+
+###
+
+```{r polish-1-test}
+#| echo: true
+#| warning: false
+read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
+         show_col_types = FALSE) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  filter(!is.na(gap)) |>
+  separate_longer_delim(genre, delim = ", ") |>
+  filter(!is.na(genre), genre != "") |>
+  group_by(genre) |>
+  summarise(avg_gap = mean(gap, na.rm = TRUE), n = n(), .groups = "drop") |>
+  filter(n >= 50) |>
+  mutate(genre = fct_reorder(genre, avg_gap)) |>
+  ggplot(aes(x = avg_gap, y = genre, fill = avg_gap > 0)) +
+  geom_col(show.legend = FALSE) +
+  geom_vline(xintercept = 0, color = "gray40", linewidth = 0.5) +
+  scale_fill_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +
+  labs(
+    title = "Action is for fans, documentaries are for critics",
+    subtitle = "Average gap between tomatoMeter and audienceScore by genre (genres with ≥50 movies)",
+    x = "Average gap (critic score minus audience score, in percentage points)",
+    y = NULL,
+    caption = "Source: Rotten Tomatoes dataset via Kaggle (Stefan Leone, 2020)"
+  ) +
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"))
+```
+
+###
+
+A good title states the finding, not the method. "Action is for fans, documentaries are for critics" tells readers what to notice before they look at the bars — the plot then provides the evidence. A descriptive title like "Average gap by genre" forces the reader to do the interpretive work themselves.
+
+### Exercise 2
+
+Add a short introductory paragraph to your `analysis.qmd`, before the plots, that explains what Rotten Tomatoes is, what the two scores measure, and what question the analysis investigates. Use AI to help write it. Render and confirm it appears in the HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r polish-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 20)
+```
+
+###
+
+Your QMD should have introductory prose before the code chunks that explains the Rotten Tomatoes context and the question being investigated.
+
+###
+
+The published page is for anyone who finds it — not just your instructor. A short introduction explaining what Rotten Tomatoes is and what the analysis investigates makes the page readable by someone who arrives without context. Readers should not have to infer the question from the plots.
+
+### Exercise 3
+
+Turn your project into a Quarto website. Create a `_quarto.yml` file at the top level of your `movies` repo that sets the project type to `website`, gives the site a title, and adds a navigation bar with two pages: `analysis.qmd` labeled "Analysis" and `about.qmd` labeled "About". Also add `_site` to your `.gitignore` on a new line, since that is where Quarto writes the built website.
+
+In the bash Terminal, run `quarto render` (no file argument) to build the whole website. Then in the R Terminal, run:
+
+```
+show_file("_quarto.yml")
+```
+
+CP/CR.
+
+```{r polish-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+Your `_quarto.yml` should look something like this:
+
+<pre><code>project:
+  type: website
+
+website:
+  title: "Movies"
+  navbar:
+    left:
+      - href: analysis.qmd
+        text: Analysis
+      - href: about.qmd
+        text: About
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+</code></pre>
+
+###
+
+A Quarto website project renders all listed pages into a `_site/` directory. The `_quarto.yml` file is the single source of truth for the site's structure: its title, navigation, and HTML formatting options. From this point forward, use `quarto render` (not `quarto render analysis.qmd`) to build the full site.
+
+### Exercise 4
+
+Create `about.qmd` in the root of your `movies` repo with a YAML title of `"About"`. Write two or three sentences explaining who you are and why you investigated the critic-audience gap. Use AI to help. Run `quarto render` and open `_site/about.html` in your browser.
+
+In the R Terminal, run:
+
+```
+show_file("about.qmd")
+```
+
+CP/CR.
+
+```{r polish-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+Your `about.qmd` should have a YAML title and at least two sentences of prose introducing yourself and your motivation for this project.
+
+###
+
+An About page gives a human face to a data analysis. Anyone who finds your published site can learn who made it and why — context that turns a collection of plots into a project with a point of view. Short is fine; two or three sentences are enough.
+
+### Exercise 5
+
+Commit and push. Use the commit message:
+
+```
+Polish analysis and add website
+```
+
+CP/CR or write a short note describing how you committed and pushed.
+
+```{r polish-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
+
+###
+
+The `genre` column in this dataset is imperfect: Rotten Tomatoes assigns genres inconsistently, and a movie tagged as both `"Comedy"` and `"Horror"` contributes to the average gap for both genres. This is an acceptable simplification, but genre boundaries in movie data are fuzzy — the same film can support very different classifications depending on who is doing the classifying.
+
+## Summary
+###
+
+You have built a two-page Quarto website: an analysis page that answers whether critics and audiences systematically disagree about movies, and an About page explaining who built it. Now publish it.
+
+### Exercise 1
+
+Run `quarto render` in the bash Terminal to build the full website. Open `_site/analysis.html` with Live Server and navigate to both pages using the navigation bar. Check that the site looks clean: title, intro text, polished plot, interpretation, and working nav.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 30)
+```
+
+###
+
+Your `analysis.qmd` should contain a setup chunk, a data-loading chunk, a gap plot chunk, introductory text, and the interpretation text. The About page lives in `about.qmd`.
+
+###
+
+If `analysis.qmd` still contains exploratory dead ends from earlier exercises, clean it while preserving the final analysis. The published version should show only the finished work.
+
+### Exercise 2
+
+Publish the full website to GitHub Pages. In a bash Terminal, run:
+
+```
+quarto publish gh-pages
+```
+
+(No file argument — for a website project, this builds and publishes the entire site.) If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+
+Copy/paste the resulting URL below.
+
+```{r summary-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 1)
+```
+
+###
+
+Your answer should be the public `https://...` URL created by `quarto publish gh-pages`.
+
+###
+
+Publishing a website project pushes the full `_site/` directory to the `gh-pages` branch. Both pages — Analysis and About — are live at their own URLs, linked by the navigation bar. Anyone can navigate the site without opening a development environment.
+
+### Exercise 3
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Your answer should be the GitHub repository URL for the project that contains `analysis.qmd`, `about.qmd`, and `_quarto.yml`.
+
+###
+
+Your repo holds the source that reproduces the published site. The published URL shows the result; the repo shows how it was made. Anyone can clone it, run `quarto render`, and produce the same website locally.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```
