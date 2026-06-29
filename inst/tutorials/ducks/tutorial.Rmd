@@ -20,8 +20,7 @@ library(learnr)
 library(tutorial.helpers)
 library(knitr)
 library(tidyverse)
-library(lubridate)
-library(maps)
+library(sf)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
@@ -104,7 +103,6 @@ This tutorial builds a website rather than a single page. The final product will
 
 ### Exercise 2
 
-In your `index.qmd`, add a new code chunk with `library(tidyverse)`, `library(lubridate)`, and `library(maps)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
 
 ```
 execute:
@@ -132,8 +130,7 @@ question_text(NULL,
 
 <pre><code>#| message: false
 library(tidyverse)
-library(lubridate)
-library(maps)
+library(sf)
 </code></pre>
 
 ###
@@ -203,7 +200,7 @@ The original Movebank download contained 748,082 rows mixing GPS fixes and accel
 
 ### Exercise 2
 
-Read `data/mallards.csv` and print it. Render.
+Create a new code chunk in `index.qmd` that reads `data/mallards.csv` and prints the first 10 rows. Render.
 
 In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
 
@@ -220,7 +217,8 @@ question_text(NULL,
 
 ```{r where-do-they-go-2-test}
 #| echo: true
-read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE)
+read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
+  head(10)
 ```
 
 ###
@@ -765,8 +763,7 @@ execute:
 
 #| message: false
 library(tidyverse)
-library(lubridate)
-library(maps)
+library(sf)
 
 ## About this project
 
