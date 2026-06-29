@@ -21,6 +21,7 @@ library(tutorial.helpers)
 library(knitr)
 library(tidyverse)
 library(sf)
+library(maps)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
@@ -42,8 +43,6 @@ mallards <- read_csv("../../extdata/ducks/mallards.csv",
     ),
     season = factor(season, levels = c("Spring", "Summer", "Autumn", "Winter"))
   )
-
-world <- map_data("world")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -103,6 +102,7 @@ This tutorial builds a website rather than a single page. The final product will
 
 ### Exercise 2
 
+In your `index.qmd`, add a new code chunk with `library(tidyverse)` and `library(sf)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
 
 ```
 execute:
@@ -135,7 +135,7 @@ library(sf)
 
 ###
 
-**[lubridate](https://lubridate.tidyverse.org/)** handles dates and times — essential for GPS tracking data where every fix has a timestamp. **[maps](https://cran.r-project.org/package=maps)** provides world map outlines for geographic plots. Both are standard tools for any analysis that involves location and time.
+There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today. `lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately.
 
 ### Exercise 3
 
@@ -196,7 +196,7 @@ mallards.csv
 
 ###
 
-The original Movebank download contained 748,082 rows mixing GPS fixes and accelerometer records, plus dozens of technical columns. This teaching version keeps only the 83,279 GPS rows and the columns needed for movement analysis: timestamp, latitude, longitude, speed, heading, and duck identifier.
+The original Movebank download contained 748,082 rows mixing GPS fixes and accelerometer records across 36 columns. This teaching version keeps only the GPS rows and the seven columns needed for movement analysis: timestamp, latitude, longitude, speed, heading, duck identifier, and species name.
 
 ### Exercise 2
 
@@ -223,7 +223,7 @@ read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-The dataset has 83,279 rows and 7 columns. Each row is one GPS fix — a single location recorded by one duck at one moment. The `duck_id` column combines a numeric tag ID with a location and serial number. Notice that GPS fixes are not evenly distributed across ducks: some individuals have thousands of records, others only dozens.
+Each row is one GPS fix — a single location recorded by one duck at one moment in time. GPS collars record a fix every few hours: the collar computes its position by triangulating signals from satellites overhead, then stores the latitude, longitude, timestamp, and movement metrics. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
 
 ### Exercise 3
 
@@ -250,7 +250,7 @@ read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-Duck `2351` has 20,169 fixes — by far the most of any individual. Several ducks have fewer than 100 records, suggesting their collars failed early or the birds died. This kind of uneven data collection is typical of wildlife tracking studies. For any analysis that compares individuals, you should keep in mind that ducks with more fixes will have more complete pictures of their movement than ducks with few fixes.
+Duck `2351` has over 20,000 fixes — the most of any individual, tracked continuously for several years. Several ducks have fewer than 100 records, suggesting their collars failed early or the birds died. Uneven record counts across individuals are typical of wildlife tracking studies: not every collar lasts the full study period, and ducks with more fixes will show more complete movement pictures than those with few.
 
 ### Exercise 4
 
@@ -282,11 +282,13 @@ read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-Latitudes range from 47.3°N to 53.9°N — roughly from Lake Constance in southern Germany up to the Netherlands or northern Germany. Longitudes span from 7.8°E to 23.6°E, reaching as far east as Poland or Hungary. These are large movements for a duck most people associate with park ponds. Lake Constance sits at the southwestern corner of this range, suggesting that at least some ducks leave the lake and travel hundreds of kilometers northeast.
+Latitudes range from 47.3°N to 53.9°N — roughly from Lake Constance in southern Germany up to the Netherlands or northern Germany. Longitudes span from 7.8°E to 23.6°E, reaching as far east as Poland or Hungary. These are large movements for a bird most people associate with park ponds. Lake Constance sits at the southwestern corner of this range, so some ducks are traveling 500 km or more from their starting point.
 
 ### Exercise 5
 
-Read `data/mallards.csv`, parse the timestamp with `ymd_hms()`, add `month`, `year`, and `season` columns, and assign the result to `mallards`. Print `mallards`. Render.
+Read `data/mallards.csv`, parse the timestamp, and add `month`, `month_num`, `year`, and `season` columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make `season` an ordered factor. Assign the result to `mallards` and print it. Render.
+
+Feel free to copy and paste our code below directly into your QMD as a starting point.
 
 In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
 
@@ -323,13 +325,11 @@ mallards
 
 ###
 
-The `season` column is an ordered factor so that plots display seasons in natural calendar order rather than alphabetically. Without the explicit `levels` argument, R would sort them as Autumn, Spring, Summer, Winter — meaningless for a seasonal analysis.
+The `season` column is an ordered factor so plots display seasons in natural calendar order rather than alphabetically. Without the explicit `levels` argument, R would sort them as Autumn, Spring, Summer, Winter — meaningless for a seasonal analysis. The dataset has `r nrow(mallards)` GPS fixes across 52 individual ducks tracked from 2007 to 2017.
 
 ### Exercise 6
 
-Cache the `mallards` chunk. Add `#| cache: true` as the first line inside the chunk. Render. In the bash Terminal, run `ls`.
-
-CP/CR.
+Now that `mallards` is built, save it to disk so that `map.qmd` and `seasons.qmd` can read it without duplicating the data pipeline. Create a new R script called `mallards.R` in your repo. In it, write the pipeline from Exercise 5 and save the result with `saveRDS(mallards, "data/mallards.rds")`. Run the script in a bash Terminal with `Rscript mallards.R`. In the R Terminal, run `show_file("mallards.R")`. CP/CR.
 
 ```{r where-do-they-go-6}
 question_text(NULL,
@@ -337,60 +337,13 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 4)
+  rows = 10)
 ```
 
 ###
 
-```
-data  index.html  index.qmd  index_cache  *_files
-```
+<pre><code>library(tidyverse)
 
-###
-
-`index_cache/` appears after the first cached render. The cache stores the parsed `mallards` tibble so subsequent renders skip re-reading and processing the CSV. Each `.qmd` page gets its own cache directory — `map_cache` and `seasons_cache` will appear when you render those pages.
-
-### Exercise 7
-
-Add `*_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`.
-
-CP/CR.
-
-```{r where-do-they-go-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-<pre><code>*_files
-*_cache
-</code></pre>
-
-###
-
-Cache files are machine-specific and regenerated on every render — they should never go to GitHub. Using `*_cache` covers all three pages at once — `index_cache`, `map_cache`, and `seasons_cache` — so you never need to add each one separately.
-
-### Exercise 8
-
-Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `index.qmd`. Also add the same `mallards` data chunk with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
-
-```{r where-do-they-go-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-<pre><code>#| cache: true
 mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
   mutate(
     timestamp = ymd_hms(timestamp),
@@ -405,19 +358,93 @@ mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
     ),
     season = factor(season, levels = c("Spring", "Summer", "Autumn", "Winter"))
   )
+
+saveRDS(mallards, "data/mallards.rds")
 </code></pre>
 
 ###
 
-Each page of a Quarto website is an independent document with its own R session. That means `mallards` defined in `index.qmd` is not available in `map.qmd` — every page that needs the data must load it itself.
+RDS is R's native binary format for saving any R object to disk and reloading it exactly — the same data type, factor levels, and column types come back without any re-parsing. Every `.qmd` page in your website can call `readRDS("data/mallards.rds")` to get the cleaned tibble in one line, rather than each page re-running the full CSV pipeline. This is a standard pattern for Quarto websites: one script prepares the data once, and the pages consume the result.
+
+### Exercise 7
+
+Add `data/mallards.rds` to your `.gitignore` — generated files that can be rebuilt from source should not go to GitHub. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r where-do-they-go-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>*_files
+*_cache
+data/mallards.rds
+</code></pre>
+
+###
+
+The `.rds` file is regenerated by running `mallards.R`, so committing it to GitHub would just add binary noise that changes every time the script runs. The source that matters — `mallards.R` and `mallards.csv` — is already tracked. Anyone who clones the repo can recreate `mallards.rds` by running the script themselves.
+
+### Exercise 8
+
+In `index.qmd`, update the `mallards` chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: `mallards <- readRDS("data/mallards.rds")`. Add `#| cache: true`. Render. In the bash Terminal, run `ls data`.
+
+CP/CR.
+
+```{r where-do-they-go-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```
+mallards.csv  mallards.rds
+```
+
+###
+
+`readRDS()` loads the binary file in milliseconds — far faster than re-parsing a CSV and re-running `mutate()` calls. Caching it goes one step further: on the second and subsequent renders, even the `readRDS()` call is skipped and the tibble is loaded directly from the render cache.
 
 ### Exercise 9
 
-In `map.qmd`, add a new working chunk that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 46–55°N, longitudes 7–25°E). Render `map.qmd`.
+Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `index.qmd`. Add a data chunk that reads `mallards <- readRDS("data/mallards.rds")` with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+
+```{r where-do-they-go-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>#| cache: true
+mallards <- readRDS("data/mallards.rds")
+</code></pre>
+
+###
+
+Each page of a Quarto website is an independent document with its own R session — `mallards` defined in `index.qmd` is not available in `map.qmd`. The RDS approach keeps all three pages in sync: if you update `mallards.R` and re-run it, every page that calls `readRDS("data/mallards.rds")` gets the updated data on the next render, with no copy-pasting.
+
+### Exercise 10
+
+In `map.qmd`, add a new working chunk that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 46–55°N, longitudes 7–25°E). Use `geom_sf()` with a world boundary layer from `rnaturalearth`. Render `map.qmd`.
 
 In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-9}
+```{r where-do-they-go-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -428,29 +455,23 @@ question_text(NULL,
 
 ###
 
-```{r where-do-they-go-9-test}
+```{r where-do-they-go-10-test}
 #| echo: true
-world <- map_data("world")
+world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 
 mallards |>
   filter(lat >= 46, lat <= 55, long >= 7, long <= 25) |>
+  st_as_sf(coords = c("long", "lat"), crs = 4326) |>
   ggplot() +
-  geom_map(
-    data = world, map = world,
-    aes(map_id = region),
-    fill = "gray90", color = "gray70", linewidth = 0.2
-  ) +
-  geom_point(
-    aes(x = long, y = lat, color = duck_id),
-    alpha = 0.2, size = 0.5
-  ) +
-  expand_limits(x = c(7, 25), y = c(46, 55)) +
+  geom_sf(data = world, fill = "gray90", color = "gray70", linewidth = 0.2) +
+  geom_sf(aes(color = duck_id), alpha = 0.2, size = 0.5) +
+  coord_sf(xlim = c(7, 25), ylim = c(46, 55)) +
   labs(
-    title    = "Mallard duck GPS fixes, 2007–2017",
+    title   = "Mallard duck GPS fixes, 2007–2017",
     subtitle = "Each color is one individual duck",
-    x        = NULL,
-    y        = NULL,
-    caption  = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
+    x       = NULL,
+    y       = NULL,
+    caption = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
   ) +
   theme_minimal() +
   theme(
@@ -462,34 +483,11 @@ mallards |>
 
 ###
 
-Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map — the ducks' home base. But a scatter of points extends northeast toward Poland and Hungary, showing that some individuals made substantial long-distance movements. The dense cluster and the scattered outliers tell two different duck stories: residents that stay near the lake and dispersers that travel hundreds of kilometers.
-
-### Exercise 10
-
-Write 1–2 sentences interpreting the map. Where do most ducks stay, and what do the outlying points tell you? Add your interpretation as prose in `map.qmd` below the map chunk. Render `map.qmd`.
-
-Paste your interpretation below.
-
-```{r where-do-they-go-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-Most ducks stayed close to Lake Constance throughout the study, but a handful of individuals made long-distance movements of several hundred kilometers to the northeast. This individual variation is striking — the same species, tagged at the same location, shows a wide range of movement strategies from resident to long-distance disperser.
-
-###
-
-Mallards are considered a partially migratory species: some populations are fully resident year-round, others migrate long distances, and many individuals fall somewhere in between. Lake Constance is a mild wintering site that attracts ducks from colder regions further north, so some of the northeastern points may represent birds returning to their breeding grounds in spring rather than local residents exploring.
+Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map — the ducks' home base. A scatter of points extends northeast toward Poland and Hungary, showing that some individuals made substantial long-distance movements of several hundred kilometers. Mallards are a partially migratory species: some populations are fully resident year-round, others travel long distances, and many fall somewhere between. Lake Constance is a mild wintering site that also attracts birds from colder regions further north, so some of the northeastern points may represent birds returning to breeding grounds in spring rather than local residents exploring. `st_as_sf()` converts the latitude/longitude columns into a proper sf geometry column, and `coord_sf()` clips the map to the region of interest — both are standard steps whenever you bring tabular GPS data into a spatial plot.
 
 ### Exercise 11
 
-Commit `index.qmd` and `map.qmd` with the message `"Add duck map"` and push to GitHub.
+Commit `index.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub.
 
 CP/CR.
 
@@ -513,7 +511,7 @@ GPS speed tells us not just where a duck was, but how actively it was moving at 
 
 ### Exercise 1
 
-Create a new file `seasons.qmd` in your repo with the same YAML, libraries, and cached `mallards` chunk as the other pages. Then add a working chunk that counts GPS fixes per month. Render `seasons.qmd`.
+Create a new file `seasons.qmd` in your repo with the same YAML, libraries, and `readRDS` data chunk as the other pages. Then add a working chunk that counts GPS fixes per month. Render `seasons.qmd`.
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
@@ -536,7 +534,7 @@ mallards |>
 
 ###
 
-September dominates with 20,977 fixes — more than double any other month. This is not because ducks move more in September; it reflects when the collars were most active. Most collars were deployed in August or September, so the early weeks of tracking accumulate many fixes before some collars fail or ducks leave the study area. Always check the raw record count before interpreting patterns as biological — an uneven sampling distribution can look like a behavioral signal.
+September dominates with roughly 21,000 fixes — more than double any other month. This reflects when the collars were most active, not duck behavior: most collars were deployed in August or September, so the early weeks of tracking accumulate many fixes before some collars fail or ducks leave the study area. Always check the raw record count before interpreting patterns as biological — an uneven sampling distribution can look like a behavioral signal.
 
 ### Exercise 2
 
@@ -568,7 +566,7 @@ mallards |>
 
 ###
 
-The median speed is 0.22 m/s — most fixes catch a duck that is barely moving. The maximum of 127 m/s is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS error. A handful of extreme outliers like this are common in collar data; they should be removed before any speed analysis to avoid distorting the results.
+The median speed is 0.22 m/s — most fixes catch a duck that is barely moving, resting or feeding at the water's edge. The maximum is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS positioning error — a common artifact in collar data when satellite geometry is poor or the collar briefly loses signal. These outliers should always be filtered before speed-based analysis.
 
 ### Exercise 3
 
@@ -598,7 +596,7 @@ mallards |>
 
 ###
 
-Mean speed is highest in August and September, corresponding to the period when ducks are most likely to make longer movements — either post-breeding dispersal or early autumn staging. Winter months (December–February) show the lowest speeds, consistent with ducks resting near the lake during cold weather. The difference is subtle because mean speed is always pulled toward zero by the many stationary fixes; the pattern is real but modest.
+Mean speed peaks in August and September and again in March — the post-breeding dispersal period and the early spring return. Winter months sit near the bottom, consistent with ducks resting near the lake during cold weather. Mean speed is always pulled toward zero by the majority of stationary fixes; even at the seasonal peak, the average is well under 1 m/s because most GPS fixes still catch a resting bird.
 
 ### Exercise 4
 
@@ -644,38 +642,15 @@ mallards |>
 
 ###
 
-The late summer and early autumn peak in movement speed aligns with the post-breeding season, when young ducks from this year's broods begin exploring beyond their natal area and adult ducks resume longer-range movements after the summer moult. Mallards are partially nocturnal movers — the published study found that ducks shifted activity between day and night flexibly across the year — but this GPS dataset only shows where they were, not what they were doing.
+The autumn peak aligns with the post-breeding season when young ducks from this year's broods begin exploring beyond their natal area and adult ducks resume longer-range movements after the summer moult. The published study found that Mallards shift activity flexibly between day and night across the year — more active at night in summer, more active during the day in winter — but the GPS dataset only records where they were, not what they were doing at each fix.
 
 ### Exercise 5
-
-Write 1–2 sentences interpreting the seasonal chart. When do ducks move most and least, and what might explain the pattern? Add your interpretation as prose in `seasons.qmd` below the chart. Render `seasons.qmd`.
-
-Paste your interpretation below.
-
-```{r when-do-they-move-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
-Mallards move most actively in late summer and autumn, likely reflecting post-breeding dispersal and early staging movements before winter. Movement is slowest in winter when ducks concentrate near Lake Constance, a mild site that attracts wintering waterfowl from colder regions further north.
-
-###
-
-Mean speed per month understates how dramatic migration events actually are. Most GPS fixes still catch a stationary duck; only a small fraction capture active flight. A cleaner view of migration timing would filter to high-speed fixes only (e.g., `speed > 5 m/s`) and count how many occur each month — that would show the actual distribution of flight events rather than the mean diluted by thousands of resting fixes.
-
-### Exercise 6
 
 Commit `seasons.qmd` with the message `"Add seasonal movement analysis"` and push to GitHub.
 
 CP/CR.
 
-```{r when-do-they-move-6}
+```{r when-do-they-move-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -780,10 +755,10 @@ movements. Each collar recorded the duck's latitude, longitude, and speed every
 few hours, building a detailed picture of where each individual went across
 multiple years.
 
-This website explores three questions from that dataset: where do the ducks go,
-when do they move most, and how fast do they travel? The data comes from a
-published study by Korner, Sauter, Fiedler, and Jenni (2016) and is freely
-available through Movebank under a Creative Commons Attribution license.
+This website explores two questions from that dataset: where do the ducks go,
+and when do they move most? The data comes from a published study by Korner,
+Sauter, Fiedler, and Jenni (2016) and is freely available through Movebank
+under a Creative Commons Attribution license.
 </code></pre>
 
 ###
@@ -828,7 +803,8 @@ question_text(NULL,
 
 ###
 
-Movebank hosts thousands of published animal tracking studies under open licenses. The same workflow used here — download a CSV, clean timestamps and coordinates, map locations, analyze movement patterns, build a website — applies to any species in the archive, from monarch butterflies to great white sharks. The `move2` R package connects directly to Movebank's API, so for a more advanced project you could pull any tracking dataset straight into R without a manual download.
+Movebank hosts thousands of published animal tracking studies under open licenses. The same workflow used here — download a CSV, clean timestamps and coordinates, save an RDS, map locations, analyze movement patterns, build a website — applies to any species in the archive, from monarch butterflies to great white sharks. The **[move2](https://cran.r-project.org/package=move2)** R package connects directly to Movebank's API, so for a more advanced project you could pull any tracking dataset straight into R without a manual download.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
+
