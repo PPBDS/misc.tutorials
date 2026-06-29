@@ -53,6 +53,13 @@ mallards <- read_csv("../../extdata/ducks/mallards.csv",
 
 Mallards (*Anas platyrhynchos*) are the most familiar duck in the world — the green-headed bird you've seen in every park pond. But most people don't know how far they actually travel, or how differently individual ducks behave. This tutorial uses GPS tracking data from 52 Mallards fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, to explore where they go, when they move most, and how much individuals differ.
 
+<div style="display: flex; justify-content: center; gap: 20px; align-items: flex-start;">
+  <img src="images/mallard.jpg" style="height: 300px; width: auto;"/>
+  <img src="images/lake-constance-photo.jpg" style="height: 300px; width: auto;"/>
+</div>
+
+Pictured above: a male and female Mallard (left) and Lake Constance (Bodensee), one of the largest freshwater lakes in Central Europe (right), sitting at the border of Germany, Austria, and Switzerland. It has been an important wintering and staging site for waterfowl for centuries — each autumn, tens of thousands of ducks, geese, and other waterbirds gather here before and after their migrations.
+
 The data comes from a published study by Korner, Sauter, Fiedler, and Jenni (2016) — ["Variable allocation of activity to daylight and night in the mallard"](https://doi.org/10.1016/j.anbehav.2016.02.026) — and is freely available through [Movebank](https://movebank.org/), the world's largest archive of animal tracking data. The dataset is licensed under Creative Commons Attribution (CC BY).
 
 We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
@@ -69,7 +76,7 @@ quarto render index.qmd
 
 Open `index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `*_files` and `*_cache` each on their own line, followed by a blank line. Commit and push.
+Create a `.gitignore` with `*_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
@@ -92,8 +99,8 @@ question_text(NULL,
 
 ###
 
-<pre><code>*_files
-*_cache
+<pre><code>
+*_files
 </code></pre>
 
 ###
@@ -223,7 +230,7 @@ read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-Each row is one GPS fix — a single location recorded by one duck at one moment in time. GPS collars record a fix every few hours: the collar computes its position by triangulating signals from satellites overhead, then stores the latitude, longitude, timestamp, and movement metrics. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
+Each row is one **GPS fix** — a single location recorded by one duck at one moment in time. GPS collars record a fix every few hours: the collar computes its position by triangulating signals from satellites overhead, then stores the latitude, longitude, timestamp, and movement metrics. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
 
 ### Exercise 3
 
@@ -283,6 +290,13 @@ read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
 ###
 
 Latitudes range from 47.3°N to 53.9°N — roughly from Lake Constance in southern Germany up to the Netherlands or northern Germany. Longitudes span from 7.8°E to 23.6°E, reaching as far east as Poland or Hungary. These are large movements for a bird most people associate with park ponds. Lake Constance sits at the southwestern corner of this range, so some ducks are traveling 500 km or more from their starting point.
+
+Below: the full region the ducks travel through (left) and a detailed view of Lake Constance itself, where all 52 ducks in this study were originally tagged (right).
+
+<div style="display: flex; justify-content: center; gap: 20px; align-items: flex-start;">
+  <img src="images/europe-map.png" style="height: 300px; width: auto;"/>
+  <img src="images/lake-constance.png" style="height: 300px; width: auto;"/>
+</div>
 
 ### Exercise 5
 
@@ -364,7 +378,7 @@ saveRDS(mallards, "data/mallards.rds")
 
 ###
 
-RDS is R's native binary format for saving any R object to disk and reloading it exactly — the same data type, factor levels, and column types come back without any re-parsing. Every `.qmd` page in your website can call `readRDS("data/mallards.rds")` to get the cleaned tibble in one line, rather than each page re-running the full CSV pipeline. This is a standard pattern for Quarto websites: one script prepares the data once, and the pages consume the result.
+**RDS** is R's native binary format for saving any R object to disk and reloading it exactly — the same data type, factor levels, and column types come back without any re-parsing. Every `.qmd` page in your website can call `readRDS("data/mallards.rds")` to get the cleaned tibble in one line, rather than each page re-running the full CSV pipeline. This is a standard pattern for Quarto websites: one script prepares the data once, and the pages consume the result.
 
 ### Exercise 7
 
@@ -459,31 +473,43 @@ question_text(NULL,
 #| echo: true
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 
-mallards |>
-  filter(lat >= 46, lat <= 55, long >= 7, long <= 25) |>
-  st_as_sf(coords = c("long", "lat"), crs = 4326) |>
-  ggplot() +
-  geom_sf(data = world, fill = "gray90", color = "gray70", linewidth = 0.2) +
-  geom_sf(aes(color = duck_id), alpha = 0.2, size = 0.5) +
-  coord_sf(xlim = c(7, 25), ylim = c(46, 55)) +
+mallards_sf <- mallards |>
+  filter(lat >= 47, lat <= 55, long >= 8, long <= 25) |>
+  arrange(duck_id, timestamp)
+
+ggplot() +
+  geom_sf(data = world, fill = "#e8f4f8", color = "gray70", linewidth = 0.2) +
+  geom_path(
+    data = mallards_sf,
+    aes(x = long, y = lat, group = duck_id, color = duck_id),
+    alpha = 0.4, linewidth = 0.3
+  ) +
+  geom_point(
+    data = mallards_sf,
+    aes(x = long, y = lat, color = duck_id),
+    alpha = 0.6, size = 0.8
+  ) +
+  coord_sf(xlim = c(8, 25), ylim = c(47, 55)) +
+  scale_color_viridis_d(option = "turbo") +
   labs(
-    title   = "Mallard duck GPS fixes, 2007–2017",
-    subtitle = "Each color is one individual duck",
-    x       = NULL,
-    y       = NULL,
-    caption = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
+    title    = "Mallard duck GPS fixes, 2007–2017",
+    subtitle = "Each color is one individual duck; lines show movement paths",
+    x        = NULL,
+    y        = NULL,
+    caption  = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
   ) +
   theme_minimal() +
   theme(
-    axis.text       = element_blank(),
-    axis.ticks      = element_blank(),
-    legend.position = "none"
+    axis.text        = element_blank(),
+    axis.ticks       = element_blank(),
+    legend.position  = "none",
+    panel.background = element_rect(fill = "#d0e8f0", color = NA)
   )
 ```
 
 ###
 
-Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map — the ducks' home base. A scatter of points extends northeast toward Poland and Hungary, showing that some individuals made substantial long-distance movements of several hundred kilometers. Mallards are a partially migratory species: some populations are fully resident year-round, others travel long distances, and many fall somewhere between. Lake Constance is a mild wintering site that also attracts birds from colder regions further north, so some of the northeastern points may represent birds returning to breeding grounds in spring rather than local residents exploring. `st_as_sf()` converts the latitude/longitude columns into a proper sf geometry column, and `coord_sf()` clips the map to the region of interest — both are standard steps whenever you bring tabular GPS data into a spatial plot.
+Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map — the ducks' home base. A scatter of points extends northeast toward Poland and Hungary, showing that some individuals made substantial long-distance movements of several hundred kilometers. Mallards are a  **partially migratory species**: some populations are fully resident year-round, others travel long distances, and many fall somewhere between. Lake Constance is a mild wintering site that also attracts birds from colder regions further north, so some of the northeastern points may represent birds returning to breeding grounds in spring rather than local residents exploring. `st_as_sf()` converts the latitude/longitude columns into a proper sf geometry column, and `coord_sf()` clips the map to the region of interest — both are standard steps whenever you bring tabular GPS data into a spatial plot.
 
 ### Exercise 11
 
@@ -507,7 +533,7 @@ The map shows where ducks go. The next section asks when — how does duck movem
 ## When do they move?
 ###
 
-GPS speed tells us not just where a duck was, but how actively it was moving at each fix. A speed near zero means the duck was resting or feeding; higher speeds mean active flight. Combined with timestamps, speed reveals the seasonal rhythm of duck activity across the 10-year study.
+GPS speed tells us not just where a duck was, but how actively it was moving at each fix. A speed near zero means the duck was resting or feeding; **higher speeds mean active flight**. Combined with timestamps, speed reveals the seasonal rhythm of duck activity across the 10-year study.
 
 ### Exercise 1
 
@@ -807,4 +833,5 @@ Movebank hosts thousands of published animal tracking studies under open license
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
+
 
