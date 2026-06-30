@@ -50,4 +50,7 @@ Suggests:
     tidycensus,
     tidyr,
     tidyverse,
-    viridis
+    viridis,
+    rnaturalearth,
+    rnaturalearthdata
+    
