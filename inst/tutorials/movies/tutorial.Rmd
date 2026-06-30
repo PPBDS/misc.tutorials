@@ -1,6 +1,6 @@
 ---
 title: Movies
-author: David Kane
+author: Harshil Kurapati
 tutorial:
   id: movies
 output:
@@ -249,7 +249,7 @@ read_csv("../../extdata/movies/rotten_tomatoes_movies.csv",
 
 ###
 
-The dataset has 16 columns covering movies released in theaters and on streaming platforms. The `genre` column immediately stands out: entries like `"Drama, Romance"` or `"Comedy, Horror, Sci-fi"` pack multiple genres into one cell. That structure will need to be separated before any genre-level comparison is possible.
+A tibble is R's word for a data table — rows are observations and columns are variables. The dataset has 16 columns covering movies released in theaters and on streaming platforms. The `genre` column immediately stands out: entries like `"Drama, Romance"` or `"Comedy, Horror, Sci-fi"` pack multiple genres into one cell. That structure will need to be separated before any genre-level comparison is possible.
 
 ### Exercise 2
 
@@ -751,35 +751,6 @@ Action and Kids & family sit at the audience-favored end — fans of these genre
 
 ### Exercise 5
 
-Look at the genre gap plot. Add one or two sentences to your `analysis.qmd` — as regular text outside a code chunk — that describe what the plot shows: which genres have the largest gaps and what direction they go in. Render and confirm the text appears in the HTML.
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r gap-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-Your text should name the genre with the largest audience-favored gap (Action) and the genre with the largest critic-favored gap (Documentary), and note the direction of each.
-
-###
-
-Action fans go to the theater to see high-energy spectacle; critics often penalize the same films for thin characters or repetitive plots. Documentaries attract a self-selected audience of curious viewers, but critics evaluate them by journalistic rigor, filmmaking craft, and social relevance — criteria that align more closely with the critical establishment than with the general public.
-
-### Exercise 6
-
 Commit and push. Use the commit message:
 
 ```
@@ -788,7 +759,7 @@ Add gap analysis
 
 CP/CR or write a short note describing how you committed and pushed.
 
-```{r gap-6}
+```{r gap-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -895,6 +866,8 @@ Your QMD should have introductory prose before the code chunks that explains the
 The published page is for anyone who finds it — not just your instructor. A short introduction explaining what Rotten Tomatoes is and what the analysis investigates makes the page readable by someone who arrives without context. Readers should not have to infer the question from the plots.
 
 ### Exercise 3
+
+YAML is a plain-text configuration format that uses indentation to organize settings — it is how Quarto knows what kind of project to build and how to structure the site. Quarto writes the built website into a folder called `_site/` — this is generated output and does not belong in your repo.
 
 Turn your project into a Quarto website. Create a `_quarto.yml` file at the top level of your `movies` repo that sets the project type to `website`, gives the site a title, and adds a navigation bar with two pages: `analysis.qmd` labeled "Analysis" and `about.qmd` labeled "About". Also add `_site` to your `.gitignore` on a new line, since that is where Quarto writes the built website.
 
