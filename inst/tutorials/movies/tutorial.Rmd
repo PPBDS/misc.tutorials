@@ -648,7 +648,7 @@ ggplot(movies_gap, aes(x = gap)) +
 
 ###
 
-The distribution of gaps is wide — many movies have gaps larger than 20 points in either direction. The center sits slightly above zero, meaning that on average across all movies, critics rate slightly higher than audiences. But the aggregate average masks enormous variation across genres.
+The distribution of gaps is wide — many movies have gaps larger than 20 points in either direction. The center sits slightly above zero which means that on average across all movies, critics rate slightly higher than audiences. But the aggregate average masks enormous variation across genres.
 
 ### Exercise 3
 
