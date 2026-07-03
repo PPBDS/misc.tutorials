@@ -38,7 +38,6 @@
 #' census.
 #'
 #' @importFrom tutorial.helpers show_file
-#' @importFrom utils download.file
 #'
 #' @keywords internal
 "_PACKAGE"

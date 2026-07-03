@@ -76,7 +76,17 @@ quarto render index.qmd
 
 Open `index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `*_files` followed by a blank line. Commit and push.
+This tutorial builds a website, so Quarto will generate a lot of files you do not want in your repo: the built HTML pages, their supporting `_files` folders, the `_site` output directory, Quarto's `.quarto` working directory, and (later) render caches. Create a `.gitignore` that ignores all of them:
+
+```
+_site/
+.quarto/
+*_files
+*_cache
+*.html
+```
+
+Commit and push.
 
 In the R Terminal, run:
 
@@ -99,8 +109,11 @@ question_text(NULL,
 
 ###
 
-<pre><code>
+<pre><code>_site/
+.quarto/
 *_files
+*_cache
+*.html
 </code></pre>
 
 ###
@@ -162,9 +175,8 @@ question_text(NULL,
 ###
 
 ```
-data  index.html  index.qmd  *_files
+data  index.html  index.qmd  index_files
 ```
-<!-- HK: Expected answer shows *_files literally but real ls output shows index_files. Should show the actual generated folder name. -->
 
 ## Where do they go?
 ###
@@ -397,8 +409,11 @@ question_text(NULL,
 
 ###
 
-<pre><code>*_files
+<pre><code>_site/
+.quarto/
+*_files
 *_cache
+*.html
 data/mallards.rds
 </code></pre>
 
@@ -768,6 +783,9 @@ execute:
 library(tidyverse)
 library(sf)
 
+#| cache: true
+mallards <- readRDS("data/mallards.rds")
+
 ## About this project
 
 Mallards (*Anas platyrhynchos*) are the most familiar duck in the world — the
@@ -788,8 +806,6 @@ and when do they move most? The data comes from a published study by Korner,
 Sauter, Fiedler, and Jenni (2016) and is freely available through Movebank
 under a Creative Commons Attribution license.
 </code></pre>
-
-<!-- HK: The expected answer only shows the intro paragraphs, not the full index.qmd file. Students' actual show_file("index.qmd") output will include the YAML header and all code chunks too, so their output won't match what's shown here. -->
 
 ###
 
@@ -816,9 +832,7 @@ question_text(NULL,
 
 ###
 
-`quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar.
-
-<!-- HK: Students will likely try to commit 27+ generated files (_site/, cache folders, html files) at this point because .gitignore was not updated to exclude them earlier in the tutorial. Consider adding _site/, *_cache/, and *_files/ to .gitignore in an earlier exercise so students only commit source files here. -->
+`quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar. Because your `.gitignore` already excludes `_site/`, `.quarto/`, the `_files/` folders, caches, and the built HTML, the only things you commit are your source `.qmd` files, `_quarto.yml`, and the data script.
 
 ### Exercise 4
 

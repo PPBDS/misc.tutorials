@@ -157,21 +157,10 @@ question_text(NULL,
 
 ###
 
-<!-- VK: The expected answer shows backtick fences (```{r} and ```) but my output after running show_file() doesn't output those.
-
-> show_file("analysis.qmd", chunk = "Last")
-#| message: false
+<pre><code>#| message: false
 library(tidyverse)
 library(readxl)
-> 
-
--->
-
-<pre><code>```{r}
-#| message: false
-library(tidyverse)
-library(readxl)
-```</code></pre>
+</code></pre>
 
 ###
 

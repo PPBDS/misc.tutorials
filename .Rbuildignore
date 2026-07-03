@@ -17,11 +17,3 @@
 ^inst/tutorials/[^/]+/data/README\.txt$
 ^CLAUDE.md$
 ^\.claude$
-
-# Uncomment this line when submitting to CRAN. We do so to remove the
-# per-tutorial data directories under inst/extdata/ (these files are large); it
-# keeps inst/extdata/README.txt. On a stripped install, R/zzz.R's .onAttach()
-# re-downloads the missing files from GitHub. Note that R CMD check will still
-# show the package as large because it does not report the .tar.gz file size,
-# which is what matters to CRAN.
-# ^inst/extdata/[^/]+/

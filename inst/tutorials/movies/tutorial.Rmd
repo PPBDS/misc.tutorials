@@ -95,17 +95,13 @@ Rotten Tomatoes assigns every film two separate scores computed from completely 
 
 ### Exercise 2
 
-Download `movies.csv` into a `data/` subfolder of your project. In the R Terminal, run:
+Create a `data` directory at the top level of your project, then download `movies.csv` into it from this URL:
 
 ```
-dir.create("data")
-download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movies/data/movies.csv",
-  destfile = "data/movies.csv"
-)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movies/data/movies.csv
 ```
 
-Then run `list.files("data")`. CP/CR.
+In the bash Terminal, run `ls data`. CP/CR.
 
 ```{r introduction-2}
 question_text(NULL,
@@ -128,13 +124,7 @@ The dataset covers roughly 30,000 films spanning 1914 to 2023. It was compiled f
 
 ### Exercise 3
 
-In your QMD, add a setup chunk that loads the tidyverse and reads `movies.csv`:
-
-<pre><code>library(tidyverse)
-
-<!-- VK: Kaggle dataset column names differ from what tutorial expects (tomatometer_rating vs tomatoMeter, audience_rating vs audienceScore, genres vs genre). -->
-
-You may need to create a free Kaggle account to download it. Download the file named `rotten_tomatoes_movies.csv` from that dataset.
+In your QMD, add a setup chunk that loads the tidyverse and reads `data/movies.csv` into a tibble named `movies`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
 Render. In the R Terminal, run:
 
@@ -152,6 +142,14 @@ question_text(NULL,
   incorrect = NULL,
   rows = 8)
 ```
+
+###
+
+<pre><code>#| message: false
+library(tidyverse)
+
+movies <- read_csv("data/movies.csv", show_col_types = FALSE)
+</code></pre>
 
 ###
 
@@ -189,7 +187,7 @@ The `movies.csv` file has 8 columns covering roughly 30,000 films. Two matter mo
 
 ### Exercise 1
 
-In a new code chunk, read `data/rotten_tomatoes_movies.csv` into a tibble named `movies`. Print `movies` and Render.
+In a new code chunk, read `data/movies.csv` into a tibble named `movies`. Print `movies` and Render.
 
 <!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. -->
 
@@ -228,8 +226,6 @@ Inside the same chunk, add a call to `names(movies)` below `glimpse(movies)`. Re
 ```
 show_file("analysis.qmd", chunk = "Last")
 ```
-
-<!-- VK: names(movies) runs in R Terminal but movies won't exist there unless students manually load it, which CLAUDE.md says to avoid. Remove or replace with show_file(). -->
 
 CP/CR.
 
