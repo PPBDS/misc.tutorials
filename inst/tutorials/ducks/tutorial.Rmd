@@ -164,6 +164,7 @@ question_text(NULL,
 ```
 data  index.html  index.qmd  *_files
 ```
+<!-- HK: Expected answer shows *_files literally but real ls output shows index_files. Should show the actual generated folder name. -->
 
 ## Where do they go?
 ###
@@ -227,6 +228,8 @@ question_text(NULL,
 read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
   head(10)
 ```
+
+<!-- HK: Test chunk reads from ../../extdata/ducks/mallards.csv but students save the file to data/mallards.csv. The path shown in the expected answer doesn't match what students actually wrote in their QMD. -->
 
 ###
 
@@ -787,6 +790,8 @@ Sauter, Fiedler, and Jenni (2016) and is freely available through Movebank
 under a Creative Commons Attribution license.
 </code></pre>
 
+<!-- HK: The expected answer only shows the intro paragraphs, not the full index.qmd file. Students' actual show_file("index.qmd") output will include the YAML header and all code chunks too, so their output won't match what's shown here. -->
+
 ###
 
 The home page should give a reader who knows nothing about the study enough context to understand the map and seasonal analysis pages. Good introductory text names the species, explains the study location, describes what GPS tracking data is, and previews the main findings — all in plain language without jargon.
@@ -813,6 +818,8 @@ question_text(NULL,
 ###
 
 `quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar.
+
+<!-- HK: Students will likely try to commit 27+ generated files (_site/, cache folders, html files) at this point because .gitignore was not updated to exclude them earlier in the tutorial. Consider adding _site/, *_cache/, and *_files/ to .gitignore in an earlier exercise so students only commit source files here. -->
 
 ### Exercise 4
 
