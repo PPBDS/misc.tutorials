@@ -156,6 +156,8 @@ Download `rotten_tomatoes_movies.csv` and save it as `data/rotten_tomatoes_movie
 https://www.kaggle.com/datasets/stefanoleone992/rotten-tomatoes-movies-and-critic-reviews-dataset
 ```
 
+<!-- VK: Kaggle dataset column names differ from what tutorial expects (tomatometer_rating vs tomatoMeter, audience_rating vs audienceScore, genres vs genre). -->
+
 You may need to create a free Kaggle account to download it. Download the file named `rotten_tomatoes_movies.csv` from that dataset.
 
 In the bash Terminal, run:
@@ -195,6 +197,8 @@ Initial setup
 
 CP/CR or write a short note describing how you committed and pushed.
 
+<!-- VK: Avoid telling students to write short note describing how they committed and pushed. -->
+
 ```{r introduction-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
@@ -208,6 +212,8 @@ question_text(NULL,
 
 A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
 
+<!-- Instead of writing a short note describing how you committed and pushed, just say "Commit and push the files you have so far. And CP/CR." -->
+
 ###
 
 Committing before any real analysis creates a clean baseline. If something later goes wrong — a chunk breaks, an accidental deletion — you can always return to this point.
@@ -220,6 +226,8 @@ The `rotten_tomatoes_movies.csv` file has 16 columns. Two matter most for this a
 ### Exercise 1
 
 In a new code chunk, read `data/rotten_tomatoes_movies.csv` into a tibble named `movies`. Print `movies` and Render.
+
+<!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. -->
 
 In the R Terminal, run:
 
@@ -258,6 +266,8 @@ In the R Terminal, run:
 ```
 names(movies)
 ```
+
+<!-- VK: names(movies) runs in R Terminal but movies won't exist there unless students manually load it, which CLAUDE.md says to avoid. Remove or replace with show_file(). -->
 
 CP/CR.
 
@@ -653,6 +663,8 @@ The distribution of gaps is wide — many movies have gaps larger than 20 points
 ### Exercise 3
 
 Update your working chunk to compute the average gap for each genre. Split the `genre` column so each row has one genre, group by `genre`, and compute the mean gap and movie count. Keep only genres with at least 50 movies and sort from most audience-favored to most critic-favored. Assign the result to `gap_by_genre` and print it. Render.
+
+<!-- VK: gap_by_genre should be defined before the plot chunk but the tutorial uses one evolving chunk. Got an "object not found" error. Can instead split into two chunks. -->
 
 In the R Terminal, run:
 
