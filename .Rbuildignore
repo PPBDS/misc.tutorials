@@ -12,6 +12,9 @@
 ^CRAN-SUBMISSION$
 ^inst/tutorials/.*\.html$
 ^inst/tutorials/.*_files(/.*)?$
+# Per-tutorial data provenance notes: keep in the repo, but do not install them
+# with the package (the data itself under data/ still ships).
+^inst/tutorials/[^/]+/data/README\.txt$
 ^CLAUDE.md$
 ^\.claude$
 

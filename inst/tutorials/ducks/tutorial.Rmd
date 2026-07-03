@@ -28,7 +28,7 @@ knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
-mallards <- read_csv("../../extdata/ducks/mallards.csv",
+mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
   mutate(
     timestamp = ymd_hms(timestamp),
@@ -176,7 +176,7 @@ Lake Constance sits at the border of Germany, Switzerland, and Austria at roughl
 Download the mallard tracking data from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/ducks/mallards.csv
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/ducks/data/mallards.csv
 ```
 
 In the bash Terminal, run:
@@ -225,11 +225,10 @@ question_text(NULL,
 
 ```{r where-do-they-go-2-test}
 #| echo: true
-read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
+read_csv("data/mallards.csv", show_col_types = FALSE) |>
   head(10)
 ```
 
-<!-- HK: Test chunk reads from ../../extdata/ducks/mallards.csv but students save the file to data/mallards.csv. The path shown in the expected answer doesn't match what students actually wrote in their QMD. -->
 
 ###
 
@@ -254,7 +253,7 @@ question_text(NULL,
 
 ```{r where-do-they-go-3-test}
 #| echo: true
-read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
+read_csv("data/mallards.csv", show_col_types = FALSE) |>
   count(duck_id, sort = TRUE)
 ```
 
@@ -281,7 +280,7 @@ question_text(NULL,
 
 ```{r where-do-they-go-4-test}
 #| echo: true
-read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
+read_csv("data/mallards.csv", show_col_types = FALSE) |>
   summarise(
     lat_min  = min(lat, na.rm = TRUE),
     lat_max  = max(lat, na.rm = TRUE),
@@ -322,7 +321,7 @@ question_text(NULL,
 
 ```{r where-do-they-go-5-test}
 #| echo: true
-mallards <- read_csv("../../extdata/ducks/mallards.csv",
+mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
   mutate(
     timestamp = ymd_hms(timestamp),

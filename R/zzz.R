@@ -20,16 +20,12 @@
 #' @importFrom utils download.file
 NULL
 
-data_manifest <- list(
-  "r4ds-1" = c("music.csv"),
-  "r4ds-2" = c("us_births_1994_2014.xlsx", "nba_recruits.xlsx"),
-  "r4ds-3" = c("nameby_year.duckdb", "nycflights13.duckdb", "seda_2025.duckdb", "atus.duckdb"),
-  "r4ds-4" = c("categories.parquet", "coin_metadata.parquet", "daily_prices.parquet",
-               "markets.parquet", "history.parquet", "groups.parquet", "market_groups.parquet"),
-  "r4ds-5" = c("imdb_snapshots.rds", "wildfires.geojson"),
-  "census" = c("age_ca.rds", "edu_ca.rds", "income_tx.rds"),
-  "movies" = c("movies.csv")
-)
+# Every tutorial's data now lives in inst/tutorials/<name>/data/ (shipped with
+# the package), so nothing needs re-downloading on load: the manifest is empty
+# and .onAttach() below is a no-op. This whole mechanism (the manifest, the
+# .onAttach() hook, and the commented extdata rule in .Rbuildignore) is now
+# vestigial and can be removed; it is left in place, inert, pending that cleanup.
+data_manifest <- list()
 
 .onAttach <- function(libname, pkgname) {
 

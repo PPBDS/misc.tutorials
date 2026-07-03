@@ -1,23 +1,15 @@
-This directory holds stable source copies of data files used by tutorials.
-Each tutorial subdirectory has its own README describing its data files and
-their provenance:
+This directory is retired.
 
-  r4ds-1/   Delimited files (CSV)    — music.csv
-  r4ds-2/   Spreadsheets (Excel)     — us_births_1994_2014.xlsx, nba_recruits.xlsx
-  r4ds-3/   Databases (DuckDB)       — nameby_year.duckdb, nycflights13.duckdb,
-                                        seda_2025.duckdb, atus.duckdb
-  r4ds-4/   Arrow / Parquet          — daily_prices.parquet, coin_metadata.parquet,
-                                        categories.parquet; markets.parquet,
-                                        history.parquet, groups.parquet,
-                                        market_groups.parquet
-  r4ds-5/   Spatial / web            — earthquakes.geojson, imdb_snapshots.rds
-  census/   Web API cache            — income_tx.rds, edu_ca.rds, age_ca.rds
+Tutorial data no longer lives here. Every tutorial now keeps its data in a
+data/ directory inside the tutorial folder (inst/tutorials/<name>/data/<file>),
+read from the tutorial with the same relative path a student uses (data/<file>),
+and served to students from that same location on GitHub
+(.../raw/refs/heads/main/inst/tutorials/<name>/data/<file>). Each data/ dir
+carries its own README.txt describing provenance (those READMEs are kept in the
+repo but stripped from the installed package via .Rbuildignore).
 
-Student exercises download files via GitHub raw URLs into the student's own
-data/ directory; the tutorials' own test chunks read them with a relative path
-from the tutorial folder, e.g.:
-
-  read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx")
-
-The file-per-tutorial manifest lives in R/zzz.R, which re-downloads any missing
-files on package load (needed for the CRAN build, which ships without them).
+The old scheme kept stable source copies under inst/extdata/<tutorial>/ and
+re-downloaded them on package load via R/zzz.R for the CRAN build. That machinery
+(the R/zzz.R data_manifest/.onAttach hook and the commented inst/extdata rule in
+.Rbuildignore) is now inert and can be removed. This file and directory can be
+deleted once that cleanup happens.

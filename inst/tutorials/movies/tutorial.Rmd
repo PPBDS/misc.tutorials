@@ -24,7 +24,7 @@ knitr::opts_chunk$set(message = FALSE)
 options(tutorial.exercise.timelimit = 60,
         tutorial.storage = "local")
 
-movies <- read_csv("../../extdata/movies/movies.csv",
+movies <- read_csv("data/movies.csv",
                    show_col_types = FALSE)
 
 movies_clean <- movies |>
@@ -100,7 +100,7 @@ Download `movies.csv` into a `data/` subfolder of your project. In the R Termina
 ```
 dir.create("data")
 download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/movies/movies.csv",
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movies/data/movies.csv",
   destfile = "data/movies.csv"
 )
 ```

@@ -24,7 +24,7 @@ knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
-births_tibble <- read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx") |>
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
     day_of_week = factor(
       day_of_week,
@@ -61,7 +61,7 @@ calendar_resid <- births_adjusted |>
   mutate(calendar_date = as.Date(paste("2001", month, date_of_month, sep = "-")))
 
 basketball_tibble <- read_excel(
-  "../../extdata/r4ds-2/nba_recruits.xlsx"
+  "data/nba_recruits.xlsx"
 ) |>
   mutate(
     recruit_group = factor(
@@ -214,7 +214,7 @@ New Year's Day and Christmas show the deepest dips; even the 13th of each month 
 Download the Excel file `us_births_1994_2014.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-2/us_births_1994_2014.xlsx
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx
 ```
 
 In a bash Terminal, run:
@@ -266,7 +266,7 @@ question_text(NULL,
 
 ```{r births-2-test}
 #| echo: true
-glimpse(read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx"))
+glimpse(read_excel("data/us_births_1994_2014.xlsx"))
 ```
 
 The dataset has 7,670 rows and five columns: `year`, `month`, `date_of_month`, `day_of_week`, and `births`. Each row is one calendar day. Notice that `day_of_week` arrives as `<chr>` — it uses FiveThirtyEight's abbreviated labels ("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun") rather than full names or numbers.
@@ -291,7 +291,7 @@ question_text(NULL,
 
 ```{r births-3-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/us_births_1994_2014.xlsx") |>
+read_excel("data/us_births_1994_2014.xlsx") |>
   select(births, year) |>
   summary()
 ```
@@ -770,7 +770,7 @@ The guiding question: does being a top-ranked teenager actually predict who beco
 Download the Excel file `nba_recruits.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-2/nba_recruits.xlsx
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/nba_recruits.xlsx
 ```
 
 In a bash Terminal, run:
@@ -822,7 +822,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-2-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx")
+read_excel("data/nba_recruits.xlsx")
 ```
 
 The first 10 rows are all `"#1–10"` recruits from the 1998 class — the data is ordered by recruit year and rank. `nba_mean_ws48` is Win Shares per 48 minutes, a measure of career productivity normalized for playing time. Even within this elite group it is already `NA` for several players: Korleone Young (rank 3), Ronald Curry (rank 6), and JaRon Rush (rank 7) never accumulated enough NBA minutes for career stats to register. Being the third-best high school recruit in the country was no guarantee of an NBA career.
@@ -847,7 +847,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-3-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |> glimpse()
+read_excel("data/nba_recruits.xlsx") |> glimpse()
 ```
 
 `recruit_group` and `tier` come in as `<chr>`. For plots, that means R will sort them alphabetically — `"#11–25"` before `"#1–10"`, `"All-Star level"` before `"Never played"`. Converting them to ordered factors is what tells R the correct sequence.
@@ -872,7 +872,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-4-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
+read_excel("data/nba_recruits.xlsx") |>
   select(rank, nba_mean_ws48, top_mean_wa, total_seasons, drafted) |>
   summary()
 ```
@@ -899,7 +899,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-5-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
+read_excel("data/nba_recruits.xlsx") |>
   count(tier)
 ```
 
@@ -931,7 +931,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-6-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
+read_excel("data/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
       tier,
@@ -970,7 +970,7 @@ question_text(NULL,
 
 ```{r basketball-recruits-7-test}
 #| echo: true
-read_excel("../../extdata/r4ds-2/nba_recruits.xlsx") |>
+read_excel("data/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
       tier,
