@@ -180,36 +180,52 @@ choices for these tutorials are still under discussion.)
 
 ## Data handling — package specifics
 
-The base guide prefers stable source copies under
-`inst/extdata/<tutorial>/` and says to avoid
-`inst/tutorials/<name>/data/` unless there is a learnr runtime reason.
-**All tutorials now follow this convention** — the migration away from
-per-tutorial `data/` directories (a holdover from `vscode.tutorials`) is
-complete:
+**A tutorial’s data lives in a `data/` directory inside that tutorial’s
+own folder** — `inst/tutorials/<name>/data/<file>`, sitting next to
+`tutorial.Rmd` and at the same level as the `images/` directory (if
+there is one). This is now the **base-guide default** (§6, *Data
+handling*); the rationale — the package’s own code becomes identical to
+the student’s code — lives there. This section records the
+`misc.tutorials`-specific mechanics and the in-progress migration off
+the old `inst/extdata/` layout:
 
-- Each tutorial’s data lives in `inst/extdata/<tutorial>/`
-  (e.g. `inst/extdata/r4ds-4/daily_prices.parquet`).
-- Setup and test chunks read it with a relative path from the tutorial’s
-  own folder: `../../extdata/<tutorial>/<file>`
-  (e.g. `open_dataset("../../extdata/r4ds-4/daily_prices.parquet")`,
-  `read_rds("../../extdata/census/income_tx.rds")`). This resolves
-  because a tutorial knits with its folder as the working directory.
-- Student-facing download URLs point at the same files on GitHub
-  (`.../raw/refs/heads/main/inst/extdata/<tutorial>/<file>`). Students
-  still download into their **own** `data/` directory and read
-  `data/<file>` from their `analysis.qmd`; only the package’s own knit
-  reads from `extdata`. (So a build/answer chunk shows
-  `../../extdata/...` while the student’s prompt says `data/...` — an
-  accepted cosmetic mismatch inherited from the `r4ds-2` rework.)
-- `R/zzz.R` carries a `data_manifest` of the files per tutorial and an
-  `.onAttach()` hook that re-downloads any missing ones into the
-  installed `extdata/<tutorial>/` (for the CRAN build, which ships
-  without them). **Update the manifest whenever a tutorial’s data files
-  change.**
+- **The package’s setup and test chunks read data with the exact
+  relative path a student writes:** `read_csv("data/music.csv")`, not
+  `../../extdata/r4ds-1/music.csv`. Both resolve to `data/<file>`
+  because a tutorial knits with its own folder as the working directory,
+  and the student’s `analysis.qmd` sits in a repo with its own `data/`.
+  Our answer chunks and the student’s prompts now match exactly — the
+  old cosmetic `extdata` vs `data/` mismatch is gone.
+- **Student-facing download URLs point at the same in-tutorial location
+  on GitHub:**
+  `.../raw/refs/heads/main/inst/tutorials/<name>/data/<file>`. Students
+  download into their own project’s `data/` directory and read
+  `data/<file>`.
+- **Each `data/` directory carries a `README.txt`** documenting the
+  provenance of its files. These provenance notes are kept in the repo
+  but **not installed** with the package: `.Rbuildignore` holds the rule
+  `^inst/tutorials/[^/]+/data/README\.txt$`, which strips the READMEs
+  from the build while the data files themselves still ship.
+- **`inst/extdata/` is retired for tutorial data.** New tutorials put
+  nothing there. Existing `r4ds-*`/`census` tutorials still read from
+  `../../extdata/<tutorial>/` and must be migrated: move each file to
+  `inst/tutorials/<tutorial>/data/`, change the answer/test-chunk paths
+  to `data/<file>`, and repoint the student download URL. Once a
+  tutorial is migrated it no longer needs a `R/zzz.R` manifest entry.
 
-New work should add data under `inst/extdata/<tutorial>/`, reference it
-as `../../extdata/<tutorial>/<file>`, and add the filenames to the
-`R/zzz.R` manifest.
+New work should add data under `inst/tutorials/<name>/data/`, reference
+it as `data/<file>`, and point the student download URL at
+`.../inst/tutorials/<name>/data/<file>`.
+
+**Consequence — CRAN.** Because the data now ships *inside*
+`inst/tutorials/`, it cannot be stripped at build time the way
+`inst/extdata/` was, so the package will exceed CRAN’s size limit and is
+effectively **not CRAN-distributable** — an accepted trade-off (see
+`TODO.txt`: *“we can’t put the repo on CRAN. But who really cares?”*).
+The `R/zzz.R` `data_manifest`/`.onAttach()` re-download hook and the
+commented `.Rbuildignore` `extdata` rule exist only to serve the old
+CRAN-stripping scheme; both become vestigial and should be removed once
+every tutorial is migrated off `extdata`.
 
 **Exception — tutorials whose data is an R package.** When a tutorial’s
 data ships *inside an R package* (e.g. `baseball` uses **Lahman**),
@@ -217,33 +233,35 @@ there is no file to host: students
 [`install.packages()`](https://rdrr.io/r/utils/install.packages.html)
 and [`library()`](https://rdrr.io/r/base/library.html) the package, and
 the tutorial’s test chunks reference the package’s tables directly
-(`Teams`, `Batting`, `People`). Such a tutorial has **no
-`inst/extdata/<tutorial>/` directory, no download-to-`data/` step, and
-no `R/zzz.R` manifest entry** — just add the package to `DESCRIPTION`
-`Suggests`. This is more honest about how analysts in that domain
-actually work (loading the canonical data package) and is the default
-for the project tier where it applies.
+(`Teams`, `Batting`, `People`). Such a tutorial has **no `data/`
+directory, no download step, and no `R/zzz.R` manifest entry** — just
+add the package to `DESCRIPTION` `Suggests`. This is more honest about
+how analysts in that domain actually work (loading the canonical data
+package) and is the default for the project tier where it applies.
+(`baseball` already follows this, so it needs no migration.)
 
 ## CRAN / build size
 
 The tutorial data files are large (duckdb, parquet, and geojson run into
-multiple MB each; the package is ~48 MB on disk). The `.Rbuildignore`
-keeps a **commented-out** rule —
+multiple MB each; the package is ~48 MB on disk). Under the new
+`data/`-in-tutorial convention the package **ships its data and is not
+CRAN-distributable** (see *Data handling* above) — a trade-off we accept
+in exchange for the package’s code matching the student’s code.
 
-    # ^inst/extdata/[^/]+/
+The old CRAN-stripping machinery is being retired as tutorials migrate
+off `extdata`:
 
-— that is uncommented only when building a tarball for CRAN, to strip
-the per-tutorial `inst/extdata/<tutorial>/` data directories (it keeps
-`inst/extdata/README.txt`). On a stripped CRAN install, `R/zzz.R`’s
-`.onAttach()` re-downloads the missing files from GitHub on first load.
-`R CMD check` will still report the package as large because it measures
-the unpacked source, not the compressed `.tar.gz` that CRAN actually
-evaluates; the size NOTE from that is expected. (See `TODO.txt` for the
-open question about why `.Rbuildignore` doesn’t seem to shrink the
-checked size.)
+- The `.Rbuildignore` `# ^inst/extdata/[^/]+/` rule (uncommented at CRAN
+  build time to strip `inst/extdata/<tutorial>/`) and the `R/zzz.R`
+  `data_manifest`/`.onAttach()` re-download hook only served the
+  strip-and-re-download scheme. Remove both once no tutorial reads from
+  `extdata`.
+- Until migration is complete, tutorials still using `extdata` keep
+  relying on that hook, so leave it in place for them.
 
-The test chunks that depend on these data files `skip_on_cran()` for the
-same reason (see `tests/testthat/test-tutorials.R`).
+The test chunks that depend on data files `skip_on_cran()` (see
+`tests/testthat/test-tutorials.R`); that stays regardless, since the
+point is simply not to run heavy data code on CRAN’s checkers.
 
 ## DESCRIPTION
 
