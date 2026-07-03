@@ -168,8 +168,9 @@ In your QMD, add a setup chunk that loads the tidyverse and reads `movies.csv`:
 
 <pre><code>library(tidyverse)
 
-movies <- read_csv("data/movies.csv", show_col_types = FALSE)
-</code></pre>
+<!-- VK: Kaggle dataset column names differ from what tutorial expects (tomatometer_rating vs tomatoMeter, audience_rating vs audienceScore, genres vs genre). -->
+
+You may need to create a free Kaggle account to download it. Download the file named `rotten_tomatoes_movies.csv` from that dataset.
 
 Render. In the R Terminal, run:
 
@@ -196,6 +197,8 @@ The `tomatoMeter` is the percentage of approved critics who gave the film a posi
 
 Commit and push your work with a message like "Initial project setup with movies data". Copy-paste the output of `git log --oneline -3` into the answer box.
 
+<!-- VK: Avoid telling students to write short note describing how they committed and pushed. -->
+
 ```{r introduction-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
@@ -207,7 +210,13 @@ question_text(NULL,
 
 ###
 
-Rotten Tomatoes launched in 1998 as a fan site built by Berkeley student Senh Duong, who scraped critic reviews to decide whether to watch Jackie Chan films. It was acquired by Flixster in 2010 and is now one of the most influential film review aggregators in the world, with the Tomatometer cited in film marketing campaigns and award season coverage.
+A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
+
+<!-- Instead of writing a short note describing how you committed and pushed, just say "Commit and push the files you have so far. And CP/CR." -->
+
+###
+
+Committing before any real analysis creates a clean baseline. If something later goes wrong — a chunk breaks, an accidental deletion — you can always return to this point.
 
 ## Exploring the Data
 
@@ -217,7 +226,11 @@ The `movies.csv` file has 8 columns covering roughly 30,000 films. Two matter mo
 
 ### Exercise 1
 
-Add a new chunk to `analysis.qmd` that calls `glimpse(movies)`. Render, then run:
+In a new code chunk, read `data/rotten_tomatoes_movies.csv` into a tibble named `movies`. Print `movies` and Render.
+
+<!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. -->
+
+In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -252,6 +265,8 @@ Inside the same chunk, add a call to `names(movies)` below `glimpse(movies)`. Re
 ```
 show_file("analysis.qmd", chunk = "Last")
 ```
+
+<!-- VK: names(movies) runs in R Terminal but movies won't exist there unless students manually load it, which CLAUDE.md says to avoid. Remove or replace with show_file(). -->
 
 CP/CR.
 
@@ -571,7 +586,11 @@ The top critic-favored films tend to be obscure documentaries and foreign-langua
 
 ### Exercise 3
 
-Add a new chunk that shows the 8 films with the largest negative gaps — the films audiences love most relative to critics. Make sure each film only appears once in your results. Render, then run:
+Update your working chunk to compute the average gap for each genre. Split the `genre` column so each row has one genre, group by `genre`, and compute the mean gap and movie count. Keep only genres with at least 50 movies and sort from most audience-favored to most critic-favored. Assign the result to `gap_by_genre` and print it. Render.
+
+<!-- VK: gap_by_genre should be defined before the plot chunk but the tutorial uses one evolving chunk. Got an "object not found" error. Can instead split into two chunks. -->
+
+In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
