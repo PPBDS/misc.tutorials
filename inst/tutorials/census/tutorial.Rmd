@@ -143,6 +143,43 @@ library(sf)</code></pre>
 
 **tidycensus** returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an **[sf](https://r-spatial.github.io/sf/)** object — a table with a spatial column attached — that **[ggplot2](https://ggplot2.tidyverse.org/)** can map directly. **sf** is the standard package for spatial data in R, and the boundaries themselves come from **[tigris](https://github.com/walkerke/tigris)**, which **tidycensus** uses under the hood.
 
+### Exercise 3
+
+Every call to `get_acs()` needs a Census API key. Sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) — the key arrives by email within a few minutes.
+
+In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
+
+```
+tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE)
+```
+
+This stores the key in your `.Renviron` file so every future R session finds it automatically. Restart R (Session > Restart R, or close and reopen your R Terminal), then confirm it loaded:
+
+```
+nzchar(Sys.getenv("CENSUS_API_KEY"))
+```
+
+CP/CR the second command and its response — never paste the key itself anywhere.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+```
+[1] TRUE
+```
+
+###
+
+The key is tied to your email, not a Census account — there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits, and every `get_acs()` call in this tutorial picks it up automatically from here on.
+
 ## Texas income
 ###
 
@@ -183,7 +220,7 @@ income_tx <- get_acs(
 
 ###
 
-Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment. You do not need an API key for light use — keyless users get up to 500 queries a day, plenty for this tutorial; for heavier work, request a free key at [the Census signup page](https://api.census.gov/data/key_signup.html).
+Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment — and draws on the key you installed in the Introduction, which every `get_acs()` call in this tutorial uses automatically.
 
 ### Exercise 2
 
