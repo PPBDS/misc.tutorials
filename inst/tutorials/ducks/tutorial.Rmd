@@ -142,7 +142,11 @@ library(sf)
 
 ###
 
-There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today. `lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately.
+There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today.
+
+###
+
+`lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately. Any time you call `library(tidyverse)`, you get `lubridate`, `ggplot2`, `dplyr`, `tidyr`, `readr`, and several other packages all at once.
 
 ### Exercise 3
 
@@ -227,6 +231,9 @@ question_text(NULL,
 read_csv("../../extdata/ducks/mallards.csv", show_col_types = FALSE) |>
   head(10)
 ```
+
+###
+Your code may look different from ours — what matters is that the first 10 rows of the output match.
 
 ###
 
@@ -513,7 +520,7 @@ Most GPS fixes cluster tightly around Lake Constance in the southwest corner of 
 
 ### Exercise 11
 
-Commit `index.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub.
+Commit `index.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub. 
 
 CP/CR.
 
