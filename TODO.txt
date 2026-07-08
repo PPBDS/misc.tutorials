@@ -1,5 +1,11 @@
 ## Harshil and Var
 
+Let's start storing data that we use in the tutorials in a data/ directory next to the tutorial.Rmd file. As part of this, we remove the data from extdata, eventually getting to a state in which there is no data in extdata. This also means that we need to change the URLs so that they reference the new location.
+
+For now, just fix your tutorials. Data used only lives in data/ in your directory. It is deleted from extdata.
+
+
+
 Our next project is to write a few more misc tutorials. We need to give students more practice in just making things. Advice:
 
     * Start by reading: https://github.com/PPBDS/ai-rules/blob/main/claude-md/tutorials/CLAUDE.md. As you can see, you can just tell your favorite AI to follow these instructions and it will do a pretty good first draft!

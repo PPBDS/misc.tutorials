@@ -31,7 +31,7 @@ options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
 con_seda <- dbConnect(duckdb::duckdb(),
-                      dbdir = "../../extdata/r4ds-3/seda_2025.duckdb")
+                      dbdir = "data/seda_2025.duckdb")
 
 dbplyr_dist <- tbl(con_seda, "district_scores")
 
@@ -56,7 +56,7 @@ state_change <- tbl(con_seda, "state_scores") |>
   filter(!is.na(rla_2015), !is.na(rla_2023)) |>
   mutate(rla_change = rla_2023 - rla_2015)
 
-atus_path <- "../../extdata/r4ds-3/atus.duckdb"
+atus_path <- "data/atus.duckdb"
 if (file.exists(atus_path)) {
   con_atus     <- dbConnect(duckdb::duckdb(), dbdir = atus_path)
   dbplyr_act   <- tbl(con_atus, "activities")
@@ -248,7 +248,7 @@ Download the DuckDB database `seda_2025.duckdb` from this URL and save it in you
 `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/seda_2025.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
 ```
 
 Run `ls data` in the bash Terminal. 
@@ -822,7 +822,7 @@ knitr::include_graphics("images/men-v-women-atus-nyt.png")
 Download the DuckDB database `atus.duckdb` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-3/atus.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/atus.duckdb
 ```
 
 In the bash Terminal, run `ls data`.

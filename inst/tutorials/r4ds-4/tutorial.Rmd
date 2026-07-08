@@ -170,9 +170,9 @@ In this section you will join three parquet files — daily prices, coin metadat
 
 Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/daily_prices.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/coin_metadata.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/categories.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/daily_prices.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/coin_metadata.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/categories.parquet`
 
 In the bash Terminal, run:
 
@@ -227,7 +227,7 @@ question_text(NULL,
 ```{r crypto-markets-2-test}
 #| echo: true
 # your file path will differ. It will probably be "data/daily_prices.parquet" if you downloaded the file into your data/ directory
-open_dataset("../../extdata/r4ds-4/daily_prices.parquet")
+open_dataset("data/daily_prices.parquet")
 ```
 
 ###
@@ -259,7 +259,7 @@ question_text(NULL,
 
 ```{r crypto-markets-3-test}
 #| echo: true
-open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+open_dataset("data/daily_prices.parquet") |>
   collect() |>
   slice_sample(n = 10)
 ```
@@ -293,7 +293,7 @@ question_text(NULL,
 
 ```{r crypto-markets-4-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
 prices |>
   slice_sample(n = 10)
@@ -328,9 +328,9 @@ question_text(NULL,
 
 ```{r crypto-markets-5-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+metadata   <- open_dataset("data/coin_metadata.parquet") |>
   collect()
 metadata
 ```
@@ -364,11 +364,11 @@ question_text(NULL,
 
 ```{r crypto-markets-6-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+metadata   <- open_dataset("data/coin_metadata.parquet") |>
   collect()
-categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |>
+categories <- open_dataset("data/categories.parquet") |>
   collect()
 categories
 ```
@@ -816,11 +816,11 @@ question_text(NULL,
 
 ```{r crypto-markets-17-test}
 #| echo: true
-prices     <- open_dataset("../../extdata/r4ds-4/daily_prices.parquet") |>
+prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
-metadata   <- open_dataset("../../extdata/r4ds-4/coin_metadata.parquet") |>
+metadata   <- open_dataset("data/coin_metadata.parquet") |>
   collect()
-categories <- open_dataset("../../extdata/r4ds-4/categories.parquet") |>
+categories <- open_dataset("data/categories.parquet") |>
   collect()
 
 crypto <- prices |>
@@ -1178,8 +1178,8 @@ accurate in a deeper sense.
 
 Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/markets.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/history.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/history.parquet`
 
 In a new code chunk, inspect `history.parquet` with Arrow before loading it into memory. Assign the lazy table to `history_lazy` and print it so you can see the schema and row count. Render.
 
@@ -1204,7 +1204,7 @@ question_text(NULL,
 
 ```{r prediction-markets-1-test}
 #| echo: true
-history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
+history_lazy <- open_dataset("data/history.parquet")
 history_lazy
 ```
 
@@ -1237,7 +1237,7 @@ question_text(NULL,
 
 ```{r prediction-markets-2-test}
 #| echo: true
-markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+markets <- read_parquet("data/markets.parquet")
 
 joined <- history_lazy |>
   collect() |>
@@ -1259,8 +1259,8 @@ In this dataset, 63% of markets resolved NO and 37% resolved YES. That outcome b
 
 Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/groups.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-4/market_groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/market_groups.parquet`
 
 Keep the code that defines `history_lazy`, `markets`, and `joined`. Add the topic-classification files to the chunk and inspect their structure: column types, a few example values, and row counts. Use that output to understand how these tables relate to `markets`. Render.
 
@@ -1285,16 +1285,16 @@ question_text(NULL,
 
 ```{r prediction-markets-3-test}
 #| echo: true
-history_lazy <- open_dataset("../../extdata/r4ds-4/history.parquet")
-markets <- read_parquet("../../extdata/r4ds-4/markets.parquet")
+history_lazy <- open_dataset("data/history.parquet")
+markets <- read_parquet("data/markets.parquet")
 
 joined <- history_lazy |>
   collect() |>
   left_join(markets, by = "market_id") |>
   mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
 
-groups        <- read_parquet("../../extdata/r4ds-4/groups.parquet")
-market_groups <- read_parquet("../../extdata/r4ds-4/market_groups.parquet")
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
 
 groups |> glimpse()
 market_groups |> glimpse()
