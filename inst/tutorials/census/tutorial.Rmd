@@ -715,11 +715,14 @@ execute:
   echo: false
 ---
 
+&#96;&#96;&#96;{r}
 #| message: false
 library(tidyverse)
 library(tidycensus)
 library(sf)
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| cache: true
 income_tx <- get_acs(
   geography = "county",
@@ -728,7 +731,9 @@ income_tx <- get_acs(
   year = 2020,
   geometry = TRUE
 )
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| message: false
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
@@ -738,7 +743,9 @@ ggplot(income_tx) +
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_void()
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| cache: true
 edu_ca <- get_acs(
   geography = "county",
@@ -748,7 +755,9 @@ edu_ca <- get_acs(
   year = 2020,
   geometry = TRUE
 )
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| message: false
 edu_ca |>
   group_by(GEOID) |>
@@ -763,7 +772,9 @@ edu_ca |>
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_void()
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| cache: true
 age_ca <- get_acs(
   geography = "county",
@@ -771,7 +782,9 @@ age_ca <- get_acs(
   variables = c(median_age = "B01002_001", population = "B01003_001"),
   year = 2020
 )
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>
@@ -787,6 +800,7 @@ age_ca |>
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_minimal()
+&#96;&#96;&#96;
 </code></pre>
 
 ###
