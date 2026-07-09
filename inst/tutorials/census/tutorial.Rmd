@@ -153,7 +153,15 @@ In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
 tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE)
 ```
 
-This stores the key in your `.Renviron` file so every future R session finds it automatically. Restart R (Session > Restart R, or close and reopen your R Terminal), then confirm it loaded:
+This stores the key in your `.Renviron` file so every future R session finds it automatically. In the bash Terminal, run:
+
+```
+cat ~/.Renviron
+```
+
+You should see a line that starts with `CENSUS_API_KEY=`. Do not paste that output anywhere, because it contains your key.
+
+Restart R (Session > Restart R, or close and reopen your R Terminal), then confirm the key loaded:
 
 ```
 nzchar(Sys.getenv("CENSUS_API_KEY"))
