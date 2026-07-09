@@ -1283,7 +1283,7 @@ library(sf)
 &#96;&#96;&#96;
 
 &#96;&#96;&#96;{r}
-#| message: false
+#| cache: true
 income_tx <- get_acs(
   geography = "county",
   state = "TX",
