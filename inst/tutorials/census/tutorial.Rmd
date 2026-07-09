@@ -1,6 +1,6 @@
 ---
 title: Analyzing US Census Data
-author: David Kane, Ansh Pathak, and Paramanyu Gupta
+author: David Kane and Alec Rogers
 tutorial:
   id: census
 output:
@@ -784,7 +784,7 @@ question_text(NULL,
 
 ```{r education-by-state-10-test}
 #| echo: true
-#| message: false
+
 edu_state |>
   group_by(GEOID, NAME) |>
   summarize(
