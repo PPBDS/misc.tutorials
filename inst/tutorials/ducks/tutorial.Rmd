@@ -68,13 +68,13 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 You should be connected to a repo named `ducks`. If you are not, create one and connect to it.
 
-Create a new file, `index.qmd`, with the title `"Mallard Duck Movement"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Mallard Duck Movement"` and your name as the author. In a bash Terminal, render it:
 
 ```
-quarto render index.qmd
+quarto render analysis.qmd
 ```
 
-Open `index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 This tutorial builds a website, so Quarto will generate a lot of files you do not want in your repo: the built HTML pages, their supporting `_files` folders, the `_site` output directory, Quarto's `.quarto` working directory, and (later) render caches. Create a `.gitignore` that ignores all of them:
 
@@ -118,11 +118,11 @@ question_text(NULL,
 
 ###
 
-This tutorial builds a website rather than a single page. The final product will have three pages: an introduction page (`index.qmd`), a map page (`map.qmd`), and a seasonal analysis page (`seasons.qmd`). A `_quarto.yml` file will tie them together into a navigable site. You will create these files one at a time as the tutorial progresses.
+This tutorial builds a website rather than a single page. The final product will have three pages: an introduction page (`analysis.qmd`), a map page (`map.qmd`), and a seasonal analysis page (`seasons.qmd`). A `_quarto.yml` file will tie them together into a navigable site. You will create these files one at a time as the tutorial progresses.
 
 ### Exercise 2
 
-In your `index.qmd`, add a new code chunk with `library(tidyverse)` and `library(sf)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
+In your `analysis.qmd`, add a new code chunk with `library(tidyverse)` and `library(sf)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
 
 ```
 execute:
@@ -132,7 +132,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```
-show_file("index.qmd", chunk = "Last")
+show_file("analysis.qmd", chunk = "Last")
 ```
 
 CP/CR.
@@ -155,7 +155,11 @@ library(sf)
 
 ###
 
-There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today. `lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately.
+There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today.
+
+###
+
+`lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately. Any time you call `library(tidyverse)`, you get `lubridate`, `ggplot2`, `dplyr`, `tidyr`, `readr`, and several other packages all at once.
 
 ### Exercise 3
 
@@ -175,7 +179,7 @@ question_text(NULL,
 ###
 
 ```
-data  index.html  index.qmd  index_files
+data  analysis.html  analysis.qmd  *_files
 ```
 
 ## Where do they go?
@@ -220,9 +224,9 @@ The original Movebank download contained 748,082 rows mixing GPS fixes and accel
 
 ### Exercise 2
 
-Create a new code chunk in `index.qmd` that reads `data/mallards.csv` and prints the first 10 rows. Render.
+Create a new code chunk in `analysis.qmd` that reads `data/mallards.csv` and prints the first 10 rows. Render.
 
-In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r where-do-they-go-2}
 question_text(NULL,
@@ -243,6 +247,9 @@ read_csv("data/mallards.csv", show_col_types = FALSE) |>
 
 
 ###
+Your code may look different from ours — what matters is that the first 10 rows of the output match.
+
+###
 
 Each row is one **GPS fix** — a single location recorded by one duck at one moment in time. GPS collars record a fix every few hours: the collar computes its position by triangulating signals from satellites overhead, then stores the latitude, longitude, timestamp, and movement metrics. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
 
@@ -250,7 +257,7 @@ Each row is one **GPS fix** — a single location recorded by one duck at one mo
 
 Count GPS fixes per duck, sorted from most to least. Render.
 
-In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r where-do-they-go-3}
 question_text(NULL,
@@ -277,7 +284,7 @@ Duck `2351` has over 20,000 fixes — the most of any individual, tracked contin
 
 Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render.
 
-In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r where-do-they-go-4}
 question_text(NULL,
@@ -318,7 +325,7 @@ Read `data/mallards.csv`, parse the timestamp, and add `month`, `month_num`, `ye
 
 Feel free to copy and paste our code below directly into your QMD as a starting point.
 
-In the R Terminal, run `show_file("index.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r where-do-they-go-5}
 question_text(NULL,
@@ -423,7 +430,7 @@ The `.rds` file is regenerated by running `mallards.R`, so committing it to GitH
 
 ### Exercise 8
 
-In `index.qmd`, update the `mallards` chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: `mallards <- readRDS("data/mallards.rds")`. Add `#| cache: true`. Render. In the bash Terminal, run `ls data`.
+In `analysis.qmd`, update the `mallards` chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: `mallards <- readRDS("data/mallards.rds")`. Add `#| cache: true`. Render. In the bash Terminal, run `ls data`.
 
 CP/CR.
 
@@ -448,7 +455,7 @@ mallards.csv  mallards.rds
 
 ### Exercise 9
 
-Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `index.qmd`. Add a data chunk that reads `mallards <- readRDS("data/mallards.rds")` with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `analysis.qmd`. Add a data chunk that reads `mallards <- readRDS("data/mallards.rds")` with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
 ```{r where-do-they-go-9}
 question_text(NULL,
@@ -467,7 +474,7 @@ mallards <- readRDS("data/mallards.rds")
 
 ###
 
-Each page of a Quarto website is an independent document with its own R session — `mallards` defined in `index.qmd` is not available in `map.qmd`. The RDS approach keeps all three pages in sync: if you update `mallards.R` and re-run it, every page that calls `readRDS("data/mallards.rds")` gets the updated data on the next render, with no copy-pasting.
+Each page of a Quarto website is an independent document with its own R session — `mallards` defined in `analysis.qmd` is not available in `map.qmd`. The RDS approach keeps all three pages in sync: if you update `mallards.R` and re-run it, every page that calls `readRDS("data/mallards.rds")` gets the updated data on the next render, with no copy-pasting.
 
 ### Exercise 10
 
@@ -530,7 +537,11 @@ Most GPS fixes cluster tightly around Lake Constance in the southwest corner of 
 
 ### Exercise 11
 
-Commit `index.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub.
+Commit `analysis.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub. In the bash Terminal, run:
+
+```
+git log -1
+```
 
 CP/CR.
 
@@ -541,6 +552,16 @@ question_text(NULL,
   try_again_button = "Edit Answer",
   incorrect = NULL,
   rows = 6)
+```
+
+###
+
+```
+commit abc1234
+Author: Your Name <your@email.com>
+Date:   Mon Jan 1 00:00:00 2026
+
+    Add duck map
 ```
 
 ###
@@ -689,7 +710,11 @@ The autumn peak aligns with the post-breeding season when young ducks from this 
 
 ### Exercise 5
 
-Commit `seasons.qmd` with the message `"Add seasonal movement analysis"` and push to GitHub.
+Commit `seasons.qmd` with the message `"Add seasonal movement analysis"` and push to GitHub. In the bash Terminal, run:
+
+```
+git log -1
+```
 
 CP/CR.
 
@@ -704,7 +729,18 @@ question_text(NULL,
 
 ###
 
+```
+commit abc1234
+Author: Your Name <your@email.com>
+Date:   Mon Jan 1 00:00:00 2026
+
+    Add seasonal movement analysis
+```
+
+###
+
 The map and the seasonal chart answer different questions: the map shows the geographic range of duck movements, and the seasonal chart shows when ducks are most and least active. The final section ties these together into a published website.
+
 
 ## Summary
 ###
@@ -739,7 +775,7 @@ website:
   title: "Mallard Duck Movement"
   navbar:
     left:
-      - href: index.qmd
+      - href: analysis.qmd
         text: Home
       - href: map.qmd
         text: Map
@@ -757,9 +793,9 @@ format:
 
 ### Exercise 2
 
-Add introductory text to `index.qmd`. Ask AI to write 2–3 short paragraphs introducing the study: what Mallard ducks are, where Lake Constance is, and what the GPS tracking data reveals. Render.
+Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs introducing the study: what Mallard ducks are, where Lake Constance is, and what the GPS tracking data reveals. Render.
 
-In the R Terminal, run `show_file("index.qmd")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r summary-2}
 question_text(NULL,
