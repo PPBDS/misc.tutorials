@@ -22,6 +22,7 @@ library(knitr)
 library(tidyverse)
 library(sf)
 library(maps)
+library(ggridges)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
@@ -678,11 +679,7 @@ mallards |>
     fill     = "Speed",
     caption  = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
   ) +
-  theme_minimal()commit 3f8a2c1
-Author: Var Kurapati <vkurapat@example.com>
-Date:   Wed July 08 10:23:41 2026 -0700
-
-    Add duck map
+  theme_minimal()
 ```
 
 ###
