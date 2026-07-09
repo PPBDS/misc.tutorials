@@ -34,9 +34,9 @@ movies_gap <- movies_clean |>
   mutate(gap = tomatoMeter - audienceScore)
 
 movies_summary <- movies_gap |>
-  group_by(genre) |>
   summarize(mean_gap = mean(gap, na.rm = TRUE),
-            n = n()) |>
+            n = n(),
+            .by = genre) |>
   filter(n >= 100) |>
   arrange(mean_gap)
 ```
@@ -638,9 +638,9 @@ question_text(NULL,
 ```{r gap-5-test}
 #| echo: true
 movies_gap |>
-  group_by(genre) |>
-  summarize(mean_gap = mean(gap, na.rm = TRUE),
-            n = n()) |>
+summarize(mean_gap = mean(gap, na.rm = TRUE),
+            n = n(),
+            .by = genre) |>
   arrange(mean_gap)
 ```
 
@@ -672,9 +672,9 @@ question_text(NULL,
 ```{r gap-6-test}
 #| echo: true
 movies_summary <- movies_gap |>
-  group_by(genre) |>
   summarize(mean_gap = mean(gap, na.rm = TRUE),
-            n = n()) |>
+            n = n(),
+            .by = genre) |>
   filter(n >= 100) |>
   arrange(mean_gap)
 
@@ -777,8 +777,7 @@ movies_gap <- movies_clean |>
   mutate(gap = tomatoMeter - audienceScore)
 
 movies_summary <- movies_gap |>
-  group_by(genre) |>
-  summarize(mean_gap = mean(gap, na.rm = TRUE), n = n()) |>
+  summarize(mean_gap = mean(gap, na.rm = TRUE), n = n(), .by = genre) |>
   filter(n >= 100) |>
   arrange(mean_gap)
 &#96;&#96;&#96;
