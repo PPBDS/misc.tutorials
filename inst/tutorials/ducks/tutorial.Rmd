@@ -540,9 +540,9 @@ question_text(NULL,
 ###
 
 ```
-commit abc1234
-Author: Your Name <your@email.com>
-Date:   Mon Jan 1 00:00:00 2026
+commit 3f8a2c1
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Wed July 08 10:23:41 2026 -0700
 
     Add duck map
 ```
@@ -636,19 +636,17 @@ question_text(NULL,
 #| echo: true
 mallards |>
   filter(speed <= 30) |>
-  group_by(season, month, month_num) |>
-  summarise(mean_speed = mean(speed, na.rm = TRUE), .groups = "drop") |>
+  summarise(mean_speed = mean(speed, na.rm = TRUE),
+            .by = c(season, month, month_num)) |>
   arrange(month_num)
 ```
 
 ###
 
-Mean speed peaks in August and September and again in March — the post-breeding dispersal period and the early spring return. Winter months sit near the bottom, consistent with ducks resting near the lake during cold weather. Mean speed is always pulled toward zero by the majority of stationary fixes; even at the seasonal peak, the average is well under 1 m/s because most GPS fixes still catch a resting bird.
-
+Mean speed peaks in August–September and again in March, when ducks are most actively dispersing or returning. Even at the seasonal peak the average stays well under 1 m/s because most GPS fixes catch a resting bird.
 ### Exercise 4
 
-Make a bar chart of mean speed by month, colored by season, with GPS errors removed. Render `seasons.qmd`.
-
+Make a ridge plot of speed distributions by month, with GPS errors removed. Use `ggridges`. Render `seasons.qmd`.
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
 ```{r when-do-they-move-4}
@@ -664,27 +662,27 @@ question_text(NULL,
 
 ```{r when-do-they-move-4-test}
 #| echo: true
+library(ggridges)
+
 mallards |>
   filter(speed <= 30) |>
-  group_by(season, month, month_num) |>
-  summarise(mean_speed = mean(speed, na.rm = TRUE), .groups = "drop") |>
-  ggplot(aes(x = fct_reorder(month, month_num), y = mean_speed, fill = season)) +
-  geom_col() +
-  scale_fill_manual(values = c(
-    "Spring" = "#74c476",
-    "Summer" = "#fd8d3c",
-    "Autumn" = "#9ecae1",
-    "Winter" = "#6baed6"
-  )) +
+  mutate(month = fct_reorder(month, month_num)) |>
+  ggplot(aes(x = speed, y = month, fill = after_stat(x))) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis_c(option = "turbo") +
   labs(
-    title    = "Mean Mallard movement speed by month",
-    subtitle = "Ducks move most in late summer and autumn; slowest in winter",
-    x        = NULL,
-    y        = "Mean ground speed (m/s)",
-    fill     = "Season",
+    title    = "Most ducks are barely moving — but autumn has the most active fliers",
+    subtitle = "Distribution of GPS-recorded ground speeds by month (speed ≤ 30 m/s)",
+    x        = "Ground speed (m/s)",
+    y        = NULL,
+    fill     = "Speed",
     caption  = "Source: Korner, Sauter, Fiedler & Jenni (2016) via Movebank (CC BY)"
   ) +
-  theme_minimal()
+  theme_minimal()commit 3f8a2c1
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Wed July 08 10:23:41 2026 -0700
+
+    Add duck map
 ```
 
 ###
@@ -728,30 +726,15 @@ The map and the seasonal chart answer different questions: the map shows the geo
 ## Summary
 ###
 
+
 You have built three pages of analysis. Now you will wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
 
 ### Exercise 1
 
-Create a `_quarto.yml` file at the top level of your repo. It should define a website with a title, a navbar, and links to all three pages. Ask AI to create it for you. Render the site with:
+Create a `_quarto.yml` file at the top level of your repo with the following contents:
 
 ```
-quarto render
-```
-
-In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
-
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 15)
-```
-
-###
-
-<pre><code>project:
+project:
   type: website
 
 website:
@@ -768,15 +751,29 @@ website:
 format:
   html:
     theme: cosmo
-</code></pre>
+```
 
-###
+In the bash Terminal, run:
 
-`_quarto.yml` is the configuration file that turns a folder of `.qmd` files into a website. Without it, each file renders independently; with it, all pages share a navbar, theme, and consistent layout. The `type: website` line is what triggers website mode.
+```
+quarto render
+ls
+```
+
+In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
 
 ### Exercise 2
 
 Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs introducing the study: what Mallard ducks are, where Lake Constance is, and what the GPS tracking data reveals. Render.
+
+
+```
+<div style="display: flex; justify-content: center;">
+  <img src="images/mallard.jpg" style="height: 300px; width: auto;"/>
+</div>
+```
+
+Place the image after your introductory paragraphs. Render and confirm it appears in the HTML.
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
@@ -791,37 +788,7 @@ question_text(NULL,
 
 ###
 
-<pre><code>---
-title: "Mallard Duck Movement"
-author: "Your Name"
-execute:
-  echo: false
----
-
-#| message: false
-library(tidyverse)
-library(sf)
-
-## About this project
-
-Mallards (*Anas platyrhynchos*) are the most familiar duck in the world — the
-green-headed bird found on park ponds across Europe and North America. Despite
-their reputation as stay-at-home birds, Mallards are partially migratory: some
-individuals travel hundreds of kilometers each year, while others barely leave
-their home lake.
-
-Lake Constance sits at the border of Germany, Switzerland, and Austria and is
-one of the largest freshwater lakes in Central Europe. Between 2007 and 2017,
-researchers fitted 52 Mallards with solar-powered GPS collars to track their
-movements. Each collar recorded the duck's latitude, longitude, and speed every
-few hours, building a detailed picture of where each individual went across
-multiple years.
-
-This website explores two questions from that dataset: where do the ducks go,
-and when do they move most? The data comes from a published study by Korner,
-Sauter, Fiedler, and Jenni (2016) and is freely available through Movebank
-under a Creative Commons Attribution license.
-</code></pre>
+Your `analysis.qmd` should have a YAML header, a libraries chunk, a data chunk, and 2–3 paragraphs of introductory prose before the plots.
 
 ###
 
@@ -869,5 +836,6 @@ Movebank hosts thousands of published animal tracking studies under open license
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
+
 
 
