@@ -1,8 +1,44 @@
 ## Harshil and Var
 
-Let's start storing data that we use in the tutorials in a data/ directory next to the tutorial.Rmd file. As part of this, we remove the data from extdata, eventually getting to a state in which there is no data in extdata. This also means that we need to change the URLs so that they reference the new location.
 
-For now, just fix your tutorials. Data used only lives in data/ in your directory. It is deleted from extdata.
+### Var
+
+`marginaleffects`: https://marginaleffects.com/
+
+Read chapters 2 and 3 to get background.
+Avoid chapters 4 and 7
+Key chapters are 5 and 6 (Don;t worry about tests) Don't worry about slopes.
+Check out chapter 15
+
+Difference between marginal and conditional predictions is critical! And confusing!
+Difference between `by` and `condition` is critical.
+
+Maybe basing the whole thing on 15.1 and 15.2 makes sense.
+
+And counter-factual stuff is interesting too!
+
+### Harshil
+
+`tidymodels`: https://www.tmwr.org/
+
+Maybe this is better source? https://www.tidymodels.org/start/
+
+Link to both.
+
+Goal is to understand the overall tidymodels framework. How does it work? What does it mean?
+
+useful to review chapters 1 through 3
+
+Students need to understand linear_reg(), logistic, multinomial and ordered. 
+
+Then discuss set_engine()
+
+fit() and what that means. And then we have the model object. 
+
+parsnip package is important. Discuss mode. See https://parsnip.tidymodels.org/
+
+Maybe discuss tidy() for looking at coefficients.
+
 
 
 
