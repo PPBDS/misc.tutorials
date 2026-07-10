@@ -29,6 +29,7 @@ Suggests:
     dbplyr,
     duckdb,
     ggrepel,
+    ggridges,
     httr2,
     jsonlite,
     knitr,
