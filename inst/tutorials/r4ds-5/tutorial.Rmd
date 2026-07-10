@@ -34,7 +34,7 @@ centroid_lat <- function(coords) {
   mean(map_dbl(coords[[1]], 2))
 }
 
-raw <- jsonlite::read_json("../../extdata/r4ds-5/wildfires.geojson")
+raw <- jsonlite::read_json("data/wildfires.geojson")
 
 fires <- raw |>
   pluck("features") |>
@@ -55,7 +55,7 @@ big_fires <- fires |>
     lat = map_dbl(geometry_coordinates, centroid_lat)
   )
 
-imdb_snapshots <- readRDS("../../extdata/r4ds-5/imdb_snapshots.rds")
+imdb_snapshots <- readRDS("data/imdb_snapshots.rds")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -219,7 +219,7 @@ We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) In
 Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/wildfires.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
 ```
 
 In a bash Terminal, run:
@@ -271,7 +271,7 @@ question_text(NULL,
 ```{r wildfire-perimeters-2-test}
 #| echo: true
 # your path will be "data/wildfires.geojson"
-raw <- jsonlite::read_json("../../extdata/r4ds-5/wildfires.geojson")
+raw <- jsonlite::read_json("data/wildfires.geojson")
 length(raw$features)
 ```
 
@@ -864,7 +864,7 @@ leaflet() |>
   addTiles() |>
   setView(lng = -115, lat = 42, zoom = 4) |>
   addGeoJSON(
-    readr::read_file("../../extdata/r4ds-5/wildfires.geojson"),
+    readr::read_file("data/wildfires.geojson"),
     weight      = 1,
     color       = "#cc4400",
     fillColor   = "#ff7733",
@@ -946,7 +946,7 @@ Download the dataset into your `data/` directory. The file is `imdb_snapshots.rd
 the URL is:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/extdata/r4ds-5/imdb_snapshots.rds
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/imdb_snapshots.rds
 ```
 
 In a bash Terminal, run:
@@ -1006,7 +1006,7 @@ question_text(NULL,
 
 ```{r movie-rankings-2-test}
 #| echo: true
-readRDS("../../extdata/r4ds-5/imdb_snapshots.rds") |>
+readRDS("data/imdb_snapshots.rds") |>
   count(snap_year)
 ```
 

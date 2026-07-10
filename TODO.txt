@@ -1,5 +1,11 @@
 ## Harshil and Var
 
+Let's start storing data that we use in the tutorials in a data/ directory next to the tutorial.Rmd file. As part of this, we remove the data from extdata, eventually getting to a state in which there is no data in extdata. This also means that we need to change the URLs so that they reference the new location.
+
+For now, just fix your tutorials. Data used only lives in data/ in your directory. It is deleted from extdata.
+
+
+
 Our next project is to write a few more misc tutorials. We need to give students more practice in just making things. Advice:
 
     * Start by reading: https://github.com/PPBDS/ai-rules/blob/main/claude-md/tutorials/CLAUDE.md. As you can see, you can just tell your favorite AI to follow these instructions and it will do a pretty good first draft!
@@ -60,17 +66,17 @@ I am flexible on the topics you might select. Anything which at least some colle
 
 
 
-## Alex
+## Alec
 
-Fix census. There should be a data/ directory which includes the rds files which we use. Don't forget to save, in the setup chunk, the commented out code which creates those data sets. 
+Fix census. There should be a data/ directory which includes the rds files which we use. Don't forget to save, in the setup chunk, the commented out code which creates those data sets. -- AR: DONE.
 
 https://ppbds.github.io/tutorial.helpers/articles/ai.html#data
 
-No data sets, or even a census directory in extdata.
+No data sets, or even a census directory in extdata. -- AR: DONE.
 
-Clean up census tutorial. Lots of questions telling AI to download some data, building question to question
+Clean up census tutorial. Lots of questions telling AI to download some data, building question to question. -- AR: DONE.
 
-Data on education by state
+Data on education by state -- AR: DONE.
 
 
 

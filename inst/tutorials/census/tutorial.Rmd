@@ -1,6 +1,6 @@
 ---
 title: Analyzing US Census Data
-author: David Kane, Ansh Pathak, and Paramanyu Gupta
+author: David Kane and Alec Rogers
 tutorial:
   id: census
 output:
@@ -9,7 +9,7 @@ output:
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: "Companion to the tidycensus chapters of 'Analyzing US Census Data' by Kyle Walker. Pulls American Community Survey data with tidycensus and builds three published artifacts: choropleth maps of Texas household income and California educational attainment, and a bar chart of California median age."
+description: "Companion to the tidycensus chapters of 'Analyzing US Census Data' by Kyle Walker. Pulls American Community Survey data with tidycensus and builds three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age."
 ---
 
 ```{r setup, include = FALSE}
@@ -31,20 +31,20 @@ options(tutorial.exercise.timelimit = 600,
 
 # income_tx <- get_acs(geography = "county", variables = "B19013_001",
 # state = "TX", year = 2020, geometry = TRUE)
-# write_rds(income_tx, "../../extdata/census/income_tx.rds")
-income_tx <- read_rds("../../extdata/census/income_tx.rds")
+# write_rds(income_tx, "data/income_tx.rds")
+income_tx <- read_rds("data/income_tx.rds")
 
-# edu_ca <- get_acs(geography = "county",
+# edu_state <- get_acs(geography = "state",
 # variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
-# state = "CA", year = 2020, geometry = TRUE, summary_var = "B15003_001")
-# write_rds(edu_ca, "../../extdata/census/edu_ca.rds")
-edu_ca <- read_rds("../../extdata/census/edu_ca.rds")
+# year = 2020, geometry = FALSE, summary_var = "B15003_001")
+# write_rds(edu_state, "data/edu_state.rds")
+edu_state <- read_rds("data/edu_state.rds")
 
 # age_ca <- get_acs(geography = "county",
 # variables = c(median_age = "B01002_001", population = "B01003_001"),
 # state = "CA", year = 2020, geometry = FALSE)
-# write_rds(age_ca, "../../extdata/census/age_ca.rds")
-age_ca <- read_rds("../../extdata/census/age_ca.rds")
+# write_rds(age_ca, "data/age_ca.rds")
+age_ca <- read_rds("data/age_ca.rds")
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -53,7 +53,7 @@ age_ca <- read_rds("../../extdata/census/age_ca.rds")
 ## Introduction
 ###
 
-This tutorial follows the **[tidycensus](https://walker-data.com/tidycensus/)** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker — [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Mapping Census data with R](https://walker-data.com/census-r/mapping-census-data-with-r.html). You will pull data from the American Community Survey through the Census API and turn it into three published artifacts: choropleth maps of Texas household income and California educational attainment, and a bar chart of California median age.
+This tutorial follows Kyle Walker's [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Mapping Census data with R](https://walker-data.com/census-r/mapping-census-data-with-r.html) chapters from [Analyzing US Census Data](https://walker-data.com/census-r/). You will pull data from the American Community Survey through the Census API and turn it into three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age.
 
 Use AI however you like throughout. An agentic coding tool (such as Claude Code or Gemini CLI) works best, since it can read and edit your files directly; a chat-based assistant works too, with more copy/paste.
 
@@ -143,6 +143,53 @@ library(sf)</code></pre>
 
 **tidycensus** returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an **[sf](https://r-spatial.github.io/sf/)** object — a table with a spatial column attached — that **[ggplot2](https://ggplot2.tidyverse.org/)** can map directly. **sf** is the standard package for spatial data in R, and the boundaries themselves come from **[tigris](https://github.com/walkerke/tigris)**, which **tidycensus** uses under the hood.
 
+### Exercise 3
+
+Every call to `get_acs()` needs a Census API key. Sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) — the key arrives by email within a few minutes.
+
+In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
+
+```
+tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE)
+```
+
+This stores the key in your `.Renviron` file so every future R session finds it automatically. In the bash Terminal, run:
+
+```
+cat ~/.Renviron
+```
+
+You should see a line that starts with `CENSUS_API_KEY=`. Do not paste that output anywhere, because it contains your key.
+
+Restart R (Session > Restart R, or close and reopen your R Terminal), then confirm the key loaded:
+
+```
+nzchar(Sys.getenv("CENSUS_API_KEY"))
+```
+
+Run only the second command for evidence. Never paste the key itself anywhere.
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+```
+[1] TRUE
+```
+
+###
+
+The key is tied to your email, not a Census account — there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits, and every `get_acs()` call in this tutorial picks it up automatically from here on.
+
 ## Texas income
 ###
 
@@ -171,7 +218,7 @@ question_text(NULL,
 
 ###
 
-```
+<pre><code>#| message: false
 income_tx <- get_acs(
   geography = "county",
   variables = "B19013_001",
@@ -179,11 +226,11 @@ income_tx <- get_acs(
   year = 2020,
   geometry = TRUE
 )
-```
+</code></pre>
 
 ###
 
-Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment. You do not need an API key for light use — keyless users get up to 500 queries a day, plenty for this tutorial; for heavier work, request a free key at [the Census signup page](https://api.census.gov/data/key_signup.html).
+Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment — and draws on the key you installed in the Introduction, which every `get_acs()` call in this tutorial uses automatically.
 
 ### Exercise 2
 
@@ -211,7 +258,7 @@ Every county arrives with a `GEOID` (its FIPS code), a `NAME`, the `variable` co
 
 ### Exercise 3
 
-Change that chunk so that, instead of printing `income_tx`, it draws a choropleth map of median income across the counties using **ggplot2**. Render and check the map in your Live Server tab.
+Replace the working chunk with code that shows the structure of `income_tx`. Render.
 
 In the R Terminal, run:
 
@@ -234,18 +281,16 @@ question_text(NULL,
 
 ```{r texas-income-3-test}
 #| echo: true
-#| message: false
-ggplot(income_tx) +
-  geom_sf(aes(fill = estimate))
+glimpse(income_tx)
 ```
 
 ###
 
-This is a **choropleth** — each county drawn from its boundary and shaded by its income. Two things make this first version hard to read: the default blue gradient runs dark-to-light in a direction many readers misjudge, and the gray panel with latitude/longitude gridlines adds clutter a map does not need. Fixing both is the next step.
+This is a good place for `glimpse()` because the table is narrow. The `geometry` column is the giveaway that `income_tx` is an **sf** object: it is still a table, but each row also carries the polygon needed to draw that county on a map.
 
 ### Exercise 4
 
-Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
+Replace the working chunk with code that summarizes median household income and margin of error across the Texas counties. Render.
 
 In the R Terminal, run:
 
@@ -261,12 +306,125 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 7)
 ```
 
 ###
 
 ```{r texas-income-4-test}
+#| echo: true
+income_tx |>
+  st_drop_geometry() |>
+  summarize(
+    min_income = min(estimate),
+    median_income = median(estimate),
+    max_income = max(estimate),
+    median_moe = median(moe)
+  )
+```
+
+###
+
+The income spread is large enough that a map should be interesting: Texas counties are not all clustered around one value. Dropping the geometry before a numeric summary is a useful habit when the geometry is not part of the calculation.
+
+### Exercise 5
+
+Replace the working chunk with a histogram of county median household income. Render and look at the shape of the distribution.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r texas-income-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r texas-income-5-test}
+#| echo: true
+#| message: false
+ggplot(income_tx, aes(x = estimate)) +
+  geom_histogram(bins = 30, fill = "#2b8cbe", color = "white") +
+  labs(
+    title = "Distribution of median household income across Texas counties",
+    x = "Median household income",
+    y = "Number of counties"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The histogram shows the distribution but not the geography. A few high-income counties sit well above most of the state, and the next question is whether those counties are scattered randomly or clustered around particular metro areas.
+
+### Exercise 6
+
+Replace the histogram with a choropleth map of median income across the counties using **ggplot2**. Render and check the map in your Live Server tab.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r texas-income-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r texas-income-6-test}
+#| echo: true
+#| message: false
+ggplot(income_tx) +
+  geom_sf(aes(fill = estimate))
+```
+
+###
+
+This is a **choropleth** — each county drawn from its boundary and shaded by its income. Two things make this first version hard to read: the default blue gradient runs dark-to-light in a direction many readers misjudge, and the gray panel with latitude/longitude gridlines adds clutter a map does not need. Fixing both is the next step.
+
+### Exercise 7
+
+Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r texas-income-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r texas-income-7-test}
 #| echo: true
 #| message: false
 ggplot(income_tx) +
@@ -283,13 +441,13 @@ ggplot(income_tx) +
 
 The **viridis** color scales are designed to be perceptually uniform and readable by colorblind viewers, which is why they have become a default for choropleths; **ggplot2** ships them, and the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice. Clearing away the gray panel and the latitude/longitude gridlines a map does not need leaves the counties to carry the message. Reading the finished map, the highest incomes cluster in the suburban counties around the big metros — Austin, Dallas–Fort Worth, and Houston — while many rural counties, especially along the Rio Grande border in the south, carry the lowest median incomes. A published choropleth earns its place by making that pattern legible at a glance: the map tells the reader *where*, and the title and caption tell them *what to take away* and what the numbers can support.
 
-### Exercise 5
+### Exercise 8
 
 Commit your work. Stage `analysis.qmd`, commit with the message `"Add Texas income map"`, and push to GitHub. You can do this with your AI agent, the VS Code Source Control panel, or `git` on the command line.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r texas-income-5}
+```{r texas-income-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -302,14 +460,14 @@ question_text(NULL,
 
 A choropleth shades each area by a value, so it is only as honest as the variable behind it. Median household income is a good fit because it is roughly comparable across counties; a raw count like "number of high earners" would mostly track county population and mislead.
 
-## California bachelor's degrees
+## Education by state
 ###
 
-Educational attainment lives in ACS table B15003, which breaks the adult population into 25 schooling levels from "no schooling" up to "doctorate." In this section you will compute the share of adults in each California county with at least a bachelor's degree and map it.
+Educational attainment lives in ACS table B15003, which breaks the adult population into 25 completed schooling levels from "no schooling" up to "doctorate." In this section you will compare the share of adults with at least a bachelor's degree across all state-level geographies.
 
 ### Exercise 1
 
-Add a chunk that uses **tidycensus** to get 2020 educational attainment for every county in California, with county geometry attached, and save it as `edu_ca`. You need the table total plus the bachelor's-and-higher levels: variables `B15003_001` (total), `B15003_022`, `B15003_023`, `B15003_024`, and `B15003_025`. Pass `summary_var = "B15003_001"` so the total rides along on every row. Add `#| message: false`. Render.
+Add a chunk that uses **tidycensus** to get 2020 educational attainment for state-level geographies and save it as `edu_state`. You need the table total plus the bachelor's-and-higher levels: variables `B15003_001` (total), `B15003_022`, `B15003_023`, `B15003_024`, and `B15003_025`. Pass `summary_var = "B15003_001"` so the total rides along on every row. Add `#| message: false`. Render.
 
 In the R Terminal, run:
 
@@ -319,37 +477,44 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-bachelors-degrees-1}
+```{r education-by-state-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 7)
 ```
 
 ###
 
-```
-edu_ca <- get_acs(
-  geography = "county",
+<pre><code>#| message: false
+edu_state <- get_acs(
+  geography = "state",
   variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
-  state = "CA",
   year = 2020,
-  geometry = TRUE,
+  geometry = FALSE,
   summary_var = "B15003_001"
 )
-```
+</code></pre>
 
 ###
 
-These five variable codes report *completed* degrees, not enrollment. `B15003_022` through `B15003_025` are bachelor's, master's, professional, and doctorate degrees — four separate, non-overlapping levels — so adding them counts everyone with at least a bachelor's. Asking for the table total (`B15003_001`) to ride along on every row gives you the denominator — the county's whole adult population — that you need to turn those counts into a percentage.
+These five variable codes report *completed* degrees, not enrollment. `B15003_022` through `B15003_025` are bachelor's, master's, professional, and doctorate degrees — four separate, non-overlapping levels — so adding them counts everyone with at least a bachelor's. Asking for the table total (`B15003_001`) to ride along on every row gives you the denominator you need to turn those counts into a percentage.
 
 ### Exercise 2
 
-Add a chunk that prints `edu_ca`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Add a working chunk that prints `edu_state`. Render.
 
-```{r california-bachelors-degrees-2}
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -360,22 +525,92 @@ question_text(NULL,
 
 ###
 
-```{r california-bachelors-degrees-2-test}
+```{r education-by-state-2-test}
 #| echo: true
-edu_ca
+edu_state
 ```
 
 ###
 
-The data is in **long** format: one row per county-variable combination, so each of California's 58 counties appears five times (290 rows in all). The `estimate` column holds the count for that one variable, while `summary_est` repeats the county total on every row. To get a single percentage per county you will collapse those five rows back down.
+The result is **long**: each state-level geography appears once for each requested variable. With 52 geographies and five variables, `edu_state` has 260 rows. **tidycensus** includes the 50 states, the District of Columbia, and Puerto Rico when you request `geography = "state"`.
 
 ### Exercise 3
 
-You are done changing the chunk that downloads `edu_ca`, and re-downloading it on every render is slow. `edu_ca` earns its own cached create chunk. The next three exercises set that up: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
+Replace the working chunk with code that shows the structure of `edu_state`. Render.
 
-First, clean up. In your chunk from Exercise 1, delete the line that prints `edu_ca` (added in Exercise 2), leaving just the `edu_ca <- get_acs(...)` assignment. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run:
 
-```{r california-bachelors-degrees-3}
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r education-by-state-3-test}
+#| echo: true
+glimpse(edu_state)
+```
+
+###
+
+This is a good place for `glimpse()` because the table is narrow. The important columns are `estimate`, the count for one education level, and `summary_est`, the repeated total adult population for that geography. The margin-of-error columns remind you that ACS values are estimates, even when the table looks like ordinary counts.
+
+### Exercise 4
+
+Replace the working chunk with a summary by `variable` that reports how many rows each variable has and the smallest and largest estimates. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r education-by-state-4-test}
+#| echo: true
+edu_state |>
+  group_by(variable) |>
+  summarize(
+    rows = n(),
+    min_estimate = min(estimate),
+    max_estimate = max(estimate)
+  )
+```
+
+###
+
+Each variable has 52 rows, one for each state-level geography. The total adult population is much larger than any one degree category, which is the clue that raw counts are not the final measure: California will dominate raw counts because it has so many adults, not necessarily because it has the highest share with degrees.
+
+### Exercise 5
+
+You are done changing the chunk that downloads `edu_state`, and re-downloading it on every render is slow. `edu_state` earns its own cached create chunk. The next three exercises set that up: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
+
+First, clean up. Delete the working chunk that summarized `edu_state`, leaving the `edu_state <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r education-by-state-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -387,25 +622,24 @@ question_text(NULL,
 ###
 
 <pre><code>#| message: false
-edu_ca <- get_acs(
-  geography = "county",
-  state     = "CA",
+edu_state <- get_acs(
+  geography = "state",
   variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
-  summary_var = "B15003_001",
-  geometry    = TRUE,
-  year      = 2020
+  year = 2020,
+  geometry = FALSE,
+  summary_var = "B15003_001"
 )
 </code></pre>
 
 ###
 
-A chunk ready to cache should contain only the artifact it builds.
+A chunk ready to cache should contain only the artifact it builds. The exploratory chunk did its job: it helped you understand `edu_state`, but it does not need to remain in the finished QMD.
 
-### Exercise 4
+### Exercise 6
 
-Add `#| cache: true` as the second line inside the chunk (just below `#| message: false`). Render the QMD. Rendering creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-downloading from the Census API. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
+Add `#| cache: true` as the second line inside the chunk, just below `#| message: false`. Render the QMD. Rendering creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-downloading from the Census API. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r california-bachelors-degrees-4}
+```{r education-by-state-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -416,21 +650,20 @@ question_text(NULL,
 
 ###
 
-<pre><code>$ ls
-analysis.qmd  analysis_cache  analysis_files  analysis.html
+<pre><code>analysis.qmd  analysis_cache  analysis_files  analysis.html
 </code></pre>
 
 ###
 
-Caching is for finished, expensive chunks — a network download like this one, not code you are still editing. The cache is generated output: useful locally.
+Caching is for finished, expensive chunks — a network request like this one, not code you are still editing. The cache is generated output: useful locally, but not something to publish to GitHub.
 
-### Exercise 5
+### Exercise 7
 
 The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub.
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r california-bachelors-degrees-5}
+```{r education-by-state-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -447,11 +680,11 @@ analysis_cache
 
 ###
 
-The Source Control change count should drop back to whatever it was before the render. The same `#| cache: true` is worth adding to your other Census-download chunks (Texas, and the upcoming median-age pull) so every render after the first is fast.
+The Source Control change count should drop back to whatever it was before the render. This is the same discipline as ignoring `analysis_files`: generated output can help your local workflow without becoming part of the source project.
 
-### Exercise 6
+### Exercise 8
 
-Change your working chunk so it computes, for each county, the percentage of adults with at least a bachelor's degree — the summed bachelor's-and-higher counts divided by the county total — and draws the result as a choropleth map with **ggplot2**. Render and check the map.
+Add a new working chunk that collapses `edu_state` to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render.
 
 In the R Terminal, run:
 
@@ -461,7 +694,7 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-bachelors-degrees-6}
+```{r education-by-state-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -472,35 +705,203 @@ question_text(NULL,
 
 ###
 
-```{r california-bachelors-degrees-6-test}
-#| message: false
+```{r education-by-state-8-test}
 #| echo: true
-edu_ca |>
-  group_by(GEOID) |>
+edu_state |>
+  group_by(GEOID, NAME) |>
   summarize(
-    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    adults = unique(summary_est)
   ) |>
-  ggplot() +
-  geom_sf(aes(fill = percent)) +
-  scale_fill_viridis_c(option = "C", name = "% with degree") +
-  labs(
-    title = "Adults with a bachelor's degree or higher by county, California (2020)",
-    caption = "Source: ACS 5-year estimates via tidycensus"
-  ) +
-  theme_void()
+  arrange(desc(percent))
 ```
 
 ###
 
-The key step is **aggregating** the five rows per county down to one. Summing the four degree counts and dividing by the county total turns raw counts into a comparable percentage. Because the data is a spatial **sf** object, collapsing those rows also dissolves each county's five identical boundaries into a single polygon — so the per-county percentages map cleanly with no extra work. On the finished map, the coastal and urban counties — the Bay Area, around Los Angeles, and a few mountain-resort counties — show the highest shares of adults with a bachelor's degree, while many inland agricultural counties in the Central Valley and the far north show the lowest. Educational attainment is one of the strongest county-level correlates of income, so this map and the Texas income map are partly telling the same story through different variables — noticing that overlap, while resisting the urge to claim one *causes* the other from a map alone, is the kind of judgment a data scientist brings to Census work.
+The District of Columbia sits far above the states because it is a city-like jurisdiction with a highly educated labor market, not a large mixed urban-rural state. That is not a mistake, but it is a reminder to read geographies carefully before comparing them.
 
-### Exercise 7
+### Exercise 9
 
-Commit your work. Stage `analysis.qmd`, commit with the message `"Add California education map"`, and push to GitHub.
+Replace the working chunk with code that summarizes the distribution of the state-level bachelor's-or-higher percentages. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r education-by-state-9-test}
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  pull(percent) |>
+  summary()
+```
+
+###
+
+The middle state-level geography is around 31%, while the minimum is about 21% and the maximum is about 60%. A summary gives the range, but a plot makes the shape of the distribution easier to judge.
+
+### Exercise 10
+
+Replace the working chunk with a histogram of the state-level bachelor's-or-higher percentages. Render and look at the shape of the distribution.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r education-by-state-10-test}
+#| echo: true
+
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = percent)) +
+  geom_histogram(bins = 15, fill = "#756bb1", color = "white") +
+  scale_x_continuous(labels = scales::label_percent(scale = 1)) +
+  labs(
+    title = "Distribution of bachelor's-or-higher rates across state-level geographies",
+    x = "Share of adults 25 and over",
+    y = "Number of geographies"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The histogram shows that most state-level geographies cluster in a fairly narrow middle range, with the District of Columbia far to the right. To identify every place, not just the distribution, the next plot needs to rank the geographies by name.
+
+### Exercise 11
+
+Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-11}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 9)
+```
+
+###
+
+```{r education-by-state-11-test}
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = reorder(NAME, percent), y = percent)) +
+  geom_col() +
+  coord_flip()
+```
+
+###
+
+Ordering the bars turns the distribution into a comparison. The rough chart shows the main ranking immediately, but it still needs labels, a readable percent scale, and a source note before it is worth publishing.
+
+### Exercise 12
+
+Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r education-by-state-12}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 9)
+```
+
+###
+
+```{r education-by-state-12-test}
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = reorder(NAME, percent), y = percent, fill = percent)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  scale_fill_viridis_c(option = "C", guide = "none") +
+  labs(
+    title = "Adults with a bachelor's degree or higher by state-level geography (2020)",
+    x = NULL,
+    y = "Share of adults 25 and over",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The finished chart shows a regional and institutional pattern that a table makes hard to scan: the highest values cluster in the District of Columbia and several Northeastern or knowledge-economy states, while the lowest values are concentrated in parts of Appalachia and the South. Because this is a percentage of adults 25 and over, the comparison is not just a population-size ranking.
+
+### Exercise 13
+
+Commit your work. Stage `analysis.qmd`, commit with the message `"Add state education chart"`, and push to GitHub.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-bachelors-degrees-7}
+```{r education-by-state-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -511,16 +912,16 @@ question_text(NULL,
 
 ###
 
-Percentages make counties comparable regardless of size, which is why this map is fairer than mapping the raw count of degree-holders. A choropleth of counts would just light up Los Angeles and San Diego because that is where the people are.
+This section used the same table as a county-level education map would use, but changed the geography to states and territories. That is one of **tidycensus**'s central ideas: the variables define what you measure, and the geography defines the units you compare.
 
 ## California median age
 ###
 
-Not every Census question is a map. Here you will pull median age and total population for California counties and build a bar chart — and meet the reshaping step that long-format ACS data almost always needs.
+Not every Census question is a map. Here you will pull median age and total population for California counties, then ask whether larger counties tend to be younger or older. This section also revisits the reshaping step that long-format ACS data often needs.
 
 ### Exercise 1
 
-Add a chunk that uses **tidycensus** to get 2020 median age and total population for every county in California, naming the variables `median_age` (`B01002_001`) and `population` (`B01003_001`). You are building a bar chart, not a map, so set `geometry = FALSE`. Save it as `age_ca` and add `#| message: false`. Render.
+Add a chunk that uses **tidycensus** to get 2020 median age and total population for every county in California, naming the variables `median_age` (`B01002_001`) and `population` (`B01003_001`). You are building a non-map chart, so set `geometry = FALSE`. Save it as `age_ca` and add `#| message: false`. Render.
 
 In the R Terminal, run:
 
@@ -541,7 +942,7 @@ question_text(NULL,
 
 ###
 
-```
+<pre><code>#| message: false
 age_ca <- get_acs(
   geography = "county",
   variables = c(median_age = "B01002_001", population = "B01003_001"),
@@ -549,15 +950,23 @@ age_ca <- get_acs(
   year = 2020,
   geometry = FALSE
 )
-```
+</code></pre>
 
 ###
 
-You can give each variable a readable name — `median_age`, `population` — instead of carrying raw codes like `B01002_001` around, which makes everything downstream easier to read. And because this section builds a bar chart rather than a map, skipping the boundary download entirely is the right call — there is no reason to pull polygons you will not draw.
+You can give each variable a readable name — `median_age`, `population` — instead of carrying raw codes like `B01002_001` around, which makes everything downstream easier to read. And because this section does not draw boundaries, skipping the geometry download is the right call — there is no reason to pull polygons you will not use.
 
 ### Exercise 2
 
-Add a chunk that prints `age_ca`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Add a working chunk that prints `age_ca`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r california-median-age-2}
 question_text(NULL,
@@ -577,11 +986,11 @@ age_ca
 
 ###
 
-Again the data is **long**: each county has two rows, one for `median_age` and one for `population`. To plot age against population — or even just to sort counties by population — you need the two measures side by side, each in its own column. **Reshaping** the data from long to wide does exactly that: it turns the repeated variable/value pairs into one column per variable. It is one of the most common moves in data preparation, precisely because so much analysis and plotting assumes the wide shape.
+Again the data is **long**: each county has two rows, one for `median_age` and one for `population`. That shape is natural for the Census API response, but not for a scatterplot comparing the two measures.
 
 ### Exercise 3
 
-Change your working chunk so it reshapes `age_ca` to one row per county (a column for `median_age` and one for `population`) and draws a bar chart of median age by county. Render and look at it.
+Replace the working chunk with code that shows the structure of `age_ca`. Render.
 
 In the R Terminal, run:
 
@@ -604,21 +1013,16 @@ question_text(NULL,
 
 ```{r california-median-age-3-test}
 #| echo: true
-age_ca |>
-  select(NAME, variable, estimate) |>
-  pivot_wider(names_from = variable, values_from = estimate) |>
-  ggplot(aes(x = reorder(NAME, median_age), y = median_age)) +
-  geom_col(fill = "#4daf4a") +
-  coord_flip()
+glimpse(age_ca)
 ```
 
 ###
 
-All 58 counties at once is too many bars to read — the labels collide and no county stands out. Turning the bars horizontal at least makes the county names legible, but the chart is still begging to be narrowed to a meaningful subset. That is the next move.
+The table is narrow enough that `glimpse()` is useful. The `variable` column tells you which measure a row holds, while `estimate` holds the value. To compare median age with population, those two variable values need to become two columns.
 
 ### Exercise 4
 
-Improve the chart. Keep only the 15 most populous counties, sort the bars by median age, and add a title, clean axis labels, and a source caption. Render and compare to ours.
+Replace the working chunk with a summary by `variable` that reports how many rows each variable has and the smallest and largest estimates. Render.
 
 In the R Terminal, run:
 
@@ -642,16 +1046,173 @@ question_text(NULL,
 ```{r california-median-age-4-test}
 #| echo: true
 age_ca |>
+  group_by(variable) |>
+  summarize(
+    rows = n(),
+    min_estimate = min(estimate),
+    max_estimate = max(estimate)
+  )
+```
+
+###
+
+Each variable has 58 rows, one for each California county. The two variables are on very different scales: population ranges from tiny Alpine County to Los Angeles County, while median age varies by a few decades. A scatterplot can show both scales at once.
+
+### Exercise 5
+
+Replace the working chunk with code that reshapes `age_ca` to one row per county, with one column for `median_age` and one for `population`. Print the table sorted from largest to smallest population. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r california-median-age-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 7)
+```
+
+###
+
+```{r california-median-age-5-test}
+#| echo: true
+age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>
-  arrange(desc(population)) |>
-  slice_head(n = 15) |>
-  ggplot(aes(x = reorder(NAME, median_age), y = median_age)) +
-  geom_col(fill = "#4daf4a") +
-  coord_flip() +
+  arrange(desc(population))
+```
+
+###
+
+**Reshaping** turns repeated variable/value rows into one column per variable. That wide shape is what most plots and models expect: one row per county, with `median_age` and `population` available side by side.
+
+### Exercise 6
+
+Replace the working chunk with a histogram of median age across California counties. Render and look at the shape of the distribution.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r california-median-age-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r california-median-age-6-test}
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  ggplot(aes(x = median_age)) +
+  geom_histogram(bins = 15, fill = "#41ab5d", color = "white") +
   labs(
-    title = "Median age, 15 most populous California counties (2020)",
-    x = NULL,
+    title = "Distribution of median age across California counties",
+    x = "Median age",
+    y = "Number of counties"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The histogram shows that most counties sit in the mid-30s to mid-40s, with a few much older counties. It still does not tell whether those older counties are large population centers or smaller rural counties.
+
+### Exercise 7
+
+Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r california-median-age-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r california-median-age-7-test}
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point()
+```
+
+###
+
+The rough scatterplot has the right variables, but the population axis is hard to read because Los Angeles County is so much larger than most counties. A log scale is a better fit when one variable spans several orders of magnitude.
+
+### Exercise 8
+
+Improve the scatterplot: use a log-scaled population axis, label the largest counties, add a title, clean axis labels, and a source caption. Render and compare to ours.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r california-median-age-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r california-median-age-8-test}
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  mutate(label = if_else(min_rank(desc(population)) <= 8, NAME, "")) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point(color = "#2c7fb8", alpha = 0.75, size = 2.5) +
+  geom_text(aes(label = label), hjust = -0.05, check_overlap = TRUE, size = 3) +
+  scale_x_log10(
+    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+    expand = expansion(mult = c(0.02, 0.25))
+  ) +
+  labs(
+    title = "Smaller California counties tend to be older (2020)",
+    x = "Population (log scale)",
     y = "Median age",
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
@@ -660,15 +1221,15 @@ age_ca |>
 
 ###
 
-Filtering to the 15 most populous counties is an analytical choice, not just a cosmetic one: it focuses the chart on where most Californians actually live. Sorting the bars by median age makes the comparison immediate — an unordered bar chart forces the reader to hunt — and dropping the redundant axis label keeps the focus on the counties themselves. Even across these largest counties the spread in median age is only several years, with college-heavy and immigrant-heavy counties skewing somewhat younger and others a few years older — a reminder that median age varies far less between places than income or education does.
+The final plot shows a negative relationship: California's largest counties are mostly in the 30s, while many of the oldest counties are small. The log scale keeps Los Angeles County visible without flattening every smaller county into the left edge of the chart.
 
-### Exercise 5
+### Exercise 9
 
-Commit your work. Stage `analysis.qmd`, commit with the message `"Add California age chart"`, and push to GitHub.
+Commit your work. Stage `analysis.qmd`, commit with the message `"Add California age scatterplot"`, and push to GitHub.
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-median-age-5}
+```{r california-median-age-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -679,12 +1240,12 @@ question_text(NULL,
 
 ###
 
-Median age is itself an ACS estimate with a margin of error, just like income. For large counties the margin is tiny, but for the smallest counties — which you filtered out here — a difference of a year or two between counties may be inside the margin and not real.
+Median age is itself an ACS estimate with a margin of error, just like income. For large counties the margin is tiny, but for the smallest counties a difference of a year or two between counties may be inside the margin and not real.
 
 ## Summary
 ###
 
-This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker. You pulled American Community Survey data through the Census API with **tidycensus**, learned how ACS estimates carry margins of error, reshaped long-format results into the wide shape that plotting needs, and built three published artifacts: choropleth maps of Texas household income and California educational attainment, and a bar chart of California median age.
+This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker. You pulled American Community Survey data through the Census API with **tidycensus**, learned how ACS estimates carry margins of error, reshaped long-format results into the wide shape that plotting needs, and built three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age.
 
 ### Exercise 1
 
@@ -702,24 +1263,26 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 20)
+  rows = 25)
 ```
 
 ###
 
-<pre><code>
----
+<pre><code>---
 title: "Analyzing US Census Data"
 author: "&lt;your name&gt;"
 execute:
   echo: false
 ---
 
+&#96;&#96;&#96;{r}
 #| message: false
 library(tidyverse)
 library(tidycensus)
 library(sf)
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| cache: true
 income_tx <- get_acs(
   geography = "county",
@@ -728,7 +1291,9 @@ income_tx <- get_acs(
   year = 2020,
   geometry = TRUE
 )
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 #| message: false
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
@@ -738,55 +1303,72 @@ ggplot(income_tx) +
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_void()
+&#96;&#96;&#96;
 
-#| cache: true
-edu_ca <- get_acs(
-  geography = "county",
-  state = "CA",
-  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
-  summary_var = "B15003_001",
-  year = 2020,
-  geometry = TRUE
-)
-
+&#96;&#96;&#96;{r}
 #| message: false
-edu_ca |>
-  group_by(GEOID) |>
+#| cache: true
+edu_state <- get_acs(
+  geography = "state",
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  year = 2020,
+  geometry = FALSE,
+  summary_var = "B15003_001"
+)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+edu_state |>
+  group_by(GEOID, NAME) |>
   summarize(
-    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est)
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
   ) |>
-  ggplot() +
-  geom_sf(aes(fill = percent)) +
-  scale_fill_viridis_c(option = "C", name = "% with degree") +
+  ggplot(aes(x = reorder(NAME, percent), y = percent, fill = percent)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  scale_fill_viridis_c(option = "C", guide = "none") +
   labs(
-    title = "Adults with a bachelor's degree or higher by county, California (2020)",
+    title = "Adults with a bachelor's degree or higher by state-level geography (2020)",
+    x = NULL,
+    y = "Share of adults 25 and over",
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
-  theme_void()
+  theme_minimal()
+&#96;&#96;&#96;
 
-#| cache: true
+&#96;&#96;&#96;{r}
+#| message: false
 age_ca <- get_acs(
   geography = "county",
   state = "CA",
   variables = c(median_age = "B01002_001", population = "B01003_001"),
-  year = 2020
+  year = 2020,
+  geometry = FALSE
 )
+&#96;&#96;&#96;
 
+&#96;&#96;&#96;{r}
 age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>
-  arrange(desc(population)) |>
-  slice_head(n = 15) |>
-  ggplot(aes(x = reorder(NAME, median_age), y = median_age)) +
-  geom_col(fill = "#4daf4a") +
-  coord_flip() +
+  mutate(label = if_else(min_rank(desc(population)) <= 8, NAME, "")) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point(color = "#2c7fb8", alpha = 0.75, size = 2.5) +
+  geom_text(aes(label = label), hjust = -0.05, check_overlap = TRUE, size = 3) +
+  scale_x_log10(
+    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+    expand = expansion(mult = c(0.02, 0.25))
+  ) +
   labs(
-    title = "Median age, 15 most populous California counties (2020)",
-    x = NULL,
+    title = "Smaller California counties tend to be older (2020)",
+    x = "Population (log scale)",
     y = "Median age",
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_minimal()
+&#96;&#96;&#96;
 </code></pre>
 
 ###

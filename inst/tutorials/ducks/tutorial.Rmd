@@ -77,7 +77,17 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `*_files` followed by a blank line. Commit and push.
+This tutorial builds a website, so Quarto will generate a lot of files you do not want in your repo: the built HTML pages, their supporting `_files` folders, the `_site` output directory, Quarto's `.quarto` working directory, and (later) render caches. Create a `.gitignore` that ignores all of them:
+
+```
+_site/
+.quarto/
+*_files
+*_cache
+*.html
+```
+
+Commit and push.
 
 In the R Terminal, run:
 
@@ -100,8 +110,11 @@ question_text(NULL,
 
 ###
 
-<pre><code>
+<pre><code>_site/
+.quarto/
 *_files
+*_cache
+*.html
 </code></pre>
 
 ###
@@ -232,6 +245,7 @@ question_text(NULL,
 read_csv("data/mallards.csv", show_col_types = FALSE) |>
   head(10)
 ```
+
 
 ###
 Your code may look different from ours — what matters is that the first 10 rows of the output match.
@@ -403,8 +417,11 @@ question_text(NULL,
 
 ###
 
-<pre><code>*_files
+<pre><code>_site/
+.quarto/
+*_files
 *_cache
+*.html
 data/mallards.rds
 </code></pre>
 
@@ -812,7 +829,7 @@ question_text(NULL,
 
 ###
 
-`quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar.
+`quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar. Because your `.gitignore` already excludes `_site/`, `.quarto/`, the `_files/` folders, caches, and the built HTML, the only things you commit are your source `.qmd` files, `_quarto.yml`, and the data script.
 
 ### Exercise 4
 
