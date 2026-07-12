@@ -40,6 +40,7 @@ Suggests:
     lubridate,
     maps,
     marginaleffects,
+    MASS,
     nycflights13,
     plotly,
     purrr,
@@ -57,5 +58,5 @@ Suggests:
     viridis,
     rnaturalearth,
     rnaturalearthdata
-    
+
     
