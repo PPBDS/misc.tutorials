@@ -60,46 +60,12 @@ mod <- glm(Survived ~ Age * SexCode * PClass,
            data = dat, family = binomial)
 ```
 
-## Information
-
-### {.tabset}
-
-```{r info-name, echo=FALSE}
-question_text(
-  "Name:",
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  incorrect = NULL,
-  trim = TRUE,
-  placeholder = "Enter answer here..."
-)
-```
-
-```{r info-email, echo=FALSE}
-question_text(
-  "Email:",
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  incorrect = NULL,
-  trim = TRUE,
-  placeholder = "Enter answer here..."
-)
-```
-
-```{r info-id, echo=FALSE}
-question_text(
-  "ID (if requested by your instructor):",
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  incorrect = NULL,
-  trim = TRUE,
-  placeholder = "Enter answer here..."
-)
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
 ```
 
 ## Introduction
 
-### {.unnumbered}
+###
 
 On April 15, 1912, the RMS Titanic sank after striking an iceberg in the
 North Atlantic. Of the 2,224 passengers and crew aboard, only 710
@@ -162,14 +128,14 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```
 *_files
 
 ```
 
-### {.unnumbered}
+###
 
 Raw model coefficients -- especially from logistic regression -- are
 notoriously hard to interpret. A coefficient of 1.2 on a log-odds scale
@@ -211,7 +177,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```
 #| message: false
@@ -223,7 +189,7 @@ library(Stat2Data)
 
 ```
 
-### {.unnumbered}
+###
 
 `marginaleffects` is a model-agnostic package -- it works with over 100
 types of statistical models. Regardless of how complex the model is, we
@@ -259,7 +225,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r intro-load, echo=TRUE}
 dat <- get_dataset("Titanic", "Stat2Data") |>
@@ -267,7 +233,7 @@ dat <- get_dataset("Titanic", "Stat2Data") |>
 head(dat, 10)
 ```
 
-### {.unnumbered}
+###
 
 The dataset has four key variables: `Survived` (1 = survived, 0 =
 died), `Age` (in years), `SexCode` (1 = female, 0 = male), and `PClass`
@@ -299,7 +265,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r intro-model, echo=TRUE}
 mod <- glm(Survived ~ Age * SexCode * PClass,
@@ -307,7 +273,7 @@ mod <- glm(Survived ~ Age * SexCode * PClass,
 summary(mod)
 ```
 
-### {.unnumbered}
+###
 
 The raw coefficients above are log-odds ratios -- essentially
 impossible to interpret intuitively. This is exactly the problem
@@ -315,7 +281,7 @@ impossible to interpret intuitively. This is exactly the problem
 
 ## Predictions
 
-### {.unnumbered}
+###
 
 A **prediction** is the outcome expected by a fitted model for a given
 combination of predictor values. A prediction is **conditional** when
@@ -350,14 +316,14 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r pred-1-demo, echo=TRUE}
 predictions(mod,
   newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
 ```
 
-### {.unnumbered}
+###
 
 Notice how low the 2nd class number is. Hold onto it -- we will compare
 it to a different number in a moment.
@@ -387,7 +353,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r pred-2-demo, echo=TRUE}
 avg_predictions(mod, by = "PClass")
@@ -419,7 +385,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r pred-3-demo, echo=TRUE}
 predictions(mod,
@@ -427,7 +393,7 @@ predictions(mod,
 avg_predictions(mod, by = "PClass")
 ```
 
-### {.unnumbered}
+###
 
 These two 2nd-class numbers are so different -- despite coming from the
 same fitted model -- because they hold different things fixed. The
@@ -481,7 +447,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r pred-4-demo, echo=TRUE, fig.width=7, fig.height=4}
 plot_predictions(mod, condition = c("Age", "PClass")) +
@@ -498,7 +464,7 @@ plot_predictions(mod, condition = c("Age", "PClass")) +
   )
 ```
 
-### {.unnumbered}
+###
 
 Every point on these curves is a conditional prediction -- `condition`
 builds a grid and plots one prediction per row, with no averaging.
@@ -506,7 +472,7 @@ Where the curves align well with the dots, the model fits well.
 
 ## Comparisons
 
-### {.unnumbered}
+###
 
 A **counterfactual comparison** is a function of two or more
 model-based predictions made with different predictor values -- e.g.
@@ -540,7 +506,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r comp-1-demo, echo=TRUE}
 grid <- data.frame(Age = 30, PClass = "2nd", SexCode = 1)
@@ -572,7 +538,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r comp-2-demo, echo=TRUE}
 avg_comparisons(mod, variables = "SexCode", by = "PClass")
@@ -605,7 +571,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r comp-3-demo, echo=TRUE}
 comparisons(mod,
@@ -614,7 +580,7 @@ comparisons(mod,
 avg_comparisons(mod, variables = "SexCode", by = "PClass")
 ```
 
-### {.unnumbered}
+###
 
 Same pattern as Predictions: the 0.81 number fixes age at exactly 30
 and asks about the effect of sex only at that age; the 0.705 number
@@ -660,7 +626,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```{r comp-4-demo, echo=TRUE, fig.width=7, fig.height=4}
 plot_comparisons(mod,
@@ -675,7 +641,7 @@ plot_comparisons(mod,
 
 ## Summary
 
-### {.unnumbered}
+###
 
 You have computed and visualized both conditional and marginal
 predictions and comparisons. Now wire everything together into a
@@ -725,7 +691,7 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 ```
 project:
@@ -806,37 +772,13 @@ question_text(
 )
 ```
 
-### {.unnumbered}
+###
 
 The `marginaleffects` package works with over 100 model types. The
 same workflow you used here -- fit a model, ask whether you want a
 conditional or marginal quantity, compute it, visualize it -- applies
 to any of them.
 
-## Download answers
-
-### {.unnumbered}
-
-```{r minutes, echo=FALSE}
-question_numeric(
-  "How many minutes, approximately, did it take you to complete this tutorial? For example, an hour and a half would be 90 minutes.",
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  min = 0, max = 360, step = 1
-)
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
 
-### {.unnumbered}
-
-When you have completed this tutorial, follow these steps:
-
-1. Click the button to download a file containing your answers.
-2. Save the file onto your computer in a convenient location.
-
-```{r context="server"}
-tutorial.helpers::submission_server()
-```
-
-```{r submission_ui}
-tutorial.helpers::submission_ui
-```
