@@ -33,7 +33,6 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 ```
 
 ## Introduction
-
 ###
 
 This tutorial introduces the **[tidymodels](https://www.tidymodels.org/)** framework for statistical modeling, following [*Tidy Modeling with R*](https://www.tmwr.org/) and the [tidymodels Get Started guide](https://www.tidymodels.org/start/). You will fit four different kinds of regression models to a dataset of video game sales and reviews, learning the same specify-engine-fit pattern that tidymodels uses for every model type.
@@ -112,6 +111,8 @@ This is the Kaggle "Video Game Sales with Ratings" dataset — sales figures scr
 
 ### Exercise 3
 
+<!-- DK: Probably tidyverse, not readr. -->
+
 In your QMD, add a setup chunk that loads **tidymodels**, along with **readr** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
 Render. In the R Terminal, run:
@@ -143,7 +144,7 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 
 ###
 
-**[parsnip](https://parsnip.tidymodels.org/)** is the package that actually specifies and fits models: name the model type, set an engine, then `fit()`. You'll repeat that pattern four times.
+**[parsnip](https://parsnip.tidymodels.org/)** is the package that actually specifies and fits models. You name the model type, set an engine, and then `fit()`. You'll repeat that pattern four times.
 
 ### Exercise 4
 
@@ -160,15 +161,20 @@ question_text(NULL,
 
 ###
 
+<!-- DK: Our answer? -->
+
 Committing before any model fitting creates a clean baseline. Every model you build next starts from this same setup chunk, so a stable starting point makes it easy to recover if a `fit()` call throws an error.
 
 ## Linear regression
-
 ###
 
-A **model specification** describes what kind of model you want — its type and the engine that will fit it — before you ever touch data. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
+<!-- DK: Triple hash right next to double hash section title. -->
+
+A **model specification** describes what kind of model you want — its type and the engine that will fit it. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
 
 ### Exercise 1
+
+<!-- DK: Break this up into separate questions. -->
 
 In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, set its engine to `"lm"` with `set_engine()`, and `fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
 
@@ -204,6 +210,8 @@ sales_fit
 
 `linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
 
+<!-- DK: `sales_fit` gets its own code chunk. -->
+
 ### Exercise 2
 
 Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
@@ -231,6 +239,8 @@ tidy(sales_fit)
 ```
 
 ###
+
+<!-- DK: I think this is a lie. -->
 
 `tidy()`, from the **broom** package, turns any model's coefficients into a tibble with one row per term — the same shape no matter which model produced it.
 
@@ -265,6 +275,8 @@ print(tidy(sales_fit))
 tidy(sales_fit_glm)
 ```
 
+<!-- DK: Do we need print() above? Why? -->
+
 ###
 
 The coefficients are identical because `"lm"` and `"glm"` solve the same underlying model, just differently. `set_engine()` lets you swap between them freely.
@@ -284,10 +296,11 @@ question_text(NULL,
 
 ###
 
+<!-- DK: Show your answer. -->
+
 A single predictor barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
 
 ## Logistic regression
-
 ###
 
 Not every outcome is a number. Instead of predicting how many copies a game sells, suppose you want to predict whether it becomes a genuine hit at all. `logistic_reg()` fits exactly that: a model whose outcome is one of two categories.

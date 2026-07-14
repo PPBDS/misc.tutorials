@@ -53,6 +53,8 @@ knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
+# DK: Use data directory and have our own copy, and then kids download. Like Harshil does it!
+
 dat <- get_dataset("Titanic", "Stat2Data") |>
   filter(PClass != "*", !is.na(Age))
 
@@ -64,13 +66,14 @@ mod <- glm(Survived ~ Age * SexCode * PClass,
 ```
 
 ## Introduction
-
 ###
 
-On April 15, 1912, the RMS Titanic sank after striking an iceberg in the
-North Atlantic. Of the 2,224 passengers and crew aboard, only 710
-survived. But survival was not random -- your age, sex, and ticket
-class had a significant effect on whether you made it onto a lifeboat.
+<!-- DK: TRiple hash no spacing. -->
+
+<!-- DK: Each paragraph is one line. -->
+
+
+On April 15, 1912, the RMS Titanic sank after striking an iceberg in the North Atlantic. Of the 2,224 passengers and crew aboard, only 710 survived. But survival was not random -- your age, sex, and ticket class had a significant effect on whether you made it onto a lifeboat.
 
 This tutorial uses logistic regression and the `marginaleffects`
 package to ask: **what does our model actually predict about who
@@ -132,7 +135,6 @@ question_text(
 
 ```
 *_files
-
 ```
 
 ###
