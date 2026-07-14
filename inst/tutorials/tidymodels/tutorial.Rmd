@@ -1,0 +1,897 @@
+---
+title: Tidymodels
+author: Harshil Kurapati
+tutorial:
+  id: tidymodels
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: "Learn the tidymodels framework by fitting linear, logistic, multinomial, and ordinal regression models to video game sales and review data."
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(tidymodels)
+library(readr)
+library(ordered)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+options(tutorial.exercise.timelimit = 60,
+        tutorial.storage = "local")
+
+vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+
+###
+
+This tutorial introduces the **[tidymodels](https://www.tidymodels.org/)** framework for statistical modeling, following [*Tidy Modeling with R*](https://www.tmwr.org/) and the [tidymodels Get Started guide](https://www.tidymodels.org/start/). You will fit four different kinds of regression models to a dataset of video game sales and reviews, learning the same specify-engine-fit pattern that tidymodels uses for every model type.
+
+### Exercise 1
+
+You should be connected to a repo named `tidymodels`. If you are not, create one and connect to it.
+
+Create a new file, `analysis.qmd`, with the title `"Tidymodels"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+```
+analysis_files
+```
+
+###
+
+**[tidymodels](https://www.tidymodels.org/)** is a meta-package, much like the tidyverse — it attaches a whole family of modeling packages (**parsnip**, **recipes**, **rsample**, and others) with one `library()` call.
+
+### Exercise 2
+
+Create a `data` directory at the top level of the `tidymodels` repo, then download `video_games.csv` into it from this URL:
+
+```
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/tidymodels/data/video_games.csv
+```
+
+In the bash Terminal, run `ls data`. CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+```
+video_games.csv
+```
+
+###
+
+This is the Kaggle "Video Game Sales with Ratings" dataset — sales figures scraped from VGChartz merged with critic and user reviews from Metacritic, 16,719 games in all. Like the `movies` tutorial's `boxOffice` column, several columns here are incomplete; you will run into that directly in the next section.
+
+### Exercise 3
+
+In your QMD, add a setup chunk that loads **tidymodels**, along with **readr** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
+
+Render. In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+<pre><code>#| message: false
+library(tidymodels)
+library(readr)
+library(ordered)
+
+vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+</code></pre>
+
+###
+
+**[parsnip](https://parsnip.tidymodels.org/)** is the package that actually specifies and fits models: name the model type, set an engine, then `fit()`. You'll repeat that pattern four times.
+
+### Exercise 4
+
+Commit and push your work with a message like "Initial project setup with video game data". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r introduction-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+Committing before any model fitting creates a clean baseline. Every model you build next starts from this same setup chunk, so a stable starting point makes it easy to recover if a `fit()` call throws an error.
+
+## Linear regression
+
+###
+
+A **model specification** describes what kind of model you want — its type and the engine that will fit it — before you ever touch data. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
+
+### Exercise 1
+
+In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, set its engine to `"lm"` with `set_engine()`, and `fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r linear-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-1-test}
+#| echo: true
+vg_clean <- vg |> filter(!is.na(Critic_Score))
+
+sales_fit <- linear_reg() |>
+  set_engine("lm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+sales_fit
+```
+
+###
+
+`linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
+
+### Exercise 2
+
+Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r linear-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-2-test}
+#| echo: true
+tidy(sales_fit)
+```
+
+###
+
+`tidy()`, from the **broom** package, turns any model's coefficients into a tibble with one row per term — the same shape no matter which model produced it.
+
+### Exercise 3
+
+Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r linear-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-3-test}
+#| echo: true
+sales_fit_glm <- linear_reg() |>
+  set_engine("glm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+print(tidy(sales_fit))
+tidy(sales_fit_glm)
+```
+
+###
+
+The coefficients are identical because `"lm"` and `"glm"` solve the same underlying model, just differently. `set_engine()` lets you swap between them freely.
+
+### Exercise 4
+
+Commit and push your work with a message like "Add linear regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r linear-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A single predictor barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
+
+## Logistic regression
+
+###
+
+Not every outcome is a number. Instead of predicting how many copies a game sells, suppose you want to predict whether it becomes a genuine hit at all. `logistic_reg()` fits exactly that: a model whose outcome is one of two categories.
+
+### Exercise 1
+
+Add a new chunk. Create a `hit` column that is `"yes"` when a game's `Global_Sales` is above 0.5 (million) and `"no"` otherwise, as a factor with levels `c("no", "yes")`. Store the result as `vg_hits`. Count how many games fall into each category. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r logistic-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r logistic-1-test}
+#| echo: true
+vg_hits <- vg |>
+  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes")))
+
+count(vg_hits, hit)
+```
+
+###
+
+Only 23.5% of games clear the hit bar — a model that always guessed `"no"` would already be right 76.5% of the time.
+
+### Exercise 2
+
+Update the `vg_hits` definition to also filter to games with a non-missing `Critic_Score` (as in the previous section). In place of the count, specify a logistic regression with `logistic_reg()`, set its engine to `"glm"`, and `fit()` it to predict `hit` from `Critic_Score`, storing the result as `hit_fit`. Show `tidy(hit_fit)`. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r logistic-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r logistic-2-test}
+#| echo: true
+vg_hits <- vg |>
+  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
+  filter(!is.na(Critic_Score))
+
+hit_fit <- logistic_reg() |>
+  set_engine("glm") |>
+  fit(hit ~ Critic_Score, data = vg_hits)
+
+tidy(hit_fit)
+```
+
+###
+
+`logistic_reg()` lives in **classification mode** — its outcome is a category, so the coefficient is in log-odds, not sales dollars.
+
+### Exercise 3
+
+Add a second fitted model, `hit_fit_ll`, that specifies the same `logistic_reg()` but sets the engine to `"LiblineaR"` instead of `"glm"`, fit to the same formula and data. Below it, print `tidy(hit_fit)` and then `tidy(hit_fit_ll)` so you can compare them. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r logistic-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r logistic-3-test}
+#| echo: true
+hit_fit_ll <- logistic_reg() |>
+  set_engine("LiblineaR") |>
+  fit(hit ~ Critic_Score, data = vg_hits)
+
+print(tidy(hit_fit))
+tidy(hit_fit_ll)
+```
+
+###
+
+LiblineaR gives a different coefficient because it fits a regularized version of logistic regression by default. Different engines can even label the same term differently — LiblineaR calls the intercept `Bias`.
+
+### Exercise 4
+
+Clean up your chunk so it holds only what is needed to rebuild `hit_fit`: remove the `hit_fit_ll` model and both `tidy()` calls, keeping just the `vg_hits` and `hit_fit` definitions. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r logistic-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+<pre><code>vg_hits <- vg |>
+  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
+  filter(!is.na(Critic_Score))
+
+hit_fit <- logistic_reg() |>
+  set_engine("glm") |>
+  fit(hit ~ Critic_Score, data = vg_hits)
+</code></pre>
+
+###
+
+This chunk is now nothing but the two definitions needed to reproduce `hit_fit` — no printed output, no exploration, no comparison. That is exactly the shape a chunk should have right before you cache it.
+
+### Exercise 5
+
+Add `#| cache: true` to this chunk. Render. In the bash Terminal, run `ls`. CP/CR.
+
+```{r logistic-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+analysis.html
+analysis.qmd
+analysis_cache
+analysis_files
+data
+```
+
+###
+
+Rendering with `#| cache: true` created an `analysis_cache` directory alongside `analysis.qmd` — the file-based evidence that this chunk's result is now saved to disk. The next render will skip re-fitting `hit_fit` entirely and load it from the cache, as long as the chunk's code has not changed.
+
+### Exercise 6
+
+Your Explorer's Source Control panel is now showing one more pending change: the new `analysis_cache` directory. Add `*_cache/` and `/.quarto/` to your `.gitignore`. In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r logistic-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+analysis_files
+*_cache/
+/.quarto/
+```
+
+###
+
+`analysis_cache` and `.quarto` are regenerated by every render, so ignoring them keeps your repo's history to real changes only.
+
+### Exercise 7
+
+Commit and push your work with a message like "Add logistic regression model with caching". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r logistic-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+A model that fits this exact dataset well may not generalize — that risk is called **overfitting**. Guarding against it properly means splitting data into training and test sets, which is beyond this introduction.
+
+## Multinomial regression
+
+###
+
+`hit` had two categories. `Genre` has many more. `multinom_reg()` extends the same classification-mode pattern to an outcome with three or more unordered categories.
+
+### Exercise 1
+
+Add a new chunk. Filter `vg` to games with a non-missing `Genre` and a non-missing `Critic_Score`, then convert `Genre` to a `factor`, storing the result as `vg_genre`. Count how many games fall into each genre, sorted from most to least common. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r multinomial-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r multinomial-1-test}
+#| echo: true
+vg_genre <- vg |>
+  filter(!is.na(Genre), !is.na(Critic_Score)) |>
+  mutate(Genre = factor(Genre))
+
+count(vg_genre, Genre, sort = TRUE)
+```
+
+###
+
+Action is the most common genre (1,890 games), Puzzle the rarest (224) — genre is far from evenly distributed.
+
+### Exercise 2
+
+In place of the count, specify a multinomial regression with `multinom_reg()`, set its engine to `"nnet"`, and `fit()` it to predict `Genre` from `Critic_Score` using `vg_genre`, storing the result as `genre_fit`. Print `genre_fit`. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r multinomial-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r multinomial-2-test}
+#| echo: true
+genre_fit <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(Genre ~ Critic_Score, data = vg_genre)
+
+genre_fit
+```
+
+###
+
+`multinom_reg()` needs one set of coefficients per genre except one reference level (here, Action) — one `fit()` call instead of fitting logistic regression genre-by-genre.
+
+### Exercise 3
+
+Replace the printed `genre_fit` with `tidy(genre_fit)`. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r multinomial-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r multinomial-3-test}
+#| echo: true
+tidy(genre_fit)
+```
+
+###
+
+The `y.level` column names which genre each row belongs to — still the same `tidy()`, just more rows.
+
+### Exercise 4
+
+Commit and push your work with a message like "Add multinomial regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r multinomial-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+Twelve categories and one predictor is intentionally simple — more predictors without more data would only worsen the overfitting risk.
+
+## Ordinal regression
+
+###
+
+`Genre` had categories with no natural order. ESRB `Rating` does: `"E"` (everyone) is milder than `"E10+"`, which is milder than `"T"` (teen), which is milder than `"M"` (mature). `ordinal_reg()` is the parsnip function for an outcome with categories like that — ordered, but not evenly spaced numbers.
+
+### Exercise 1
+
+Add a new chunk. Filter `vg` to games with a `Rating` of `"E"`, `"E10+"`, `"T"`, or `"M"` and a non-missing `Critic_Score`, then convert `Rating` to an ordered factor with levels in that order. Store the result as `vg_rating`. Count how many games fall into each rating. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r ordinal-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r ordinal-1-test}
+#| echo: true
+vg_rating <- vg |>
+  filter(Rating %in% c("E", "E10+", "T", "M"), !is.na(Critic_Score)) |>
+  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M"), ordered = TRUE))
+
+count(vg_rating, Rating)
+```
+
+###
+
+A plain `factor` would ignore that `"T"` sits between `"E10+"` and `"M"`. This section uses the 8,049 games with one of the four common ratings and a critic score.
+
+### Exercise 2
+
+In place of the count, specify an ordinal regression with `ordinal_reg()`, set its engine to `"polr"` — passing `Hess = TRUE` as an extra argument to `set_engine()`, which `tidy()` needs in order to work — and `fit()` it to predict `Rating` from `Critic_Score` using `vg_rating`, storing the result as `rating_fit`. Show `tidy(rating_fit)`. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r ordinal-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r ordinal-2-test}
+#| echo: true
+rating_fit <- ordinal_reg() |>
+  set_engine("polr", Hess = TRUE) |>
+  fit(Rating ~ Critic_Score, data = vg_rating)
+
+tidy(rating_fit)
+```
+
+###
+
+`Hess = TRUE` passes straight through to `MASS::polr()` — `set_engine()` accepts any argument the underlying engine understands. The `scale` rows are cutpoints between ratings, not predictor effects; only `Critic_Score` describes the predictor's actual effect.
+
+### Exercise 3
+
+Create a small tibble named `examples` with two rows: `Name` `"Wii Sports"` with `Critic_Score` 76, and `Name` `"Grand Theft Auto V"` with `Critic_Score` 97. Use `predict(rating_fit, new_data = examples, type = "prob")` to get each game's predicted probability of each rating, and combine the result with `examples`. Reshape it so each rating has its own row, then plot the predicted probability of each rating as a bar chart, with one set of bars per game. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r ordinal-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r ordinal-3-test}
+#| echo: true
+examples <- tibble(Name = c("Wii Sports", "Grand Theft Auto V"),
+                    Critic_Score = c(76, 97))
+
+rating_preds <- predict(rating_fit, new_data = examples, type = "prob") |>
+  bind_cols(examples) |>
+  pivot_longer(starts_with(".pred_"), names_to = "Rating", values_to = "probability",
+               names_prefix = "\\.pred_") |>
+  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M")))
+
+rating_preds |>
+  ggplot(aes(x = Rating, y = probability, fill = Name)) +
+  geom_col(position = "dodge") +
+  labs(title = "Predicted ESRB Rating Probabilities by Critic Score",
+       x = "Rating", y = "Predicted probability", fill = "Game")
+```
+
+###
+
+GTA V's higher score shifts a bit of probability toward `T` and `M` — a modest effect, matching the small 0.00995 coefficient from the previous exercise.
+
+### Exercise 4
+
+Commit and push your work with a message like "Add ordinal regression model and rating plot". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r ordinal-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome: a number, two unordered categories, twelve unordered categories, and four ordered categories. The same four-step shape covered every one of them. That consistency is a large part of why tidymodels exists — swapping which model you need, or which package fits it, never requires learning a new interface.
+
+## Summary
+
+###
+
+In this tutorial you used AI to learn the tidymodels framework by fitting a linear, a logistic, a multinomial, and an ordinal regression model to video game sales and review data — the same specify, set the engine, fit, and tidy pattern, four times over.
+
+### Exercise 1
+
+In a bash Terminal, run `quarto render analysis.qmd` one more time to confirm everything still renders end to end. In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 20)
+```
+
+###
+
+Your `analysis.qmd` should look something like this:
+
+<pre><code>---
+title: "Tidymodels"
+author: "Your Name"
+format: html
+execute:
+  echo: false
+---
+
+&#96;&#96;&#96;{r}
+#| message: false
+library(tidymodels)
+library(readr)
+library(ordered)
+
+vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+vg_clean <- vg |> filter(!is.na(Critic_Score))
+
+sales_fit <- linear_reg() |>
+  set_engine("lm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+sales_fit_glm <- linear_reg() |>
+  set_engine("glm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+print(tidy(sales_fit))
+tidy(sales_fit_glm)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+#| cache: true
+vg_hits <- vg |>
+  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
+  filter(!is.na(Critic_Score))
+
+hit_fit <- logistic_reg() |>
+  set_engine("glm") |>
+  fit(hit ~ Critic_Score, data = vg_hits)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+vg_genre <- vg |>
+  filter(!is.na(Genre), !is.na(Critic_Score)) |>
+  mutate(Genre = factor(Genre))
+
+genre_fit <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(Genre ~ Critic_Score, data = vg_genre)
+
+tidy(genre_fit)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+vg_rating <- vg |>
+  filter(Rating %in% c("E", "E10+", "T", "M"), !is.na(Critic_Score)) |>
+  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M"), ordered = TRUE))
+
+rating_fit <- ordinal_reg() |>
+  set_engine("polr", Hess = TRUE) |>
+  fit(Rating ~ Critic_Score, data = vg_rating)
+
+examples <- tibble(Name = c("Wii Sports", "Grand Theft Auto V"),
+                    Critic_Score = c(76, 97))
+
+rating_preds <- predict(rating_fit, new_data = examples, type = "prob") |>
+  bind_cols(examples) |>
+  pivot_longer(starts_with(".pred_"), names_to = "Rating", values_to = "probability",
+               names_prefix = "\\.pred_") |>
+  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M")))
+
+rating_preds |>
+  ggplot(aes(x = Rating, y = probability, fill = Name)) +
+  geom_col(position = "dodge") +
+  labs(title = "Predicted ESRB Rating Probabilities by Critic Score",
+       x = "Rating", y = "Predicted probability", fill = "Game")
+&#96;&#96;&#96;
+</code></pre>
+
+###
+
+Five chunks — one for setup, one per model — is the entire analysis. Every model chunk follows the same specify → `set_engine()` → `fit()` shape, whether the outcome was a number, two categories, twelve categories, or four ordered categories. That brevity is the payoff of learning parsnip's pattern once instead of learning four separate model-fitting interfaces.
+
+### Exercise 2
+
+Commit and push any remaining changes. Copy-paste the URL to your GitHub repo.
+
+```{r summary-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Your repo holds the exact code that reproduced every model in this tutorial — anyone who clones it and runs `quarto render analysis.qmd` gets the same four fitted models back. That reproducibility, not any single coefficient, is what tidymodels' consistent interface is really buying you.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```
