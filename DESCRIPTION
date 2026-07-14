@@ -28,6 +28,7 @@ Suggests:
     DBI,
     dbplyr,
     duckdb,
+    ggdist,
     ggrepel,
     ggridges,
     httr2,
@@ -38,14 +39,18 @@ Suggests:
     learnr,
     lubridate,
     maps,
+    marginaleffects,
+    MASS,
     nycflights13,
     plotly,
     purrr,
     quarto,
+    Rdatasets,
     readxl,
     rvest,
     scales,
     sf,
+    Stat2Data,
     testthat,
     tidycensus,
     tidyr,
@@ -53,4 +58,5 @@ Suggests:
     viridis,
     rnaturalearth,
     rnaturalearthdata
+
     
