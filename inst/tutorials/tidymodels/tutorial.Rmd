@@ -16,7 +16,8 @@ description: "Learn the tidymodels framework by fitting linear, logistic, multin
 library(learnr)
 library(tutorial.helpers)
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 knitr::opts_chunk$set(echo = FALSE)
@@ -111,7 +112,7 @@ This is the Kaggle "Video Game Sales with Ratings" dataset — sales figures scr
 
 ### Exercise 3
 
-<!-- DK: Probably tidyverse, not readr. -->
+<!-- DK: Probably tidyverse, not readr. Done. -->
 
 In your QMD, add a setup chunk that loads **tidymodels**, along with **readr** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
@@ -136,7 +137,8 @@ question_text(NULL,
 
 <pre><code>#| message: false
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
@@ -161,22 +163,30 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Our answer? -->
+<!-- DK: Our answer? Done. -->
+
+```
+Initial project setup with video game data
+Add tidymodels tutorial data
+Initial commit
+```
+
+###
 
 Committing before any model fitting creates a clean baseline. Every model you build next starts from this same setup chunk, so a stable starting point makes it easy to recover if a `fit()` call throws an error.
 
 ## Linear regression
 ###
 
-<!-- DK: Triple hash right next to double hash section title. -->
+<!-- DK: Triple hash right next to double hash section title. Done. -->
 
 A **model specification** describes what kind of model you want — its type and the engine that will fit it. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
 
 ### Exercise 1
 
-<!-- DK: Break this up into separate questions. -->
+<!-- DK: Break this up into separate questions. Done. -->
 
-In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, set its engine to `"lm"` with `set_engine()`, and `fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
+In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, and set its engine to `"lm"` with `set_engine()`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -199,22 +209,19 @@ question_text(NULL,
 #| echo: true
 vg_clean <- vg |> filter(!is.na(Critic_Score))
 
-sales_fit <- linear_reg() |>
-  set_engine("lm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
-
-sales_fit
+linear_reg() |>
+  set_engine("lm")
 ```
 
 ###
 
-`linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
-
-<!-- DK: `sales_fit` gets its own code chunk. -->
+A **model specification** on its own does not need any data — it just describes the type of model and the engine that will fit it. Nothing has been fit yet.
 
 ### Exercise 2
 
-Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
+<!-- DK: `sales_fit` gets its own code chunk. Done. -->
+
+`fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -235,18 +242,20 @@ question_text(NULL,
 
 ```{r linear-2-test}
 #| echo: true
-tidy(sales_fit)
+sales_fit <- linear_reg() |>
+  set_engine("lm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+sales_fit
 ```
 
 ###
 
-<!-- DK: I think this is a lie. -->
-
-`tidy()`, from the **broom** package, turns any model's coefficients into a tibble with one row per term — the same shape no matter which model produced it.
+`linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
 
 ### Exercise 3
 
-Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -267,6 +276,38 @@ question_text(NULL,
 
 ```{r linear-3-test}
 #| echo: true
+tidy(sales_fit)
+```
+
+###
+
+<!-- DK: I think this is a lie. Done. -->
+
+`tidy()`, from the **broom** package, always gives you back a clean tibble with one row per term — the exact columns can differ a bit by model, but it's always easy to read.
+
+### Exercise 4
+
+Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r linear-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-4-test}
+#| echo: true
 sales_fit_glm <- linear_reg() |>
   set_engine("glm") |>
   fit(Global_Sales ~ Critic_Score, data = vg_clean)
@@ -275,17 +316,17 @@ print(tidy(sales_fit))
 tidy(sales_fit_glm)
 ```
 
-<!-- DK: Do we need print() above? Why? -->
+<!-- DK: Do we need print() above? Why? Done. -->
 
 ###
 
-The coefficients are identical because `"lm"` and `"glm"` solve the same underlying model, just differently. `set_engine()` lets you swap between them freely.
+Only a chunk's last line displays automatically, so `print()` shows `sales_fit`'s coefficients too. `"lm"` and `"glm"` give identical results here — `set_engine()` just swaps which function does the fitting.
 
-### Exercise 4
+### Exercise 5
 
 Commit and push your work with a message like "Add linear regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
 
-```{r linear-4}
+```{r linear-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -296,7 +337,15 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Show your answer. -->
+<!-- DK: Show your answer. Done. -->
+
+```
+Add linear regression model
+Merge branch 'main' into hk-tidymodels-tutorial
+Add tidymodels introduction tutorial
+```
+
+###
 
 A single predictor barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
 
@@ -521,7 +570,6 @@ question_text(NULL,
 A model that fits this exact dataset well may not generalize — that risk is called **overfitting**. Guarding against it properly means splitting data into training and test sets, which is beyond this introduction.
 
 ## Multinomial regression
-
 ###
 
 `hit` had two categories. `Genre` has many more. `multinom_reg()` extends the same classification-mode pattern to an outcome with three or more unordered categories.
@@ -642,7 +690,6 @@ question_text(NULL,
 Twelve categories and one predictor is intentionally simple — more predictors without more data would only worsen the overfitting risk.
 
 ## Ordinal regression
-
 ###
 
 `Genre` had categories with no natural order. ESRB `Rating` does: `"E"` (everyone) is milder than `"E10+"`, which is milder than `"T"` (teen), which is milder than `"M"` (mature). `ordinal_reg()` is the parsnip function for an outcome with categories like that — ordered, but not evenly spaced numbers.
@@ -776,7 +823,6 @@ question_text(NULL,
 You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome: a number, two unordered categories, twelve unordered categories, and four ordered categories. The same four-step shape covered every one of them. That consistency is a large part of why tidymodels exists — swapping which model you need, or which package fits it, never requires learning a new interface.
 
 ## Summary
-
 ###
 
 In this tutorial you used AI to learn the tidymodels framework by fitting a linear, a logistic, a multinomial, and an ordinal regression model to video game sales and review data — the same specify, set the engine, fit, and tidy pattern, four times over.
@@ -815,7 +861,8 @@ execute:
 &#96;&#96;&#96;{r}
 #| message: false
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
