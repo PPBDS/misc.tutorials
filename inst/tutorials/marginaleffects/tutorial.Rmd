@@ -1,42 +1,16 @@
 ---
-title: "Marginal Effects"
+title: Marginal Effects
+author: Var Kurapati
+tutorial:
+  id: marginaleffects
 output:
   learnr::tutorial:
+    df_print: default
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: >
-  Learn to interpret statistical models using the marginaleffects
-  package, with a focus on the difference between conditional and
-  marginal quantities. (~60-90 min)
+description: 'Learn to interpret statistical models using the marginaleffects package, with a focus on the difference between conditional and marginal quantities.'
 ---
-
-<!--
-Revision notes (delete before publishing):
-Trimmed back to 6 top-level sections (Information, Introduction,
-Predictions, Comparisons, Summary, Download answers) to fit a 60-90
-minute runtime -- a prior draft split Predictions/Comparisons into four
-separate sections plus a standalone Counterfactual Grids section, which
-ran closer to 2.5-3 hours. The conditional/marginal distinction is now
-taught as an explicit *sequence within* Predictions and Comparisons
-(conditional exercise, then marginal exercise, then one CP/CR exercise
-that prints both numbers side by side) rather than as four separate
-top-level sections. The explanation of *why* the two numbers differ
-lives in the knowledge drop after that exercise, per this package's
-no-interpretation-exercises override -- students are never asked to
-write graded prose themselves. The counterfactual-grid mechanism (why
-avg_comparisons() gives the same answer as manually duplicating the
-data and fixing a variable) is now one sentence in a knowledge drop
-instead of its own 4-exercise section. Numbers below are computed
-directly from the glm() interaction model's own coefficients (Age = 30,
-SexCode = 0 for "conditional" profiles), so they are internally
-consistent, not placeholders. The Titanic data ships inside the
-Stat2Data R package, so per this package's data-handling exception
-there is no data/ directory, no download step, and no data/README.txt
--- just add Stat2Data to DESCRIPTION Suggests. Update chunk labels below
-to match your tutorial.helpers CP/CR macros if they differ from
-question_text().
--->
 
 ```{r setup, include=FALSE}
 library(learnr)
@@ -46,20 +20,13 @@ library(tidyverse)
 library(marginaleffects)
 library(ggdist)
 library(MASS)
-library(Stat2Data)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
-# DK: Use data directory and have our own copy, and then kids download. Like Harshil does it!
-
-dat <- get_dataset("Titanic", "Stat2Data") |>
-  filter(PClass != "*", !is.na(Age))
-
-mod <- glm(Survived ~ Age * SexCode * PClass,
-           data = dat, family = binomial)
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE)
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -68,46 +35,25 @@ mod <- glm(Survived ~ Age * SexCode * PClass,
 ## Introduction
 ###
 
-<!-- DK: TRiple hash no spacing. -->
+On April 15, 1912, the RMS Titanic sank after striking an iceberg in the North Atlantic. Of the 2,224 passengers and crew aboard, only 710 survived. But survival was not random — your age, sex, and ticket class had a significant effect on whether you made it onto a lifeboat.
 
-<!-- DK: Each paragraph is one line. -->
+This tutorial uses logistic regression and the `marginaleffects` package to ask: **what does our model actually predict about who survived, and how do those predictions change depending on how we ask the question?**
 
-
-On April 15, 1912, the RMS Titanic sank after striking an iceberg in the North Atlantic. Of the 2,224 passengers and crew aboard, only 710 survived. But survival was not random -- your age, sex, and ticket class had a significant effect on whether you made it onto a lifeboat.
-
-This tutorial uses logistic regression and the `marginaleffects`
-package to ask: **what does our model actually predict about who
-survived, and how do those predictions change depending on how we ask
-the question?** The single most confusing part of `marginaleffects` is
-that there are two fundamentally different ways to ask "what does the
-model predict for 2nd class passengers?" -- and they can give very
-different numbers. This tutorial is built around making that
-distinction impossible to miss.
-
-We recommend using an agentic coding tool such as [Gemini
-CLI](https://github.com/google-gemini/gemini-cli) or [Claude
-Code](https://claude.ai/code), which can read and edit your files
-directly. Our instructions are written with these tools in mind.
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind.
 
 ### Exercise 1
 
-You should be connected to a repo named `marginaleffects`. If you are
-not, create one and connect to it.
+You should be connected to a repo named `marginaleffects`. If you are not, create one and connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Titanic Survival"`
-and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Titanic Survival"` and your name as the author. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer
--> **Open with Live Server**) and keep the tab open. It refreshes on
-every render. Going forward, we will just tell you to "Render" when we
-want you to take these steps.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `*_files` followed by a blank line. Commit
-and push.
+Create a `.gitignore` with `*_files` followed by a blank line. Commit and push.
 
 In the R Terminal, run:
 
@@ -115,20 +61,17 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded
-`library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1, echo=FALSE}
-question_text(
-  NULL,
+```{r introduction-1}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 3
-)
+  rows = 3)
 ```
 
 ###
@@ -139,323 +82,299 @@ question_text(
 
 ###
 
-Raw model coefficients -- especially from logistic regression -- are
-notoriously hard to interpret. A coefficient of 1.2 on a log-odds scale
-means almost nothing to most people. The `marginaleffects` package
-solves this by transforming raw parameters into meaningful quantities:
-predicted probabilities, risk differences, and treatment effects
-expressed on scales that humans actually understand.
+The rendered HTML creates a support directory called `*_files/` that holds fonts and scripts. It does not belong in your repo because it is generated output.
+
+###
+
+The marginaleffects package transforms those raw numbers into quantities that are easy to understand.
 
 ### Exercise 2
 
-In your `analysis.qmd`, add a new code chunk with the following
-libraries. Add `#| message: false` to suppress messages. Add `execute:
-echo: false` to the YAML header to hide code globally. Render.
+Create a `data` directory at the top level of the `marginaleffects` repo. Download `titanic.csv` into it from this URL:
 
 ```
-library(tidyverse)
-library(marginaleffects)
-library(ggdist)
-library(MASS)
-library(Stat2Data)
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/marginaleffects/data/titanic.csv
 ```
 
-In the R Terminal, run:
+In the bash Terminal, run `ls data`. CP/CR.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r introduction-2, echo=FALSE}
-question_text(
-  NULL,
+```{r introduction-2}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 3)
 ```
 
 ###
 
 ```
-#| message: false
-library(tidyverse)
-library(marginaleffects)
-library(ggdist)
-library(MASS)
-library(Stat2Data)
-
+titanic.csv
 ```
 
 ###
 
-`marginaleffects` is a model-agnostic package -- it works with over 100
-types of statistical models. Regardless of how complex the model is, we
-can always transform its parameters into three intuitive quantities:
-**predictions**, **counterfactual comparisons**, and **slopes**. For
-each, we can ask for either a **conditional** version (evaluated at a
-grid of predictor values we chose) or a **marginal** version (averaged
-over the actual data, possibly by subgroup).
+The Titanic dataset has four key variables: `Survived` (1 = survived, 0 = died), `Age` (in years), `SexCode` (1 = female, 0 = male), and `PClass` (ticket class: 1st, 2nd, 3rd).
 
 ### Exercise 3
 
-The Titanic data lives inside the `Stat2Data` R package -- there is no
-file to download or store locally, just a table to load. Add a new
-code chunk that loads it with `get_dataset()`, filters out missing
-ages, and prints the first 10 rows. Render.
+In your `analysis.qmd`, add a new code chunk that loads the libraries and reads `data/titanic.csv` into a tibble named `titanic`. Add `#| message: false` to suppress messages. Add `execute: echo: false` to the YAML header to hide code globally. Print the first 10 rows. Render.
 
-```
-dat <- get_dataset("Titanic", "Stat2Data") |>
-  filter(PClass != "*", !is.na(Age))
-```
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
-
-```{r introduction-3, echo=FALSE}
-question_text(
-  NULL,
+```{r introduction-3}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6
-)
+  rows = 8)
 ```
 
 ###
 
-```{r intro-load, echo=TRUE}
-dat <- get_dataset("Titanic", "Stat2Data") |>
-  filter(PClass != "*", !is.na(Age))
-head(dat, 10)
-```
+<pre><code>#| message: false
+library(tidyverse)
+library(marginaleffects)
+library(ggdist)
+
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE)
+head(titanic, 10)
+</code></pre>
 
 ###
 
-The dataset has four key variables: `Survived` (1 = survived, 0 =
-died), `Age` (in years), `SexCode` (1 = female, 0 = male), and `PClass`
-(ticket class: 1st, 2nd, 3rd).
+Each row is one passenger. We will use `Age`, `SexCode`, and `PClass` to predict whether they survived.
 
 ### Exercise 4
 
-Fit a logistic regression model predicting survival from age, sex, and
-ticket class -- including all two-way and three-way interactions.
-Assign it to `mod` and print a summary. Commit and push. Render.
+Commit and push. Ask AI for a commit message. In the bash Terminal, run:
 
 ```
-mod <- glm(Survived ~ Age * SexCode * PClass,
-           data = dat, family = binomial)
-summary(mod)
+git log -1
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
 CP/CR.
 
-```{r introduction-4, echo=FALSE}
-question_text(
-  NULL,
+```{r introduction-4}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 15
-)
+  rows = 6)
 ```
 
 ###
 
-```{r intro-model, echo=TRUE}
-mod <- glm(Survived ~ Age * SexCode * PClass,
-           data = dat, family = binomial)
-summary(mod)
+```
+commit 3f8a2c1
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Mon Jul 14 10:23:41 2025 -0700
+
+    Add Titanic data and initial setup
 ```
 
 ###
 
-The raw coefficients above are log-odds ratios -- essentially
-impossible to interpret intuitively. This is exactly the problem
-`marginaleffects` is designed to solve.
+Committing before any analysis creates a clean baseline you can always return to.
 
 ## Predictions
 
-###
-
-A **prediction** is the outcome expected by a fitted model for a given
-combination of predictor values. A prediction is **conditional** when
-we fix every predictor to a value *we chose*. A prediction is
-**marginal** when we compute it for every actual passenger and average,
-possibly by subgroup.
-
 ### Exercise 1
 
-Add a new code chunk. Build a one-row-per-class grid using
-`datagrid()`, fixing `Age = 30` and `SexCode = 0` (a 30-year-old man)
-and letting `PClass` vary. Feed the grid to `predictions()`. This is a
-**conditional** prediction: one hypothetical passenger, evaluated in
-each class. Render.
+In a new code chunk, fit a logistic regression model predicting `Survived` from `Age`, `SexCode`, and `PClass` with all interactions. Assign it to `mod` and print a summary. Render.
 
-```
-predictions(mod,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
-```
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
-
-```{r pred-1, echo=FALSE}
-question_text(
-  NULL,
+```{r predictions-1}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 6)
 ```
 
 ###
 
-```{r pred-1-demo, echo=TRUE}
-predictions(mod,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
+```{r predictions-1-test}
+#| echo: true
+mod <- glm(Survived ~ Age * SexCode * PClass, data = titanic, family = binomial)
+summary(mod)
 ```
+
+A **prediction** is the outcome expected by a fitted model for a given combination of predictor values. Instead of reporting a log-odds coefficient, we report a predicted probability — something any reader can understand.
 
 ###
 
-Notice how low the 2nd class number is. Hold onto it -- we will compare
-it to a different number in a moment.
+The raw coefficients are log-odds ratios — essentially impossible to interpret intuitively. The `marginaleffects` package transforms them into predicted probabilities.
 
 ### Exercise 2
 
-Update your working chunk to use `avg_predictions()` with `by =
-"PClass"`. This is a **marginal** prediction: it averages the
-model-based prediction for every actual passenger, within each class.
-Render.
+Update your working chunk to use `predictions()` to compute fitted values for every passenger. Print the result. Render.
 
-```
-avg_predictions(mod, by = "PClass")
-```
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
-
-```{r pred-2, echo=FALSE}
-question_text(
-  NULL,
+```{r predictions-2}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 6)
 ```
 
 ###
 
-```{r pred-2-demo, echo=TRUE}
-avg_predictions(mod, by = "PClass")
+```{r predictions-2-test}
+#| echo: true
+predictions(mod)
 ```
+
+###
+
+The `estimate` column gives the predicted probability of survival for each passenger, expressed as a number between 0 and 1.
 
 ### Exercise 3
 
-Add a new code chunk that prints, side by side, the conditional
-prediction for a 30-year-old man in 2nd class (Exercise 1) and the
-marginal prediction for 2nd class overall (Exercise 2). Render.
+Update your working chunk to build a one-row-per-class grid using `datagrid()`, fixing `Age = 30` and `SexCode = 0` (a 30-year-old man) and letting `PClass` vary. Feed the grid to `predictions()`. This is a **conditional** prediction: one hypothetical passenger evaluated in each class. Render.
 
 ```
 predictions(mod,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
-avg_predictions(mod, by = "PClass")
+  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r pred-3, echo=FALSE}
-question_text(
-  NULL,
+```{r predictions-3}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6
-)
+  rows = 8)
 ```
 
 ###
 
-```{r pred-3-demo, echo=TRUE}
+```{r predictions-3-test}
+#| echo: true
 predictions(mod,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
-avg_predictions(mod, by = "PClass")
+  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
 ```
 
 ###
 
-These two 2nd-class numbers are so different -- despite coming from the
-same fitted model -- because they hold different things fixed. The
-conditional number describes one hypothetical man, age 30 exactly. The
-marginal number describes every actual 2nd class passenger, women
-included. If 2nd class women had far higher survival odds than 2nd
-class men -- which the "women and children first" policy suggests --
-averaging over the true mix of men and women in 2nd class produces a
-much higher number than fixing the profile to "man." Neither number is
-wrong. They answer different questions, and reporting one when you mean
-the other is the single most common mistake people make with this
-package. `by` averages over the empirical distribution of a variable;
-`condition` holds everything except the plotted variables fixed at
-chosen values -- they are not interchangeable, even though both feed
-into `plot_predictions()` in the same way.
+This is a **conditional** prediction — we fixed every predictor to a specific value we chose and asked: what does the model predict for this exact person?
 
 ### Exercise 4
 
-Update your working chunk to visualize conditional predictions across a
-continuous range of ages. Use `plot_predictions()` with `condition =
-c("Age", "PClass")`, and add the observed data as dots with
-`geom_dots()` from `ggdist`, survivors below the curve and
-non-survivors above. Commit and push. Render.
+Update your working chunk to use `avg_predictions()` with `by = "PClass"`. This is a **marginal** prediction: it averages the model-based prediction for every actual passenger within each class. Render.
 
 ```
-plot_predictions(mod, condition = c("Age", "PClass")) +
-  geom_dots(
-    alpha = .8, scale = .3, pch = 18,
-    data = dat,
-    aes(x = Age, y = Survived,
-        side = ifelse(Survived == 1, "bottom", "top"))
-  ) +
-  labs(
-    title = "Predicted survival probability on the Titanic",
-    x = "Age", y = "Predicted probability of survival",
-    color = "Ticket class", fill = "Ticket class"
-  )
+avg_predictions(mod, by = "PClass")
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r pred-4, echo=FALSE}
-question_text(
-  NULL,
+```{r predictions-4}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 12
-)
+  rows = 6)
 ```
 
 ###
 
-```{r pred-4-demo, echo=TRUE, fig.width=7, fig.height=4}
+```{r predictions-4-test}
+#| echo: true
+avg_predictions(mod, by = "PClass")
+```
+
+###
+
+This is a **marginal** prediction — instead of fixing predictors, we averaged over the real passengers in each class, including both men and women.
+
+### Exercise 5
+
+Add a new code chunk that prints both the conditional prediction for a 30-year-old man in 2nd class and the marginal prediction for 2nd class, side by side. Render.
+
+```
+predictions(mod,
+  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
+avg_predictions(mod, by = "PClass")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r predictions-5-test}
+#| echo: true
+predictions(mod,
+  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
+avg_predictions(mod, by = "PClass")
+```
+
+###
+
+These two 2nd-class numbers are very different despite coming from the same model. The conditional number describes one hypothetical man, age 30. The marginal number averages over all actual 2nd class passengers — men and women included.
+
+###
+
+Since 2nd class women had much higher survival odds than men, averaging over the real mix produces a higher number than fixing the profile to "male, age 30." Neither answer is wrong — they answer different questions.
+
+### Exercise 6
+
+Update your working chunk to visualize conditional predictions across a continuous range of ages. Use `plot_predictions()` with `condition = c("Age", "PClass")`, and add the observed data as dots with `geom_dots()` from `ggdist`. Survivors go below the curve, non-survivors above. Render.
+
+```
 plot_predictions(mod, condition = c("Age", "PClass")) +
   geom_dots(
     alpha = .8, scale = .3, pch = 18,
-    data = dat,
+    data = titanic,
+    aes(x = Age, y = Survived,
+        side = ifelse(Survived == 1, "bottom", "top"))
+  ) +
+  labs(
+    title = "Predicted survival probability on the Titanic",
+    x = "Age", y = "Predicted probability of survival",
+    color = "Ticket class", fill = "Ticket class"
+  )
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r predictions-6-test}
+#| echo: true
+plot_predictions(mod, condition = c("Age", "PClass")) +
+  geom_dots(
+    alpha = .8, scale = .3, pch = 18,
+    data = titanic,
     aes(x = Age, y = Survived,
         side = ifelse(Survived == 1, "bottom", "top"))
   ) +
@@ -468,89 +387,111 @@ plot_predictions(mod, condition = c("Age", "PClass")) +
 
 ###
 
-Every point on these curves is a conditional prediction -- `condition`
-builds a grid and plots one prediction per row, with no averaging.
-Where the curves align well with the dots, the model fits well.
+Every point on these curves is a conditional prediction. The dots show what actually happened — where the curves align with the dots, the model fits well.
+
+### Exercise 7
+
+Commit and push. Ask AI for a commit message. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r predictions-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+commit 7d4e9b2
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Mon Jul 14 14:51:03 2025 -0700
+
+    Add Titanic survival prediction plot
+```
+
+###
+
+Your first plot shows predicted probabilities. Next, we explore counterfactual comparisons — how much does predicted survival change when we manipulate a specific variable?
 
 ## Comparisons
-
 ###
 
-A **counterfactual comparison** is a function of two or more
-model-based predictions made with different predictor values -- e.g.
-"how much does predicted survival change if we change this passenger's
-sex from male to female?" Comparisons come in conditional and marginal
-flavors too, exactly like predictions.
+A **counterfactual comparison** is a function of two or more model-based predictions made with different predictor values. Instead of asking "what is the predicted survival probability?", we ask "how much does it change if we change sex from male to female?"
 
 ### Exercise 1
 
-In a new code chunk, use `comparisons()` to estimate the **conditional**
-change in predicted survival associated with being female (`SexCode =
-1`) vs. male (`SexCode = 0`), for a specific passenger: 30 years old,
-in 2nd class. Render.
+In a new code chunk, use `comparisons()` to estimate the **conditional** change in predicted survival associated with being female vs. male, for a specific passenger: 30 years old, in 2nd class. Render.
 
 ```
 grid <- data.frame(Age = 30, PClass = "2nd", SexCode = 1)
 comparisons(mod, variables = "SexCode", newdata = grid)
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comp-1, echo=FALSE}
-question_text(
-  NULL,
+```{r comparisons-1}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 8)
 ```
 
 ###
 
-```{r comp-1-demo, echo=TRUE}
+```{r comparisons-1-test}
+#| echo: true
 grid <- data.frame(Age = 30, PClass = "2nd", SexCode = 1)
 comparisons(mod, variables = "SexCode", newdata = grid)
 ```
+
+###
+
+The estimate tells us how much the predicted survival probability changes when `SexCode` shifts from 0 to 1, for this specific 30-year-old 2nd class passenger.
 
 ### Exercise 2
 
-Update your working chunk to compute the **marginal** version: the
-average change in predicted survival associated with being female,
-broken down by ticket class, using `avg_comparisons()` with `by`.
-Render.
+Update your working chunk to compute the **marginal** version: the average change in predicted survival associated with being female, broken down by ticket class, using `avg_comparisons()` with `by`. Render.
 
 ```
 avg_comparisons(mod, variables = "SexCode", by = "PClass")
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comp-2, echo=FALSE}
-question_text(
-  NULL,
+```{r comparisons-2}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 6)
 ```
 
 ###
 
-```{r comp-2-demo, echo=TRUE}
+```{r comparisons-2-test}
+#| echo: true
 avg_comparisons(mod, variables = "SexCode", by = "PClass")
 ```
+
+###
+
+The `by` argument averages the effect of being female across all actual passengers in each class. "Women and children first" was enforced policy — and the data confirms it.
 
 ### Exercise 3
 
-Add a new code chunk that prints, side by side, the conditional
-comparison for a 30-year-old 2nd class passenger (Exercise 1) and the
-marginal comparison for 2nd class overall (Exercise 2). Render.
+Add a new code chunk that prints both the conditional comparison for a 30-year-old 2nd class passenger and the marginal comparison for 2nd class, side by side. Render.
 
 ```
 comparisons(mod,
@@ -559,23 +500,21 @@ comparisons(mod,
 avg_comparisons(mod, variables = "SexCode", by = "PClass")
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comp-3, echo=FALSE}
-question_text(
-  NULL,
+```{r comparisons-3}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6
-)
+  rows = 6)
 ```
 
 ###
 
-```{r comp-3-demo, echo=TRUE}
+```{r comparisons-3-test}
+#| echo: true
 comparisons(mod,
   variables = "SexCode",
   newdata = data.frame(Age = 30, PClass = "2nd", SexCode = 1))
@@ -584,24 +523,15 @@ avg_comparisons(mod, variables = "SexCode", by = "PClass")
 
 ###
 
-Same pattern as Predictions: the 0.81 number fixes age at exactly 30
-and asks about the effect of sex only at that age; the 0.705 number
-lets age vary across the real distribution of 2nd class passengers and
-averages the resulting effects. Under the hood, `avg_comparisons()` is
-duplicating the dataset, fixing `SexCode` to 0 in one copy and 1 in the
-other, predicting on both, and averaging the difference -- which is why
-it agrees with `avg_predictions(mod, variables = list(SexCode = 0:1),
-by = "SexCode")` if you ever want to check it. Whenever a conditional
-and a marginal number disagree, the fix is never to pick "the right
-one" in the abstract -- it's to ask which question you actually meant
-to answer.
+The conditional number fixes age at exactly 30. The marginal number lets age vary across the real distribution of 2nd class passengers and averages the effects.
+
+###
+
+Whenever a conditional and a marginal number disagree, the fix is not to pick "the right one" — it is to ask which question you actually meant to answer.
 
 ### Exercise 4
 
-Update your working chunk to visualize the conditional comparison
-across a continuous range of ages, separately by class. Use
-`plot_comparisons()` with `condition = c("Age", "PClass")`. Commit and
-push. Render.
+Update your working chunk to visualize the conditional comparison across a continuous range of ages, separately by class. Use `plot_comparisons()` with `condition = c("Age", "PClass")`. Render.
 
 ```
 plot_comparisons(mod,
@@ -614,23 +544,21 @@ plot_comparisons(mod,
   )
 ```
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`.
-CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comp-4, echo=FALSE}
-question_text(
-  NULL,
+```{r comparisons-4}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8
-)
+  rows = 8)
 ```
 
 ###
 
-```{r comp-4-demo, echo=TRUE, fig.width=7, fig.height=4}
+```{r comparisons-4-test}
+#| echo: true
 plot_comparisons(mod,
   variables = "SexCode",
   condition = c("Age", "PClass")) +
@@ -641,18 +569,51 @@ plot_comparisons(mod,
   )
 ```
 
-## Summary
+###
+
+The gender gap in survival varies across age and class. Our interaction model captures this variation precisely.
+
+### Exercise 5
+
+Commit and push. Ask AI for a commit message. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r comparisons-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
 
 ###
 
-You have computed and visualized both conditional and marginal
-predictions and comparisons. Now wire everything together into a
-navigable Quarto website and publish the result.
+```
+commit 9c2b5f3
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Mon Jul 14 16:20:11 2025 -0700
+
+    Add counterfactual comparisons section
+```
+
+###
+
+You have now computed both predictions and counterfactual comparisons. The final section wires everything together into a published website.
+
+## Summary
+###
+
+You have built two sections of analysis. Now wire them together into a navigable Quarto website and publish the result.
 
 ### Exercise 1
 
-Create a `_quarto.yml` file at the top level of your repo with the
-following contents:
+Create a `_quarto.yml` file at the top level of your repo with the following contents:
 
 ```
 project:
@@ -679,24 +640,20 @@ quarto render
 ls
 ```
 
-In the R Terminal, run `show_file("_quarto.yml")`.
-CP/CR.
+In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
 
-```{r summary-1, echo=FALSE}
-question_text(
-  NULL,
+```{r summary-1}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 15
-)
+  rows = 15)
 ```
 
 ###
 
-```
-project:
+<pre><code>project:
   type: website
 
 website:
@@ -711,31 +668,34 @@ website:
 format:
   html:
     theme: cosmo
+</code></pre>
 
-```
+###
+
+`_quarto.yml` turns a folder of `.qmd` files into a navigable website. Without it, each page renders independently.
 
 ### Exercise 2
 
-Create `about.qmd` with a YAML title of `"About"`. Add 2-3 sentences
-explaining who you are and why you investigated Titanic survival using
-marginaleffects. Also add an introductory paragraph to `analysis.qmd`
-before the plots, explaining what the analysis investigates and naming
-the difference between conditional and marginal quantities as the
-central idea. Use AI to help. Render.
+Create `about.qmd` with a YAML title of `"About"`. Add 2-3 sentences explaining who you are and why you investigated Titanic survival using `marginaleffects`. Also add an introductory paragraph to `analysis.qmd` before the plots explaining what the analysis investigates and naming the difference between conditional and marginal quantities as the central idea. Render.
 
-In the R Terminal, run `show_file("about.qmd")`.
-CP/CR.
+In the R Terminal, run `show_file("about.qmd")`. CP/CR.
 
-```{r summary-2, echo=FALSE}
-question_text(
-  NULL,
+```{r summary-2}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 10
-)
+  rows = 10)
 ```
+
+###
+
+Your `about.qmd` should have a YAML title and at least two sentences of prose.
+
+###
+
+An About page gives a human face to a data analysis — anyone who finds your published site can learn who made it and why.
 
 ### Exercise 3
 
@@ -747,40 +707,35 @@ quarto publish gh-pages
 
 Copy/paste the resulting URL below.
 
-```{r summary-3, echo=FALSE}
-question_text(
-  NULL,
+```{r summary-3}
+question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 3
-)
-```
-
-### Exercise 4
-
-Commit and push any remaining changes. Copy/paste the URL to your
-GitHub repo.
-
-```{r summary-4, echo=FALSE}
-question_text(
-  NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3
-)
+  rows = 3)
 ```
 
 ###
 
-The `marginaleffects` package works with over 100 model types. The
-same workflow you used here -- fit a model, ask whether you want a
-conditional or marginal quantity, compute it, visualize it -- applies
-to any of them.
+`quarto publish gh-pages` without a filename publishes the whole website. Both pages are now live, linked by the navigation bar.
+
+### Exercise 4
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+The `marginaleffects` package works with over 100 model types. The same workflow — fit a model, decide whether you want conditional or marginal quantities, compute, visualize — applies to all of them.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
-
