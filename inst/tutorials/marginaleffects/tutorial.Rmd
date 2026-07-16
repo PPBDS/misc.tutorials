@@ -210,7 +210,11 @@ summary(mod)
 
 ###
 
-The raw coefficients are log-odds ratios — essentially impossible to interpret intuitively. The `marginaleffects` package transforms them into predicted probabilities.
+The fitted model is not the answer to anything — it is the machine we built so we can answer questions. `predictions()` runs that machine and returns the expected outcome for each unit you specify.
+
+###
+
+The raw coefficients are log-odds ratios — essentially impossible to interpret intuitively. `marginaleffects` transforms them into predicted probabilities on the same scale as the outcome.
 
 ### Exercise 2
 
@@ -268,7 +272,9 @@ predictions(mod,
 
 ###
 
-This is a **conditional** prediction — we fixed every predictor to a specific value we chose and asked: what does the model predict for this exact person?
+###
+
+This is a **conditional** prediction — we ran the machine on imaginary passengers we constructed, holding other variables at chosen values.
 
 ### Exercise 4
 
@@ -298,7 +304,9 @@ avg_predictions(mod, by = "PClass")
 
 ###
 
-This is a **marginal** prediction — instead of fixing predictors, we averaged over the real passengers in each class, including both men and women.
+###
+
+This is a **marginal** prediction — we ran the machine on every real passenger, then averaged the results within each class.
 
 ### Exercise 5
 
@@ -336,11 +344,11 @@ These two 2nd-class numbers are very different despite coming from the same mode
 
 ###
 
-Since 2nd class women had much higher survival odds than men, averaging over the real mix produces a higher number than fixing the profile to "male, age 30." Neither answer is wrong — they answer different questions.
+The same model, two different questions. The conditional number describes one hypothetical man, age 30. The marginal number averages over all actual 2nd class passengers — men and women included.
 
 ### Exercise 6
 
-Update your working chunk to visualize conditional predictions across a continuous range of ages. Use `plot_predictions()` with `condition = c("Age", "PClass")`, and add the observed data as dots with `geom_dots()` from `ggdist`. Survivors go below the curve, non-survivors above. Render.
+Neither answer is wrong. They answer different questions — and knowing which question you are asking is exactly the thinking `marginaleffects` demands.
 
 ```
 plot_predictions(mod, condition = c("Age", "PClass")) +
@@ -572,7 +580,11 @@ plot_comparisons(mod,
 
 ###
 
-The gender gap in survival varies across age and class. Our interaction model captures this variation precisely.
+`plot_comparisons()` runs the machine twice for each passenger — once female, once male — subtracts, and plots the gap. This is the counterfactual question made visible: not two groups of different people, but the same passengers imagined in two worlds.
+
+###
+
+The gap can only be interpreted causally if we know how passengers ended up in each group. The picture is only as trustworthy as the mechanism behind it.
 
 ### Exercise 5
 
@@ -740,4 +752,5 @@ The `marginaleffects` package works with over 100 model types. The same workflow
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
+
 
