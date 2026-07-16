@@ -3,6 +3,7 @@ title: Marginal Effects
 author: Var Kurapati
 tutorial:
   id: marginaleffects
+  version: 1.0.1
 output:
   learnr::tutorial:
     df_print: default
@@ -19,7 +20,6 @@ library(knitr)
 library(tidyverse)
 library(marginaleffects)
 library(ggdist)
-library(MASS)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
@@ -181,6 +181,9 @@ Date:   Mon Jul 14 10:23:41 2025 -0700
 Committing before any analysis creates a clean baseline you can always return to.
 
 ## Predictions
+###
+
+A **prediction** is the outcome expected by a fitted model for a given combination of predictor values. Instead of reporting a log-odds coefficient, we report a predicted probability — something any reader can understand.
 
 ### Exercise 1
 
@@ -204,8 +207,6 @@ question_text(NULL,
 mod <- glm(Survived ~ Age * SexCode * PClass, data = titanic, family = binomial)
 summary(mod)
 ```
-
-A **prediction** is the outcome expected by a fitted model for a given combination of predictor values. Instead of reporting a log-odds coefficient, we report a predicted probability — something any reader can understand.
 
 ###
 
@@ -739,3 +740,4 @@ The `marginaleffects` package works with over 100 model types. The same workflow
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
+
