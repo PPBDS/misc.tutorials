@@ -16,7 +16,8 @@ description: "Learn the tidymodels framework by fitting linear, logistic, multin
 library(learnr)
 library(tutorial.helpers)
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 knitr::opts_chunk$set(echo = FALSE)
@@ -36,6 +37,8 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 ###
 
 This tutorial introduces the **[tidymodels](https://www.tidymodels.org/)** framework for statistical modeling, following [*Tidy Modeling with R*](https://www.tmwr.org/) and the [tidymodels Get Started guide](https://www.tidymodels.org/start/). You will fit four different kinds of regression models to a dataset of video game sales and reviews, learning the same specify-engine-fit pattern that tidymodels uses for every model type.
+
+Every dataset is a shadow of some real-world process — the **data generating mechanism**, or DGM. This tutorial's four sections all propose a **structure** for that mechanism (what kind of outcome are you predicting?), pick a **method** for estimating it (`set_engine()`), then **fit** it to real data. Structure → Method → Fitting.
 
 ### Exercise 1
 
@@ -111,9 +114,9 @@ This is the Kaggle "Video Game Sales with Ratings" dataset — sales figures scr
 
 ### Exercise 3
 
-<!-- DK: Probably tidyverse, not readr. -->
+<!-- DK: Probably tidyverse, not readr. Done. -->
 
-In your QMD, add a setup chunk that loads **tidymodels**, along with **readr** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
+In your QMD, add a setup chunk that loads **tidymodels**, along with **tidyverse** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
 Render. In the R Terminal, run:
 
@@ -136,7 +139,8 @@ question_text(NULL,
 
 <pre><code>#| message: false
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
@@ -144,7 +148,7 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 
 ###
 
-**[parsnip](https://parsnip.tidymodels.org/)** is the package that actually specifies and fits models. You name the model type, set an engine, and then `fit()`. You'll repeat that pattern four times.
+**[parsnip](https://parsnip.tidymodels.org/)** turns a proposed structure and method into an actual model. Every section ahead names the structure (which `_reg()` function), names the method (`set_engine()`), then `fit()`s it — the same three moves, four times.
 
 ### Exercise 4
 
@@ -161,22 +165,30 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Our answer? -->
+<!-- DK: Our answer? Done. -->
+
+```
+Initial project setup with video game data
+Add tidymodels tutorial data
+Initial commit
+```
+
+###
 
 Committing before any model fitting creates a clean baseline. Every model you build next starts from this same setup chunk, so a stable starting point makes it easy to recover if a `fit()` call throws an error.
 
 ## Linear regression
 ###
 
-<!-- DK: Triple hash right next to double hash section title. -->
+<!-- DK: Triple hash right next to double hash section title. Done. -->
 
-A **model specification** describes what kind of model you want — its type and the engine that will fit it. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
+`linear_reg()` proposes the **structure**: our outcome, `Global_Sales`, is a number, so we're guessing at a mechanism that produces numbers. `set_engine("lm")` picks the **method** for estimating it. Only `fit()` — the third step — actually touches data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg`, so you will filter those out first.
 
 ### Exercise 1
 
-<!-- DK: Break this up into separate questions. -->
+<!-- DK: Break this up into separate questions. Done. -->
 
-In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, set its engine to `"lm"` with `set_engine()`, and `fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
+In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, and set its engine to `"lm"` with `set_engine()`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -199,22 +211,19 @@ question_text(NULL,
 #| echo: true
 vg_clean <- vg |> filter(!is.na(Critic_Score))
 
-sales_fit <- linear_reg() |>
-  set_engine("lm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
-
-sales_fit
+linear_reg() |>
+  set_engine("lm")
 ```
 
 ###
 
-`linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
-
-<!-- DK: `sales_fit` gets its own code chunk. -->
+Structure and method are chosen before any data is touched — `fit()`, the step still ahead, is what actually happens to the data.
 
 ### Exercise 2
 
-Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
+<!-- DK: `sales_fit` gets its own code chunk. Done. -->
+
+`fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -235,18 +244,20 @@ question_text(NULL,
 
 ```{r linear-2-test}
 #| echo: true
-tidy(sales_fit)
+sales_fit <- linear_reg() |>
+  set_engine("lm") |>
+  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+
+sales_fit
 ```
 
 ###
 
-<!-- DK: I think this is a lie. -->
-
-`tidy()`, from the **broom** package, turns any model's coefficients into a tibble with one row per term — the same shape no matter which model produced it.
+`fit()` is where the mechanism meets real data — this is what a fitted DGM actually is. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
 
 ### Exercise 3
 
-Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -267,6 +278,38 @@ question_text(NULL,
 
 ```{r linear-3-test}
 #| echo: true
+tidy(sales_fit)
+```
+
+###
+
+<!-- DK: I think this is a lie. Done. -->
+
+`tidy()` reads results back out of the fitted DGM — it doesn't change what the machine learned, just how you view it.
+
+### Exercise 4
+
+Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r linear-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-4-test}
+#| echo: true
 sales_fit_glm <- linear_reg() |>
   set_engine("glm") |>
   fit(Global_Sales ~ Critic_Score, data = vg_clean)
@@ -275,17 +318,17 @@ print(tidy(sales_fit))
 tidy(sales_fit_glm)
 ```
 
-<!-- DK: Do we need print() above? Why? -->
+<!-- DK: Do we need print() above? Why? Done. -->
 
 ###
 
-The coefficients are identical because `"lm"` and `"glm"` solve the same underlying model, just differently. `set_engine()` lets you swap between them freely.
+Only a chunk's last line displays automatically, so `print()` shows `sales_fit`'s coefficients too. `"lm"` and `"glm"` are two different **methods** for estimating the same structure — here they agree exactly, but that won't always be true.
 
-### Exercise 4
+### Exercise 5
 
 Commit and push your work with a message like "Add linear regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
 
-```{r linear-4}
+```{r linear-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -296,14 +339,22 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Show your answer. -->
+<!-- DK: Show your answer. Done. -->
+
+```
+Add linear regression model
+Merge branch 'main' into hk-tidymodels-tutorial
+Add tidymodels introduction tutorial
+```
+
+###
 
 A single predictor barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
 
 ## Logistic regression
 ###
 
-Not every outcome is a number. Instead of predicting how many copies a game sells, suppose you want to predict whether it becomes a genuine hit at all. `logistic_reg()` fits exactly that: a model whose outcome is one of two categories.
+Not every outcome is a number — sometimes the structure is different. `logistic_reg()` proposes a mechanism for a yes/no outcome: does a game become a genuine hit or not.
 
 ### Exercise 1
 
@@ -374,7 +425,7 @@ tidy(hit_fit)
 
 ###
 
-`logistic_reg()` lives in **classification mode** — its outcome is a category, so the coefficient is in log-odds, not sales dollars.
+`logistic_reg()` proposes a different **structure** than `linear_reg()` did — a category instead of a number, so its coefficient is measured in log-odds, not dollars.
 
 ### Exercise 3
 
@@ -518,13 +569,20 @@ question_text(NULL,
 
 ###
 
-A model that fits this exact dataset well may not generalize — that risk is called **overfitting**. Guarding against it properly means splitting data into training and test sets, which is beyond this introduction.
-
-## Multinomial regression
+```
+Add logistic regression model with caching
+Add linear regression model
+Merge branch 'main' into hk-tidymodels-tutorial
+```
 
 ###
 
-`hit` had two categories. `Genre` has many more. `multinom_reg()` extends the same classification-mode pattern to an outcome with three or more unordered categories.
+A model that fits this exact dataset well may not generalize — that risk is called **overfitting**. Guarding against it properly means splitting data into training and test sets, which is beyond this introduction.
+
+## Multinomial regression
+###
+
+`hit` had two categories. `Genre` has many more — a different **structure** again. `multinom_reg()` proposes a mechanism for an outcome with three or more unordered categories.
 
 ### Exercise 1
 
@@ -592,7 +650,7 @@ genre_fit
 
 ###
 
-`multinom_reg()` needs one set of coefficients per genre except one reference level (here, Action) — one `fit()` call instead of fitting logistic regression genre-by-genre.
+Same three steps, more complex structure — `fit()` still runs once, estimating coefficients for every genre except one reference level (here, Action).
 
 ### Exercise 3
 
@@ -639,13 +697,20 @@ question_text(NULL,
 
 ###
 
-Twelve categories and one predictor is intentionally simple — more predictors without more data would only worsen the overfitting risk.
-
-## Ordinal regression
+```
+Add multinomial regression model
+Add logistic regression model with caching
+Add linear regression model
+```
 
 ###
 
-`Genre` had categories with no natural order. ESRB `Rating` does: `"E"` (everyone) is milder than `"E10+"`, which is milder than `"T"` (teen), which is milder than `"M"` (mature). `ordinal_reg()` is the parsnip function for an outcome with categories like that — ordered, but not evenly spaced numbers.
+Twelve categories and one predictor is intentionally simple — more predictors without more data would only worsen the overfitting risk.
+
+## Ordinal regression
+###
+
+`Genre` had no natural order. ESRB `Rating` does: `"E"` is milder than `"E10+"`, milder than `"T"`, milder than `"M"`. `ordinal_reg()` proposes a structure that respects that order — categories, but not interchangeable ones.
 
 ### Exercise 1
 
@@ -713,7 +778,7 @@ tidy(rating_fit)
 
 ###
 
-`Hess = TRUE` passes straight through to `MASS::polr()` — `set_engine()` accepts any argument the underlying engine understands. The `scale` rows are cutpoints between ratings, not predictor effects; only `Critic_Score` describes the predictor's actual effect.
+`set_engine("polr", Hess = TRUE)` is still choosing a **method** — `Hess = TRUE` just passes an extra argument straight through to `MASS::polr()`. The `scale` rows in the fitted result are cutpoints between ratings, not predictor effects; only `Critic_Score` describes what the predictor actually does.
 
 ### Exercise 3
 
@@ -773,10 +838,17 @@ question_text(NULL,
 
 ###
 
-You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome: a number, two unordered categories, twelve unordered categories, and four ordered categories. The same four-step shape covered every one of them. That consistency is a large part of why tidymodels exists — swapping which model you need, or which package fits it, never requires learning a new interface.
+```
+Add ordinal regression model and rating plot
+Add multinomial regression model
+Add logistic regression model with caching
+```
+
+###
+
+You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome — a number, two categories, many categories, and ordered categories. That same four-step shape works for all of them, which is why tidymodels exists: swapping models never means learning a new interface.
 
 ## Summary
-
 ###
 
 In this tutorial you used AI to learn the tidymodels framework by fitting a linear, a logistic, a multinomial, and an ordinal regression model to video game sales and review data — the same specify, set the engine, fit, and tidy pattern, four times over.
@@ -815,7 +887,8 @@ execute:
 &#96;&#96;&#96;{r}
 #| message: false
 library(tidymodels)
-library(readr)
+library(tidyverse)
+library(broom)
 library(ordered)
 
 vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
