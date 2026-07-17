@@ -3,7 +3,6 @@ title: Marginal Effects
 author: Var Kurapati
 tutorial:
   id: marginaleffects
-  version: 1.0.1
 output:
   learnr::tutorial:
     df_print: default
