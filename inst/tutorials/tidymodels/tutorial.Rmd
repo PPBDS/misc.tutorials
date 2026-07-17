@@ -182,7 +182,7 @@ Committing before any model fitting creates a clean baseline. Every model you bu
 
 <!-- DK: Triple hash right next to double hash section title. Done. -->
 
-A **model specification** describes what kind of model you want — its type and the engine that will fit it. `linear_reg()` creates a specification for ordinary linear regression; piping it into `set_engine("lm")` says which R function should actually do the fitting (here, base R's `lm()`). Only the third step, `fit()`, touches the data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg` — professional reviews exist for only about half the catalog — so you will filter those out first.
+`linear_reg()` proposes the **structure**: our outcome, `Global_Sales`, is a number, so we're guessing at a mechanism that produces numbers. `set_engine("lm")` picks the **method** for estimating it. Only `fit()` — the third step — actually touches data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg`, so you will filter those out first.
 
 ### Exercise 1
 
@@ -217,7 +217,7 @@ linear_reg() |>
 
 ###
 
-A **model specification** on its own does not need any data — it just describes the type of model and the engine that will fit it. Nothing has been fit yet.
+Structure and method are chosen before any data is touched — `fit()`, the step still ahead, is what actually happens to the data.
 
 ### Exercise 2
 
@@ -253,7 +253,7 @@ sales_fit
 
 ###
 
-`linear_reg()` only works in **regression mode** — its outcome must be a number. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
+`fit()` is where the mechanism meets real data — this is what a fitted DGM actually is. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
 
 ### Exercise 3
 
@@ -285,7 +285,7 @@ tidy(sales_fit)
 
 <!-- DK: I think this is a lie. Done. -->
 
-`tidy()`, from the **broom** package, always gives you back a clean tibble with one row per term — the exact columns can differ a bit by model, but it's always easy to read.
+`tidy()` reads results back out of the fitted DGM — it doesn't change what the machine learned, just how you view it.
 
 ### Exercise 4
 
@@ -322,7 +322,7 @@ tidy(sales_fit_glm)
 
 ###
 
-Only a chunk's last line displays automatically, so `print()` shows `sales_fit`'s coefficients too. `"lm"` and `"glm"` give identical results here — `set_engine()` just swaps which function does the fitting.
+Only a chunk's last line displays automatically, so `print()` shows `sales_fit`'s coefficients too. `"lm"` and `"glm"` are two different **methods** for estimating the same structure — here they agree exactly, but that won't always be true.
 
 ### Exercise 5
 
@@ -354,7 +354,7 @@ A single predictor barely uses this dataset's richness, but the specify-engine-f
 ## Logistic regression
 ###
 
-Not every outcome is a number. Instead of predicting how many copies a game sells, suppose you want to predict whether it becomes a genuine hit at all. `logistic_reg()` fits exactly that: a model whose outcome is one of two categories.
+Not every outcome is a number — sometimes the structure is different. `logistic_reg()` proposes a mechanism for a yes/no outcome: does a game become a genuine hit or not.
 
 ### Exercise 1
 
@@ -425,7 +425,7 @@ tidy(hit_fit)
 
 ###
 
-`logistic_reg()` lives in **classification mode** — its outcome is a category, so the coefficient is in log-odds, not sales dollars.
+`logistic_reg()` proposes a different **structure** than `linear_reg()` did — a category instead of a number, so its coefficient is measured in log-odds, not dollars.
 
 ### Exercise 3
 
@@ -582,7 +582,7 @@ A model that fits this exact dataset well may not generalize — that risk is ca
 ## Multinomial regression
 ###
 
-`hit` had two categories. `Genre` has many more. `multinom_reg()` extends the same classification-mode pattern to an outcome with three or more unordered categories.
+`hit` had two categories. `Genre` has many more — a different **structure** again. `multinom_reg()` proposes a mechanism for an outcome with three or more unordered categories.
 
 ### Exercise 1
 
@@ -650,7 +650,7 @@ genre_fit
 
 ###
 
-`multinom_reg()` needs one set of coefficients per genre except one reference level (here, Action) — one `fit()` call instead of fitting logistic regression genre-by-genre.
+Same three steps, more complex structure — `fit()` still runs once, estimating coefficients for every genre except one reference level (here, Action).
 
 ### Exercise 3
 
@@ -710,7 +710,7 @@ Twelve categories and one predictor is intentionally simple — more predictors 
 ## Ordinal regression
 ###
 
-`Genre` had categories with no natural order. ESRB `Rating` does: `"E"` (everyone) is milder than `"E10+"`, which is milder than `"T"` (teen), which is milder than `"M"` (mature). `ordinal_reg()` is the parsnip function for an outcome with categories like that — ordered, but not evenly spaced numbers.
+`Genre` had no natural order. ESRB `Rating` does: `"E"` is milder than `"E10+"`, milder than `"T"`, milder than `"M"`. `ordinal_reg()` proposes a structure that respects that order — categories, but not interchangeable ones.
 
 ### Exercise 1
 
@@ -778,7 +778,7 @@ tidy(rating_fit)
 
 ###
 
-`Hess = TRUE` passes straight through to `MASS::polr()` — `set_engine()` accepts any argument the underlying engine understands. The `scale` rows are cutpoints between ratings, not predictor effects; only `Critic_Score` describes the predictor's actual effect.
+`set_engine("polr", Hess = TRUE)` is still choosing a **method** — `Hess = TRUE` just passes an extra argument straight through to `MASS::polr()`. The `scale` rows in the fitted result are cutpoints between ratings, not predictor effects; only `Critic_Score` describes what the predictor actually does.
 
 ### Exercise 3
 
