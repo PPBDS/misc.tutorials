@@ -168,7 +168,13 @@ Excel files exported from spreadsheet software often encode categorical variable
 
 ### Exercise 3
 
-Create a data directory at the top level of the `r4ds-2` repo. In the bash Terminal, run `ls`.
+From the R Terminal, run these three commands:
+
+`getwd()`  
+`dir.create("data")`  
+`list.files()`  
+
+This will create a `data` directory in your project. This is a good place to store any data that you are working with.
 
 CP/CR.
 
@@ -178,13 +184,18 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 5)
+	rows = 7)
 ```
 
 ###
 
 ```
-analysis.html  analysis.qmd  analysis_files  data
+> getwd()
+[1] "/workspaces/r4ds-2"
+> dir.create("data")
+> list.files()
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+>
 ```
 
 ## Births

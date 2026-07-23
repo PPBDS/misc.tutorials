@@ -11,9 +11,11 @@ These tutorials inherit the **base tutorial guide** — the default contract for
 - exercise rhythm, the `question_text()` question types, knowledge-drop discipline, CP/CR and `show_file()` evidence;
 - `echo = FALSE`, test-chunk discipline, code-chunk labeling, the setup-chunk skeleton, data handling, and formatting conventions.
 
-`misc.tutorials` is one of the packages the base guide governs by default — it is **not** an exception (those are `vscode.tutorials` and `tutorial.helpers`).
+`misc.tutorials` is one of the packages the base guide governs by default — it is **not** an exception (those are `vscode.tutorials` and `tutorial.helpers`). In the base guide's normal-vs-modeling split, every tutorial here is a **normal** tutorial: we mostly don't care which code does what — we care about the output. The modeling tutorials (code-visible, slow-down-and-look) live in `primer.tutorials`, tutorial 05 and higher.
 
 **Precedence.** On workflow and shared conventions, the base guide wins. On `misc.tutorials`-specific content this file wins. Any departure from the base guide must be an **explicit, on-the-record override** stated here — never a silent difference. (The base guide already carries the *Choosing topics (misc.tutorials-specific)* section; this file does not repeat it.)
+
+**Override — explicit `data/` scaffold in the r4ds sequence.** The base guide (§4, Introduction step 3) says to state the goal and confirm with bash `ls`. The five `r4ds-*` tutorials instead spell out the commands — `getwd()`, `dir.create("data")`, `list.files()` in the R Terminal — because they sit earliest in the sequence and students should see exactly what is happening. `r4ds-4` and `r4ds-5` add the transition note: "We will soon stop giving you commands like these and just have AI do it." Every later tutorial (`census`, `baseball`, …) follows the base guide's goal-stated + bash-`ls` form.
 
 **Override — no interpretation exercises.** The base guide (§4, *Analysis path*) requires a dedicated interpretation exercise after each significant visualization, asking students to write one or two sentences about what the plot shows. `misc.tutorials` does **not** follow this rule. The tutorials here are structured around AI-assisted artifact creation; students steer the analysis and judge the output, but are not asked to write prose interpretations in the QMD. Knowledge drops carry the interpretive commentary instead. Do not add interpretation exercises to any tutorial in this package.
 
