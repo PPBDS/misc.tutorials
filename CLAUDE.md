@@ -26,7 +26,11 @@ truth for everything common to all such tutorials:
 
 `misc.tutorials` is one of the packages the base guide governs by
 default — it is **not** an exception (those are `vscode.tutorials` and
-`tutorial.helpers`).
+`tutorial.helpers`). In the base guide’s normal-vs-modeling split, every
+tutorial here is a **normal** tutorial: we mostly don’t care which code
+does what — we care about the output. The modeling tutorials
+(code-visible, slow-down-and-look) live in `primer.tutorials`, tutorial
+05 and higher.
 
 **Precedence.** On workflow and shared conventions, the base guide wins.
 On `misc.tutorials`-specific content this file wins. Any departure from
@@ -34,6 +38,17 @@ the base guide must be an **explicit, on-the-record override** stated
 here — never a silent difference. (The base guide already carries the
 *Choosing topics (misc.tutorials-specific)* section; this file does not
 repeat it.)
+
+**Override — explicit `data/` scaffold in the r4ds sequence.** The base
+guide (§4, Introduction step 3) says to state the goal and confirm with
+bash `ls`. The five `r4ds-*` tutorials instead spell out the commands —
+[`getwd()`](https://rdrr.io/r/base/getwd.html), `dir.create("data")`,
+[`list.files()`](https://rdrr.io/r/base/list.files.html) in the R
+Terminal — because they sit earliest in the sequence and students should
+see exactly what is happening. `r4ds-4` and `r4ds-5` add the transition
+note: “We will soon stop giving you commands like these and just have AI
+do it.” Every later tutorial (`census`, `baseball`, …) follows the base
+guide’s goal-stated + bash-`ls` form.
 
 **Override — no interpretation exercises.** The base guide (§4,
 *Analysis path*) requires a dedicated interpretation exercise after each
