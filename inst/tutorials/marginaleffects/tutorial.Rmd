@@ -32,6 +32,9 @@ titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
 mod <- logistic_reg() |>
   set_engine("glm") |>
   fit(Survived ~ Age * SexCode * PClass, data = titanic)
+ 
+# DK: I don't think we need the below.
+# predictions(mod, type = "prob")
 
 mod_engine <- extract_fit_engine(mod)
 ```
