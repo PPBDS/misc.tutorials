@@ -1,15 +1,18 @@
+<!--VK: Realized I went by-model sections (Linear/Logistic/Multi/Ordinal, wiht each having predictions() and plot_predictions() rather than by-function. -->
+
 ---
 title: Marginal Effects
 author: Var Kurapati
 tutorial:
   id: marginaleffects
+  version: 1.0.2
 output:
   learnr::tutorial:
     df_print: default
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: 'Learn to interpret statistical models using the marginaleffects package, with a focus on the difference between conditional and marginal quantities.'
+description: 'Learn to interpret statistical models using the marginaleffects package. Covers predictions() and plot_predictions() across four model types.'
 ---
 
 ```{r setup, include=FALSE}
@@ -20,6 +23,9 @@ library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
 library(ggdist)
+library(nnet)
+library(ordinal)
+library(ordered)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
@@ -27,13 +33,21 @@ options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
 titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
-  mutate(Survived = as.factor(Survived))
+  mutate(Survived = as.factor(Survived),
+         PClass = as.factor(PClass),
+         PClass_ord = factor(PClass, levels = c("3rd", "2nd", "1st"), ordered = TRUE))
 
-mod <- logistic_reg() |>
-  set_engine("glm") |>
+mod_linear <- linear_reg() |> set_engine("lm") |>
+  fit(Age ~ PClass + SexCode, data = titanic)
+
+mod_logistic <- logistic_reg() |> set_engine("glm") |>
   fit(Survived ~ Age * SexCode * PClass, data = titanic)
 
-mod_engine <- extract_fit_engine(mod)
+mod_multinomial <- multinom_reg() |> set_engine("nnet") |>
+  fit(PClass ~ Age + SexCode, data = titanic)
+
+mod_ordered <- ordinal_reg() |> set_engine("polr") |>
+  fit(PClass_ord ~ Age + SexCode, data = titanic)
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -42,37 +56,31 @@ mod_engine <- extract_fit_engine(mod)
 ## Introduction
 ###
 
-In this tutorial we cover six functions from **marginaleffects**. In the Predictions section: `predictions()`, `avg_predictions()`, and `plot_predictions()`. In the Comparisons section: `comparisons()`, `avg_comparisons()`, and `plot_comparisons()`.
-
-###
-
 On April 15, 1912, the RMS Titanic sank after striking an iceberg in the North Atlantic. Of the 2,224 passengers and crew aboard, only 710 survived. But survival was not random — your age, sex, and ticket class had a significant effect on whether you made it onto a lifeboat.
 
-This tutorial uses logistic regression and the `marginaleffects` package to ask: **what does our model actually predict about who survived, and how do those predictions change depending on how we ask the question?**
+This tutorial uses the [**marginaleffects**](https://marginaleffects.com/) package to ask: **what does our model actually predict, and how do those predictions change depending on how we ask the question?** We cover two functions: `predictions()` and `plot_predictions()`.
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind.
+`by` takes every real passenger in the dataset, runs the model on each one, then averages within groups. `condition` builds hypothetical passengers by holding all other variables fixed and only varying the one you specify — showing the model's behavior "all else equal."
+
+We assume you have already completed the **tidymodels** tutorial. The four fitted models from that tutorial — `mod_linear`, `mod_logistic`, `mod_multinomial`, and `mod_ordered` — are used throughout this tutorial.
 
 ### Exercise 1
 
 You should be connected to a repo named `marginaleffects`. If you are not, create one and connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Titanic Survival"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Titanic Survival"` and your name as the author. Add `execute: echo: false` to the YAML header. In a bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
-
-Create a `.gitignore` with `*_files` followed by a blank line. Commit and push.
+Open `analysis.html` with Live Server. Create a `.gitignore` with `*_files` on the first line. Commit and push.
 
 In the R Terminal, run:
 
 ```
 show_file(".gitignore")
 ```
-
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
 
 CP/CR.
 
@@ -93,11 +101,11 @@ question_text(NULL,
 
 ###
 
-The [**marginaleffects**](https://marginaleffects.com/) package allows you to answer questions using a fitted model in a uniform way — the same functions work across over 100 different model types.
+The **marginaleffects** package allows you to answer questions using any fitted model in a uniform way — the same functions work across over 100 different model types.
 
 ### Exercise 2
 
-Create a `data` directory at the top level of the `marginaleffects` repo. Download `titanic.csv` into it from this URL:
+Create a `data` directory at the top level of the repo. Download `titanic.csv` into it from:
 
 ```
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/marginaleffects/data/titanic.csv
@@ -122,11 +130,29 @@ titanic.csv
 
 ###
 
-The Titanic dataset has four key variables: `Survived` (1 = survived, 0 = died), `Age` (in years), `SexCode` (1 = female, 0 = male), and `PClass` (ticket class: 1st, 2nd, 3rd).
+The Titanic dataset has five key variables: `Survived` (1 = survived, 0 = died), `Age` (in years), `SexCode` (1 = female, 0 = male), `PClass` (ticket class: 1st, 2nd, 3rd), and `PClass_ord` (same as PClass but ordered: 3rd < 2nd < 1st).
 
 ### Exercise 3
 
-In your `analysis.qmd`, add a new code chunk that loads the libraries and reads `data/titanic.csv` into a tibble named `titanic`. Add `#| message: false` to suppress messages. Add `execute: echo: false` to the YAML header to hide code globally. Print the first 10 rows. Render.
+In a new code chunk in `analysis.qmd`, load the libraries and read `data/titanic.csv`. Add `#| message: false`. Convert `Survived` and `PClass` to factors and create `PClass_ord` as an ordered factor. Add `#| cache: true`. Render.
+
+```
+#| message: false
+#| cache: true
+library(tidyverse)
+library(tidymodels)
+library(marginaleffects)
+library(ggdist)
+library(nnet)
+library(ordinal)
+library(ordered)
+
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
+  mutate(Survived = as.factor(Survived),
+         PClass = as.factor(PClass),
+         PClass_ord = factor(PClass, levels = c("3rd", "2nd", "1st"),
+                             ordered = TRUE))
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -136,26 +162,83 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 12)
 ```
 
 ###
 
 <pre><code>#| message: false
+#| cache: true
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
 library(ggdist)
+library(nnet)
+library(ordinal)
+library(ordered)
 
-titanic <- read_csv("data/titanic.csv", show_col_types = FALSE)
-head(titanic, 10)
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
+  mutate(Survived = as.factor(Survived),
+         PClass = as.factor(PClass),
+         PClass_ord = factor(PClass, levels = c("3rd", "2nd", "1st"),
+                             ordered = TRUE))
 </code></pre>
 
 ###
 
-Each row is one passenger. We will use `Age`, `SexCode`, and `PClass` to predict whether they survived.
+Each row is one passenger. We use `Age`, `SexCode`, and `PClass` to predict different outcomes across four model types.
 
 ### Exercise 4
+
+Add a new code chunk with the four fitted models. Copy and paste this exactly:
+
+```
+#| cache: true
+mod_linear <- linear_reg() |> set_engine("lm") |>
+  fit(Age ~ PClass + SexCode, data = titanic)
+
+mod_logistic <- logistic_reg() |> set_engine("glm") |>
+  fit(Survived ~ Age * SexCode * PClass, data = titanic)
+
+mod_multinomial <- multinom_reg() |> set_engine("nnet") |>
+  fit(PClass ~ Age + SexCode, data = titanic)
+
+mod_ordered <- ordinal_reg() |> set_engine("polr") |>
+  fit(PClass_ord ~ Age + SexCode, data = titanic)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r introduction-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+<pre><code>#| cache: true
+mod_linear <- linear_reg() |> set_engine("lm") |>
+  fit(Age ~ PClass + SexCode, data = titanic)
+
+mod_logistic <- logistic_reg() |> set_engine("glm") |>
+  fit(Survived ~ Age * SexCode * PClass, data = titanic)
+
+mod_multinomial <- multinom_reg() |> set_engine("nnet") |>
+  fit(PClass ~ Age + SexCode, data = titanic)
+
+mod_ordered <- ordinal_reg() |> set_engine("polr") |>
+  fit(PClass_ord ~ Age + SexCode, data = titanic)
+</code></pre>
+
+###
+
+`mod_linear` predicts `Age` — a numeric outcome. `mod_logistic` predicts `Survived` — a binary outcome. `mod_multinomial` predicts `PClass` — a categorical outcome with 3 unordered levels. `mod_ordered` predicts `PClass_ord` — a categorical outcome with 3 ordered levels (3rd < 2nd < 1st).
+
+### Exercise 5
 
 Commit and push. In the bash Terminal, run:
 
@@ -165,7 +248,7 @@ git log -1
 
 CP/CR.
 
-```{r introduction-4}
+```{r introduction-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -181,25 +264,30 @@ commit 3f8a2c1
 Author: Var Kurapati <vkurapat@example.com>
 Date:   Mon Jul 14 10:23:41 2025 -0700
 
-    Add Titanic data and initial setup
+    Add Titanic data and four models
 ```
 
 ###
 
-Committing before any analysis creates a clean baseline you can always return to.
+You now have four fitted models — one for each type of regression. The next four sections apply `predictions()` and `plot_predictions()` to each one.
 
-## Model
+## Linear Regression
 ###
 
-Before making predictions, we need a fitted model. We will fit a logistic regression using **tidymodels**, which provides a uniform interface for fitting many different types of models in R.
+In this section we use two functions: `predictions()` and `plot_predictions()`. We apply them to `mod_linear`, which predicts `Age` from `PClass` and `SexCode`. The outcome is numeric, so `predictions()` returns one row per input with a single estimated value.
 
 ### Exercise 1
 
-In a new code chunk in `analysis.qmd`, run `logistic_reg()` by itself and print the result. Render.
+In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical passenger: a female in 1st class. Render.
+
+```
+class(predictions(mod_linear,
+  newdata = data.frame(PClass = "1st", SexCode = 1)))
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r model-1}
+```{r linear-0}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -210,267 +298,75 @@ question_text(NULL,
 
 ###
 
-```{r model-1-test}
+```{r linear-0-test}
 #| echo: true
-logistic_reg()
+class(predictions(mod_linear,
+  newdata = data.frame(PClass = "1st", SexCode = 1)))
 ```
 
 ###
 
 ```
-Logistic Regression Model Specification (classification)
-
-Computational engine: glm
+[1] "predictions" "data.frame"
 ```
 
 ###
 
-`logistic_reg()` creates a model specification — it says what kind of model we want but does not fit it yet.
+`predictions()` returns an object of class `predictions` and `data.frame` — you can pipe it to `as_tibble()`, `filter()`, or `ggplot()`.
 
 ### Exercise 2
 
-Update your chunk to pipe `logistic_reg()` into `set_engine("glm")`. Render.
+In a new code chunk, run `predictions()` on `mod_linear` for one hypothetical passenger: a female in 1st class. Render.
+
+```
+predictions(mod_linear,
+  newdata = data.frame(PClass = "1st", SexCode = 1))
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r model-2}
+```{r linear-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 4)
+  rows = 6)
 ```
 
 ###
 
-```{r model-2-test}
+```{r linear-1-test}
 #| echo: true
-logistic_reg() |>
-  set_engine("glm")
+predictions(mod_linear,
+  newdata = data.frame(PClass = "1st", SexCode = 1))
 ```
 
 ###
 
 ```
-Logistic Regression Model Specification (classification)
-
-Computational engine: glm
+ Estimate Std. Error  z Pr(>|z|)   S 2.5 % 97.5 % SexCode PClass
+     41.9      0.959 44   <0.001 Inf  40.0   43.8       1    1st
+Type: response
 ```
 
 ###
 
-`set_engine("glm")` tells **tidymodels** to use R's built-in `glm()` function to do the fitting. Other engines like `"stan"` or `"keras"` are also available.
+The `estimate` column gives the predicted age — 41.9 years for a female 1st class passenger. Linear regression predicts a single numeric value, so there is always one row per input.
 
 ### Exercise 3
 
-Update your chunk to pipe into `fit(Survived ~ Age * SexCode * PClass, data = titanic)`. Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r model-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r model-3-test}
-#| echo: true
-logistic_reg() |>
-  set_engine("glm") |>
-  fit(Survived ~ Age * SexCode * PClass, data = titanic)
-```
-
-###
-
-Now the model is fitted. The `*` in the formula creates all two-way and three-way interactions between `Age`, `SexCode`, and `PClass`.
-
-### Exercise 4
-
-Update your chunk to assign the fitted model to `mod`. Also pipe to `extract_fit_engine()` and assign to `mod_engine`. Add `#| cache: true` to cache the result. Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r model-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r model-4-test}
-#| echo: true
-mod <- logistic_reg() |>
-  set_engine("glm") |>
-  fit(Survived ~ Age * SexCode * PClass, data = titanic)
-mod_engine <- extract_fit_engine(mod)
-```
-
-###
-
-Caching `mod` means R will not refit the model on every render. The fitted model is saved to disk and reloaded instead.
-
-### Exercise 5
-
-Commit and push. In the bash Terminal, run:
+Update your chunk to run `predictions()` on two passengers: a female in 1st class and a male in 3rd class. Render.
 
 ```
-git log -1
-```
-
-CP/CR.
-
-```{r model-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```
-commit 4a1b2c3
-Author: Var Kurapati <vkurapat@example.com>
-Date:   Mon Jul 14 11:45:00 2025 -0700
-
-    Fit logistic regression model
-```
-
-###
-
-The fitted model is the machine we built so we can answer questions. Everything in the next two sections — predictions and comparisons — uses this machine.
-
-## Predictions
-###
-
-A **prediction** is the outcome expected by a fitted model for a given combination of predictor values. Instead of reporting a log-odds coefficient, we report a predicted probability — something any reader can understand.
-
-### Exercise 1
-
-In this section we cover three functions: `predictions()`, `avg_predictions()`, and `plot_predictions()`.
-
-In a new code chunk, use `predictions()` to predict the survival probability for one hypothetical passenger: a 30-year-old male in 1st class. Render.
-
-```
-predictions(mod_engine,
-  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"))
+predictions(mod_linear,
+  newdata = data.frame(PClass = c("1st", "3rd"),
+                       SexCode = c(1, 0)))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-1-test}
-#| echo: true
-predictions(mod_engine,
-  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"))
-```
-
-###
-
-```
- Estimate Pr(>|z|)   S 2.5 % 97.5 % Age SexCode PClass
-    0.469    0.606 0.7 0.357  0.585  30       0    1st
-Type: invlink(link)
-```
-
-###
-
-The `estimate` column gives the predicted probability of survival for this specific hypothetical passenger — a number between 0 and 1 that is immediately interpretable.
-
-### Exercise 2
-
-Update your working chunk to predict the survival probability for the first actual passenger in the dataset. Use `predictions()` with `newdata = titanic[1, ]`. Render.
-
-```
-predictions(mod_engine, newdata = titanic[1, ])
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-2-test}
-#| echo: true
-predictions(mod_engine, newdata = titanic[1, ])
-```
-
-###
-
-We already know whether this passenger survived — it is in the data. So why predict? Because we can now ask: what would the model have predicted if this same passenger had been in a different class?
-
-### Exercise 3
-
-Update your working chunk to predict survival for the same first passenger, but change their ticket class to 3rd. Compare the two predictions. Render.
-
-```
-predictions(mod_engine, newdata = titanic[1, ] |> mutate(PClass = "3rd"))
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-3-test}
-#| echo: true
-predictions(mod_engine, newdata = titanic[1, ] |> mutate(PClass = "3rd"))
-```
-
-###
-
-This is the counterfactual question: same person, same age, same sex — but a different ticket class. The difference between these two predictions is what `marginaleffects` is built to compute efficiently.
-
-### Exercise 4
-
-Update your working chunk to build a one-row-per-class grid using `datagrid()`, fixing `Age = 30` and `SexCode = 0` and letting `PClass` vary. Feed it to `predictions()`. Render.
-
-```
-predictions(mod_engine,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-4}
+```{r linear-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -481,28 +377,73 @@ question_text(NULL,
 
 ###
 
-```{r predictions-4-test}
+```{r linear-2-test}
 #| echo: true
-predictions(mod_engine,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = unique))
+predictions(mod_linear,
+  newdata = data.frame(PClass = c("1st", "3rd"),
+                       SexCode = c(1, 0)))
 ```
 
 ###
 
-This is a **conditional** prediction — we ran the machine on imaginary passengers we constructed, holding other variables at chosen values.
+```
+ Estimate Std. Error  z Pr(>|z|)   S 2.5 % 97.5 % SexCode PClass
+     41.9      0.959 44   <0.001 Inf  40.0   43.8       1    1st
+     35.5      0.833 43   <0.001 Inf  33.9   37.2       0    3rd
+Type: response
+```
 
-### Exercise 5
+###
 
-Update your working chunk to compute the average predicted survival probability for each ticket class manually. Use `predictions()` on the whole dataset, then pipe to `summarise()`. Render.
+First class female passengers were predicted to be older on average than male 3rd class passengers. This reflects selection bias in the data — wealthier, older passengers were more likely to be in 1st class.
+
+### Exercise 4
+
+Update your chunk to pipe `predictions()` to `as_tibble()`. Render.
 
 ```
-predictions(mod_engine) |>
-  summarise(mean_survival = mean(estimate), .by = PClass)
+predictions(mod_linear,
+  newdata = data.frame(PClass = c("1st", "3rd"),
+                       SexCode = c(1, 0))) |>
+  as_tibble()
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-5}
+```{r linear-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r linear-3-test}
+#| echo: true
+predictions(mod_linear,
+  newdata = data.frame(PClass = c("1st", "3rd"),
+                       SexCode = c(1, 0))) |>
+  as_tibble()
+```
+
+###
+
+`as_tibble()` converts the **marginaleffects** output into a standard tibble, which makes it easier to work with using **tidyverse** functions like `select()`, `filter()`, and `ggplot()`.
+
+### Exercise 5
+
+Update your chunk to run `avg_predictions()` on `mod_linear` with `by = "PClass"`. Render.
+
+```
+avg_predictions(mod_linear, by = "PClass")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r linear-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -513,27 +454,37 @@ question_text(NULL,
 
 ###
 
-```{r predictions-5-test}
+```{r linear-4-test}
 #| echo: true
-predictions(mod_engine) |>
-  summarise(mean_survival = mean(estimate), .by = PClass)
+avg_predictions(mod_linear, by = "PClass")
 ```
 
 ###
 
-This manually computes what `avg_predictions()` does under the hood — run predictions for every passenger, then average within each class.
+```
+ PClass Estimate Std. Error    z Pr(>|z|)     S 2.5 % 97.5 %
+    1st     40.9     0.6960 58.8   <0.001 Inf    39.6   42.3
+    2nd     30.0     0.7490 40.1   <0.001 Inf    28.5   31.5
+    3rd     25.3     0.5080 49.9   <0.001 Inf    24.3   26.3
+Type: response
+```
+
+###
+
+This is a **marginal** prediction — the model's average predicted age for each ticket class, weighted by the actual passengers in each class.
 
 ### Exercise 6
 
-Update your working chunk to use `avg_predictions()` with `by = "PClass"`. Render.
+Update your chunk to visualize how predicted age varies with `PClass` and `SexCode` using `plot_predictions()`. Render.
 
 ```
-avg_predictions(mod_engine, by = "PClass")
+plot_predictions(mod_linear,
+  condition = c("PClass", "SexCode"))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-6}
+```{r linear-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -544,112 +495,17 @@ question_text(NULL,
 
 ###
 
-```{r predictions-6-test}
+```{r linear-5-test}
 #| echo: true
-avg_predictions(mod_engine, by = "PClass")
+plot_predictions(mod_linear,
+  condition = c("PClass", "SexCode"))
 ```
 
 ###
 
-This is a **marginal** prediction — we ran the machine on every real passenger, then averaged the results within each class.
+`condition` fixes all other predictors at their means/modes and shows how the prediction changes across the specified variables. First class passengers are predicted to be older than 3rd class, and females slightly older than males within each class.
 
 ### Exercise 7
-
-Add a new code chunk that prints both the conditional prediction for a 30-year-old man in 2nd class and the marginal prediction for 2nd class, side by side. Render.
-
-```
-predictions(mod_engine,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
-avg_predictions(mod_engine, by = "PClass")
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-7-test}
-#| echo: true
-predictions(mod_engine,
-  newdata = datagrid(Age = 30, SexCode = 0, PClass = "2nd"))
-avg_predictions(mod_engine, by = "PClass")
-```
-
-###
-
-The same model, two different questions. The conditional number describes one hypothetical man, age 30. The marginal number averages over all actual 2nd class passengers — men and women included.
-
-###
-
-Neither answer is wrong. They answer different questions — and knowing which question you are asking is exactly the thinking `marginaleffects` demands.
-
-### Exercise 8
-
-Update your working chunk to visualize conditional predictions across a continuous range of ages. Use `plot_predictions()` with `condition = c("Age", "PClass")`, and add the observed data as dots with `geom_dots()` from `ggdist`. Survivors go below the curve, non-survivors above. Render.
-
-```
-plot_predictions(mod_engine, condition = c("Age", "PClass")) +
-  geom_dots(
-    alpha = .8, scale = .3, pch = 18,
-    data = titanic,
-    aes(x = Age, y = as.numeric(as.character(Survived)),
-        side = ifelse(as.numeric(as.character(Survived)) == 1, "bottom", "top"))
-  ) +
-  labs(
-    title = "Predicted survival probability on the Titanic",
-    x = "Age", y = "Predicted probability of survival",
-    color = "Ticket class", fill = "Ticket class"
-  ) +
-  scale_y_continuous(labels = scales::percent)
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
-```
-
-###
-
-```{r predictions-8-test}
-#| echo: true
-plot_predictions(mod_engine, condition = c("Age", "PClass")) +
-  geom_dots(
-    alpha = .8, scale = .3, pch = 18,
-    data = titanic,
-    aes(x = Age, y = as.numeric(as.character(Survived)),
-        side = ifelse(as.numeric(as.character(Survived)) == 1, "bottom", "top"))
-  ) +
-  labs(
-    title = "Predicted survival probability on the Titanic",
-    x = "Age", y = "Predicted probability of survival",
-    color = "Ticket class", fill = "Ticket class"
-  ) +
-  scale_y_continuous(labels = scales::percent)
-```
-
-###
-
-Every point on these curves is a conditional prediction. The dots show what actually happened — where the curves align with the dots, the model fits well.
-
-###
-
-Notice that 1st and 2nd class have similar survival odds for children, but diverge sharply for adults. By middle age, even 2nd class passengers had much lower survival odds than 1st class. The dots confirm this — most surviving adults are clustered in the 1st class curve.
-
-### Exercise 9
 
 Commit and push. In the bash Terminal, run:
 
@@ -659,7 +515,7 @@ git log -1
 
 CP/CR.
 
-```{r predictions-9}
+```{r linear-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -671,69 +527,75 @@ question_text(NULL,
 ###
 
 ```
-commit 7d4e9b2
+commit 5b3c1d2
 Author: Var Kurapati <vkurapat@example.com>
-Date:   Mon Jul 14 14:51:03 2025 -0700
+Date:   Mon Jul 14 11:00:00 2025 -0700
 
-    Add Titanic survival prediction plot
+    Add linear regression predictions
 ```
 
 ###
 
-Your first plot shows predicted probabilities. Next, we explore counterfactual comparisons — how much does predicted survival change when we manipulate a specific variable?
+Linear regression produces one prediction per input row. Next, logistic regression produces a probability — a number between 0 and 1.
 
-## Comparisons
+## Logistic Regression
 ###
 
-A **counterfactual comparison** is a function of two or more model-based predictions made with different predictor values. In this section we cover three functions: `comparisons()`, `avg_comparisons()`, and `plot_comparisons()`.
-
-###
-
-Comparisons can be **predictive** or **causal**. Comparing survival rates between men and women is predictive — we cannot change someone's sex, so there is no causal story. Comparing survival rates between ticket classes is causal — a passenger could theoretically have bought a different class of ticket, so the difference represents something that could have changed their outcome.
+In this section we use two functions: `predictions()` and `plot_predictions()`. We apply them to `mod_logistic`, which predicts `Survived` — a binary outcome (0 or 1). For logistic models, `predictions()` requires `type = "prob"` to return probabilities, or `type = "class"` to return the best guess.
 
 ### Exercise 1
 
-In a new code chunk, use `comparisons()` to estimate the **conditional** change in predicted survival associated with being female vs. male, for a specific passenger: 30 years old, in 2nd class. Render.
+In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical passenger: a 30-year-old male in 1st class. Use `type = "prob"`. Render.
 
 ```
-grid <- data.frame(Age = 30, PClass = "2nd", SexCode = 1)
-comparisons(mod_engine, variables = "SexCode", newdata = grid)
+class(predictions(mod_logistic,
+  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"),
+  type = "prob"))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comparisons-1}
+```{r logistic-0}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 4)
 ```
 
 ###
 
-```{r comparisons-1-test}
+```{r logistic-0-test}
 #| echo: true
-grid <- data.frame(Age = 30, PClass = "2nd", SexCode = 1)
-comparisons(mod_engine, variables = "SexCode", newdata = grid)
+class(predictions(mod_logistic,
+  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"),
+  type = "prob"))
 ```
 
 ###
 
-The estimate tells us how much the predicted survival probability changes when `SexCode` shifts from 0 to 1, for this specific 30-year-old 2nd class passenger.
+```
+[1] "predictions" "data.frame"
+```
+
+###
+
+`predictions()` returns an object of class `predictions` and `data.frame` — you can pipe it to `as_tibble()`, `filter()`, or `ggplot()`.
 
 ### Exercise 2
 
-Update your working chunk to compute the **marginal** version: the average change in predicted survival associated with being female, broken down by ticket class, using `avg_comparisons()` with `by`. Render.
+In a new code chunk, run `predictions()` on `mod_logistic` for one hypothetical passenger: a 30-year-old male in 1st class. Use `type = "prob"`. Render.
 
 ```
-avg_comparisons(mod_engine, variables = "SexCode", by = "PClass")
+predictions(mod_logistic,
+  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"),
+  type = "prob")
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comparisons-2}
+```{r logistic-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -744,29 +606,37 @@ question_text(NULL,
 
 ###
 
-```{r comparisons-2-test}
+```{r logistic-1-test}
 #| echo: true
-avg_comparisons(mod_engine, variables = "SexCode", by = "PClass")
+predictions(mod_logistic,
+  newdata = data.frame(Age = 30, SexCode = 0, PClass = "1st"),
+  type = "prob")
 ```
 
 ###
 
-The `by` argument averages the effect of being female across all actual passengers in each class. "Women and children first" was enforced policy — and the data confirms it.
+```
+ Group Estimate Std. Error    z Pr(>|z|)    S 2.5 % 97.5 % Age SexCode PClass
+     0    0.531     0.0591 8.98   <0.001 61.7 0.415  0.646  30       0    1st
+     1    0.469     0.0591 7.95   <0.001 48.9 0.354  0.585  30       0    1st
+Type: prob
+```
+
+###
+
+Unlike linear regression, logistic regression returns **two rows** — one for each possible outcome (died = 0, survived = 1). The `group` column identifies which outcome each row refers to.
 
 ### Exercise 3
 
-Add a new code chunk that prints both the conditional comparison for a 30-year-old 2nd class passenger and the marginal comparison for 2nd class, side by side. Render.
+Update your chunk to predict survival for the first actual passenger in the dataset. Use `type = "prob"`. Render.
 
 ```
-comparisons(mod_engine,
-  variables = "SexCode",
-  newdata = data.frame(Age = 30, PClass = "2nd", SexCode = 1))
-avg_comparisons(mod_engine, variables = "SexCode", by = "PClass")
+predictions(mod_logistic, newdata = titanic[1, ], type = "prob")
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comparisons-3}
+```{r logistic-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -777,40 +647,389 @@ question_text(NULL,
 
 ###
 
-```{r comparisons-3-test}
+```{r logistic-2-test}
 #| echo: true
-comparisons(mod_engine,
-  variables = "SexCode",
-  newdata = data.frame(Age = 30, PClass = "2nd", SexCode = 1))
-avg_comparisons(mod_engine, variables = "SexCode", by = "PClass")
+predictions(mod_logistic, newdata = titanic[1, ], type = "prob")
 ```
 
 ###
 
-The conditional number fixes age at exactly 30. The marginal number lets age vary across the real distribution of 2nd class passengers and averages the effects.
+```
+ Group Estimate Std. Error    z Pr(>|z|)    S 2.5 % 97.5 %
+     0   0.0539     0.0111 4.84   <0.001 19.5 0.036 0.0798
+     1   0.9461     0.0111 85.0   <0.001  Inf 0.920 0.9638
+Type: prob
+```
 
 ###
 
-Whenever a conditional and a marginal number disagree, the fix is not to pick "the right one" — it is to ask which question you actually meant to answer.
+We already know this passenger survived — it is in the data. The model predicts a 94.6% survival probability. We predict this passenger not because we don't know the answer, but because we want to ask: what would the model predict if something about them changed?
 
 ### Exercise 4
 
-Update your working chunk to visualize the conditional comparison across a continuous range of ages, separately by class. Use `plot_comparisons()` with `condition = c("Age", "PClass")`. Render.
+Update your chunk to use `type = "class"` instead of `type = "prob"`. Render.
 
 ```
-plot_comparisons(mod_engine,
-  variables = "SexCode",
-  condition = c("Age", "PClass")) +
-  labs(
-    title = "Effect of being female on predicted survival probability",
-    x = "Age", y = "Risk difference (female - male)",
-    color = "Ticket class", fill = "Ticket class"
-  )
+predictions(mod_logistic, newdata = titanic[1, ], type = "class")
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r comparisons-4}
+```{r logistic-3b}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r logistic-3b-test}
+#| echo: true
+predictions(mod_logistic, newdata = titanic[1, ], type = "class")
+```
+
+###
+
+```
+ Estimate
+        1
+Type: class
+```
+
+###
+
+`type = "class"` gives the model's best guess — survived (1) or died (0). `type = "prob"` gives two rows with probabilities; `type = "class"` gives one row with the predicted category.
+
+### Exercise 5
+
+Update your chunk to predict survival for the same first passenger, but change their ticket class to 3rd. Use `type = "prob"`. Render.
+
+```
+predictions(mod_logistic,
+  newdata = titanic[1, ] |> mutate(PClass = "3rd"),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r logistic-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r logistic-3-test}
+#| echo: true
+predictions(mod_logistic,
+  newdata = titanic[1, ] |> mutate(PClass = "3rd"),
+  type = "prob")
+```
+
+###
+
+```
+ Group Estimate Pr(>|z|)   S 2.5 % 97.5 %
+     0     0.55     0.37 1.4 0.441  0.655
+     1     0.45     0.37 1.4 0.345  0.559
+Type: prob
+```
+
+###
+
+The same passenger, but with a 3rd class ticket, has only a 45% predicted survival probability — down from 95%. This is the counterfactual question: same person, different ticket.
+
+### Exercise 6
+
+Update your chunk to use `avg_predictions()` with `by = "PClass"` and `type = "prob"`. Render.
+
+```
+avg_predictions(mod_logistic, by = "PClass", type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r logistic-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r logistic-4-test}
+#| echo: true
+avg_predictions(mod_logistic, by = "PClass", type = "prob")
+```
+
+###
+
+```
+ PClass Estimate Std. Error    z Pr(>|z|)     S 2.5 % 97.5 %
+    1st    0.615     0.0241 25.6   <0.001 476.1 0.568  0.662
+    2nd    0.453     0.0214 21.2   <0.001 328.1 0.411  0.495
+    3rd    0.245     0.0226 10.9   <0.001  88.8 0.201  0.290
+Type: prob
+```
+
+###
+
+First class passengers had a 62% average predicted survival probability, compared to 25% for 3rd class. This reflects the historical record — lifeboats were loaded from the upper decks first.
+
+### Exercise 7
+
+Update your chunk to visualize predicted survival probability across ages and ticket classes using `plot_predictions()`. Add `geom_dots()` from **ggdist** to show actual outcomes. Use `type = "prob"`. Render.
+
+```
+plot_predictions(mod_logistic,
+  condition = c("Age", "PClass"),
+  type = "prob") +
+  geom_dots(
+    alpha = .8, scale = .3, pch = 18,
+    data = titanic,
+    aes(x = Age,
+        y = as.numeric(as.character(Survived)),
+        side = ifelse(as.numeric(as.character(Survived)) == 1,
+                      "bottom", "top"))
+  ) +
+  labs(
+    title = "Predicted survival probability on the Titanic",
+    x = "Age", y = "Predicted probability of survival",
+    color = "Ticket class", fill = "Ticket class"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r logistic-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+```{r logistic-5-test}
+#| echo: true
+plot_predictions(mod_logistic,
+  condition = c("Age", "PClass"),
+  type = "prob") +
+  geom_dots(
+    alpha = .8, scale = .3, pch = 18,
+    data = titanic,
+    aes(x = Age,
+        y = as.numeric(as.character(Survived)),
+        side = ifelse(as.numeric(as.character(Survived)) == 1,
+                      "bottom", "top"))
+  ) +
+  labs(
+    title = "Predicted survival probability on the Titanic",
+    x = "Age", y = "Predicted probability of survival",
+    color = "Ticket class", fill = "Ticket class"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+###
+
+Every point on these curves is a **conditional** prediction — the model's predicted survival probability at a given age, holding other variables at their means. The dots show actual outcomes: survivors below the curve, deaths above.
+
+###
+
+Notice that 1st and 2nd class have similar survival odds for children, but diverge sharply for adults. By middle age, 2nd class passengers had much lower survival odds than 1st class.
+
+### Exercise 8
+
+Commit and push. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r logistic-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+commit 6c4d2e3
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Mon Jul 14 12:00:00 2025 -0700
+
+    Add logistic regression predictions
+```
+
+###
+
+Logistic regression returns two rows per input — one probability for each outcome. Next, multinomial regression returns three rows — one per outcome category.
+
+## Multinomial Regression
+###
+
+In this section we use two functions: `predictions()` and `plot_predictions()`. We apply them to `mod_multinomial`, which predicts `PClass` — a categorical outcome with three unordered levels. Because there are three possible outcomes, `predictions()` returns three rows per input — one probability for each class.
+
+### Exercise 1
+
+In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical passenger: a 30-year-old male. Use `type = "prob"`. Render.
+
+```
+class(predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob"))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-0}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r multinomial-0-test}
+#| echo: true
+class(predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob"))
+```
+
+###
+
+```
+[1] "predictions" "data.frame"
+```
+
+###
+
+`predictions()` always returns the same class regardless of model type — this is the key benefit of **marginaleffects**: a uniform interface across all model types.
+
+### Exercise 2
+
+In a new code chunk, run `predictions()` on `mod_multinomial` for one hypothetical passenger: a 30-year-old male. Use `type = "prob"`. Render.
+
+```
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r multinomial-1-test}
+#| echo: true
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob")
+```
+
+###
+
+```
+ Group Estimate Std. Error    z Pr(>|z|)     S 2.5 % 97.5 % Age SexCode
+   1st    0.216     0.0207 10.4   <0.001  82.2 0.176  0.257  30       0
+   2nd    0.299     0.0223 13.4   <0.001 133.7 0.255  0.343  30       0
+   3rd    0.485     0.0248 19.6   <0.001 281.2 0.436  0.533  30       0
+Type: prob
+```
+
+###
+
+Unlike linear and logistic models, multinomial regression returns **three rows per input** — one probability for each ticket class. The probabilities sum to 1. A 30-year-old male was most likely to be in 3rd class (49%), then 2nd (30%), then 1st (22%).
+
+### Exercise 3
+
+Update your chunk to use `type = "class"` to get the model's best guess for a 30-year-old male. Render.
+
+```
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "class")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-2b}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r multinomial-2b-test}
+#| echo: true
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "class")
+```
+
+###
+
+```
+ Estimate Age SexCode
+      3rd  30       0
+Type: class
+```
+
+###
+
+`type = "class"` gives the most likely ticket class — 3rd for a 30-year-old male. Compare this to `type = "prob"` which gives three rows of probabilities.
+
+### Exercise 4
+
+Update your chunk to pipe `predictions()` to `as_tibble()`. Use `type = "prob"`. Render.
+
+```
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob") |>
+  as_tibble()
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -821,27 +1040,83 @@ question_text(NULL,
 
 ###
 
-```{r comparisons-4-test}
+```{r multinomial-2-test}
 #| echo: true
-plot_comparisons(mod_engine,
-  variables = "SexCode",
-  condition = c("Age", "PClass")) +
-  labs(
-    title = "Effect of being female on predicted survival probability",
-    x = "Age", y = "Risk difference (female - male)",
-    color = "Ticket class", fill = "Ticket class"
-  )
+predictions(mod_multinomial,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob") |>
+  as_tibble()
 ```
 
 ###
 
-`plot_comparisons()` runs the machine twice for each passenger — once female, once male — subtracts, and plots the gap. This is the counterfactual question made visible: not two groups of different people, but the same passengers imagined in two worlds.
+The `group` column identifies which outcome category each row corresponds to. Converting to a tibble makes it easy to `filter()` to just the class you care about or `ggplot()` the probabilities.
+
+### Exercise 5
+
+Update your chunk to use `avg_predictions()` with `by = "SexCode"` and `type = "prob"`. Render.
+
+```
+avg_predictions(mod_multinomial, by = "SexCode", type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
 
 ###
 
-The gap can only be interpreted causally if we know how passengers ended up in each group. The picture is only as trustworthy as the mechanism behind it.
+```{r multinomial-3-test}
+#| echo: true
+avg_predictions(mod_multinomial, by = "SexCode", type = "prob")
+```
 
-### Exercise 5
+###
+
+`avg_predictions()` still returns multiple rows per group for multinomial models — one row per outcome category per group value. The `group` column tells you which class each row refers to.
+
+### Exercise 6
+
+Update your chunk to visualize predicted class probabilities across age using `plot_predictions()`. Use `type = "prob"`. Render.
+
+```
+plot_predictions(mod_multinomial,
+  condition = c("Age", "group"),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r multinomial-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r multinomial-4-test}
+#| echo: true
+plot_predictions(mod_multinomial,
+  condition = c("Age", "group"),
+  type = "prob")
+```
+
+###
+
+For multinomial models, `group` is a special variable that identifies the outcome category. Passing it to `condition` produces one line per ticket class, showing how the predicted probability of being in each class changes with age.
+
+### Exercise 7
 
 Commit and push. In the bash Terminal, run:
 
@@ -851,7 +1126,7 @@ git log -1
 
 CP/CR.
 
-```{r comparisons-5}
+```{r multinomial-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -863,21 +1138,255 @@ question_text(NULL,
 ###
 
 ```
-commit 9c2b5f3
+commit 7d5e3f4
 Author: Var Kurapati <vkurapat@example.com>
-Date:   Mon Jul 14 16:20:11 2025 -0700
+Date:   Mon Jul 14 13:00:00 2025 -0700
 
-    Add counterfactual comparisons section
+    Add multinomial regression predictions
 ```
 
 ###
 
-You have now computed both predictions and counterfactual comparisons. The final section wires everything together into a published website.
+Multinomial regression returns one row per outcome category. Ordered regression is similar, but the categories have a natural ordering.
+
+## Ordinal Regression
+###
+
+In this section we use two functions: `predictions()` and `plot_predictions()`. We apply them to `mod_ordered`, which predicts `PClass_ord` — an ordered version of ticket class where 3rd < 2nd < 1st. Like the multinomial model, `predictions()` returns three rows per input.
+
+### Exercise 1
+
+In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical passenger: a 30-year-old male. Use `type = "prob"`. Render.
+
+```
+class(predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob"))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r ordinal-0}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r ordinal-0-test}
+#| echo: true
+class(predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob"))
+```
+
+###
+
+```
+[1] "predictions" "data.frame"
+```
+
+###
+
+`predictions()` returns the same class for all four model types — linear, logistic, multinomial, and ordinal. The interface is uniform even though the underlying models are very different.
+
+### Exercise 2
+
+In a new code chunk, run `predictions()` on `mod_ordered` for one hypothetical passenger: a 30-year-old male. Use `type = "prob"`. Render.
+
+```
+predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r ordinal-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r ordinal-1-test}
+#| echo: true
+predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "prob")
+```
+
+###
+
+```
+ Group Estimate Age SexCode
+ value    0.456  30       0
+ value    0.315  30       0
+ value    0.230  30       0
+Type: prob
+```
+
+###
+
+Like the multinomial model, the ordinal model returns three rows — one per ticket class. Notice the probabilities are slightly different from the multinomial model because the ordinal model uses the ordering constraint (3rd < 2nd < 1st) to estimate the probabilities.
+
+### Exercise 3
+
+Update your chunk to use `type = "class"` to get the model's best guess for a 30-year-old male. Render.
+
+```
+predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "class")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r ordinal-1b}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r ordinal-1b-test}
+#| echo: true
+predictions(mod_ordered,
+  newdata = data.frame(Age = 30, SexCode = 0),
+  type = "class")
+```
+
+###
+
+```
+ Estimate Age SexCode
+      3rd  30       0
+Type: class
+```
+
+###
+
+`type = "class"` gives the most likely ticket class. For the ordinal model, the ordering constraint (3rd < 2nd < 1st) affects the probabilities but `type = "class"` still returns the single most likely category.
+
+### Exercise 4
+
+Update your chunk to run `predictions()` for a 30-year-old female and compare to the male predictions. Use `type = "prob"`. Render.
+
+```
+predictions(mod_ordered,
+  newdata = data.frame(Age = c(30, 30),
+                       SexCode = c(0, 1)),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r ordinal-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r ordinal-2-test}
+#| echo: true
+predictions(mod_ordered,
+  newdata = data.frame(Age = c(30, 30),
+                       SexCode = c(0, 1)),
+  type = "prob")
+```
+
+###
+
+The model predicts that females were more likely to be in higher ticket classes than males of the same age — reflecting the historical tendency for women to travel with wealthier companions.
+
+### Exercise 5
+
+Update your chunk to use `plot_predictions()` with `condition = c("Age", "group")` and `type = "prob"`. Render.
+
+```
+plot_predictions(mod_ordered,
+  condition = c("Age", "group"),
+  type = "prob")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r ordinal-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r ordinal-3-test}
+#| echo: true
+plot_predictions(mod_ordered,
+  condition = c("Age", "group"),
+  type = "prob")
+```
+
+###
+
+The ordinal model produces smooth, monotonically ordered probability curves. Older passengers were more likely to be in 1st class and less likely to be in 3rd — consistent with the historical pattern of wealthier, older travelers buying premium tickets.
+
+### Exercise 6
+
+Commit and push. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r ordinal-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+commit 8e6f4g5
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Mon Jul 14 14:00:00 2025 -0700
+
+    Add ordinal regression predictions
+```
+
+###
+
+You have now used `predictions()` and `plot_predictions()` with all four model types. The final section wires everything into a published website.
 
 ## Summary
 ###
 
-You have built two sections of analysis. Now wire them together into a navigable Quarto website and publish the result.
+You have built four sections of analysis. Now wire them together into a navigable Quarto website and publish the result.
 
 ### Exercise 1
 
@@ -888,7 +1397,7 @@ project:
   type: website
 
 website:
-  title: "Titanic Survival"
+  title: "Titanic Analysis"
   navbar:
     left:
       - href: analysis.qmd
@@ -925,7 +1434,7 @@ question_text(NULL,
   type: website
 
 website:
-  title: "Titanic Survival"
+  title: "Titanic Analysis"
   navbar:
     left:
       - href: analysis.qmd
@@ -944,12 +1453,9 @@ format:
 
 ### Exercise 2
 
-Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Render.
-
-Also clean up `analysis.qmd` so it contains only: a setup chunk, a data-loading chunk, a model chunk, and the two final plots. Remove all intermediate tables. Render.
+Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, a data-loading chunk, a model chunk, and the four final plots. Remove all intermediate tables. Render.
 
 In the R Terminal, run `show_file("about.qmd")`. CP/CR.
-
 
 ```{r summary-2}
 question_text(NULL,
@@ -962,11 +1468,13 @@ question_text(NULL,
 
 ###
 
+```
 ---
 title: "About"
 ---
 
 Var Kurapati, July 2025.
+```
 
 ###
 
@@ -1010,10 +1518,7 @@ question_text(NULL,
 
 ###
 
-The **marginaleffects** package works with over 100 model types. The same workflow — fit a model, decide whether you want conditional or marginal quantities, compute, visualize — applies to all of them.
+The **marginaleffects** package works with over 100 model types. The same two functions — `predictions()` and `plot_predictions()` — apply to all of them in exactly the same way.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
-
-
-
