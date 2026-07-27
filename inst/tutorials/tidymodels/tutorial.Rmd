@@ -9,7 +9,7 @@ output:
     progressive: true
     allow_skip: true
 runtime: shiny_prerendered
-description: "Learn the tidymodels framework by fitting linear, logistic, multinomial, and ordinal regression models to video game sales and review data."
+description: "Learn the tidymodels framework by fitting linear, logistic, multinomial, and ordinal regression models to Titanic passenger data."
 ---
 
 ```{r setup, include = FALSE}
@@ -27,7 +27,20 @@ knitr::opts_chunk$set(message = FALSE)
 options(tutorial.exercise.timelimit = 60,
         tutorial.storage = "local")
 
-vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
+  mutate(class_sex = paste(PClass, Sex, sep = "-"))
+
+build_equation <- function(coefs, outcome) {
+  has_intercept <- "(Intercept)" %in% coefs$term
+  other <- coefs[coefs$term != "(Intercept)", ]
+  parts <- purrr::map2_chr(other$term, round(other$estimate, 2), function(term, est) {
+    sign <- if (est >= 0) "+" else "-"
+    paste0(sign, " ", abs(est), " \\times \\text{", term, "}")
+  })
+  lead <- if (has_intercept) as.character(round(coefs$estimate[coefs$term == "(Intercept)"], 2)) else NULL
+  rhs <- paste(c(lead, parts), collapse = " ")
+  paste0("$$\\text{", outcome, "} = ", rhs, "$$")
+}
 ```
 
 ```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
@@ -36,7 +49,7 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 ## Introduction
 ###
 
-This tutorial introduces the **[tidymodels](https://www.tidymodels.org/)** framework for statistical modeling, following [*Tidy Modeling with R*](https://www.tmwr.org/) and the [tidymodels Get Started guide](https://www.tidymodels.org/start/). You will fit four different kinds of regression models to a dataset of video game sales and reviews, learning the same specify-engine-fit pattern that tidymodels uses for every model type.
+This tutorial introduces the **[tidymodels](https://www.tidymodels.org/)** framework for statistical modeling, following [*Tidy Modeling with R*](https://www.tmwr.org/) and the [tidymodels Get Started guide](https://www.tidymodels.org/start/). You will fit four different kinds of regression models to Titanic passenger data, learning the same specify-engine-fit pattern that tidymodels uses for every model type.
 
 Every dataset is a shadow of some real-world process — the **data generating mechanism**, or DGM. This tutorial's four sections all propose a **structure** for that mechanism (what kind of outcome are you predicting?), pick a **method** for estimating it (`set_engine()`), then **fit** it to real data. Structure → Method → Fitting.
 
@@ -85,10 +98,10 @@ analysis_files
 
 ### Exercise 2
 
-Create a `data` directory at the top level of the `tidymodels` repo, then download `video_games.csv` into it from this URL:
+Create a `data` directory at the top level of the `tidymodels` repo, then download `titanic.csv` into it from this URL:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/tidymodels/data/video_games.csv
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/tidymodels/data/titanic.csv
 ```
 
 In the bash Terminal, run `ls data`. CP/CR.
@@ -105,18 +118,16 @@ question_text(NULL,
 ###
 
 ```
-video_games.csv
+titanic.csv
 ```
 
 ###
 
-This is the Kaggle "Video Game Sales with Ratings" dataset — sales figures scraped from VGChartz merged with critic and user reviews from Metacritic, 16,719 games in all. Like the `movies` tutorial's `boxOffice` column, several columns here are incomplete; you will run into that directly in the next section.
+This is the classic Titanic passenger dataset, compiled by Thomas Cason — 756 passengers with a known age, ticket class, sex, and survival outcome. You will use `Age`, `PClass`, `Sex`, and `Survived` across all four sections ahead, plus a derived `class_sex` column for the multinomial section.
 
 ### Exercise 3
 
-<!-- DK: Probably tidyverse, not readr. Done. -->
-
-In your QMD, add a setup chunk that loads **tidymodels**, along with **tidyverse** and the **ordered** package (an extension you will need later for ordinal regression), and reads `data/video_games.csv` into a tibble named `vg`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
+In your QMD, add a setup chunk that loads **tidymodels**, along with **tidyverse**, **broom**, and the **ordered** package (an extension you will need later for ordinal regression), reads `data/titanic.csv` into a tibble named `titanic`, and adds a `class_sex` column that pastes `PClass` and `Sex` together with a `"-"` separator. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
 Render. In the R Terminal, run:
 
@@ -143,7 +154,8 @@ library(tidyverse)
 library(broom)
 library(ordered)
 
-vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
+  mutate(class_sex = paste(PClass, Sex, sep = "-"))
 </code></pre>
 
 ###
@@ -152,7 +164,7 @@ vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
 
 ### Exercise 4
 
-Commit and push your work with a message like "Initial project setup with video game data". Copy-paste the output of `git log --oneline -3` into the answer box.
+Commit and push your work with a message like "Initial project setup with Titanic data". Copy-paste the output of `git log --oneline -3` into the answer box.
 
 ```{r introduction-4}
 question_text(NULL,
@@ -165,10 +177,8 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Our answer? Done. -->
-
 ```
-Initial project setup with video game data
+Initial project setup with Titanic data
 Add tidymodels tutorial data
 Initial commit
 ```
@@ -180,15 +190,11 @@ Committing before any model fitting creates a clean baseline. Every model you bu
 ## Linear regression
 ###
 
-<!-- DK: Triple hash right next to double hash section title. Done. -->
-
-`linear_reg()` proposes the **structure**: our outcome, `Global_Sales`, is a number, so we're guessing at a mechanism that produces numbers. `set_engine("lm")` picks the **method** for estimating it. Only `fit()` — the third step — actually touches data. `Critic_Score` is missing for 8,582 of the 16,719 games in `vg`, so you will filter those out first.
+`linear_reg()` proposes the **structure**: our outcome, `Age`, is a number, so we're guessing at a mechanism that produces numbers. `set_engine("lm")` picks the **method** for estimating it. Only `fit()` — the third step — actually touches data.
 
 ### Exercise 1
 
-<!-- DK: Break this up into separate questions. Done. -->
-
-In a new code chunk, filter `vg` to rows with a non-missing `Critic_Score`, storing the result as `vg_clean`. Specify a linear regression with `linear_reg()`, and set its engine to `"lm"` with `set_engine()`. Render, then run:
+In a new code chunk, specify a linear regression with `linear_reg()`, and set its engine to `"lm"` with `set_engine()`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -202,15 +208,13 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 6)
 ```
 
 ###
 
 ```{r linear-1-test}
 #| echo: true
-vg_clean <- vg |> filter(!is.na(Critic_Score))
-
 linear_reg() |>
   set_engine("lm")
 ```
@@ -221,9 +225,7 @@ Structure and method are chosen before any data is touched — `fit()`, the step
 
 ### Exercise 2
 
-<!-- DK: `sales_fit` gets its own code chunk. Done. -->
-
-`fit()` it to predict `Global_Sales` from `Critic_Score` using `vg_clean`, storing the fitted model as `sales_fit`. Print `sales_fit`. Render, then run:
+`fit()` it to predict `Age` from `PClass + Sex` using `titanic`, storing the fitted model as `mod_linear`. Print `mod_linear`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -244,20 +246,20 @@ question_text(NULL,
 
 ```{r linear-2-test}
 #| echo: true
-sales_fit <- linear_reg() |>
+mod_linear <- linear_reg() |>
   set_engine("lm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+  fit(Age ~ PClass + Sex, data = titanic)
 
-sales_fit
+mod_linear
 ```
 
 ###
 
-`fit()` is where the mechanism meets real data — this is what a fitted DGM actually is. Each point of `Critic_Score` predicts about $32,000 more in `Global_Sales`.
+`fit()` is where the mechanism meets real data — this is what a fitted DGM actually is. 2nd class passengers are predicted to be about 11.5 years younger than 1st class, and 3rd class about 14.8 years younger, holding sex fixed.
 
 ### Exercise 3
 
-Replace the printed `sales_fit` with a call to `tidy(sales_fit)` to see the coefficients as a tidy tibble. Render, then run:
+Replace the printed `mod_linear` with a call to `tidy(mod_linear)` to see the coefficients as a tidy tibble. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -278,18 +280,16 @@ question_text(NULL,
 
 ```{r linear-3-test}
 #| echo: true
-tidy(sales_fit)
+tidy(mod_linear)
 ```
 
 ###
-
-<!-- DK: I think this is a lie. Done. -->
 
 `tidy()` reads results back out of the fitted DGM — it doesn't change what the machine learned, just how you view it.
 
 ### Exercise 4
 
-Add a second fitted model, `sales_fit_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(sales_fit_glm)` below it so you can compare coefficients. Render, then run:
+Add a second fitted model, `mod_linear_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`, fit to the same formula and data. Add `tidy(mod_linear_glm)` below it so you can compare coefficients. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -310,25 +310,95 @@ question_text(NULL,
 
 ```{r linear-4-test}
 #| echo: true
-sales_fit_glm <- linear_reg() |>
+mod_linear_glm <- linear_reg() |>
   set_engine("glm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+  fit(Age ~ PClass + Sex, data = titanic)
 
-print(tidy(sales_fit))
-tidy(sales_fit_glm)
+print(tidy(mod_linear))
+tidy(mod_linear_glm)
 ```
-
-<!-- DK: Do we need print() above? Why? Done. -->
 
 ###
 
-Only a chunk's last line displays automatically, so `print()` shows `sales_fit`'s coefficients too. `"lm"` and `"glm"` are two different **methods** for estimating the same structure — here they agree exactly, but that won't always be true.
+Only a chunk's last line displays automatically, so `print()` shows `mod_linear`'s coefficients too. `"lm"` and `"glm"` are two different **methods** for estimating the same structure — here they agree exactly, but that won't always be true.
 
 ### Exercise 5
 
-Commit and push your work with a message like "Add linear regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+For every model in this tutorial, you will now show its equation with the actual estimated numbers plugged in. At the top of your last chunk, above `mod_linear_glm`, add this function:
+
+```
+build_equation <- function(coefs, outcome) {
+  has_intercept <- "(Intercept)" %in% coefs$term
+  other <- coefs[coefs$term != "(Intercept)", ]
+  parts <- purrr::map2_chr(other$term, round(other$estimate, 2), function(term, est) {
+    sign <- if (est >= 0) "+" else "-"
+    paste0(sign, " ", abs(est), " \\times \\text{", term, "}")
+  })
+  lead <- if (has_intercept) as.character(round(coefs$estimate[coefs$term == "(Intercept)"], 2)) else NULL
+  rhs <- paste(c(lead, parts), collapse = " ")
+  paste0("$$\\text{", outcome, "} = ", rhs, "$$")
+}
+```
+
+Then replace the chunk's two `tidy()` lines with these two lines, and add `#| results: asis` to the top of the chunk:
+
+```
+cat(build_equation(tidy(mod_linear), "Age"))
+cat(build_equation(tidy(mod_linear_glm), "Age (glm)"))
+```
+
+Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r linear-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 20)
+```
+
+###
+
+```{r linear-5-test}
+#| echo: true
+#| results: asis
+build_equation <- function(coefs, outcome) {
+  has_intercept <- "(Intercept)" %in% coefs$term
+  other <- coefs[coefs$term != "(Intercept)", ]
+  parts <- purrr::map2_chr(other$term, round(other$estimate, 2), function(term, est) {
+    sign <- if (est >= 0) "+" else "-"
+    paste0(sign, " ", abs(est), " \\times \\text{", term, "}")
+  })
+  lead <- if (has_intercept) as.character(round(coefs$estimate[coefs$term == "(Intercept)"], 2)) else NULL
+  rhs <- paste(c(lead, parts), collapse = " ")
+  paste0("$$\\text{", outcome, "} = ", rhs, "$$")
+}
+
+mod_linear_glm <- linear_reg() |>
+  set_engine("glm") |>
+  fit(Age ~ PClass + Sex, data = titanic)
+
+cat(build_equation(tidy(mod_linear), "Age"))
+cat(build_equation(tidy(mod_linear_glm), "Age (glm)"))
+```
+
+###
+
+Both equations come out identical here — "lm" and "glm" are two different methods for estimating the same structure, but that won't always be true.
+
+
+### Exercise 6
+
+Commit and push your work with a message like "Add linear regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r linear-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -339,26 +409,24 @@ question_text(NULL,
 
 ###
 
-<!-- DK: Show your answer. Done. -->
-
 ```
 Add linear regression model
-Merge branch 'main' into hk-tidymodels-tutorial
-Add tidymodels introduction tutorial
+Initial project setup with Titanic data
+Add tidymodels tutorial data
 ```
 
 ###
 
-A single predictor barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
+Two predictors barely uses this dataset's richness, but the specify-engine-fit pattern stays the same no matter how many predictors a formula has.
 
 ## Logistic regression
 ###
 
-Not every outcome is a number — sometimes the structure is different. `logistic_reg()` proposes a mechanism for a yes/no outcome: does a game become a genuine hit or not.
+Not every outcome is a number. `Survived` is a category — 1 or 0, a genuine yes-or-no about whether a passenger lived.
 
 ### Exercise 1
 
-Add a new chunk. Create a `hit` column that is `"yes"` when a game's `Global_Sales` is above 0.5 (million) and `"no"` otherwise, as a factor with levels `c("no", "yes")`. Store the result as `vg_hits`. Count how many games fall into each category. Render, then run:
+Add a new chunk. Specify a logistic regression with `logistic_reg()`, set its engine to `"glm"`, and `fit()` it to predict `factor(Survived, levels = c(0, 1))` from `Age + PClass + Sex` using `titanic`, storing the result as `mod_logistic`. Show `tidy(mod_logistic)`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -379,19 +447,26 @@ question_text(NULL,
 
 ```{r logistic-1-test}
 #| echo: true
-vg_hits <- vg |>
-  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes")))
+mod_logistic <- logistic_reg() |>
+  set_engine("glm") |>
+  fit(factor(Survived, levels = c(0, 1)) ~ Age + PClass + Sex, data = titanic)
 
-count(vg_hits, hit)
+tidy(mod_logistic)
 ```
 
 ###
 
-Only 23.5% of games clear the hit bar — a model that always guessed `"no"` would already be right 76.5% of the time.
+`logistic_reg()` proposes a different **structure** than `linear_reg()` did — a category instead of a number, so its coefficient is measured in log-odds, not the outcome's original units.
 
 ### Exercise 2
 
-Update the `vg_hits` definition to also filter to games with a non-missing `Critic_Score` (as in the previous section). In place of the count, specify a logistic regression with `logistic_reg()`, set its engine to `"glm"`, and `fit()` it to predict `hit` from `Critic_Score`, storing the result as `hit_fit`. Show `tidy(hit_fit)`. Render, then run:
+Replace `tidy(mod_logistic)` with the equation display, as you did for the linear model. Add `#| results: asis` to the top of the chunk:
+
+```
+cat(build_equation(tidy(mod_logistic), "logit(P(Survived))"))
+```
+
+Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -412,24 +487,17 @@ question_text(NULL,
 
 ```{r logistic-2-test}
 #| echo: true
-vg_hits <- vg |>
-  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
-  filter(!is.na(Critic_Score))
-
-hit_fit <- logistic_reg() |>
-  set_engine("glm") |>
-  fit(hit ~ Critic_Score, data = vg_hits)
-
-tidy(hit_fit)
+#| results: asis
+cat(build_equation(tidy(mod_logistic), "logit(P(Survived))"))
 ```
 
 ###
 
-`logistic_reg()` proposes a different **structure** than `linear_reg()` did — a category instead of a number, so its coefficient is measured in log-odds, not dollars.
+Every coefficient here is negative — older age, lower class, and being male each independently pushed the log-odds of survival down. `build_equation()` doesn't know or care what structure produced these numbers; it just formats whatever `tidy()` gives it.
 
 ### Exercise 3
 
-Add a second fitted model, `hit_fit_ll`, that specifies the same `logistic_reg()` but sets the engine to `"LiblineaR"` instead of `"glm"`, fit to the same formula and data. Below it, print `tidy(hit_fit)` and then `tidy(hit_fit_ll)` so you can compare them. Render, then run:
+Clean up your chunk so it holds only what is needed to rebuild `mod_logistic`: remove the `cat(build_equation(...))` line, keeping just the `mod_logistic` definition. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -443,64 +511,25 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 6)
 ```
 
 ###
 
-```{r logistic-3-test}
-#| echo: true
-hit_fit_ll <- logistic_reg() |>
-  set_engine("LiblineaR") |>
-  fit(hit ~ Critic_Score, data = vg_hits)
-
-print(tidy(hit_fit))
-tidy(hit_fit_ll)
-```
-
-###
-
-LiblineaR gives a different coefficient because it fits a regularized version of logistic regression by default. Different engines can even label the same term differently — LiblineaR calls the intercept `Bias`.
-
-### Exercise 4
-
-Clean up your chunk so it holds only what is needed to rebuild `hit_fit`: remove the `hit_fit_ll` model and both `tidy()` calls, keeping just the `vg_hits` and `hit_fit` definitions. Render, then run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r logistic-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-<pre><code>vg_hits <- vg |>
-  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
-  filter(!is.na(Critic_Score))
-
-hit_fit <- logistic_reg() |>
+<pre><code>mod_logistic <- logistic_reg() |>
   set_engine("glm") |>
-  fit(hit ~ Critic_Score, data = vg_hits)
+  fit(factor(Survived, levels = c(0, 1)) ~ Age + PClass + Sex, data = titanic)
 </code></pre>
 
 ###
 
-This chunk is now nothing but the two definitions needed to reproduce `hit_fit` — no printed output, no exploration, no comparison. That is exactly the shape a chunk should have right before you cache it.
+This chunk is now nothing but the one definition needed to reproduce `mod_logistic` — no printed output, no exploration. That is exactly the shape a chunk should have right before you cache it.
 
-### Exercise 5
+### Exercise 4
 
 Add `#| cache: true` to this chunk. Render. In the bash Terminal, run `ls`. CP/CR.
 
-```{r logistic-5}
+```{r logistic-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -521,9 +550,9 @@ data
 
 ###
 
-Rendering with `#| cache: true` created an `analysis_cache` directory alongside `analysis.qmd` — the file-based evidence that this chunk's result is now saved to disk. The next render will skip re-fitting `hit_fit` entirely and load it from the cache, as long as the chunk's code has not changed.
+Rendering with `#| cache: true` created an `analysis_cache` directory alongside `analysis.qmd` — the file-based evidence that this chunk's result is now saved to disk. The next render will skip re-fitting `mod_logistic` entirely and load it from the cache, as long as the chunk's code has not changed.
 
-### Exercise 6
+### Exercise 5
 
 Your Explorer's Source Control panel is now showing one more pending change: the new `analysis_cache` directory. Add `*_cache/` and `/.quarto/` to your `.gitignore`. In the R Terminal, run:
 
@@ -533,7 +562,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r logistic-6}
+```{r logistic-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -554,11 +583,11 @@ analysis_files
 
 `analysis_cache` and `.quarto` are regenerated by every render, so ignoring them keeps your repo's history to real changes only.
 
-### Exercise 7
+### Exercise 6
 
 Commit and push your work with a message like "Add logistic regression model with caching". Copy-paste the output of `git log --oneline -3` into the answer box.
 
-```{r logistic-7}
+```{r logistic-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -572,7 +601,7 @@ question_text(NULL,
 ```
 Add logistic regression model with caching
 Add linear regression model
-Merge branch 'main' into hk-tidymodels-tutorial
+Initial project setup with Titanic data
 ```
 
 ###
@@ -582,11 +611,11 @@ A model that fits this exact dataset well may not generalize — that risk is ca
 ## Multinomial regression
 ###
 
-`hit` had two categories. `Genre` has many more — a different **structure** again. `multinom_reg()` proposes a mechanism for an outcome with three or more unordered categories.
+`Survived` had two categories. `class_sex` has six — `1st-female`, `1st-male`, and so on. `multinom_reg()` proposes a mechanism for an outcome with three or more unordered categories.
 
 ### Exercise 1
 
-Add a new chunk. Filter `vg` to games with a non-missing `Genre` and a non-missing `Critic_Score`, then convert `Genre` to a `factor`, storing the result as `vg_genre`. Count how many games fall into each genre, sorted from most to least common. Render, then run:
+Add a new chunk. Count how many passengers fall into each `class_sex` category, sorted from most to least common. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -600,27 +629,23 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 6)
 ```
 
 ###
 
 ```{r multinomial-1-test}
 #| echo: true
-vg_genre <- vg |>
-  filter(!is.na(Genre), !is.na(Critic_Score)) |>
-  mutate(Genre = factor(Genre))
-
-count(vg_genre, Genre, sort = TRUE)
+count(titanic, class_sex, sort = TRUE)
 ```
 
 ###
 
-Action is the most common genre (1,890 games), Puzzle the rarest (224) — genre is far from evenly distributed.
+Men outnumber women in every class, and 3rd class alone (318 passengers) holds more people than 1st and 2nd combined.
 
 ### Exercise 2
 
-In place of the count, specify a multinomial regression with `multinom_reg()`, set its engine to `"nnet"`, and `fit()` it to predict `Genre` from `Critic_Score` using `vg_genre`, storing the result as `genre_fit`. Print `genre_fit`. Render, then run:
+In place of the count, specify a multinomial regression with `multinom_reg()`, set its engine to `"nnet"`, and `fit()` it to predict `factor(class_sex)` from `Age + Survived` using `titanic`, storing the result as `mod_multinomial`. Print `mod_multinomial`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -641,20 +666,20 @@ question_text(NULL,
 
 ```{r multinomial-2-test}
 #| echo: true
-genre_fit <- multinom_reg() |>
+mod_multinomial <- multinom_reg() |>
   set_engine("nnet") |>
-  fit(Genre ~ Critic_Score, data = vg_genre)
+  fit(factor(class_sex) ~ Age + Survived, data = titanic)
 
-genre_fit
+mod_multinomial
 ```
 
 ###
 
-Same three steps, more complex structure — `fit()` still runs once, estimating coefficients for every genre except one reference level (here, Action).
+`class_sex` has six unordered categories, not two — a more complex structure, but the same three steps. Notice there is no single correct way to define this outcome, either: we chose to combine class and sex, but other groupings could define different categories just as validly. Choosing a structure is itself a judgment call.
 
 ### Exercise 3
 
-Replace the printed `genre_fit` with `tidy(genre_fit)`. Render, then run:
+Replace the printed `mod_multinomial` with `tidy(mod_multinomial)`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -675,18 +700,57 @@ question_text(NULL,
 
 ```{r multinomial-3-test}
 #| echo: true
-tidy(genre_fit)
+tidy(mod_multinomial)
 ```
 
 ###
 
-The `y.level` column names which genre each row belongs to — still the same `tidy()`, just more rows.
+The `y.level` column names which category each row belongs to, relative to the reference level `1st-female` (alphabetically first) — still the same `tidy()`, just three coefficients repeated for each of five comparisons.
 
 ### Exercise 4
 
-Commit and push your work with a message like "Add multinomial regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+The model actually estimated five separate comparisons — one for each non-reference category against `1st-female`. Show the equation for just the `3rd-male` comparison. Replace `tidy(mod_multinomial)` with these two lines, and add `#| results: asis` to the top of the chunk:
+
+```
+mod_multinomial_coefs <- tidy(mod_multinomial) |> filter(y.level == "3rd-male")
+cat(build_equation(mod_multinomial_coefs, "log-odds(3rd-male vs. 1st-female)"))
+```
+
+Render, then run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
 
 ```{r multinomial-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r multinomial-4-test}
+#| echo: true
+#| results: asis
+mod_multinomial_coefs <- tidy(mod_multinomial) |> filter(y.level == "3rd-male")
+cat(build_equation(mod_multinomial_coefs, "log-odds(3rd-male vs. 1st-female)"))
+```
+
+###
+
+This is just one of five equations the model actually fit — `1st-male`, `2nd-female`, `2nd-male`, and `3rd-female` each have their own, all against the same `1st-female` reference. `3rd-male` shows the starkest contrast: lower class and being male both pull its log-odds down relative to a 1st class woman.
+
+### Exercise 5
+
+Commit and push your work with a message like "Add multinomial regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
+
+```{r multinomial-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -705,16 +769,16 @@ Add linear regression model
 
 ###
 
-Twelve categories and one predictor is intentionally simple — more predictors without more data would only worsen the overfitting risk.
+Six categories and two predictors is intentionally simple — more predictors without more data would only worsen the overfitting risk.
 
 ## Ordinal regression
 ###
 
-`Genre` had no natural order. ESRB `Rating` does: `"E"` is milder than `"E10+"`, milder than `"T"`, milder than `"M"`. `ordinal_reg()` proposes a structure that respects that order — categories, but not interchangeable ones.
+`class_sex` had no natural order. `PClass` does: `"1st"` outranks `"2nd"`, which outranks `"3rd"`. `ordinal_reg()` proposes a structure that respects that order — categories, but not interchangeable ones.
 
 ### Exercise 1
 
-Add a new chunk. Filter `vg` to games with a `Rating` of `"E"`, `"E10+"`, `"T"`, or `"M"` and a non-missing `Critic_Score`, then convert `Rating` to an ordered factor with levels in that order. Store the result as `vg_rating`. Count how many games fall into each rating. Render, then run:
+Add a new chunk. Count how many passengers are in each `PClass`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -728,27 +792,23 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 6)
 ```
 
 ###
 
 ```{r ordinal-1-test}
 #| echo: true
-vg_rating <- vg |>
-  filter(Rating %in% c("E", "E10+", "T", "M"), !is.na(Critic_Score)) |>
-  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M"), ordered = TRUE))
-
-count(vg_rating, Rating)
+count(titanic, PClass)
 ```
 
 ###
 
-A plain `factor` would ignore that `"T"` sits between `"E10+"` and `"M"`. This section uses the 8,049 games with one of the four common ratings and a critic score.
+A plain `factor` would treat `"1st"`, `"2nd"`, and `"3rd"` as unordered labels, throwing away the fact that `"2nd"` sits between the other two.
 
 ### Exercise 2
 
-In place of the count, specify an ordinal regression with `ordinal_reg()`, set its engine to `"polr"` — passing `Hess = TRUE` as an extra argument to `set_engine()`, which `tidy()` needs in order to work — and `fit()` it to predict `Rating` from `Critic_Score` using `vg_rating`, storing the result as `rating_fit`. Show `tidy(rating_fit)`. Render, then run:
+In place of the count, specify an ordinal regression with `ordinal_reg()`, set its engine to `"polr"` — passing `Hess = TRUE` as an extra argument to `set_engine()`, which `tidy()` needs in order to work — and `fit()` it to predict `factor(PClass, levels = c("1st", "2nd", "3rd"), ordered = TRUE)` from `Age + Sex + Survived` using `titanic`, storing the result as `mod_ordered`. Show `tidy(mod_ordered)`. Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -769,20 +829,27 @@ question_text(NULL,
 
 ```{r ordinal-2-test}
 #| echo: true
-rating_fit <- ordinal_reg() |>
+mod_ordered <- ordinal_reg() |>
   set_engine("polr", Hess = TRUE) |>
-  fit(Rating ~ Critic_Score, data = vg_rating)
+  fit(factor(PClass, levels = c("1st", "2nd", "3rd"), ordered = TRUE) ~ Age + Sex + Survived, data = titanic)
 
-tidy(rating_fit)
+tidy(mod_ordered)
 ```
 
 ###
 
-`set_engine("polr", Hess = TRUE)` is still choosing a **method** — `Hess = TRUE` just passes an extra argument straight through to `MASS::polr()`. The `scale` rows in the fitted result are cutpoints between ratings, not predictor effects; only `Critic_Score` describes what the predictor actually does.
+`set_engine("polr", Hess = TRUE)` is still choosing a **method** — `Hess = TRUE` just passes an extra argument straight through to `MASS::polr()`. The two `scale` rows are cutpoints between classes, not predictor effects; only `Age`, `Sexmale`, and `Survived` describe what a predictor actually does.
 
 ### Exercise 3
 
-Create a small tibble named `examples` with two rows: `Name` `"Wii Sports"` with `Critic_Score` 76, and `Name` `"Grand Theft Auto V"` with `Critic_Score` 97. Use `predict(rating_fit, new_data = examples, type = "prob")` to get each game's predicted probability of each rating, and combine the result with `examples`. Reshape it so each rating has its own row, then plot the predicted probability of each rating as a bar chart, with one set of bars per game. Render, then run:
+Show the equation for the three real coefficients — not the cutpoints. Replace `tidy(mod_ordered)` with these two lines, and add `#| results: asis` to the top of the chunk:
+
+```
+mod_ordered_coefs <- tidy(mod_ordered) |> filter(coef.type == "coefficient")
+cat(build_equation(mod_ordered_coefs, "Score"))
+```
+
+Render, then run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -803,29 +870,18 @@ question_text(NULL,
 
 ```{r ordinal-3-test}
 #| echo: true
-examples <- tibble(Name = c("Wii Sports", "Grand Theft Auto V"),
-                    Critic_Score = c(76, 97))
-
-rating_preds <- predict(rating_fit, new_data = examples, type = "prob") |>
-  bind_cols(examples) |>
-  pivot_longer(starts_with(".pred_"), names_to = "Rating", values_to = "probability",
-               names_prefix = "\\.pred_") |>
-  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M")))
-
-rating_preds |>
-  ggplot(aes(x = Rating, y = probability, fill = Name)) +
-  geom_col(position = "dodge") +
-  labs(title = "Predicted ESRB Rating Probabilities by Critic Score",
-       x = "Rating", y = "Predicted probability", fill = "Game")
+#| results: asis
+mod_ordered_coefs <- tidy(mod_ordered) |> filter(coef.type == "coefficient")
+cat(build_equation(mod_ordered_coefs, "Score"))
 ```
 
 ###
 
-GTA V's higher score shifts a bit of probability toward `T` and `M` — a modest effect, matching the small 0.00995 coefficient from the previous exercise.
+`PClass` is ordered, so `ordinal_reg()` is the right structure — but notice we have now proposed four different mechanisms for four different outcomes from the same 756 passengers. This is data science's central difficulty: many possible DGMs exist for the same data, and we can never be certain which is true. We just use judgment — often guided by which coefficients' confidence intervals exclude zero.
 
 ### Exercise 4
 
-Commit and push your work with a message like "Add ordinal regression model and rating plot". Copy-paste the output of `git log --oneline -3` into the answer box.
+Commit and push your work with a message like "Add ordinal regression model". Copy-paste the output of `git log --oneline -3` into the answer box.
 
 ```{r ordinal-4}
 question_text(NULL,
@@ -839,19 +895,19 @@ question_text(NULL,
 ###
 
 ```
-Add ordinal regression model and rating plot
+Add ordinal regression model
 Add multinomial regression model
 Add logistic regression model with caching
 ```
 
 ###
 
-You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome — a number, two categories, many categories, and ordered categories. That same four-step shape works for all of them, which is why tidymodels exists: swapping models never means learning a new interface.
+You have now used parsnip's specify → `set_engine()` → `fit()` → `tidy()` pattern for four different kinds of outcome — a number, two categories, six categories, and three ordered categories. That same four-step shape works for all of them, which is why tidymodels exists: swapping models never means learning a new interface.
 
 ## Summary
 ###
 
-In this tutorial you used AI to learn the tidymodels framework by fitting a linear, a logistic, a multinomial, and an ordinal regression model to video game sales and review data — the same specify, set the engine, fit, and tidy pattern, four times over.
+In this tutorial you used tidymodels to fit a linear, a logistic, a multinomial, and an ordinal regression model to Titanic passenger data — the same specify, set the engine, fit, and tidy pattern, four times over, each one shown with its own fitted equation.
 
 ### Exercise 1
 
@@ -891,76 +947,67 @@ library(tidyverse)
 library(broom)
 library(ordered)
 
-vg <- read_csv("data/video_games.csv", show_col_types = FALSE)
+titanic <- read_csv("data/titanic.csv", show_col_types = FALSE) |>
+  mutate(class_sex = paste(PClass, Sex, sep = "-"))
 &#96;&#96;&#96;
 
 &#96;&#96;&#96;{r}
-vg_clean <- vg |> filter(!is.na(Critic_Score))
+#| results: asis
+build_equation <- function(coefs, outcome) {
+  has_intercept <- "(Intercept)" %in% coefs$term
+  other <- coefs[coefs$term != "(Intercept)", ]
+  parts <- purrr::map2_chr(other$term, round(other$estimate, 2), function(term, est) {
+    sign <- if (est >= 0) "+" else "-"
+    paste0(sign, " ", abs(est), " \\times \\text{", term, "}")
+  })
+  lead <- if (has_intercept) as.character(round(coefs$estimate[coefs$term == "(Intercept)"], 2)) else NULL
+  rhs <- paste(c(lead, parts), collapse = " ")
+  paste0("$$\\text{", outcome, "} = ", rhs, "$$")
+}
 
-sales_fit <- linear_reg() |>
+mod_linear <- linear_reg() |>
   set_engine("lm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+  fit(Age ~ PClass + Sex, data = titanic)
 
-sales_fit_glm <- linear_reg() |>
+mod_linear_glm <- linear_reg() |>
   set_engine("glm") |>
-  fit(Global_Sales ~ Critic_Score, data = vg_clean)
+  fit(Age ~ PClass + Sex, data = titanic)
 
-print(tidy(sales_fit))
-tidy(sales_fit_glm)
+cat(build_equation(tidy(mod_linear), "Age"))
+cat(build_equation(tidy(mod_linear_glm), "Age (glm)"))
 &#96;&#96;&#96;
 
 &#96;&#96;&#96;{r}
 #| cache: true
-vg_hits <- vg |>
-  mutate(hit = factor(if_else(Global_Sales > 0.5, "yes", "no"), levels = c("no", "yes"))) |>
-  filter(!is.na(Critic_Score))
-
-hit_fit <- logistic_reg() |>
+mod_logistic <- logistic_reg() |>
   set_engine("glm") |>
-  fit(hit ~ Critic_Score, data = vg_hits)
+  fit(factor(Survived, levels = c(0, 1)) ~ Age + PClass + Sex, data = titanic)
 &#96;&#96;&#96;
 
 &#96;&#96;&#96;{r}
-vg_genre <- vg |>
-  filter(!is.na(Genre), !is.na(Critic_Score)) |>
-  mutate(Genre = factor(Genre))
-
-genre_fit <- multinom_reg() |>
+#| results: asis
+mod_multinomial <- multinom_reg() |>
   set_engine("nnet") |>
-  fit(Genre ~ Critic_Score, data = vg_genre)
+  fit(factor(class_sex) ~ Age + Survived, data = titanic)
 
-tidy(genre_fit)
+mod_multinomial_coefs <- tidy(mod_multinomial) |> filter(y.level == "3rd-male")
+cat(build_equation(mod_multinomial_coefs, "log-odds(3rd-male vs. 1st-female)"))
 &#96;&#96;&#96;
 
 &#96;&#96;&#96;{r}
-vg_rating <- vg |>
-  filter(Rating %in% c("E", "E10+", "T", "M"), !is.na(Critic_Score)) |>
-  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M"), ordered = TRUE))
-
-rating_fit <- ordinal_reg() |>
+#| results: asis
+mod_ordered <- ordinal_reg() |>
   set_engine("polr", Hess = TRUE) |>
-  fit(Rating ~ Critic_Score, data = vg_rating)
+  fit(factor(PClass, levels = c("1st", "2nd", "3rd"), ordered = TRUE) ~ Age + Sex + Survived, data = titanic)
 
-examples <- tibble(Name = c("Wii Sports", "Grand Theft Auto V"),
-                    Critic_Score = c(76, 97))
-
-rating_preds <- predict(rating_fit, new_data = examples, type = "prob") |>
-  bind_cols(examples) |>
-  pivot_longer(starts_with(".pred_"), names_to = "Rating", values_to = "probability",
-               names_prefix = "\\.pred_") |>
-  mutate(Rating = factor(Rating, levels = c("E", "E10+", "T", "M")))
-
-rating_preds |>
-  ggplot(aes(x = Rating, y = probability, fill = Name)) +
-  geom_col(position = "dodge") +
-  labs(title = "Predicted ESRB Rating Probabilities by Critic Score",
-       x = "Rating", y = "Predicted probability", fill = "Game")
+mod_ordered_coefs <- tidy(mod_ordered) |> filter(coef.type == "coefficient")
+cat(build_equation(mod_ordered_coefs, "Score"))
 &#96;&#96;&#96;
 </code></pre>
 
 ###
 
-Five chunks — one for setup, one per model — is the entire analysis. Every model chunk follows the same specify → `set_engine()` → `fit()` shape, whether the outcome was a number, two categories, twelve categories, or four ordered categories. That brevity is the payoff of learning parsnip's pattern once instead of learning four separate model-fitting interfaces.
+Five chunks — one for setup, one per model — is the entire analysis. Every model chunk follows the same specify → `set_engine()` → `fit()` shape, whether the outcome was a number, two categories, six categories, or three ordered categories, and every one ends by showing its own fitted equation. That brevity is the payoff of learning parsnip's pattern once instead of learning four separate model-fitting interfaces.
 
 ### Exercise 2
 
