@@ -1,11 +1,15 @@
-video_games.csv
+titanic.csv
 
-Source: Kaggle, "Video Game Sales with Ratings" (rush4ratio)
-https://www.kaggle.com/datasets/rush4ratio/video-game-sales-with-ratings
+The classic Titanic passenger dataset originally compiled by Thomas
+Cason (1313 passengers, Name/PClass/Age/Sex/Survived/SexCode columns),
+widely used in introductory statistics and data science courses. This
+copy is filtered to the 756 passengers with a known Age.
 
-Video game sales data scraped from VGChartz, merged with critic/user
-ratings from Metacritic. 16,719 rows.
+Same file as inst/tutorials/marginaleffects/data/titanic.csv, copied
+here as an independent file per the project owner's instruction that
+the tidymodels and marginaleffects tutorials share the same data and
+models.
 
-Note: Rating (ESRB) column is missing for ~40% of rows; the tutorial
-filters to the four main categories (E, E10+, T, M) for the ordinal
-regression section.
+Columns: Name, PClass ("1st"/"2nd"/"3rd"), Age (years), Sex
+("male"/"female"), Survived (1 = survived, 0 = died), SexCode
+(1 = female, 0 = male).
