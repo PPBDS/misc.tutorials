@@ -1,5 +1,5 @@
 ---
-title: First Tutorial for R4DS
+title: R4DS 1
 author: David Kane
 tutorial:
   id: r4ds-1
@@ -749,7 +749,7 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 Download `music.csv` from this URL and save it as `data/music.csv`:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-1/data/music.csv
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv
 ```
 
 In a bash Terminal, run:

@@ -1,5 +1,5 @@
 ---
-title: Second Tutorial for R4DS
+title: R4DS 2
 author: David Kane
 tutorial:
   id: r4ds-2
@@ -214,7 +214,7 @@ New Year's Day and Christmas show the deepest dips; even the 13th of each month 
 Download the Excel file `us_births_1994_2014.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/us_births_1994_2014.xlsx
 ```
 
 In a bash Terminal, run:
@@ -770,7 +770,7 @@ The guiding question: does being a top-ranked teenager actually predict who beco
 Download the Excel file `nba_recruits.xlsx` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/nba_recruits.xlsx
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/nba_recruits.xlsx
 ```
 
 In a bash Terminal, run:

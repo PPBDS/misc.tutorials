@@ -1,5 +1,5 @@
 ---
-title: Fifth Tutorial for R4DS
+title: R4DS 5
 author: David Kane
 tutorial:
   id: r4ds-5
@@ -232,7 +232,7 @@ We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) In
 Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/wildfires.geojson
 ```
 
 In a bash Terminal, run:
@@ -959,7 +959,7 @@ Download the dataset into your `data/` directory. The file is `imdb_snapshots.rd
 the URL is:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/imdb_snapshots.rds
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/imdb_snapshots.rds
 ```
 
 In a bash Terminal, run:
