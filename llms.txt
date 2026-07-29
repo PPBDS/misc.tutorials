@@ -31,7 +31,7 @@ As a backup, you can launch a tutorial from the R console with
 providing the short name of the tutorial and the package name.
 
 ``` R
-learnr::run_tutorial(name = "r4ds-1",
+learnr::run_tutorial(name = "01-r4ds-1",
                      package = "misc.tutorials")
 ```
 
