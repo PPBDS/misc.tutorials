@@ -523,7 +523,7 @@ for (lvl in unique(tidy(mod_multinomial)$y.level)) {
 
 ###
 
-`build_equation()` reads straight from `tidy()` output, so these numbers are identical to Exercise 6's table — just written as math instead of a tibble. Because the function was defined once, back in Exercise 4, you never had to write it twice.
+`build_equation()` reads straight from `tidy()` output, so these numbers are identical to the coefficient table you just printed — just written as math instead of a tibble. Because the function was already defined earlier in your document, you never had to write it twice.
 
 ### Exercise 8
 
@@ -614,7 +614,7 @@ mod_multinomial <- multinom_reg() |>
 
 ###
 
-This is a recurring fact of data science: there are always more DGMs you *could* fit than you actually will, and there are many possible DGMs for the same question. We never know for certain which one is true — we just use our best judgment, often guided by which coefficients' confidence intervals exclude zero, as Exercise 9 just showed.
+This is a recurring fact of data science: there are always more DGMs you *could* fit than you actually will, and there are many possible DGMs for the same question. We never know for certain which one is true — we just use our best judgment, often guided by which coefficients' confidence intervals exclude zero, as the degenerate `islandTorgersen` interval above just showed.
 
 ### Exercise 11
 
@@ -704,99 +704,100 @@ Date:   Wed Jul 29 2026
 
 ###
 
-The fitted DGM is the machine we built so we can answer questions. Everything in the next section — predictions — uses this machine.
+The fitted DGM is the machine we built so we can answer questions. Everything in the next section — marginal effects — uses this machine.
 
-## Predictions
+## Marginal Effects
 ###
 
-In this section we cover three functions from [**marginaleffects**](https://marginaleffects.com/): `predictions()`, `avg_predictions()`, and `plot_predictions()`. Recall from the Introduction: `by` averages over real penguins (marginal), `condition` builds hypothetical penguins (conditional). Keep asking yourself, for every function call in this section, which one you're looking at.
+In this section we cover five functions from [**marginaleffects**](https://marginaleffects.com/): `predictions()`, `avg_predictions()`, `comparisons()`, `avg_comparisons()`, and `plot_predictions()`. Recall from the Introduction: `by` averages over real penguins (marginal), `condition` builds hypothetical penguins (conditional). Keep asking yourself, for every function call in this section, which one you're looking at.
 
-A common beginner mistake is treating the printed coefficients from Tidymodels as the answer itself. They are not — nobody asks "what is the log-odds coefficient on bill length?" They ask real questions: what species is this penguin, or how does predicted species change with bill length? The fitted model is a machine for answering those questions; the three functions below are how you ask them.
+A common beginner mistake is treating the printed coefficients from Tidymodels as the answer itself. They are not — nobody asks "what is the log-odds coefficient on bill length?" They ask real questions: what species is this penguin, or how does predicted species change with bill length? The fitted model is a machine for answering those questions; the functions below are how you ask them.
 
 ### Exercise 1
 
-In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical penguin: 45mm bill, 200mm flippers. Multinomial models need `type = "prob"`. Render.
+In a new code chunk, run `predictions()` for one hypothetical penguin — 45mm bill, 200mm flippers — piped to `as_tibble()`. Multinomial models need `type = "prob"`. Render.
 
 ```
-class(predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)))
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)) |>
+  as_tibble()
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-1}
+```{r marginal-effects-1}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 4)
+  rows = 8)
 ```
 
 ###
 
-```{r predictions-1-test}
+```{r marginal-effects-1-test}
 #| echo: true
-class(predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)))
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)) |>
+  as_tibble()
 ```
 
 ###
 
-```
-[1] "predictions" "data.frame"
-```
-
-###
-
-`predictions()` always returns an object of class `predictions` and `data.frame` — you can pipe it to `as_tibble()`, `filter()`, or `ggplot()`, no matter what kind of model produced it.
+`predictions()` returns one row per species per case for a multinomial model — three rows here, not one, and the `group` column tracks which species each belongs to. This penguin is genuinely ambiguous between Adelie and Chinstrap; `as_tibble()` makes results like this easy to wrangle further. This is a **conditional** prediction — no real penguin needs to match these measurements exactly.
 
 ### Exercise 2
 
-Update your chunk to run `predictions()` for the same hypothetical penguin, printed this time. Render.
+Update your chunk to predict species probabilities for two hypothetical penguins instead: 38mm bill/190mm flippers, and 50mm bill/220mm flippers. Render.
 
 ```
 predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200))
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220)))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-2}
+```{r marginal-effects-2}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 10)
 ```
 
 ###
 
-```{r predictions-2-test}
+```{r marginal-effects-2-test}
 #| echo: true
 predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200))
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220)))
 ```
 
 ###
 
-One hypothetical penguin, three rows — `predictions()` returns one row per species per case for a multinomial model, unlike the single row you would get from linear regression. That is expected, not a bug: each row is the predicted probability of one species for this bill/flipper combination, and the three rows sum to 1. This particular penguin is genuinely ambiguous between Adelie and Chinstrap. Note that this is a **conditional** prediction — no real penguin needs to have exactly these measurements.
+Two hypothetical penguins now give six rows, not two — three species rows per case. The 38mm/190mm penguin is almost certainly Adelie; the 50mm/220mm penguin is almost certainly Gentoo.
 
 ### Exercise 3
 
-Update your chunk to predict species probabilities for two hypothetical penguins: 38mm bill/190mm flippers, and 50mm bill/220mm flippers. Render.
+Update your chunk to predict species probabilities for the first actual penguin in the dataset, and separately check how many rows `predictions()` returns for the whole dataset with no `newdata` at all. Render.
 
 ```
-predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(
-    bill_length_mm    = c(38, 50),
-    flipper_length_mm = c(190, 220)))
+predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
+
+preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
+nrow(preds_all)
+nrow(penguins)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-3}
+```{r marginal-effects-3}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -807,121 +808,20 @@ question_text(NULL,
 
 ###
 
-```{r predictions-3-test}
+```{r marginal-effects-3-test}
 #| echo: true
-predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(
-    bill_length_mm    = c(38, 50),
-    flipper_length_mm = c(190, 220)))
+predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
+
+preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
+nrow(preds_all)
+nrow(penguins)
 ```
 
 ###
 
-Two hypothetical penguins now give six rows, not two — three species rows per case. The 38mm/190mm penguin is almost certainly Adelie; the 50mm/220mm penguin is almost certainly Gentoo. Both are still conditional predictions.
+This real penguin is actually Adelie, and the model agrees at about 99% probability — no ambiguity, unlike your hypothetical penguin earlier. Without `newdata`, `predictions()` defaults to running on every row it was fit on: 1,026 rows from 342 penguins, three species rows per real penguin, not one.
 
 ### Exercise 4
-
-Update your chunk to pipe `predictions()` to `as_tibble()`. Render.
-
-```
-predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(
-    bill_length_mm    = c(38, 50),
-    flipper_length_mm = c(190, 220))) |>
-  as_tibble()
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
-```
-
-###
-
-```{r predictions-4-test}
-#| echo: true
-predictions(mod_multinomial, type = "prob",
-  newdata = data.frame(
-    bill_length_mm    = c(38, 50),
-    flipper_length_mm = c(190, 220))) |>
-  as_tibble()
-```
-
-###
-
-`as_tibble()` converts the **marginaleffects** output into a standard tibble, making it easy to pipe into `select()`, `filter()`, or `ggplot()`. The `group` column tells you which species each row's probability belongs to — you will see it again in this section's plots.
-
-### Exercise 5
-
-Update your chunk to predict species probabilities for the first actual penguin in the dataset. Render.
-
-```
-predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-5-test}
-#| echo: true
-predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
-```
-
-###
-
-We already know this penguin's actual species — it is in the data (Adelie). The model agrees, assigning Adelie about 99% probability. Unlike Exercise 2's hypothetical penguin, there is no ambiguity here: this real penguin's measurements sit solidly in Adelie territory.
-
-### Exercise 6
-
-`newdata` is optional. Update your chunk to call `predictions(mod_multinomial, type = "prob")` with no `newdata` argument at all, piped to `as_tibble()`, and print `nrow()` of the result alongside `nrow(penguins)`. Render.
-
-```
-preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
-nrow(preds_all)
-nrow(penguins)
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-```{r predictions-6-test}
-#| echo: true
-preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
-nrow(preds_all)
-nrow(penguins)
-```
-
-###
-
-1,026 rows from 342 penguins — three predicted-probability rows per real penguin, not one. Without `newdata`, `predictions()` defaults to running the model on every row it was fit on; for a multinomial model that means `nrow(data)` × number of species, not `nrow(data)`.
-
-### Exercise 7
 
 Update your chunk to run `avg_predictions(mod_multinomial, type = "prob")` with no `by` argument, and compare it to the raw proportion of each species in the data. Render.
 
@@ -932,7 +832,7 @@ penguins |> count(species) |> mutate(prop = n / sum(n))
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-7}
+```{r marginal-effects-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -943,7 +843,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-7-test}
+```{r marginal-effects-4-test}
 #| echo: true
 avg_predictions(mod_multinomial, type = "prob")
 penguins |> count(species) |> mutate(prop = n / sum(n))
@@ -953,7 +853,7 @@ penguins |> count(species) |> mutate(prop = n / sum(n))
 
 These numbers are close but not identical — about .442 vs .4415 for Adelie. `avg_predictions()` with no `by` is a **marginal** prediction: run the model on every real penguin, then average within species. For an OLS linear model that average is exactly guaranteed to match the training data; for a maximum-likelihood model like this one, it is only approximately close — a useful sanity check, not an algebraic identity.
 
-### Exercise 8
+### Exercise 5
 
 Update your chunk to use `avg_predictions()` with `by = "island"` to see average predicted species probability per island. Render.
 
@@ -963,7 +863,7 @@ avg_predictions(mod_multinomial, type = "prob", by = "island")
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-8}
+```{r marginal-effects-5}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -974,7 +874,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-8-test}
+```{r marginal-effects-5-test}
 #| echo: true
 avg_predictions(mod_multinomial, type = "prob", by = "island")
 ```
@@ -983,7 +883,7 @@ avg_predictions(mod_multinomial, type = "prob", by = "island")
 
 You saw in Tidymodels that adding `island` directly to the model caused separation — Chinstrap only ever appears on Dream, Gentoo mostly on Biscoe. You can still ask an island-related question without putting `island` in the model, by using it as a `by` grouping variable instead: Torgersen predicts about 93% Adelie, Biscoe about 71% Gentoo. Same real pattern, surfaced by averaging predictions rather than by an unstable coefficient.
 
-### Exercise 9
+### Exercise 6
 
 Update your chunk to use `avg_predictions()` with `by = "sex"` instead. Render.
 
@@ -993,7 +893,7 @@ avg_predictions(mod_multinomial, type = "prob", by = "sex")
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-9}
+```{r marginal-effects-6}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1004,7 +904,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-9-test}
+```{r marginal-effects-6-test}
 #| echo: true
 avg_predictions(mod_multinomial, type = "prob", by = "sex")
 ```
@@ -1013,7 +913,7 @@ avg_predictions(mod_multinomial, type = "prob", by = "sex")
 
 `sex` is not in the model at all, yet `by = "sex"` still works — **marginaleffects** just averages predictions within whatever groups it finds in the data, including an `NA` group for the 11 penguins whose sex was never recorded. Filtering earlier for bill and flipper measurements did not retroactively clean this column.
 
-### Exercise 10
+### Exercise 7
 
 Now build a **conditional** prediction on purpose, using `datagrid()`: three hypothetical penguins at 35mm, 45mm, and 55mm bill length, with `flipper_length_mm` held at its typical value automatically. Render.
 
@@ -1024,7 +924,7 @@ predictions(mod_multinomial, type = "prob",
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-10}
+```{r marginal-effects-7}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1035,7 +935,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-10-test}
+```{r marginal-effects-7-test}
 #| echo: true
 predictions(mod_multinomial, type = "prob",
   newdata = datagrid(bill_length_mm = c(35, 45, 55)))
@@ -1043,7 +943,103 @@ predictions(mod_multinomial, type = "prob",
 
 ###
 
-`datagrid()` fixes every variable you don't mention (`flipper_length_mm`) at a representative value and varies only the ones you specify. This is the **conditional** counterpart to Exercise 8's **marginal** `avg_predictions()` — no real penguin needs to exist at any of these three bill lengths.
+`datagrid()` fixes every variable you don't mention (`flipper_length_mm`) at a representative value and varies only the ones you specify. This is the **conditional** counterpart to `avg_predictions()` with a `by` argument — no real penguin needs to exist at any of these three bill lengths.
+
+### Exercise 8
+
+A prediction says what the model expects; a **comparison** says how much that expectation changes when a predictor changes. In a new code chunk, use `comparisons()` to compute the predicted change in each species' probability when `bill_length_mm` is 5mm longer, holding each penguin's other measurements at their own real values. Render.
+
+```
+comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r marginal-effects-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r marginal-effects-8-test}
+#| echo: true
+comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5))
+```
+
+###
+
+Like `predictions()`, `comparisons()` returns one row per species per case — 1,026 rows again, not 342. Each row is the predicted change in one species' probability for one real penguin if its bill were 5mm longer, everything else about that penguin held fixed.
+
+### Exercise 9
+
+Update your chunk to use `avg_comparisons()` instead, to see the average predicted change in each species' probability across all real penguins. Render.
+
+```
+avg_comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r marginal-effects-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r marginal-effects-9-test}
+#| echo: true
+avg_comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5))
+```
+
+###
+
+`avg_comparisons()` averages `comparisons()` the same way `avg_predictions()` averages `predictions()` — a **marginal** quantity across real penguins. A 5mm-longer bill is associated with about 24 fewer points of Adelie probability, 30 more points of Chinstrap, and 6 fewer of Gentoo, on average — and those three changes always sum to (approximately) zero, since the three probabilities themselves always sum to 1.
+
+### Exercise 10
+
+Update your chunk to add `by = "island"` to `avg_comparisons()`, to see whether the effect of bill length differs by island. Render.
+
+```
+avg_comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5), by = "island")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r marginal-effects-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```{r marginal-effects-10-test}
+#| echo: true
+avg_comparisons(mod_multinomial, type = "prob",
+  variables = list(bill_length_mm = 5), by = "island")
+```
+
+###
+
+Same `by` argument, same marginal logic as `avg_predictions()` — `comparisons()` and `predictions()` share the whole **marginaleffects** interface, right down to how you group them.
 
 ### Exercise 11
 
@@ -1063,7 +1059,7 @@ plot_predictions(mod_multinomial, type = "prob",
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-11}
+```{r marginal-effects-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1074,7 +1070,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-11-test}
+```{r marginal-effects-11-test}
 #| echo: true
 plot_predictions(mod_multinomial, type = "prob",
   condition = c("bill_length_mm", "group")) +
@@ -1109,7 +1105,7 @@ plot_predictions(mod_multinomial, type = "prob",
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-12}
+```{r marginal-effects-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1120,7 +1116,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-12-test}
+```{r marginal-effects-12-test}
 #| echo: true
 plot_predictions(mod_multinomial, type = "prob",
   condition = c("bill_length_mm", "flipper_length_mm", "group")) +
@@ -1154,7 +1150,7 @@ plot_predictions(mod_multinomial, type = "prob", by = c("island", "group")) +
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-13}
+```{r marginal-effects-13}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1165,7 +1161,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-13-test}
+```{r marginal-effects-13-test}
 #| echo: true
 plot_predictions(mod_multinomial, type = "prob", by = c("island", "group")) +
   labs(
@@ -1179,11 +1175,11 @@ plot_predictions(mod_multinomial, type = "prob", by = c("island", "group")) +
 
 ###
 
-Same function, same package — but passing `by` instead of `condition` switches `plot_predictions()` from a hypothetical relationship to an average over real penguins, grouped by island. `condition` (Exercises 11–12) is a conditional, counterfactual view; `by` (this exercise) is a marginal, descriptive one — the same numbers from Exercise 8, drawn as a picture.
+Same function, same package — but passing `by` instead of `condition` switches `plot_predictions()` from a hypothetical relationship to an average over real penguins, grouped by island. `condition` (the previous two exercises) is a conditional, counterfactual view; `by` (this exercise) is a marginal, descriptive one — the same numbers from the `avg_predictions(by = "island")` table earlier, drawn as a picture.
 
 ### Exercise 14
 
-Commit and push, with a message like "Add marginaleffects predictions and plots." In the bash Terminal, run:
+Commit and push, with a message like "Add marginaleffects predictions, comparisons, and plots." In the bash Terminal, run:
 
 ```
 git log -1
@@ -1191,7 +1187,7 @@ git log -1
 
 CP/CR.
 
-```{r predictions-14}
+```{r marginal-effects-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1205,14 +1201,14 @@ question_text(NULL,
 ```
 commit c3d4e5f6a7b8...
 Author: Harshil Kurapati
-Date:   Wed Jul 29 2026
+Date:   Thu Jul 30 2026
 
-    Add marginaleffects predictions and plots
+    Add marginaleffects predictions, comparisons, and plots
 ```
 
 ###
 
-You have now used `predictions()`, `avg_predictions()`, and `plot_predictions()` on a multinomial regression model, and drawn the marginal/conditional line clearly in both table and plot form. The same three functions work identically on linear, logistic, and ordinal models — only the number of rows per case changes.
+You have now used `predictions()`, `avg_predictions()`, `comparisons()`, `avg_comparisons()`, and `plot_predictions()` on a multinomial regression model, and drawn the marginal/conditional line clearly in both table and plot form. The same functions work identically on linear, logistic, and ordinal models — only the number of rows per case changes.
 
 ## Summary
 ###
@@ -1284,7 +1280,7 @@ format:
 
 ### Exercise 2
 
-Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, the final `mod_multinomial` model chunk, its two equations, and the final three visualizations (Predictions Exercises 11, 12, and 13). Remove all intermediate output. Render.
+Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, the final `mod_multinomial` model chunk, its two equations, and the final three `plot_predictions()` visualizations from the Marginal Effects section (the bill-length plot, the bill-and-flipper plot, and the by-island plot). Remove all intermediate output. Render.
 
 In the R Terminal, run `show_file("about.qmd")`, then `show_file("analysis.qmd")`. CP/CR both.
 
@@ -1309,7 +1305,7 @@ Harshil Kurapati, July 2026.
 
 ###
 
-Your `analysis.qmd` should now have exactly six code chunks — setup, the `mod_multinomial` model, the equation loop, and the three `plot_predictions()` calls from Predictions Exercises 11–13.
+Your `analysis.qmd` should now have exactly six code chunks — setup, the `mod_multinomial` model, the equation loop, and the three `plot_predictions()` calls from the Marginal Effects section.
 
 ###
 
@@ -1387,7 +1383,7 @@ question_text(NULL,
 
 ###
 
-The same pattern you used here — `multinom_reg() |> set_engine() |> fit()` followed by `predictions()`, `avg_predictions()`, and `plot_predictions()`, always keeping marginal and conditional straight, always showing every equation the model fit — applies to linear, logistic, and ordinal regression too. The interface never changes; only the structure, and the number of rows each prediction returns, does.
+The same pattern you used here — `multinom_reg() |> set_engine() |> fit()` followed by `predictions()`, `avg_predictions()`, `comparisons()`, `avg_comparisons()`, and `plot_predictions()`, always keeping marginal and conditional straight, always showing every equation the model fit — applies to linear, logistic, and ordinal regression too. The interface never changes; only the structure, and the number of rows each prediction returns, does.
 
 ```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
 ```
