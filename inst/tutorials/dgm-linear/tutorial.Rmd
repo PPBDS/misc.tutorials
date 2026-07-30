@@ -20,15 +20,11 @@ library(knitr)
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
-
-data(ames)
 
 mod_linear <- linear_reg() |>
   set_engine("lm") |>
@@ -44,14 +40,8 @@ mod_linear <- linear_reg() |>
 Between 2006 and 2010, 2,930 houses were sold in Ames, Iowa. The `ames` dataset records the sale price of each house along with 73 features — everything from square footage to neighborhood to the number of fireplaces. 
 
 This tutorial asks a simple question: **can we predict a house's sale price from its size and age?**
-###
 
 We use two packages to answer it. **[tidymodels](https://www.tidymodels.org/)** fits the model. **[marginaleffects](https://marginaleffects.com/)** interprets it — turning raw coefficients into predicted dollar amounts that are immediately understandable.
-###
-
-Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**. A marginal prediction runs the model on every *real* house in the dataset and averages the results (the `by` argument). A conditional prediction builds one or more *hypothetical* houses, holding some variables fixed and varying others (the `condition` argument). 
-
-So every time you see `by`, you are averaging over real houses, and every time you see `condition`, you are looking at a hypothetical.
 
 ### Exercise 1
 
@@ -90,21 +80,15 @@ analysis_files
 
 ###
 
-The rendered HTML creates a support directory called `analysis_files/` that is pure junk as far as your repo is concerned. `.gitignore` keeps it out so it doesn't clutter your commit history.
-
 ### Exercise 2
 
-In a new code chunk in `analysis.qmd`, load the libraries and the `ames` dataset. Add `#| message: false`. Render.
+In a new code chunk in `analysis.qmd`, load the libraries you'll need. Add `#| message: false`. Render.
 
 ```
 #| message: false
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
-
-data(ames)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -124,15 +108,15 @@ question_text(NULL,
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
-
-data(ames)
 </code></pre>
 
 ###
 
-`data(ames)` loads the Ames housing dataset from the **modeldata** package — no file download needed. It has 2,930 rows and 74 columns.
+Only load what you actually need. `library(tidymodels)` already attaches `broom`, `modeldata`, and several other packages as part of its core bundle — a separate `library(modeldata)` or `library(broom)` would just be redundant. `library(marginaleffects)` is separate because tidymodels doesn't include it. `library(tidyverse)` covers everything else — `ggplot2` for plotting, plus tools like `stringr` and `readr` that tidymodels doesn't bring in on its own.
+
+###
+
+Because `modeldata` is now attached (via `tidymodels`), the `ames` dataset is already available — no `data(ames)` call needed. Try typing `ames` directly in a new chunk and you'll see the same 2,930-row, 74-column data frame.
 
 ### Exercise 3
 
@@ -166,31 +150,21 @@ Out of those 74 columns, this tutorial only uses three. `Sale_Price` is the outc
 
 ### Exercise 4
 
-Update your chunk to show a scatterplot of `Sale_Price` vs `Gr_Liv_Area`. Render and inspect the relationship.
-
-```
-ames |>
-  ggplot(aes(x = Gr_Liv_Area, y = Sale_Price)) +
-  geom_point(alpha = 0.3) +
-  labs(
-    title = "House sale price vs above-ground living area",
-    x = "Above-ground living area (sq ft)",
-    y = "Sale price ($)"
-  )
-```
+Remove the `head(ames, 10)` call from your last chunk. Ask AI to create a scatterplot of `Sale_Price` vs. `Gr_Liv_Area`, so you can inspect the relationship between the two. Paste its code into the chunk. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r introduction-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
+  allow_retry = FALSE,
   incorrect = NULL,
   rows = 10)
 ```
 
 ###
+
+Here's our version, for comparison — yours doesn't need to match exactly, just the same idea:
 
 ```{r introduction-4-test}
 #| echo: true
@@ -201,7 +175,8 @@ ames |>
     title = "House sale price vs above-ground living area",
     x = "Above-ground living area (sq ft)",
     y = "Sale price ($)"
-  )
+  ) +
+  scale_y_continuous(labels = scales::dollar)
 ```
 
 ###
@@ -241,21 +216,25 @@ Date:   Mon Jul 27 2026
 
 Committing before any model fitting creates a clean baseline you can always return to.
 
+###
+
+Before we fit anything, it's worth asking where this data came from. The `ames` dataset isn't a random sample of every house that has ever existed — it's a record of houses that were actually sold in Ames, Iowa between 2006 and 2010, compiled by the local assessor's office. That matters: whatever we learn from `mod_linear` describes *this* time and place, not housing markets in general. Keep that question — "how did this data come to be?" — in the back of your mind as we build a model in the next section.
+
 ## Tidymodels
 ###
 
-Every dataset is a shadow of some real-world process — a **data generating mechanism**, or DGM. In this section we propose a structure for that mechanism (linear regression), pick a method for estimating it (`set_engine("lm")`), and fit it to the Ames data. Structure → Method → Fitting.
+Every dataset is a shadow of some real-world process — a **data generating mechanism**, or DGM. Constructing one is an act of *Courage*: we commit to a structure, choose a method for estimating it, and fit it to data. Structure → Method → Fitting.
 
-There is no single "correct" DGM for a given question. Which right-hand-side variables to include is a judgment call — one we will make, and remake, several times in this section.
+The structure follows directly from the outcome variable. `Sale_Price` is continuous — a dollar amount that could in principle be any number — so a linear model is the natural structure. (A yes/no outcome would call for logistic; several unordered categories, multinomial; ordered categories, ordinal.)
+
+There is no single "correct" DGM for a given question, though. Which right-hand-side variables to include is a judgment call — one we will make, and remake, several times in this section.
 
 ### Exercise 1
 
-In a new code chunk, specify a linear regression model with `linear_reg()`, set its engine to `"lm"` with `set_engine()`, and fit it with just one predictor: `Sale_Price ~ Gr_Liv_Area`. Print the result. Render.
+In a new code chunk, specify a linear regression model with `linear_reg()`. Print the result. Render.
 
 ```
-linear_reg() |>
-  set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area, data = ames)
+linear_reg()
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -266,32 +245,27 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 4)
 ```
 
 ###
 
 ```{r tidymodels-1-test}
 #| echo: true
-linear_reg() |>
-  set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area, data = ames)
+linear_reg()
 ```
 
 ###
 
-This is the simplest possible DGM for this question: sale price as a straight-line function of one variable. `linear_reg()` proposes the structure, `set_engine("lm")` picks the method, and `fit()` is where the mechanism meets real data.
+`linear_reg()` alone just proposes the structure — a numeric outcome predicted by a linear combination of predictors. It hasn't touched data yet, and it doesn't even know what predictors you'll use.
 
 ### Exercise 2
 
-Assign that model to `mod_linear_uni`. Print `tidy(mod_linear_uni)` instead of the raw model object. Render.
+Update your chunk to pipe into `set_engine("lm")`. Render.
 
 ```
-mod_linear_uni <- linear_reg() |>
-  set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area, data = ames)
-
-tidy(mod_linear_uni)
+linear_reg() |>
+set_engine("lm")
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -302,35 +276,32 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 4)
 ```
 
 ###
 
 ```{r tidymodels-2-test}
 #| echo: true
-mod_linear_uni <- linear_reg() |>
-  set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area, data = ames)
-
-tidy(mod_linear_uni)
+linear_reg() |>
+  set_engine("lm")
 ```
 
 ###
 
-`tidy()` turns the fitted model into a plain tibble of coefficients — one row for the intercept, one row per predictor. With only one predictor, there are exactly two rows.
+`set_engine("lm")` picks the method: R's classical least-squares fitting. This is a separate decision from the structure — swapping `"lm"` for a different engine later wouldn't change anything else about your code.
 
 ### Exercise 3
 
-The hat symbol (`^`) means "predicted" — $\widehat{\text{Sale\_Price}}$ reads as "predicted sale price," as opposed to an actual observed sale price in the data. `b_0` is the intercept (the row labeled `(Intercept)` in your `tidy()` output); `b_1` is the coefficient on `Gr_Liv_Area`.
+Update your chunk to pipe into `fit(Sale_Price ~ Gr_Liv_Area, data = ames)`. Render.
 
-Using your own `tidy(mod_linear_uni)` output from Exercise 2, write the fitted equation as a LaTeX math block. If your numbers match the ones from Exercise 2, it should look like:
+```
+linear_reg() |>
+set_engine("lm") |>
+fit(Sale_Price ~ Gr_Liv_Area, data = ames)
+```
 
-$$\widehat{\text{Sale\_Price}} = 13{,}290 + 112 \times \text{Gr\_Liv\_Area}$$
-
-Add it to `analysis.qmd` above the model chunk. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r tidymodels-3}
 question_text(NULL,
@@ -338,34 +309,33 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 15)
+  rows = 6)
 ```
 
 ###
 
-Your `analysis.qmd` should include a math block like:
-
-```
-$$\widehat{\text{Sale\_Price}} = 13{,}290 + 112 \times \text{Gr\_Liv\_Area}$$
+```{r tidymodels-3-test}
+#| echo: true
+linear_reg() |>
+  set_engine("lm") |>
+  fit(Sale_Price ~ Gr_Liv_Area, data = ames)
 ```
 
 ###
 
-This equation IS the fitted DGM for the one-variable model — a machine that takes only square footage and returns a predicted price.
+`fit()` is where the mechanism meets real data. This chunk is now your **working chunk** — over the next few exercises, you'll keep editing this same formula rather than creating new named models each time.
 
 ### Exercise 4
 
-A one-variable DGM ignores something obviously relevant: how old the house is. Update your chunk to fit a two-variable model instead, assigning the result to `mod_linear`:
+Update your working chunk to pipe the fitted model into `tidy(conf.int = TRUE)`, then `select(term, estimate, conf.low, conf.high)`. Render.
 
 ```
-mod_linear <- linear_reg() |>
+linear_reg() |>
 set_engine("lm") |>
-fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
-
-mod_linear
+fit(Sale_Price ~ Gr_Liv_Area, data = ames) |>
+tidy(conf.int = TRUE) |>
+select(term, estimate, conf.low, conf.high)
 ```
-
-Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -375,27 +345,35 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 8)
 ```
 
 ###
 
 ```{r tidymodels-4-test}
 #| echo: true
-mod_linear <- linear_reg() |>
+linear_reg() |>
   set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
-
-mod_linear
+  fit(Sale_Price ~ Gr_Liv_Area, data = ames) |>
+  tidy(conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-`mod_linear` is now our working DGM — a machine that takes `Gr_Liv_Area` and `Year_Built` as inputs and returns a predicted `Sale_Price` as output. Adding `Year_Built` will change the `Gr_Liv_Area` coefficient too, since the two variables are correlated.
+This selected view — estimate plus confidence interval, nothing else — is what you'll use to judge every model in this section. Notice what's missing: no p-value, no test statistic. We decide whether a variable belongs by whether its interval excludes zero, not by a hypothesis test.
 
 ### Exercise 5
 
-Replace the printed `mod_linear` with `tidy(mod_linear)` to see the coefficients as a tidy tibble. Render.
+A one-variable DGM ignores something obviously relevant: how old the house is. Edit the formula in your working chunk to add `Year_Built`. Render.
+
+```
+linear_reg() |>
+set_engine("lm") |>
+fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames) |>
+tidy(conf.int = TRUE) |>
+select(term, estimate, conf.low, conf.high)
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -405,29 +383,37 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 8)
 ```
 
 ###
 
 ```{r tidymodels-5-test}
 #| echo: true
-tidy(mod_linear)
+linear_reg() |>
+  set_engine("lm") |>
+  fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames) |>
+  tidy(conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-The `Gr_Liv_Area` coefficient is about 96 — each additional square foot is associated with roughly $96 more in sale price, holding `Year_Built` constant. The `Year_Built` coefficient is about 1087 — each additional year the house was built later is associated with roughly $1,087 more in sale price, holding size constant. (Use your own `tidy(mod_linear)` numbers above, not these rounded ones, for anything you write down.)
+Both intervals exclude zero — by this heuristic, `Year_Built` earns its place. The `Gr_Liv_Area` estimate changed from the one-variable version too, since the two predictors are correlated.
 
 ### Exercise 6
 
-Add the equation for this two-variable model as a LaTeX math block above the model chunk, using your own coefficients from Exercise 5. For example, if your `tidy(mod_linear)` output matches the numbers above, it would look like:
+The two-variable model still ignores something buyers obviously care about: overall condition. Edit the formula again to add `Overall_Cond`. Render.
 
-$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+```
+linear_reg() |>
+set_engine("lm") |>
+fit(Sale_Price ~ Gr_Liv_Area + Year_Built + Overall_Cond, data = ames) |>
+tidy(conf.int = TRUE) |>
+select(term, estimate, conf.low, conf.high)
+```
 
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r tidymodels-6}
 question_text(NULL,
@@ -435,24 +421,35 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 20)
+  rows = 12)
 ```
 
 ###
 
-Your `analysis.qmd` should include a math block of the form:
-
-```
-$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+```{r tidymodels-6-test}
+#| echo: true
+linear_reg() |>
+  set_engine("lm") |>
+  fit(Sale_Price ~ Gr_Liv_Area + Year_Built + Overall_Cond, data = ames) |>
+  tidy(conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-Every prediction the model makes is just plugging numbers into this formula. Using the example coefficients above, a 1,500 sq ft house built in 1980 gets: $-2{,}106{,}459 + 96 \times 1500 + 1{,}087 \times 1980 \approx \$189{,}801$.
+`Overall_Cond` is categorical, so it produces one row per level, each compared against a reference category — and here the intervals are mixed: some levels clearly exclude zero, others don't. This is exactly the "many possible DGMs" problem: there's no automatic rule that resolves it. For this tutorial, we'll make the judgment call to keep things simple and go back to the two-variable model as our final DGM.
 
 ### Exercise 7
 
-The two-variable model still ignores something buyers obviously care about: overall condition. In a new code chunk, fit a third model, `mod_linear_full`, adding `Overall_Cond` to the formula: `Sale_Price ~ Gr_Liv_Area + Year_Built + Overall_Cond`. Print `tidy(mod_linear_full)`. Render.
+Edit your working chunk one last time: remove `Overall_Cond`, remove the `tidy()`/`select()` steps, and assign the result to `mod_linear`. Print it. Render.
+
+```
+mod_linear <- linear_reg() |>
+set_engine("lm") |>
+fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
+
+mod_linear
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -469,77 +466,24 @@ question_text(NULL,
 
 ```{r tidymodels-7-test}
 #| echo: true
-mod_linear_full <- linear_reg() |>
-  set_engine("lm") |>
-  fit(Sale_Price ~ Gr_Liv_Area + Year_Built + Overall_Cond, data = ames)
-
-tidy(mod_linear_full)
-```
-
-###
-
-`Overall_Cond` is a categorical variable, not a number, so `tidy()` now shows one coefficient per condition level instead of one. R silently picks the alphabetically (or factor-level) first category as the reference level — every other coefficient is a comparison *against that baseline*, not an absolute effect.
-
-### Exercise 8
-
-Look at the confidence intervals in your `tidy(mod_linear_full)` output — specifically, do any of the `Overall_Cond` levels have coefficients whose confidence interval crosses zero? In a new code chunk, print `tidy(mod_linear_full, conf.int = TRUE)` to see the intervals directly. Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r tidymodels-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
-```
-
-###
-
-```{r tidymodels-8-test}
-#| echo: true
-tidy(mod_linear_full, conf.int = TRUE)
-```
-
-###
-
-One rough rule of thumb for deciding whether a variable "belongs" in a DGM: keep it if its confidence interval excludes zero. That is a heuristic, not a law — plenty of good reasons exist to keep or drop a variable regardless of its p-value.
-
-### Exercise 9
-
-We now have three candidate DGMs: `mod_linear_uni`, `mod_linear`, and `mod_linear_full`. For the rest of this tutorial we will stick with the two-variable `mod_linear` for simplicity. Clean up your chunks — remove the `mod_linear_uni` and `mod_linear_full` code entirely, keeping only the `mod_linear` definition (no `tidy()` call). Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r tidymodels-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```
 mod_linear <- linear_reg() |>
   set_engine("lm") |>
   fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
+
+mod_linear
 ```
 
 ###
 
-This is a recurring fact of data science: there are always more DGMs you *could* fit than you actually will. Choosing to stop here, at two predictors, is itself a modeling decision.
+Up to now you've been editing the same working chunk, trying out different formulas. That stops here — `mod_linear` is your final choice, saved under its own name. Everything from this point on, in both this section and the next, works with this one model. You won't be changing the formula again.
 
-### Exercise 10
+### Exercise 8
 
 Add `#| cache: true` to the top of your `mod_linear` chunk. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r tidymodels-10}
+```{r tidymodels-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -554,13 +498,15 @@ question_text(NULL,
 mod_linear <- linear_reg() |>
   set_engine("lm") |>
   fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
+
+mod_linear
 </code></pre>
 
 ###
 
-Caching `mod_linear` means R will not refit the model on every render. The fitted model is saved to disk and reloaded instead — important as models get more complex.
+Caching `mod_linear` means R won't refit the model on every render — the fitted model is saved to disk and reloaded instead. That matters more than it might seem: fitting `mod_linear` means running least-squares over all 2,930 rows of `ames`, and every time you tweak text or fix a typo elsewhere in `analysis.qmd`, Quarto would otherwise redo that full fit from scratch just to render the page. Caching means the expensive step — fitting — only reruns when the code that produces `mod_linear` actually changes.
 
-### Exercise 11
+### Exercise 9
 
 Add `*_cache/` to your `.gitignore`. In the R Terminal, run:
 
@@ -570,7 +516,7 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r tidymodels-11}
+```{r tidymodels-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -588,13 +534,86 @@ analysis_files
 
 ###
 
-The cache directory is regenerated by every render — committing it would add noise to your repo history.
+The cache directory holds the saved model object from Exercise 8 — but it's regenerated fresh by every render, so committing it would just add noise to your repo history without adding any information. Ignoring it keeps your repo focused on the code that produces `mod_linear`, not the byproduct.
+
+### Exercise 10
+
+This exercise assumes `mod_linear` is exactly the model you assigned in Exercise 7 — `linear_reg() |> set_engine("lm") |> fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)`. If you changed the formula since then, go back and fix it before continuing, since the numbers below depend on it matching exactly.
+
+In a new code chunk, run the following to see `mod_linear`'s coefficients at a readable precision. Render.
+
+```
+mod_linear |>
+tidy(conf.int = TRUE) |>
+select(term, estimate, conf.low, conf.high) |>
+mutate(across(where(is.numeric), \(x) round(x, 0)))
+```
+
+As you can see, the coefficient on `Gr_Liv_Area` is about 96. What does that mean?
+
+```{r tidymodels-10}
+question_text(NULL,
+  answer("For houses built in the same year, each additional square foot of above-ground living area is associated with an expected increase in sale price of $96, with a 95% confidence interval of $93 to $99.", correct = TRUE),
+  allow_retry = FALSE,
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r tidymodels-10-test}
+#| echo: true
+mod_linear |>
+  tidy(conf.int = TRUE) |>
+  select(term, estimate, conf.low, conf.high) |>
+  mutate(across(where(is.numeric), \(x) round(x, 0)))
+```
+
+###
+
+Here's the answer, using the numbers above:
+
+> For houses built in the same year, each additional square foot of above-ground living area is associated with an expected increase in sale price of $96, with a 95% confidence interval of $93 to $99.
+
+(These numbers come directly from your own `mod_linear` — they should match, since the same formula fit on the same data always produces the same coefficients. If yours look different, double check the formula in your working chunk from Exercise 7.)
+
+###
+
+This answer describes an expected, average change rather than what happens to any one specific house, and it holds `Year_Built` fixed while describing the change in `Gr_Liv_Area` — we never claim that adding square footage *causes* a $96 increase for any specific house, only that houses differing by one square foot differ in expected price by about that much.
+
+### Exercise 11
+
+Using the same table from Exercise 10: the coefficient on `Year_Built` is about 1,087. What does that mean?
+
+```{r tidymodels-11}
+question_text(NULL,
+  answer("Holding above-ground living area constant, each additional year in a house's construction year is associated with an expected increase in sale price of $1,087, with a 95% confidence interval of $1,029 to $1,145.", correct = TRUE),
+  allow_retry = FALSE,
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+Here's the answer:
+
+> Holding above-ground living area constant, each additional year in a house's construction year is associated with an expected increase in sale price of $1,087, with a 95% confidence interval of $1,029 to $1,145.
+
+(Again, this should match your own output from Exercise 10 — if it doesn't, double check the formula in your `mod_linear` chunk.)
+
+###
+
+This answer follows the same pattern as Exercise 10's: it describes an expected, average change rather than what happens to one specific house, and it holds the other variable fixed rather than claiming one thing causes the other. Use that same pattern — expected value, other variables held fixed, no causal claim — whenever you're asked to interpret a coefficient in any model.
 
 ### Exercise 12
 
-Add a second fitted model, `mod_linear_glm`, that specifies the same `linear_reg()` but sets the engine to `"glm"` instead of `"lm"`. Print `tidy(mod_linear)` and `tidy(mod_linear_glm)` side by side. Render.
+Words, math, and code are the three languages of data science — Exercises 1 through 11 gave you code and, in the sections above, words. Now write the math. Add the equation for `mod_linear` as a LaTeX math block above the model chunk:
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. This prints the whole file, since the equation isn't inside a code chunk. From that output, CP/CR just the equation line and the `mod_linear` chunk right below it — not the whole file.
 
 ```{r tidymodels-12}
 question_text(NULL,
@@ -602,28 +621,36 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 10)
+  rows = 20)
 ```
 
 ###
 
-```{r tidymodels-12-test}
-#| echo: true
-mod_linear_glm <- linear_reg() |>
-  set_engine("glm") |>
+The relevant part of your output should look like this:
+
+<pre><code>$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+
+#| cache: true
+mod_linear <- linear_reg() |>
+  set_engine("lm") |>
   fit(Sale_Price ~ Gr_Liv_Area + Year_Built, data = ames)
 
-print(tidy(mod_linear))
-tidy(mod_linear_glm)
-```
+mod_linear
+</code></pre>
+
+Once rendered, the equation appears as a typeset formula, not as raw text with dollar signs and backslashes:
+
+$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+
+If you still see the raw `$$...$$` text on your rendered page instead of a formatted equation, check that the block has a blank line above and below it in your `.qmd`.
 
 ###
 
-`"lm"` and `"glm"` are two different methods for estimating the same linear structure — here they agree exactly. This is the key benefit of **tidymodels**: swapping engines never changes the interface, because parsnip separates *what* model you're fitting (structure) from *how* you're fitting it (engine). Remove the `mod_linear_glm` code from your chunk before moving on, keeping only `mod_linear`.
+This equation IS the fitted DGM — every prediction it makes is just plugging numbers in. A 1,500 sq ft house built in 1980 gets: $-2{,}106{,}459 + 96 \times 1500 + 1{,}087 \times 1980 \approx \$189{,}801$.
 
 ### Exercise 13
 
-Commit and push, with a message like "Fit linear regression model for Ames housing." In the bash Terminal, run:
+Commit and push, with a message like "Fit final linear regression DGM for Ames housing." In the bash Terminal, run:
 
 ```
 git log -1
@@ -639,25 +666,34 @@ question_text(NULL,
   incorrect = NULL,
   rows = 5)
 ```
-
 ###
 
 ```
 commit b2c3d4e5f6a7...
 Author: Var Kurapati
-Date:   Mon Jul 27 2026
+Date: Mon Jul 27 2026
 
-    Fit linear regression model for Ames housing
+    Fit final linear regression DGM for Ames housing
 ```
 
 ###
 
-The fitted DGM is the machine we built so we can answer questions. Everything in the next section — predictions — uses this machine.
+Across this whole section, you never touched the formula for `mod_linear` again after Exercise 7. Every exercise since then — caching, coefficients, the LaTeX equation — worked with that one fixed, saved object. That's the payoff of settling on a final model: nothing downstream has to guess which version of the model it's talking about. The next section leans on this even harder — every prediction and every plot in Marginal Effects starts from this exact `mod_linear`, never refitting it, only asking it new questions.
 
-## Predictions
+## Marginal Effects
 ###
 
-In this section we cover three functions from [**marginaleffects**](https://marginaleffects.com/): `predictions()`, `avg_predictions()`, and `plot_predictions()`. Recall from the Introduction: `by` averages over real houses (marginal), `condition` builds hypothetical houses (conditional). Keep asking yourself, for every function call in this section, which one you're looking at.
+We built the DGM with *Courage*. Now we practice *Temperance*: interpreting it, and using it — with humility — to answer the question we started with.
+
+Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**.
+
+So every time you see `by`, you are averaging over real houses, and every time you see `condition`, you are looking at a hypothetical.
+
+If Tidymodels was Structure → Method → Fitting, this section is Question → Units → Answer: pose the question as a quantity, specify which units you're asking about, then run the machine.
+
+###
+
+In this section we cover three functions from [**marginaleffects**](https://marginaleffects.com/): `predictions()`, `avg_predictions()`, and `plot_predictions()`. Keep asking yourself, for every function call in this section, which one you're looking at.
 
 ### Exercise 1
 
@@ -727,7 +763,7 @@ predictions(mod_linear,
 
 ###
 
-The fitted DGM predicts a price for this house — check the `estimate` column in your live output above. It should be very close to what you get by plugging 1,500 and 1980 into the equation from Tidymodels Exercise 6 (small differences come from rounding the coefficients when you wrote the equation by hand). Note that this is a **conditional** prediction — nothing in Ames is actually this exact house.
+The fitted DGM predicts a price for this house — check the `estimate` column in your live output above. It should be very close to what you get by plugging 1,500 and 1980 into the equation from Tidymodels Exercise 12 (small differences come from rounding the coefficients when you wrote the equation by hand). Note that this is a **conditional** prediction — nothing in Ames is actually this exact house.
 
 ### Exercise 3
 
@@ -763,7 +799,7 @@ predictions(mod_linear,
 
 ###
 
-The larger, newer house is predicted to sell for about $118,000 more — roughly $96 per sq ft for 1,000 extra sq ft plus roughly $1,087 per year for 20 extra years (using the example coefficients from Tidymodels Exercise 6; check your live output above for the exact numbers from your own model).
+The larger, newer house is predicted to sell for about $118,000 more — roughly $96 per sq ft for 1,000 extra sq ft plus roughly $1,087 per year for 20 extra years (using the example coefficients from Tidymodels Exercise 10; check your live output above for the exact numbers from your own model).
 
 ### Exercise 4
 
@@ -1131,7 +1167,7 @@ git log -1
 
 CP/CR.
 
-```{r predictions-15}
+```{r predictions-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
