@@ -1,5 +1,5 @@
 ---
-title: Fourth Tutorial for R4DS
+title: R4DS 4
 author: David Kane
 tutorial:
   id: r4ds-4
@@ -127,11 +127,15 @@ Like CSV, parquet stores rectangular data, but it is a binary format designed fo
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-4` repo. In the bash Terminal, run:
+From the R Terminal, run these three commands:
 
-```
-ls
-```
+`getwd()`  
+`dir.create("data")`  
+`list.files()`  
+
+This will create a `data` directory in your project. This is a good place to store any data that you are working with.
+
+We will soon stop giving you commands like these and just have AI do it.
 
 CP/CR.
 
@@ -141,13 +145,18 @@ question_text(NULL,
     allow_retry = TRUE,
     try_again_button = "Edit Answer",
     incorrect = NULL,
-    rows = 5)
+    rows = 7)
 ```
 
 ###
 
 ```
-analysis.html  analysis.qmd  analysis_files  data
+> getwd()
+[1] "/workspaces/r4ds-4"
+> dir.create("data")
+> list.files()
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+>
 ```
 
 ###
@@ -170,9 +179,9 @@ In this section you will join three parquet files — daily prices, coin metadat
 
 Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/daily_prices.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/coin_metadata.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/categories.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/daily_prices.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/coin_metadata.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/categories.parquet`
 
 In the bash Terminal, run:
 
@@ -1178,8 +1187,8 @@ accurate in a deeper sense.
 
 Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/markets.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/history.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/history.parquet`
 
 In a new code chunk, inspect `history.parquet` with Arrow before loading it into memory. Assign the lazy table to `history_lazy` and print it so you can see the schema and row count. Render.
 
@@ -1259,8 +1268,8 @@ In this dataset, 63% of markets resolved NO and 37% resolved YES. That outcome b
 
 Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/groups.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/market_groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/04-r4ds-4/data/market_groups.parquet`
 
 Keep the code that defines `history_lazy`, `markets`, and `joined`. Add the topic-classification files to the chunk and inspect their structure: column types, a few example values, and row counts. Use that output to understand how these tables relate to `markets`. Render.
 

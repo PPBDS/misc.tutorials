@@ -41,7 +41,7 @@ The recommended way to launch the tutorials is with the [R Tutorials extension f
 As a backup, you can launch a tutorial from the R console with `learnr::run_tutorial()`, providing the short name of the tutorial and the package name.
 
 ```
-learnr::run_tutorial(name = "r4ds-1",
+learnr::run_tutorial(name = "01-r4ds-1",
                      package = "misc.tutorials")
 ```
 
