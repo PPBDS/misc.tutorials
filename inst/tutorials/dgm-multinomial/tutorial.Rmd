@@ -1,0 +1,1393 @@
+---
+title: DGM Multinomial
+author: Harshil Kurapati
+tutorial:
+  id: dgm-multinomial
+  version: 1.0.0
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: 'Learn to fit and interpret multinomial regression models using tidymodels and marginaleffects, applied to penguin species in Antarctica.'
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(knitr)
+library(tidyverse)
+library(tidymodels)
+library(marginaleffects)
+library(modeldata)
+library(broom)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+options(tutorial.exercise.timelimit = 600,
+        tutorial.storage = "local")
+
+data(penguins)
+
+build_equation <- function(fit, level, reference) {
+  coefs <- tidy(fit) |> filter(y.level == level)
+  intercept <- round(coefs$estimate[coefs$term == "(Intercept)"], 2)
+  slopes <- coefs |> filter(term != "(Intercept)")
+  terms <- paste0(
+    ifelse(slopes$estimate >= 0, "+ ", "- "),
+    round(abs(slopes$estimate), 2), " \\times \\text{", slopes$term, "}",
+    collapse = " "
+  )
+  paste0("$$\\log\\left(\\frac{P(\\text{", level, "})}{P(\\text{", reference, "})}\\right) = ",
+         intercept, " ", terms, "$$")
+}
+
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm,
+      data = penguins |> filter(!is.na(bill_length_mm), !is.na(flipper_length_mm)))
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+###
+
+The `penguins` dataset records physical measurements for 344 penguins on three islands in Antarctica — bill length, bill depth, flipper length, body mass, sex, and species (Adelie, Chinstrap, or Gentoo).
+
+This tutorial asks a simple question: **can we predict a penguin's species from how it's built?**
+###
+
+We use two packages to answer it. **[tidymodels](https://www.tidymodels.org/)** fits the model. **[marginaleffects](https://marginaleffects.com/)** interprets it — turning raw coefficients into predicted probabilities that are immediately understandable.
+###
+
+Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**. A marginal prediction runs the model on every *real* penguin in the dataset and averages the results (the `by` argument). A conditional prediction builds one or more *hypothetical* penguins, holding some variables fixed and varying others (the `condition` argument).
+
+So every time you see `by`, you are averaging over real penguins, and every time you see `condition`, you are looking at a hypothetical.
+
+### Exercise 1
+
+You should be connected to a repo named `dgm-multinomial`. If you are not, create one and connect to it.
+
+Create a new file, `analysis.qmd`, with the title `"Penguin Species"` and your name as the author. Add `execute: echo: false` to the YAML header. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server. Create a `.gitignore` with `analysis_files` on the first line. Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+```
+analysis_files
+```
+
+###
+
+The rendered HTML creates a support directory called `analysis_files/` that is pure junk as far as your repo is concerned. `.gitignore` keeps it out so it doesn't clutter your commit history.
+
+### Exercise 2
+
+In a new code chunk in `analysis.qmd`, load the libraries and the `penguins` dataset. Add `#| message: false`. Render.
+
+```
+#| message: false
+library(tidyverse)
+library(tidymodels)
+library(marginaleffects)
+library(modeldata)
+library(broom)
+
+data(penguins)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+<pre><code>#| message: false
+library(tidyverse)
+library(tidymodels)
+library(marginaleffects)
+library(modeldata)
+library(broom)
+
+data(penguins)
+</code></pre>
+
+###
+
+`data(penguins)` loads the dataset from the **modeldata** package — no file download needed. It has 344 rows and 7 columns.
+
+### Exercise 3
+
+In a new code chunk, print the first 10 rows of `penguins`. Render.
+
+```
+head(penguins, 10)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r introduction-3-test}
+#| echo: true
+head(penguins, 10)
+```
+
+###
+
+`species` is the outcome we want to predict — a genuine three-level category, not a number or an order. `bill_length_mm` and `flipper_length_mm` are two of the measurements we will use to predict it. Row 4 above is missing every measurement — some penguins were caught but never fully measured. We will deal with those `NA`s directly in the next section, not silently.
+
+### Exercise 4
+
+Update your chunk to show a scatterplot of `flipper_length_mm` vs `bill_length_mm`, colored by `species`. Render and inspect the relationship.
+
+```
+penguins |>
+  ggplot(aes(x = bill_length_mm, y = flipper_length_mm, color = species)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Flipper length vs bill length by species",
+    x = "Bill length (mm)",
+    y = "Flipper length (mm)",
+    color = "Species"
+  )
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r introduction-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r introduction-4-test}
+#| echo: true
+penguins |>
+  ggplot(aes(x = bill_length_mm, y = flipper_length_mm, color = species)) +
+  geom_point(alpha = 0.6) +
+  labs(
+    title = "Flipper length vs bill length by species",
+    x = "Bill length (mm)",
+    y = "Flipper length (mm)",
+    color = "Species"
+  )
+```
+
+###
+
+The three species separate visibly, though not perfectly, using just these two measurements. Gentoo penguins cluster at the top (long flippers); Adelie and Chinstrap overlap more but split along bill length. That separation is what a multinomial model will try to capture numerically.
+
+### Exercise 5
+
+Commit and push, with a message like "Add penguins data and initial exploration." In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r introduction-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+commit a1b2c3d4e5f6...
+Author: Harshil Kurapati
+Date:   Wed Jul 29 2026
+
+    Add penguins data and initial exploration
+```
+
+###
+
+Committing before any model fitting creates a clean baseline you can always return to.
+
+## Tidymodels
+###
+
+Every dataset is a shadow of some real-world process — a **data generating mechanism**, or DGM. In this section we propose a structure for that mechanism (multinomial regression), pick a method for estimating it (`set_engine("nnet")`), and fit it to the penguins data. Structure → Method → Fitting.
+
+There is no single "correct" DGM for a given question. Which right-hand-side variables to include is a judgment call — one we will make, and remake, several times in this section.
+
+### Exercise 1
+
+Two of the columns you will use to fit a model — `bill_length_mm` and `flipper_length_mm` — are missing for a few penguins. In a new code chunk, filter `penguins` to only the rows where both are present, overwriting `penguins`, and print `nrow(penguins)`. Render.
+
+```
+penguins <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
+
+nrow(penguins)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r tidymodels-1-test}
+#| echo: true
+penguins <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
+
+nrow(penguins)
+```
+
+###
+
+344 penguins in, 342 out. Two rows had missing bill or flipper measurements and are now gone — filtering here makes the loss visible, instead of letting `fit()` drop them silently later.
+
+### Exercise 2
+
+In a new code chunk, specify a multinomial regression model with `multinom_reg()`, set its engine to `"nnet"` with `set_engine()`, and fit it with just one predictor: `species ~ bill_length_mm`. Print the result. Render.
+
+```
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r tidymodels-2-test}
+#| echo: true
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins)
+```
+
+###
+
+This is the simplest possible DGM for this question: species as a function of one measurement. `multinom_reg()` proposes the structure, `set_engine("nnet")` picks the method, and `fit()` is where the mechanism meets real data.
+
+### Exercise 3
+
+Assign that model to `mod_uni`. Print `tidy(mod_uni)` instead of the raw model object. Render.
+
+```
+mod_uni <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins)
+
+tidy(mod_uni)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r tidymodels-3-test}
+#| echo: true
+mod_uni <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins)
+
+tidy(mod_uni)
+```
+
+###
+
+`species` has three levels, so `multinom_reg()` fits two sets of coefficients — one for Chinstrap vs. the reference level, one for Gentoo vs. the reference level — instead of the single row `linear_reg()` would give you. The `y.level` column names which comparison each row belongs to; R picked `Adelie` (alphabetically first) as the reference.
+
+### Exercise 4
+
+Once you have a fitted model, always show its LaTeX equation — that IS the fitted DGM. Because `species` has three levels, `multinom_reg()` fits K − 1 = 2 equations, not one, so you need both. Add `#| results: asis` to the top of your chunk, then add this function above your model code and use it to print both equations for `mod_uni`. Render.
+
+```
+#| results: asis
+build_equation <- function(fit, level, reference) {
+  coefs <- tidy(fit) |> filter(y.level == level)
+  intercept <- round(coefs$estimate[coefs$term == "(Intercept)"], 2)
+  slopes <- coefs |> filter(term != "(Intercept)")
+  terms <- paste0(
+    ifelse(slopes$estimate >= 0, "+ ", "- "),
+    round(abs(slopes$estimate), 2), " \\times \\text{", slopes$term, "}",
+    collapse = " "
+  )
+  paste0("$$\\log\\left(\\frac{P(\\text{", level, "})}{P(\\text{", reference, "})}\\right) = ",
+         intercept, " ", terms, "$$")
+}
+
+for (lvl in unique(tidy(mod_uni)$y.level)) {
+  cat(build_equation(mod_uni, lvl, "Adelie"), "\n\n")
+}
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 20)
+```
+
+###
+
+```{r tidymodels-4-test}
+#| echo: true
+#| results: asis
+for (lvl in unique(tidy(mod_uni)$y.level)) {
+  cat(build_equation(mod_uni, lvl, "Adelie"), "\n\n")
+}
+```
+
+###
+
+Two equations, one model: the first tells you how the odds of Chinstrap-vs-Adelie change with bill length, the second how the odds of Gentoo-vs-Adelie change with it. Looping over `unique(tidy(mod_uni)$y.level)` guarantees you always see every comparison the model actually fit, never just one of them.
+
+### Exercise 5
+
+A one-variable DGM ignores flipper length, which your Introduction scatterplot showed separates Gentoo from the other two species. Update your chunk to fit a two-variable model instead, assigning the result to `mod_multinomial`:
+
+```
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
+
+mod_multinomial
+```
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r tidymodels-5-test}
+#| echo: true
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
+
+mod_multinomial
+```
+
+###
+
+`mod_multinomial` is now our working DGM — a machine that takes `bill_length_mm` and `flipper_length_mm` as inputs and returns predicted species probabilities as output. Adding `flipper_length_mm` changed the `bill_length_mm` coefficients too, since the two measurements are correlated.
+
+### Exercise 6
+
+Replace the printed `mod_multinomial` with `tidy(mod_multinomial)` to see the coefficients as a tidy tibble. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r tidymodels-6-test}
+#| echo: true
+tidy(mod_multinomial)
+```
+
+###
+
+Still six rows — two levels times three terms (intercept, `bill_length_mm`, `flipper_length_mm`) — but now every coefficient reflects both measurements at once.
+
+### Exercise 7
+
+Show both equations for `mod_multinomial`, the same way you did for `mod_uni`. `build_equation()` is already defined, so you only need to loop and print. Add `#| results: asis` to the top of your chunk.
+
+```
+#| results: asis
+for (lvl in unique(tidy(mod_multinomial)$y.level)) {
+  cat(build_equation(mod_multinomial, lvl, "Adelie"), "\n\n")
+}
+```
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+```{r tidymodels-7-test}
+#| echo: true
+#| results: asis
+for (lvl in unique(tidy(mod_multinomial)$y.level)) {
+  cat(build_equation(mod_multinomial, lvl, "Adelie"), "\n\n")
+}
+```
+
+###
+
+`build_equation()` reads straight from `tidy()` output, so these numbers are identical to Exercise 6's table — just written as math instead of a tibble. Because the function was defined once, back in Exercise 4, you never had to write it twice.
+
+### Exercise 8
+
+The two-variable DGM still ignores something obviously relevant to penguin biology: which island a penguin was caught on. In a new code chunk, fit a third model, `mod_full`, adding `island` to the formula: `species ~ bill_length_mm + flipper_length_mm + island`. Print `tidy(mod_full)`. Render.
+
+```
+mod_full <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins)
+
+tidy(mod_full)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r tidymodels-8-test}
+#| echo: true
+mod_full <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins)
+
+tidy(mod_full)
+```
+
+###
+
+`island` is categorical, so `tidy()` now shows one extra coefficient per level (`islandDream`, `islandTorgersen`) for each species comparison — four more rows than `mod_multinomial` had. R picked `Biscoe` (alphabetically first) as the reference island; every island coefficient is a comparison against that baseline, not an absolute effect.
+
+### Exercise 9
+
+Look at the standard errors in your `tidy(mod_full)` output — some look suspiciously tiny. Update your chunk to print `tidy(mod_full, conf.int = TRUE)` instead, to see the confidence intervals directly. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r tidymodels-9-test}
+#| echo: true
+tidy(mod_full, conf.int = TRUE)
+```
+
+###
+
+Look at `islandTorgersen` for the Chinstrap comparison: a coefficient of about −4.92 with a standard error near 0.0000002 — essentially zero uncertainty, and a confidence interval collapsed to a single point. That is not confidence, it is **quasi-separation**: Chinstrap penguins only ever appear on Dream island in this data, so the model can push the Torgersen and Biscoe coefficients to extreme values with no real uncertainty. That is not a stable, generalizable DGM — we discard `mod_full` and keep `mod_multinomial`.
+
+### Exercise 10
+
+We now have three candidate DGMs: `mod_uni`, `mod_multinomial`, and `mod_full`. For the rest of this tutorial we will stick with the two-variable `mod_multinomial`. Clean up your chunks — remove the `mod_uni` and `mod_full` code entirely, keeping only the `mod_multinomial` definition (no `tidy()` call). Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
+```
+
+###
+
+This is a recurring fact of data science: there are always more DGMs you *could* fit than you actually will, and there are many possible DGMs for the same question. We never know for certain which one is true — we just use our best judgment, often guided by which coefficients' confidence intervals exclude zero, as Exercise 9 just showed.
+
+### Exercise 11
+
+Add `#| cache: true` to the top of your `mod_multinomial` chunk. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-11}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+<pre><code>#| cache: true
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
+</code></pre>
+
+###
+
+Caching `mod_multinomial` means R will not refit the model on every render. The fitted model is saved to disk and reloaded instead.
+
+### Exercise 12
+
+Add `*_cache/` to your `.gitignore`. In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r tidymodels-12}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```
+analysis_files
+*_cache/
+```
+
+###
+
+The cache directory is regenerated by every render — committing it would add noise to your repo history.
+
+### Exercise 13
+
+Commit and push, with a message like "Fit multinomial regression model for penguin species." In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r tidymodels-13}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+commit b2c3d4e5f6a7...
+Author: Harshil Kurapati
+Date:   Wed Jul 29 2026
+
+    Fit multinomial regression model for penguin species
+```
+
+###
+
+The fitted DGM is the machine we built so we can answer questions. Everything in the next section — predictions — uses this machine.
+
+## Predictions
+###
+
+In this section we cover three functions from [**marginaleffects**](https://marginaleffects.com/): `predictions()`, `avg_predictions()`, and `plot_predictions()`. Recall from the Introduction: `by` averages over real penguins (marginal), `condition` builds hypothetical penguins (conditional). Keep asking yourself, for every function call in this section, which one you're looking at.
+
+A common beginner mistake is treating the printed coefficients from Tidymodels as the answer itself. They are not — nobody asks "what is the log-odds coefficient on bill length?" They ask real questions: what species is this penguin, or how does predicted species change with bill length? The fitted model is a machine for answering those questions; the three functions below are how you ask them.
+
+### Exercise 1
+
+In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical penguin: 45mm bill, 200mm flippers. Multinomial models need `type = "prob"`. Render.
+
+```
+class(predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r predictions-1-test}
+#| echo: true
+class(predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200)))
+```
+
+###
+
+```
+[1] "predictions" "data.frame"
+```
+
+###
+
+`predictions()` always returns an object of class `predictions` and `data.frame` — you can pipe it to `as_tibble()`, `filter()`, or `ggplot()`, no matter what kind of model produced it.
+
+### Exercise 2
+
+Update your chunk to run `predictions()` for the same hypothetical penguin, printed this time. Render.
+
+```
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r predictions-2-test}
+#| echo: true
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(bill_length_mm = 45, flipper_length_mm = 200))
+```
+
+###
+
+One hypothetical penguin, three rows — `predictions()` returns one row per species per case for a multinomial model, unlike the single row you would get from linear regression. That is expected, not a bug: each row is the predicted probability of one species for this bill/flipper combination, and the three rows sum to 1. This particular penguin is genuinely ambiguous between Adelie and Chinstrap. Note that this is a **conditional** prediction — no real penguin needs to have exactly these measurements.
+
+### Exercise 3
+
+Update your chunk to predict species probabilities for two hypothetical penguins: 38mm bill/190mm flippers, and 50mm bill/220mm flippers. Render.
+
+```
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220)))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-3-test}
+#| echo: true
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220)))
+```
+
+###
+
+Two hypothetical penguins now give six rows, not two — three species rows per case. The 38mm/190mm penguin is almost certainly Adelie; the 50mm/220mm penguin is almost certainly Gentoo. Both are still conditional predictions.
+
+### Exercise 4
+
+Update your chunk to pipe `predictions()` to `as_tibble()`. Render.
+
+```
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220))) |>
+  as_tibble()
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-4-test}
+#| echo: true
+predictions(mod_multinomial, type = "prob",
+  newdata = data.frame(
+    bill_length_mm    = c(38, 50),
+    flipper_length_mm = c(190, 220))) |>
+  as_tibble()
+```
+
+###
+
+`as_tibble()` converts the **marginaleffects** output into a standard tibble, making it easy to pipe into `select()`, `filter()`, or `ggplot()`. The `group` column tells you which species each row's probability belongs to — you will see it again in this section's plots.
+
+### Exercise 5
+
+Update your chunk to predict species probabilities for the first actual penguin in the dataset. Render.
+
+```
+predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r predictions-5-test}
+#| echo: true
+predictions(mod_multinomial, type = "prob", newdata = penguins[1, ])
+```
+
+###
+
+We already know this penguin's actual species — it is in the data (Adelie). The model agrees, assigning Adelie about 99% probability. Unlike Exercise 2's hypothetical penguin, there is no ambiguity here: this real penguin's measurements sit solidly in Adelie territory.
+
+### Exercise 6
+
+`newdata` is optional. Update your chunk to call `predictions(mod_multinomial, type = "prob")` with no `newdata` argument at all, piped to `as_tibble()`, and print `nrow()` of the result alongside `nrow(penguins)`. Render.
+
+```
+preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
+nrow(preds_all)
+nrow(penguins)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r predictions-6-test}
+#| echo: true
+preds_all <- predictions(mod_multinomial, type = "prob") |> as_tibble()
+nrow(preds_all)
+nrow(penguins)
+```
+
+###
+
+1,026 rows from 342 penguins — three predicted-probability rows per real penguin, not one. Without `newdata`, `predictions()` defaults to running the model on every row it was fit on; for a multinomial model that means `nrow(data)` × number of species, not `nrow(data)`.
+
+### Exercise 7
+
+Update your chunk to run `avg_predictions(mod_multinomial, type = "prob")` with no `by` argument, and compare it to the raw proportion of each species in the data. Render.
+
+```
+avg_predictions(mod_multinomial, type = "prob")
+penguins |> count(species) |> mutate(prop = n / sum(n))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 8)
+```
+
+###
+
+```{r predictions-7-test}
+#| echo: true
+avg_predictions(mod_multinomial, type = "prob")
+penguins |> count(species) |> mutate(prop = n / sum(n))
+```
+
+###
+
+These numbers are close but not identical — about .442 vs .4415 for Adelie. `avg_predictions()` with no `by` is a **marginal** prediction: run the model on every real penguin, then average within species. For an OLS linear model that average is exactly guaranteed to match the training data; for a maximum-likelihood model like this one, it is only approximately close — a useful sanity check, not an algebraic identity.
+
+### Exercise 8
+
+Update your chunk to use `avg_predictions()` with `by = "island"` to see average predicted species probability per island. Render.
+
+```
+avg_predictions(mod_multinomial, type = "prob", by = "island")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-8-test}
+#| echo: true
+avg_predictions(mod_multinomial, type = "prob", by = "island")
+```
+
+###
+
+You saw in Tidymodels that adding `island` directly to the model caused separation — Chinstrap only ever appears on Dream, Gentoo mostly on Biscoe. You can still ask an island-related question without putting `island` in the model, by using it as a `by` grouping variable instead: Torgersen predicts about 93% Adelie, Biscoe about 71% Gentoo. Same real pattern, surfaced by averaging predictions rather than by an unstable coefficient.
+
+### Exercise 9
+
+Update your chunk to use `avg_predictions()` with `by = "sex"` instead. Render.
+
+```
+avg_predictions(mod_multinomial, type = "prob", by = "sex")
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-9-test}
+#| echo: true
+avg_predictions(mod_multinomial, type = "prob", by = "sex")
+```
+
+###
+
+`sex` is not in the model at all, yet `by = "sex"` still works — **marginaleffects** just averages predictions within whatever groups it finds in the data, including an `NA` group for the 11 penguins whose sex was never recorded. Filtering earlier for bill and flipper measurements did not retroactively clean this column.
+
+### Exercise 10
+
+Now build a **conditional** prediction on purpose, using `datagrid()`: three hypothetical penguins at 35mm, 45mm, and 55mm bill length, with `flipper_length_mm` held at its typical value automatically. Render.
+
+```
+predictions(mod_multinomial, type = "prob",
+  newdata = datagrid(bill_length_mm = c(35, 45, 55)))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-10-test}
+#| echo: true
+predictions(mod_multinomial, type = "prob",
+  newdata = datagrid(bill_length_mm = c(35, 45, 55)))
+```
+
+###
+
+`datagrid()` fixes every variable you don't mention (`flipper_length_mm`) at a representative value and varies only the ones you specify. This is the **conditional** counterpart to Exercise 8's **marginal** `avg_predictions()` — no real penguin needs to exist at any of these three bill lengths.
+
+### Exercise 11
+
+Ask your AI assistant to write `plot_predictions()` code that visualizes how predicted species probability changes with `bill_length_mm`, using `type = "prob"` and `condition = c("bill_length_mm", "group")`, with a title, axis labels, and percent-formatted y-axis. Paste the code it gives you into a new chunk. Render, and adjust the AI's code if it does not match the pattern below — in particular, `"group"` must be in `condition`, or the three species' probabilities plot as one meaningless zigzag instead of three separate curves.
+
+```
+plot_predictions(mod_multinomial, type = "prob",
+  condition = c("bill_length_mm", "group")) +
+  labs(
+    title = "Predicted species probability by bill length",
+    x = "Bill length (mm)",
+    y = "Predicted probability",
+    color = "Species", fill = "Species"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-11}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-11-test}
+#| echo: true
+plot_predictions(mod_multinomial, type = "prob",
+  condition = c("bill_length_mm", "group")) +
+  labs(
+    title = "Predicted species probability by bill length",
+    x = "Bill length (mm)",
+    y = "Predicted probability",
+    color = "Species", fill = "Species"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+###
+
+`condition` fixes `flipper_length_mm` at its mean and shows how each species' predicted probability changes as bill length varies — three curves, one per species, because `group` is in `condition`. Without `group`, **marginaleffects** cannot tell the three species' probabilities apart, and connects points across species in whatever order they happen to come out.
+
+### Exercise 12
+
+Ask your AI assistant to extend that plot to show predicted species probability across both `bill_length_mm` and `flipper_length_mm`, using `condition = c("bill_length_mm", "flipper_length_mm", "group")`. Paste its code into a new chunk. Render, and adjust if needed.
+
+```
+plot_predictions(mod_multinomial, type = "prob",
+  condition = c("bill_length_mm", "flipper_length_mm", "group")) +
+  labs(
+    title = "Predicted species probability by bill and flipper length",
+    x = "Bill length (mm)",
+    y = "Predicted probability",
+    color = "Flipper length (mm)", fill = "Flipper length (mm)"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-12}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-12-test}
+#| echo: true
+plot_predictions(mod_multinomial, type = "prob",
+  condition = c("bill_length_mm", "flipper_length_mm", "group")) +
+  labs(
+    title = "Predicted species probability by bill and flipper length",
+    x = "Bill length (mm)",
+    y = "Predicted probability",
+    color = "Flipper length (mm)", fill = "Flipper length (mm)"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+###
+
+With a second continuous variable in `condition`, **marginaleffects** varies the first (`bill_length_mm`) continuously and shows the second at five representative values — Tukey's five-number summary: 172, 190, 197, 213, and 231mm here — faceted by species because `group` is still in `condition`. Longer flippers shift the Adelie/Chinstrap crossover toward higher bill lengths.
+
+### Exercise 13
+
+Now plot a **marginal** quantity instead of a conditional one: use `plot_predictions()` with `by = c("island", "group")` to visualize average predicted species probability per island. Render.
+
+```
+plot_predictions(mod_multinomial, type = "prob", by = c("island", "group")) +
+  labs(
+    title = "Average predicted species probability by island",
+    x = "Island",
+    y = "Average predicted probability",
+    color = "Species", fill = "Species"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-13}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-13-test}
+#| echo: true
+plot_predictions(mod_multinomial, type = "prob", by = c("island", "group")) +
+  labs(
+    title = "Average predicted species probability by island",
+    x = "Island",
+    y = "Average predicted probability",
+    color = "Species", fill = "Species"
+  ) +
+  scale_y_continuous(labels = scales::percent)
+```
+
+###
+
+Same function, same package — but passing `by` instead of `condition` switches `plot_predictions()` from a hypothetical relationship to an average over real penguins, grouped by island. `condition` (Exercises 11–12) is a conditional, counterfactual view; `by` (this exercise) is a marginal, descriptive one — the same numbers from Exercise 8, drawn as a picture.
+
+### Exercise 14
+
+Commit and push, with a message like "Add marginaleffects predictions and plots." In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r predictions-14}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```
+commit c3d4e5f6a7b8...
+Author: Harshil Kurapati
+Date:   Wed Jul 29 2026
+
+    Add marginaleffects predictions and plots
+```
+
+###
+
+You have now used `predictions()`, `avg_predictions()`, and `plot_predictions()` on a multinomial regression model, and drawn the marginal/conditional line clearly in both table and plot form. The same three functions work identically on linear, logistic, and ordinal models — only the number of rows per case changes.
+
+## Summary
+###
+
+You have built an analysis page that fits a multinomial regression model and visualizes its predictions. Now wire it into a navigable Quarto website and publish it.
+
+### Exercise 1
+
+Create a `_quarto.yml` file at the top level of your repo with the following contents:
+
+```
+project:
+  type: website
+
+website:
+  title: "Penguin Species"
+  navbar:
+    left:
+      - href: analysis.qmd
+        text: Analysis
+      - href: about.qmd
+        text: About
+
+format:
+  html:
+    theme: cosmo
+```
+
+In the bash Terminal, run:
+
+```
+quarto render
+ls
+```
+
+In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+<pre><code>project:
+  type: website
+
+website:
+  title: "Penguin Species"
+  navbar:
+    left:
+      - href: analysis.qmd
+        text: Analysis
+      - href: about.qmd
+        text: About
+
+format:
+  html:
+    theme: cosmo
+</code></pre>
+
+###
+
+`_quarto.yml` turns a folder of `.qmd` files into a navigable website. Without it, each page renders independently.
+
+### Exercise 2
+
+Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, the final `mod_multinomial` model chunk, its two equations, and the final three visualizations (Predictions Exercises 11, 12, and 13). Remove all intermediate output. Render.
+
+In the R Terminal, run `show_file("about.qmd")`, then `show_file("analysis.qmd")`. CP/CR both.
+
+```{r summary-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 12)
+```
+
+###
+
+```
+---
+title: "About"
+---
+
+Harshil Kurapati, July 2026.
+```
+
+###
+
+Your `analysis.qmd` should now have exactly six code chunks — setup, the `mod_multinomial` model, the equation loop, and the three `plot_predictions()` calls from Predictions Exercises 11–13.
+
+###
+
+An About page tells visitors who made the site and when.
+
+### Exercise 3
+
+Before publishing, preview the site locally. In the bash Terminal, run:
+
+```
+quarto preview
+```
+
+Click through the navbar in the browser preview and confirm both pages load with no errors. In the bash Terminal, stop the preview and CP/CR the first few lines of terminal output from the `quarto preview` command.
+
+```{r summary-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+Preparing to preview
+Watching files for changes
+GET: /
+GET: /analysis.html
+GET: /about.html
+Browse at http://localhost:6274/
+
+(your port number and exact lines may differ — that's fine, just confirm you see similar output with no error lines)
+
+###
+
+`quarto preview` builds the site and opens a live-reloading local server — catching broken links or missing pages before they go live is much cheaper than catching them after publishing.
+
+### Exercise 4
+
+Publish the website to GitHub Pages. In the bash Terminal, run:
+
+```
+quarto publish gh-pages
+```
+
+Copy/paste the resulting URL below.
+
+```{r summary-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+`quarto publish gh-pages` without a filename publishes the whole website. Both pages are now live, linked by the navigation bar.
+
+### Exercise 5
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+The same pattern you used here — `multinom_reg() |> set_engine() |> fit()` followed by `predictions()`, `avg_predictions()`, and `plot_predictions()`, always keeping marginal and conditional straight, always showing every equation the model fit — applies to linear, logistic, and ordinal regression too. The interface never changes; only the structure, and the number of rows each prediction returns, does.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```
