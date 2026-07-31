@@ -223,7 +223,7 @@ Before we fit anything, it's worth asking where this data came from. The `ames` 
 ## Tidymodels
 ###
 
-Every dataset is a shadow of some real-world process — a **data generating mechanism**, or DGM. Constructing one is an act of *Courage*: we commit to a structure, choose a method for estimating it, and fit it to data. Structure → Method → Fitting.
+Every dataset is produced by some real-world process — a **data generating mechanism**, or DGM. Building one means committing to a structure, choosing a method for estimating it, and fitting it to data: Structure → Method → Fitting.
 
 The structure follows directly from the outcome variable. `Sale_Price` is continuous — a dollar amount that could in principle be any number — so a linear model is the natural structure. (A yes/no outcome would call for logistic; several unordered categories, multinomial; ordered categories, ordinal.)
 
@@ -687,7 +687,11 @@ We built the DGM with *Courage*. Now we practice *Temperance*: interpreting it, 
 
 Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**.
 
+<!-- Repeat this somewhere else again because it can be confusing to students: -->
+
 So every time you see `by`, you are averaging over real houses, and every time you see `condition`, you are looking at a hypothetical.
+
+<!-- Show how Question → Units → Answer works in practice and if it even works. -->
 
 If Tidymodels was Structure → Method → Fitting, this section is Question → Units → Answer: pose the question as a quantity, specify which units you're asking about, then run the machine.
 
@@ -697,11 +701,11 @@ In this section we cover three functions from [**marginaleffects**](https://marg
 
 ### Exercise 1
 
-In a new code chunk, run `class()` on the result of `predictions()` for one hypothetical house: 1,500 sq ft, built in 1980. Render.
+In a new code chunk, run `predictions()` for one hypothetical house: 1,500 sq ft, built in 1980. Render.
 
 ```
-class(predictions(mod_linear,
-  newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980)))
+predictions(mod_linear,
+newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -712,12 +716,48 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 4)
+  rows = 6)
 ```
 
 ###
 
 ```{r predictions-1-test}
+#| echo: true
+predictions(mod_linear,
+  newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980))
+```
+
+###
+
+The fitted DGM predicts a price for this house — check the `estimate` column in your live output above. It should be close to what this equation gives directly:
+
+$$\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$$
+
+For 1,500 sq ft built in 1980: $-2{,}106{,}459 + 96 \times 1500 + 1{,}087 \times 1980 \approx \$189{,}801$ (small differences come from rounding). Note that this is a **conditional** prediction — nothing in Ames is actually this exact house.
+
+### Exercise 2
+
+Now run `class()` on that same result. Render.
+
+```
+class(predictions(mod_linear,
+newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980)))
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```{r predictions-2-test}
 #| echo: true
 class(predictions(mod_linear,
   newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980)))
@@ -733,37 +773,6 @@ class(predictions(mod_linear,
 
 `predictions()` always returns an object of class `predictions` and `data.frame` — you can pipe it to `as_tibble()`, `filter()`, or `ggplot()`.
 
-### Exercise 2
-
-Update your chunk to run `predictions()` for one hypothetical house: 1,500 sq ft, built in 1980. Render.
-
-```
-predictions(mod_linear,
-  newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980))
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
-```
-
-###
-
-```{r predictions-2-test}
-#| echo: true
-predictions(mod_linear,
-  newdata = data.frame(Gr_Liv_Area = 1500, Year_Built = 1980))
-```
-
-###
-
-The fitted DGM predicts a price for this house — check the `estimate` column in your live output above. It should be very close to what you get by plugging 1,500 and 1980 into the equation from Tidymodels Exercise 12 (small differences come from rounding the coefficients when you wrote the equation by hand). Note that this is a **conditional** prediction — nothing in Ames is actually this exact house.
 
 ### Exercise 3
 
@@ -799,7 +808,7 @@ predictions(mod_linear,
 
 ###
 
-The larger, newer house is predicted to sell for about $118,000 more — roughly $96 per sq ft for 1,000 extra sq ft plus roughly $1,087 per year for 20 extra years (using the example coefficients from Tidymodels Exercise 10; check your live output above for the exact numbers from your own model).
+The larger, newer house is predicted to sell for about $118,000 more. Using the fitted equation — $\widehat{\text{Sale\_Price}} = -2{,}106{,}459 + 96 \times \text{Gr\_Liv\_Area} + 1{,}087 \times \text{Year\_Built}$ — that's roughly $96 per sq ft for 1,000 extra sq ft, plus roughly $1,087 per year for 20 extra years (check your live output above for the exact numbers from your own model).
 
 ### Exercise 4
 
@@ -867,16 +876,14 @@ predictions(mod_linear, newdata = ames[1, ])
 
 ###
 
-We already know this house's actual sale price — it is in the data. The model's predicted price will differ from the actual price because no model is perfect. That gap is the **residual** — the part of the outcome the model could not explain.
+We already know this house's actual sale price — it is in the data. Compare the `estimate` column in your output to `ames$Sale_Price[1]`: the two numbers won't match exactly. The model's predicted price will differ from the actual price because no model is perfect. That gap between the two — actual minus predicted — is the **residual**: the part of this house's price the model couldn't explain from just its size and age.
 
 ### Exercise 6
 
-`newdata` is optional. Update your chunk to call `predictions(mod_linear)` with no `newdata` argument at all, piped to `as_tibble()`, and print `nrow()` of the result alongside `nrow(ames)`. Render.
+`newdata` is optional. Update your chunk to call `predictions(mod_linear)` with no `newdata` argument at all, piped to `as_tibble()`, and print `nrow()` of the result. Render.
 
 ```
-preds_all <- predictions(mod_linear) |> as_tibble()
-nrow(preds_all)
-nrow(ames)
+predictions(mod_linear) |> as_tibble() |> nrow()
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -894,22 +901,23 @@ question_text(NULL,
 
 ```{r predictions-6-test}
 #| echo: true
-preds_all <- predictions(mod_linear) |> as_tibble()
-nrow(preds_all)
-nrow(ames)
+predictions(mod_linear) |> as_tibble() |> nrow()
 ```
 
 ###
 
-Without `newdata`, `predictions()` defaults to running the model on every row of the data it was fit on — one prediction per real house, not a hypothetical.
+Without `newdata`, `predictions()` defaults to running the model on every row of the data it was fit on — one prediction per real house, not a hypothetical. That number should match the 2,930 houses mentioned back in the Introduction.
+
+###
+
+One more fact worth knowing before we group anything: `avg_predictions(mod_linear)` with no `by` argument averages the model's predictions across every real house — and for an OLS model like this one, that average is mathematically guaranteed to equal `mean(ames$Sale_Price)`, the actual average sale price in the data. You don't need to run it to see this; it follows from how least-squares fitting works. `by` is what lets you break that single average down into groups, which is what the next two exercises do.
 
 ### Exercise 7
 
-Update your chunk to run `avg_predictions(mod_linear)` with no `by` argument, and compare it to `mean(ames$Sale_Price)`. Render.
+Update your chunk to use `avg_predictions()` with `by = "Bldg_Type"` to get the average predicted sale price for each building type. Render.
 
 ```
-avg_predictions(mod_linear)
-mean(ames$Sale_Price)
+avg_predictions(mod_linear, by = "Bldg_Type")
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -920,93 +928,31 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 5)
 ```
 
 ###
 
 ```{r predictions-7-test}
 #| echo: true
-avg_predictions(mod_linear)
-mean(ames$Sale_Price)
+avg_predictions(mod_linear, by = "Bldg_Type")
 ```
 
 ###
 
-These two numbers should match almost exactly. `avg_predictions()` with no `by` is a **marginal** prediction: run the model on every real house, then average. For an OLS model fit with an intercept, that average is mathematically guaranteed to equal the average of the actual outcome in the training data.
+`by` works with any categorical variable in the data — it is always the same operation: predict for every real house, then average within groups. With only a handful of building types, the whole table fits on screen at once: single-family homes, townhouses, and duplexes each get one row, and you can compare all of them directly. A variable like `Neighborhood`, which has around 30 levels, would give you the same kind of table but far too long to read at a glance — `by` doesn't care how many categories there are, but a table with 30 rows isn't a useful way to look at the result.
 
 ### Exercise 8
-
-Update your chunk to use `avg_predictions()` with `by = "Neighborhood"` to get the average predicted sale price for each neighborhood. Render.
-
-```
-avg_predictions(mod_linear, by = "Neighborhood")
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-```{r predictions-8-test}
-#| echo: true
-avg_predictions(mod_linear, by = "Neighborhood")
-```
-
-###
-
-This is a **marginal** prediction — the model's average predicted sale price for each neighborhood, weighted by the actual houses in each neighborhood. Neighborhoods with larger or newer houses will have higher average predicted prices.
-
-### Exercise 9
-
-Update your chunk to use `avg_predictions()` with `by = "Bldg_Type"` instead. Render.
-
-```
-avg_predictions(mod_linear, by = "Bldg_Type")
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
-```
-
-###
-
-```{r predictions-9-test}
-#| echo: true
-avg_predictions(mod_linear, by = "Bldg_Type")
-```
-
-###
-
-`by` works with any categorical variable in the data — it is always the same operation: predict for every real house, then average within groups.
-
-### Exercise 10
 
 Now build a **conditional** prediction on purpose, using `datagrid()`: three hypothetical houses at 1,000, 2,000, and 3,000 sq ft, with `Year_Built` held at its typical value automatically. Render.
 
 ```
 predictions(mod_linear,
-  newdata = datagrid(Gr_Liv_Area = c(1000, 2000, 3000)))
+newdata = datagrid(Gr_Liv_Area = c(1000, 2000, 3000)))
 ```
-
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r predictions-10}
+```{r predictions-8}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1017,7 +963,7 @@ question_text(NULL,
 
 ###
 
-```{r predictions-10-test}
+```{r predictions-8-test}
 #| echo: true
 predictions(mod_linear,
   newdata = datagrid(Gr_Liv_Area = c(1000, 2000, 3000)))
@@ -1025,20 +971,126 @@ predictions(mod_linear,
 
 ###
 
-`datagrid()` fixes every variable you don't mention at a representative value (the mean, for numeric variables) and varies only the ones you specify. This is the **conditional** counterpart to Exercise 8's **marginal** `avg_predictions()` — no real house needs to exist at any of these three sizes.
+`datagrid()` fixes every variable you don't mention at a representative value (the mean, for numeric variables) and varies only the ones you specify. This is the **conditional** counterpart to Exercise 7's **marginal** `avg_predictions()` — no real house needs to exist at any of these three sizes.
 
-### Exercise 11
+### Exercise 9
 
-Ask your AI assistant to write `ggplot`/`plot_predictions()` code that visualizes how predicted sale price varies with `Gr_Liv_Area`, using `condition = "Gr_Liv_Area"`, with a title, axis labels, and dollar-formatted y-axis. Paste the code it gives you into a new chunk. Render, and adjust the AI's code if it does not match the pattern below.
+Ask your AI assistant to write code using `plot_predictions(mod_linear, condition = "Gr_Liv_Area", draw = FALSE)` piped into `ggplot()` — not `plot_predictions()` alone — to visualize how predicted sale price varies with `Gr_Liv_Area`, with a shaded confidence band, a title, axis labels, and a dollar-formatted y-axis. Paste the code it gives you into a new chunk. Render, and adjust the AI's code if it does not match the pattern below.
 
 ```
-plot_predictions(mod_linear, condition = "Gr_Liv_Area") +
+plot_predictions(mod_linear, condition = "Gr_Liv_Area", draw = FALSE) |>
+ggplot(aes(x = Gr_Liv_Area, y = estimate)) +
+geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2) +
+geom_line() +
+labs(
+title = "Predicted sale price increases with living area",
+x = "Above-ground living area (sq ft)",
+y = "Predicted sale price ($)"
+) +
+scale_y_continuous(labels = scales::dollar)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-9-test}
+#| echo: true
+plot_predictions(mod_linear, condition = "Gr_Liv_Area", draw = FALSE) |>
+  ggplot(aes(x = Gr_Liv_Area, y = estimate)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.2) +
+  geom_line() +
   labs(
     title = "Predicted sale price increases with living area",
     x = "Above-ground living area (sq ft)",
     y = "Predicted sale price ($)"
   ) +
   scale_y_continuous(labels = scales::dollar)
+```
+
+###
+
+`draw = FALSE` is the key piece here: instead of handing back a finished plot for you to edit, `plot_predictions()` hands back the raw numbers behind it — one row per value of `Gr_Liv_Area`, with `estimate`, `conf.low`, and `conf.high` columns. Building the plot yourself from that data, rather than patching a plot someone else already built, is the more common way this function actually gets used — it gives you full control over what the chart looks like. The shaded band comes from `conf.low`/`conf.high` and is wider at the extremes, since fewer houses have very small or very large living areas.
+
+### Exercise 10
+
+Ask your AI assistant to extend that plot to show predicted sale price across both `Gr_Liv_Area` and `Year_Built`, using `condition = c("Gr_Liv_Area", "Year_Built")` with `draw = FALSE`, piped into `ggplot()` — color the lines by `Year_Built`. Paste its code into a new chunk. Render, and adjust if needed.
+
+```
+plot_predictions(mod_linear,
+condition = c("Gr_Liv_Area", "Year_Built"), draw = FALSE) |>
+ggplot(aes(x = Gr_Liv_Area, y = estimate, color = factor(Year_Built))) +
+geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = factor(Year_Built)),
+alpha = 0.15, color = NA) +
+geom_line() +
+labs(
+title = "Predicted sale price by size and age",
+x = "Above-ground living area (sq ft)",
+y = "Predicted sale price ($)",
+color = "Year Built",
+fill = "Year Built"
+) +
+scale_y_continuous(labels = scales::dollar)
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r predictions-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r predictions-10-test}
+#| echo: true
+plot_predictions(mod_linear,
+  condition = c("Gr_Liv_Area", "Year_Built"), draw = FALSE) |>
+  ggplot(aes(x = Gr_Liv_Area, y = estimate, color = factor(Year_Built))) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = factor(Year_Built)),
+    alpha = 0.15, color = NA) +
+  geom_line() +
+  labs(
+    title = "Predicted sale price by size and age",
+    x = "Above-ground living area (sq ft)",
+    y = "Predicted sale price ($)",
+    color = "Year Built",
+    fill = "Year Built"
+  ) +
+  scale_y_continuous(labels = scales::dollar)
+```
+
+###
+
+When two variables are passed to `condition`, `plot_predictions()` varies the first continuously and holds the second at representative values (usually the 25th, 50th, and 75th percentiles) — that's what `factor(Year_Built)` groups into separate colored lines. Newer houses command higher prices at every size — the lines are parallel because the model has no interaction term.
+
+### Exercise 11
+
+Now plot a **marginal** quantity instead of a conditional one: use `plot_predictions()` with `by = "Bldg_Type"` and `draw = FALSE`, piped into `ggplot()`, to visualize average predicted sale price per building type. Render.
+
+```
+plot_predictions(mod_linear, by = "Bldg_Type", draw = FALSE) |>
+ggplot(aes(x = Bldg_Type, y = estimate)) +
+geom_pointrange(aes(ymin = conf.low, ymax = conf.high)) +
+labs(
+title = "Average predicted sale price by building type",
+x = NULL,
+y = "Average predicted sale price ($)"
+) +
+scale_y_continuous(labels = scales::dollar)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -1056,108 +1108,22 @@ question_text(NULL,
 
 ```{r predictions-11-test}
 #| echo: true
-plot_predictions(mod_linear, condition = "Gr_Liv_Area") +
+plot_predictions(mod_linear, by = "Bldg_Type", draw = FALSE) |>
+  ggplot(aes(x = Bldg_Type, y = estimate)) +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high)) +
   labs(
-    title = "Predicted sale price increases with living area",
-    x = "Above-ground living area (sq ft)",
-    y = "Predicted sale price ($)"
+    title = "Average predicted sale price by building type",
+    x = NULL,
+    y = "Average predicted sale price ($)"
   ) +
   scale_y_continuous(labels = scales::dollar)
 ```
 
 ###
 
-`condition` fixes `Year_Built` at its mean and shows how the prediction changes as `Gr_Liv_Area` varies — this is a **conditional** plot, the visual version of Exercise 10's `datagrid()`. The shaded band is the 95% confidence interval — wider at the extremes because fewer houses have very small or very large living areas.
+Same function, same package — but passing `by` instead of `condition` switches `plot_predictions()` from showing a hypothetical relationship to showing an average over real houses, grouped by building type. `condition` is a conditional, counterfactual view; `by` is a marginal, descriptive one. With only a few building types, each point and its interval fits on screen without needing to rotate the axis labels.
 
 ### Exercise 12
-
-Ask your AI assistant to extend that plot to show predicted sale price across both `Gr_Liv_Area` and `Year_Built`, using `condition = c("Gr_Liv_Area", "Year_Built")`. Paste its code into a new chunk. Render, and adjust if needed.
-
-```
-plot_predictions(mod_linear,
-  condition = c("Gr_Liv_Area", "Year_Built")) +
-  labs(
-    title = "Predicted sale price by size and age",
-    x = "Above-ground living area (sq ft)",
-    y = "Predicted sale price ($)"
-  ) +
-  scale_y_continuous(labels = scales::dollar)
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-12}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
-```
-
-###
-
-```{r predictions-12-test}
-#| echo: true
-plot_predictions(mod_linear,
-  condition = c("Gr_Liv_Area", "Year_Built")) +
-  labs(
-    title = "Predicted sale price by size and age",
-    x = "Above-ground living area (sq ft)",
-    y = "Predicted sale price ($)"
-  ) +
-  scale_y_continuous(labels = scales::dollar)
-```
-
-###
-
-When two variables are passed to `condition`, **marginaleffects** varies the first continuously and shows the second at representative values (usually the 25th, 50th, and 75th percentiles). Newer houses command higher prices at every size — the lines are parallel because the model has no interaction term.
-
-### Exercise 13
-
-Now plot a **marginal** quantity instead of a conditional one: use `plot_predictions()` with `by = "Neighborhood"` to visualize average predicted sale price per neighborhood. Render.
-
-```
-plot_predictions(mod_linear, by = "Neighborhood") +
-  labs(
-    title = "Average predicted sale price by neighborhood",
-    x = NULL,
-    y = "Average predicted sale price ($)"
-  ) +
-  scale_y_continuous(labels = scales::dollar) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-```
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r predictions-13}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
-```
-
-###
-
-```{r predictions-13-test}
-#| echo: true
-plot_predictions(mod_linear, by = "Neighborhood") +
-  labs(
-    title = "Average predicted sale price by neighborhood",
-    x = NULL,
-    y = "Average predicted sale price ($)"
-  ) +
-  scale_y_continuous(labels = scales::dollar) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-```
-
-###
-
-Same function, same package — but passing `by` instead of `condition` switches `plot_predictions()` from showing a hypothetical relationship to showing an average over real houses, grouped by neighborhood. `condition` (Exercise 11) is a conditional, counterfactual view; `by` (Exercise 13) is a marginal, descriptive one.
-
-### Exercise 14
 
 Commit and push, with a message like "Add marginaleffects predictions and plots." In the bash Terminal, run:
 
@@ -1167,7 +1133,7 @@ git log -1
 
 CP/CR.
 
-```{r predictions-14}
+```{r predictions-12}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -1260,7 +1226,7 @@ format:
 
 ### Exercise 2
 
-Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, the final `mod_linear` model chunk, its equation, and the final three visualizations (Predictions Exercises 11, 12, and 13). Remove all intermediate output. Render.
+Create `about.qmd` with a YAML title of `"About"`, your name, and today's date. Also clean up `analysis.qmd` so it contains only: a setup chunk, the final `mod_linear` model chunk, its equation, and the final three visualizations from the Marginal Effects plotting exercises. Remove all intermediate output. Render.
 
 In the R Terminal, run `show_file("about.qmd")`, then `show_file("analysis.qmd")`. CP/CR both.
 
@@ -1285,7 +1251,7 @@ Var Kurapati, July 2026.
 
 ###
 
-Your `analysis.qmd` should now have exactly five code chunks — setup, the `mod_linear` model, and the three `plot_predictions()` calls from Predictions Exercises 11–13 — plus one math block (the equation, which is prose, not a chunk).
+Your `analysis.qmd` should now have exactly five code chunks — setup, the `mod_linear` model, and the three `plot_predictions()` calls from the plotting exercises — plus one math block (the equation, which is prose, not a chunk).
 
 ###
 
