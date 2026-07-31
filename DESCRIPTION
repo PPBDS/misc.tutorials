@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Miscellaneous Tutorials
-Version: 0.0.1.9006
+Version: 0.0.1.9007
 Authors@R:
     c(
     person(given = "David",
@@ -24,12 +24,10 @@ Imports:
     tutorial.helpers
 Suggests:
     arrow,
-    babynames,
     DBI,
     dbplyr,
     duckdb,
     ggdist,
-    ggrepel,
     ggridges,
     httr2,
     jsonlite,
@@ -38,7 +36,6 @@ Suggests:
     leaflet,
     learnr,
     LiblineaR,
-    lubridate,
     maps,
      marginaleffects,
     MASS,
@@ -47,22 +44,20 @@ Suggests:
     ordered,
     ordinal,
     plotly,
+    MASS,
+    ordered,
     purrr,
     quarto,
     readr,
-    Rdatasets,
     readxl,
+    rnaturalearth,
+    rnaturalearthdata,
     rvest,
     scales,
     sf,
-    Stat2Data,
     testthat,
     tidycensus,
     tidymodels,
     tidyr,
     tidyverse,
-    viridis,
-    rnaturalearth,
-    rnaturalearthdata
-
-    
+    viridis

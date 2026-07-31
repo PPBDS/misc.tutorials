@@ -1,5 +1,5 @@
 ---
-title: First Tutorial for R4DS
+title: R4DS 1
 author: David Kane
 tutorial:
   id: r4ds-1
@@ -256,7 +256,13 @@ The HTML is the artifact you publish. Hiding code and package messages keeps the
 
 ### Exercise 3
 
-Create a data directory at the top level of the `r4ds-1` repo. In the bash Terminal, run `ls`.
+From the R Terminal, run these three commands:
+
+`getwd()`  
+`dir.create("data")`  
+`list.files()`  
+
+This will create a `data` directory in your project. This is a good place to store any data that you are working with.
 
 CP/CR.
 
@@ -266,18 +272,23 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 7)
 ```
 
 ###
 
 ```
-analysis.html  analysis.qmd  analysis_files  data
+> getwd()
+[1] "/workspaces/r4ds-1"
+> dir.create("data")
+> list.files()
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+>
 ```
 
 ###
 
-The `data` directory is where your project stores downloaded data. You don't need to memorize the shell commands that create and manage these directories — your AI agent can handle that for you.
+The `data` directory is where your project stores downloaded data. You don't need to memorize these commands — your AI agent can handle directory chores like this — but it is worth seeing exactly what they do.
 
 ## Billboard Hot 100
 ###
@@ -738,7 +749,7 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 Download `music.csv` from this URL and save it as `data/music.csv`:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-1/data/music.csv
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv
 ```
 
 In a bash Terminal, run:

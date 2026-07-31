@@ -1,5 +1,5 @@
 ---
-title: Fifth Tutorial for R4DS
+title: R4DS 5
 author: David Kane
 tutorial:
   id: r4ds-5
@@ -178,7 +178,15 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 
 ### Exercise 3
 
-Create a data directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
+From the R Terminal, run these three commands:
+
+`getwd()`  
+`dir.create("data")`  
+`list.files()`  
+
+This will create a `data` directory in your project. This is a good place to store any data that you are working with.
+
+We will soon stop giving you commands like these and just have AI do it.
 
 CP/CR.
 
@@ -188,13 +196,18 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 5)
+	rows = 7)
 ```
 
 ###
 
 ```
-analysis.html  analysis.qmd  analysis_files  data
+> getwd()
+[1] "/workspaces/r4ds-5"
+> dir.create("data")
+> list.files()
+[1] "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+>
 ```
 
 ###
@@ -219,7 +232,7 @@ We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) In
 Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/wildfires.geojson
 ```
 
 In a bash Terminal, run:
@@ -946,7 +959,7 @@ Download the dataset into your `data/` directory. The file is `imdb_snapshots.rd
 the URL is:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/imdb_snapshots.rds
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/imdb_snapshots.rds
 ```
 
 In a bash Terminal, run:

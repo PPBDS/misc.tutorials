@@ -42,6 +42,9 @@ mod_linear <- linear_reg() |> set_engine("lm") |>
 
 mod_logistic <- logistic_reg() |> set_engine("glm") |>
   fit(Survived ~ Age * SexCode * PClass, data = titanic)
+ 
+# DK: I don't think we need the below.
+# predictions(mod, type = "prob")
 
 mod_multinomial <- multinom_reg() |> set_engine("nnet") |>
   fit(PClass ~ Age + SexCode, data = titanic)
