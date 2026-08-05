@@ -39,9 +39,9 @@ mod_linear <- linear_reg() |>
 
 Between 2006 and 2010, 2,930 houses were sold in Ames, Iowa. The `ames` dataset records the sale price of each house along with 73 features — everything from square footage to neighborhood to the number of fireplaces. 
 
-This tutorial asks a simple question: **can we predict a house's sale price from its size and age?**
+This tutorial asks a simple question: **Can we predict a house's sale price from its size and age?**
 
-We use two packages to answer it. **[tidymodels](https://www.tidymodels.org/)** fits the model. **[marginaleffects](https://marginaleffects.com/)** interprets it — turning raw coefficients into predicted dollar amounts that are immediately understandable.
+We use two packages to answer it. **[tidymodels](https://www.tidymodels.org/)** fits the model. **[marginaleffects](https://marginaleffects.com/)** uses it to answer our question.
 
 ### Exercise 1
 
@@ -77,6 +77,8 @@ question_text(NULL,
 ```
 analysis_files
 ```
+
+Every dataset comes from somewhere — the `ames` data is a record of real houses that real people bought and sold, not a random sample from nowhere.
 
 ###
 
