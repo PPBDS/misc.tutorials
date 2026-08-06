@@ -20,15 +20,11 @@ library(knitr)
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
 options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
-
-data(penguins)
 
 build_equation <- function(fit, level, reference) {
   coefs <- tidy(fit) |> filter(y.level == level)
@@ -58,14 +54,12 @@ mod_multinomial <- multinom_reg() |>
 The `penguins` dataset records physical measurements for 344 penguins on three islands in Antarctica — bill length, bill depth, flipper length, body mass, sex, and species (Adelie, Chinstrap, or Gentoo).
 
 This tutorial asks a simple question: **can we predict a penguin's species from how it's built?**
-###
 
 We use two packages to answer it. **[tidymodels](https://www.tidymodels.org/)** fits the model. **[marginaleffects](https://marginaleffects.com/)** interprets it — turning raw coefficients into predicted probabilities that are immediately understandable.
-###
 
-Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**. A marginal prediction runs the model on every *real* penguin in the dataset and averages the results (the `by` argument). A conditional prediction builds one or more *hypothetical* penguins, holding some variables fixed and varying others (the `condition` argument).
+Interpreting a model with **marginaleffects** almost always comes down to one distinction: **marginal** vs. **conditional**. A marginal prediction runs the model on every *real* penguin in the dataset and averages the results (the `by` argument). A conditional prediction builds one or more *hypothetical* penguins, holding some variables fixed and varying others (the `condition` argument). So every time you see `by`, you are averaging over real penguins, and every time you see `condition`, you are looking at a hypothetical.
 
-So every time you see `by`, you are averaging over real penguins, and every time you see `condition`, you are looking at a hypothetical.
+Every dataset is a shadow cast by some real process — a **data generating mechanism**, or DGM — never the thing itself. Two moves lie ahead: *Courage*, proposing a structure and fitting it to real data (Tidymodels), and *Temperance*, using that fitted machine — with humility — to answer the question we started with (Marginal Effects).
 
 ### Exercise 1
 
@@ -104,21 +98,17 @@ analysis_files
 
 ###
 
-The rendered HTML creates a support directory called `analysis_files/` that is pure junk as far as your repo is concerned. `.gitignore` keeps it out so it doesn't clutter your commit history.
+Every dataset comes from somewhere — the `penguins` measurements were taken by real researchers, on real islands, on specific days, not sampled from nowhere.
 
 ### Exercise 2
 
-In a new code chunk in `analysis.qmd`, load the libraries and the `penguins` dataset. Add `#| message: false`. Render.
+In a new code chunk in `analysis.qmd`, load the libraries you'll need. Add `#| message: false`. Render.
 
 ```
 #| message: false
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
-
-data(penguins)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -138,22 +128,24 @@ question_text(NULL,
 library(tidyverse)
 library(tidymodels)
 library(marginaleffects)
-library(modeldata)
-library(broom)
-
-data(penguins)
 </code></pre>
 
 ###
 
-`data(penguins)` loads the dataset from the **modeldata** package — no file download needed. It has 344 rows and 7 columns.
+Only load what you actually need. `library(tidymodels)` already attaches `broom`, `modeldata`, and several other packages as part of its core bundle — a separate `library(modeldata)` or `library(broom)` would just be redundant. `library(marginaleffects)` is separate because tidymodels doesn't include it. `library(tidyverse)` covers plotting and data wrangling.
+
+###
+
+Because `modeldata` is now attached (via `tidymodels`), the `penguins` dataset is already available — no `data(penguins)` call needed. Try typing `penguins` directly in a new chunk and you'll see the same 344-row, 7-column data frame.
 
 ### Exercise 3
 
-In a new code chunk, print the first 10 rows of `penguins`. Render.
+In a new code chunk, print the first 10 rows of `penguins`, narrowed to the three columns this tutorial uses. Render.
 
 ```
-head(penguins, 10)
+penguins |>
+  select(species, bill_length_mm, flipper_length_mm) |>
+  head(10)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -171,41 +163,32 @@ question_text(NULL,
 
 ```{r introduction-3-test}
 #| echo: true
-head(penguins, 10)
+penguins |>
+  select(species, bill_length_mm, flipper_length_mm) |>
+  head(10)
 ```
 
 ###
 
-`species` is the outcome we want to predict — a genuine three-level category, not a number or an order. `bill_length_mm` and `flipper_length_mm` are two of the measurements we will use to predict it. Row 4 above is missing every measurement — some penguins were caught but never fully measured. We will deal with those `NA`s directly in the next section, not silently.
+`species` is the outcome we want to predict — a genuine three-level category, not a number or an order. `bill_length_mm` and `flipper_length_mm` are the two measurements we will use to predict it. Row 4 above is missing both — some penguins were caught but never fully measured.
 
 ### Exercise 4
 
-Update your chunk to show a scatterplot of `flipper_length_mm` vs `bill_length_mm`, colored by `species`. Render and inspect the relationship.
-
-```
-penguins |>
-  ggplot(aes(x = bill_length_mm, y = flipper_length_mm, color = species)) +
-  geom_point(alpha = 0.6) +
-  labs(
-    title = "Flipper length vs bill length by species",
-    x = "Bill length (mm)",
-    y = "Flipper length (mm)",
-    color = "Species"
-  )
-```
+Ask AI to create a scatterplot of `flipper_length_mm` vs. `bill_length_mm`, colored by `species`, directly in your file. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
 ```{r introduction-4}
 question_text(NULL,
   answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
+  allow_retry = FALSE,
   incorrect = NULL,
   rows = 10)
 ```
 
 ###
+
+Here's our version, for comparison — yours doesn't need to match exactly, just the same idea:
 
 ```{r introduction-4-test}
 #| echo: true
@@ -213,7 +196,8 @@ penguins |>
   ggplot(aes(x = bill_length_mm, y = flipper_length_mm, color = species)) +
   geom_point(alpha = 0.6) +
   labs(
-    title = "Flipper length vs bill length by species",
+    title = "Flipper Length vs. Bill Length",
+    subtitle = "Colored by species",
     x = "Bill length (mm)",
     y = "Flipper length (mm)",
     color = "Species"
@@ -255,24 +239,22 @@ Date:   Wed Jul 29 2026
 
 ###
 
-Committing before any model fitting creates a clean baseline you can always return to.
+Before we fit anything, it's worth asking where this data came from. The `penguins` measurements are a record of specific birds caught by specific researchers on three specific islands — not a random sample of every penguin that has ever existed. Whatever `mod_multinomial` learns describes *these* islands, not penguins in general. Keep that question — how did this data come to be? — in mind as we build a model in the next section.
 
 ## Tidymodels
 ###
 
-Every dataset is a shadow of some real-world process — a **data generating mechanism**, or DGM. In this section we propose a structure for that mechanism (multinomial regression), pick a method for estimating it (`set_engine("nnet")`), and fit it to the penguins data. Structure → Method → Fitting.
+Every dataset is produced by some real-world process — a **data generating mechanism**, or DGM. Building one means committing to a structure, choosing a method for estimating it, and fitting it to data: Structure → Method → Fitting. `species` is a genuine three-level category — not a number, not an order — so the structure here is `multinom_reg()`.
 
 There is no single "correct" DGM for a given question. Which right-hand-side variables to include is a judgment call — one we will make, and remake, several times in this section.
 
 ### Exercise 1
 
-Two of the columns you will use to fit a model — `bill_length_mm` and `flipper_length_mm` — are missing for a few penguins. In a new code chunk, filter `penguins` to only the rows where both are present, overwriting `penguins`, and print `nrow(penguins)`. Render.
+`bill_length_mm` and `flipper_length_mm` — two of the measurements you'll use to fit a model — are missing for a few penguins. In a new code chunk, show just the rows where either is missing. Render.
 
 ```
-penguins <- penguins |>
-  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
-
-nrow(penguins)
+penguins |>
+  filter(is.na(bill_length_mm) | is.na(flipper_length_mm))
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -290,24 +272,22 @@ question_text(NULL,
 
 ```{r tidymodels-1-test}
 #| echo: true
-penguins <- penguins |>
-  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
-
-nrow(penguins)
+penguins |>
+  filter(is.na(bill_length_mm) | is.na(flipper_length_mm))
 ```
 
 ###
 
-344 penguins in, 342 out. Two rows had missing bill or flipper measurements and are now gone — filtering here makes the loss visible, instead of letting `fit()` drop them silently later.
+Two penguins are missing every physical measurement — caught, but never fully measured. A dataset almost never arrives clean; part of proposing a DGM is deciding what to do with the parts that don't fit it.
 
 ### Exercise 2
 
-In a new code chunk, specify a multinomial regression model with `multinom_reg()`, set its engine to `"nnet"` with `set_engine()`, and fit it with just one predictor: `species ~ bill_length_mm`. Print the result. Render.
+Update your chunk: swap `is.na(bill_length_mm) | is.na(flipper_length_mm)` for `!is.na(bill_length_mm), !is.na(flipper_length_mm)` — two conditions instead of one, joined by a comma instead of `|` — then pipe to `head(10)` instead. Render.
 
 ```
-multinom_reg() |>
-  set_engine("nnet") |>
-  fit(species ~ bill_length_mm, data = penguins)
+penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm)) |>
+  head(10)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -318,32 +298,31 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 8)
+  rows = 10)
 ```
 
 ###
 
 ```{r tidymodels-2-test}
 #| echo: true
-multinom_reg() |>
-  set_engine("nnet") |>
-  fit(species ~ bill_length_mm, data = penguins)
+penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm)) |>
+  head(10)
 ```
 
 ###
 
-This is the simplest possible DGM for this question: species as a function of one measurement. `multinom_reg()` proposes the structure, `set_engine("nnet")` picks the method, and `fit()` is where the mechanism meets real data.
+Two conditions separated by a comma inside `filter()` both have to hold, the same as writing `&` between them. Every row here now has both measurements.
 
 ### Exercise 3
 
-Assign that model to `mod_uni`. Print `tidy(mod_uni)` instead of the raw model object. Render.
+Assign that filtered result to a new object, `penguins_clean` — don't overwrite `penguins` itself. Print `penguins_clean`. Render.
 
 ```
-mod_uni <- multinom_reg() |>
-  set_engine("nnet") |>
-  fit(species ~ bill_length_mm, data = penguins)
+penguins_clean <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
 
-tidy(mod_uni)
+penguins_clean
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -361,39 +340,26 @@ question_text(NULL,
 
 ```{r tidymodels-3-test}
 #| echo: true
-mod_uni <- multinom_reg() |>
-  set_engine("nnet") |>
-  fit(species ~ bill_length_mm, data = penguins)
+penguins_clean <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
 
-tidy(mod_uni)
+penguins_clean
 ```
 
 ###
 
-`species` has three levels, so `multinom_reg()` fits two sets of coefficients — one for Chinstrap vs. the reference level, one for Gentoo vs. the reference level — instead of the single row `linear_reg()` would give you. The `y.level` column names which comparison each row belongs to; R picked `Adelie` (alphabetically first) as the reference.
+`penguins` still holds all 344 original rows — nothing about it changed. `penguins_clean` is a new, separate object: using a new name here, rather than reassigning `penguins <- ...`, means the original is still around if you need it, and no one downstream can be surprised that `penguins` quietly lost two rows under the same name.
 
 ### Exercise 4
 
-Once you have a fitted model, always show its LaTeX equation — that IS the fitted DGM. Because `species` has three levels, `multinom_reg()` fits K − 1 = 2 equations, not one, so you need both. Add `#| results: asis` to the top of your chunk, then add this function above your model code and use it to print both equations for `mod_uni`. Render.
+In the same chunk, print `nrow(penguins)` and `nrow(penguins_clean)` together, so the row loss is explicit. Render.
 
 ```
-#| results: asis
-build_equation <- function(fit, level, reference) {
-  coefs <- tidy(fit) |> filter(y.level == level)
-  intercept <- round(coefs$estimate[coefs$term == "(Intercept)"], 2)
-  slopes <- coefs |> filter(term != "(Intercept)")
-  terms <- paste0(
-    ifelse(slopes$estimate >= 0, "+ ", "- "),
-    round(abs(slopes$estimate), 2), " \\times \\text{", slopes$term, "}",
-    collapse = " "
-  )
-  paste0("$$\\log\\left(\\frac{P(\\text{", level, "})}{P(\\text{", reference, "})}\\right) = ",
-         intercept, " ", terms, "$$")
-}
+penguins_clean <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
 
-for (lvl in unique(tidy(mod_uni)$y.level)) {
-  cat(build_equation(mod_uni, lvl, "Adelie"), "\n\n")
-}
+nrow(penguins)
+nrow(penguins_clean)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -404,36 +370,33 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 20)
+  rows = 8)
 ```
 
 ###
 
 ```{r tidymodels-4-test}
 #| echo: true
-#| results: asis
-for (lvl in unique(tidy(mod_uni)$y.level)) {
-  cat(build_equation(mod_uni, lvl, "Adelie"), "\n\n")
-}
+penguins_clean <- penguins |>
+  filter(!is.na(bill_length_mm), !is.na(flipper_length_mm))
+
+nrow(penguins)
+nrow(penguins_clean)
 ```
 
 ###
 
-Two equations, one model: the first tells you how the odds of Chinstrap-vs-Adelie change with bill length, the second how the odds of Gentoo-vs-Adelie change with it. Looping over `unique(tidy(mod_uni)$y.level)` guarantees you always see every comparison the model actually fit, never just one of them.
+344 in, 342 out — two rows gone, and the side-by-side comparison makes that loss impossible to miss. `penguins_clean` is the object every model in this section fits on.
 
 ### Exercise 5
 
-A one-variable DGM ignores flipper length, which your Introduction scatterplot showed separates Gentoo from the other two species. Update your chunk to fit a two-variable model instead, assigning the result to `mod_multinomial`:
+In a new code chunk, specify a multinomial regression model with `multinom_reg()`, set its engine to `"nnet"` with `set_engine()`, and fit it with just one predictor: `species ~ bill_length_mm`, using `penguins_clean`. Print the result. Render.
 
 ```
-mod_multinomial <- multinom_reg() |>
+multinom_reg() |>
   set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
-
-mod_multinomial
+  fit(species ~ bill_length_mm, data = penguins_clean)
 ```
-
-Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -450,20 +413,26 @@ question_text(NULL,
 
 ```{r tidymodels-5-test}
 #| echo: true
-mod_multinomial <- multinom_reg() |>
+multinom_reg() |>
   set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
-
-mod_multinomial
+  fit(species ~ bill_length_mm, data = penguins_clean)
 ```
 
 ###
 
-`mod_multinomial` is now our working DGM — a machine that takes `bill_length_mm` and `flipper_length_mm` as inputs and returns predicted species probabilities as output. Adding `flipper_length_mm` changed the `bill_length_mm` coefficients too, since the two measurements are correlated.
+`multinom_reg()` proposes the structure — three unordered categories, estimated as two sets of coefficients (one per non-reference level) rather than one. `set_engine("nnet")` picks the method; `fit()` is where it meets real data. This chunk is now your **working chunk** — you'll keep editing this same formula over the next few exercises.
 
 ### Exercise 6
 
-Replace the printed `mod_multinomial` with `tidy(mod_multinomial)` to see the coefficients as a tidy tibble. Render.
+Update your working chunk to pipe the fitted model into `tidy(conf.int = TRUE)`, then `select(y.level, term, estimate, conf.low, conf.high)`. Render.
+
+```
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -473,32 +442,50 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 10)
 ```
 
 ###
 
 ```{r tidymodels-6-test}
 #| echo: true
-tidy(mod_multinomial)
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-Still six rows — two levels times three terms (intercept, `bill_length_mm`, `flipper_length_mm`) — but now every coefficient reflects both measurements at once.
+Two rows now, each labeled by `y.level` — Chinstrap and Gentoo, both compared against Adelie, the reference level. No p-value, no test statistic: we keep a variable if its interval excludes zero for every comparison, and both do here.
 
 ### Exercise 7
 
-Show both equations for `mod_multinomial`, the same way you did for `mod_uni`. `build_equation()` is already defined, so you only need to loop and print. Add `#| results: asis` to the top of your chunk.
+Once you have a fitted model, always look at its equation — that IS the fitted DGM. Because `species` has three levels, this model has two equations, not one: one per non-reference level. Add this function above your working chunk, then use it to print both equations for the current model. Add `#| results: asis` to the top of the chunk.
 
 ```
 #| results: asis
-for (lvl in unique(tidy(mod_multinomial)$y.level)) {
-  cat(build_equation(mod_multinomial, lvl, "Adelie"), "\n\n")
+build_equation <- function(fit, level, reference) {
+  coefs <- tidy(fit) |> filter(y.level == level)
+  intercept <- round(coefs$estimate[coefs$term == "(Intercept)"], 2)
+  slopes <- coefs |> filter(term != "(Intercept)")
+  terms <- paste0(
+    ifelse(slopes$estimate >= 0, "+ ", "- "),
+    round(abs(slopes$estimate), 2), " \\times \\text{", slopes$term, "}",
+    collapse = " "
+  )
+  paste0("$$\\log\\left(\\frac{P(\\text{", level, "})}{P(\\text{", reference, "})}\\right) = ",
+         intercept, " ", terms, "$$")
 }
-```
 
-Render.
+mod <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins_clean)
+
+cat(build_equation(mod, "Chinstrap", "Adelie"))
+cat(build_equation(mod, "Gentoo", "Adelie"))
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -508,7 +495,7 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 15)
+  rows = 20)
 ```
 
 ###
@@ -516,25 +503,28 @@ question_text(NULL,
 ```{r tidymodels-7-test}
 #| echo: true
 #| results: asis
-for (lvl in unique(tidy(mod_multinomial)$y.level)) {
-  cat(build_equation(mod_multinomial, lvl, "Adelie"), "\n\n")
-}
+mod <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm, data = penguins_clean)
+
+cat(build_equation(mod, "Chinstrap", "Adelie"))
+cat(build_equation(mod, "Gentoo", "Adelie"))
 ```
 
 ###
 
-`build_equation()` reads straight from `tidy()` output, so these numbers are identical to the coefficient table you just printed — just written as math instead of a tibble. Because the function was already defined earlier in your document, you never had to write it twice.
+Two equations, one model: the first is the odds of Chinstrap vs. Adelie, the second Gentoo vs. Adelie, both as a function of bill length. That's what "one equation per non-reference level" means in practice — three species, two comparisons, always against the same reference.
 
 ### Exercise 8
 
-The two-variable DGM still ignores something obviously relevant to penguin biology: which island a penguin was caught on. In a new code chunk, fit a third model, `mod_full`, adding `island` to the formula: `species ~ bill_length_mm + flipper_length_mm + island`. Print `tidy(mod_full)`. Render.
+A one-variable DGM ignores flipper length, which your Introduction scatterplot showed separates Gentoo from the other two species. Edit the formula in your working chunk to add it, dropping the equation lines — back to `tidy(conf.int = TRUE)` and `select()`. Render.
 
 ```
-mod_full <- multinom_reg() |>
+multinom_reg() |>
   set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins)
-
-tidy(mod_full)
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
 ```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
@@ -552,20 +542,28 @@ question_text(NULL,
 
 ```{r tidymodels-8-test}
 #| echo: true
-mod_full <- multinom_reg() |>
+multinom_reg() |>
   set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins)
-
-tidy(mod_full)
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-`island` is categorical, so `tidy()` now shows one extra coefficient per level (`islandDream`, `islandTorgersen`) for each species comparison — four more rows than `mod_multinomial` had. R picked `Biscoe` (alphabetically first) as the reference island; every island coefficient is a comparison against that baseline, not an absolute effect.
+Every interval excludes zero now, for both comparisons — `flipper_length_mm` earns its place. That's the concrete, checkable answer to whether a new variable actually helped: not a guess, just whether the intervals still exclude zero once it's in. Adding it changed the `bill_length_mm` coefficients too, since the two measurements are correlated.
 
 ### Exercise 9
 
-Look at the standard errors in your `tidy(mod_full)` output — some look suspiciously tiny. Update your chunk to print `tidy(mod_full, conf.int = TRUE)` instead, to see the confidence intervals directly. Render.
+The two-variable DGM still ignores something obviously relevant to penguin biology: which island a penguin was caught on. Edit the formula once more to add `island`. Render.
+
+```
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -575,23 +573,35 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 10)
+  rows = 12)
 ```
 
 ###
 
 ```{r tidymodels-9-test}
 #| echo: true
-tidy(mod_full, conf.int = TRUE)
+multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm + island, data = penguins_clean) |>
+  tidy(conf.int = TRUE) |>
+  select(y.level, term, estimate, conf.low, conf.high)
 ```
 
 ###
 
-Look at `islandTorgersen` for the Chinstrap comparison: a coefficient of about −4.92 with a standard error near 0.0000002 — essentially zero uncertainty, and a confidence interval collapsed to a single point. That is not confidence, it is **quasi-separation**: Chinstrap penguins only ever appear on Dream island in this data, so the model can push the Torgersen and Biscoe coefficients to extreme values with no real uncertainty. That is not a stable, generalizable DGM — we discard `mod_full` and keep `mod_multinomial`.
+Look at `islandTorgersen` for the Chinstrap comparison: an interval collapsed to a single point, essentially zero uncertainty. That's **quasi-separation** — Chinstrap penguins only ever appear on Dream island in this data, so the model can push that coefficient to an extreme with no real uncertainty. There's a practical problem hiding in the statistics, too: if a real penguin's island were ever unknown, this model couldn't be used on it at all, while the two-variable version needs nothing an unlabeled bird might be missing. We discard this model and keep the two-variable one.
 
 ### Exercise 10
 
-We now have three candidate DGMs: `mod_uni`, `mod_multinomial`, and `mod_full`. For the rest of this tutorial we will stick with the two-variable `mod_multinomial`. Clean up your chunks — remove the `mod_uni` and `mod_full` code entirely, keeping only the `mod_multinomial` definition (no `tidy()` call). Render.
+We tried three candidate DGMs in this section, and none of them got a permanent name until now. Edit your working chunk one last time: go back to `species ~ bill_length_mm + flipper_length_mm`, remove the `tidy()`/`select()` steps, and assign the result to `mod_multinomial`. Print it. Render.
+
+```
+mod_multinomial <- multinom_reg() |>
+  set_engine("nnet") |>
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins_clean)
+
+mod_multinomial
+```
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
@@ -601,26 +611,33 @@ question_text(NULL,
   allow_retry = TRUE,
   try_again_button = "Edit Answer",
   incorrect = NULL,
-  rows = 6)
+  rows = 8)
 ```
 
 ###
 
-```
+```{r tidymodels-10-test}
+#| echo: true
 mod_multinomial <- multinom_reg() |>
   set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
+  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins_clean)
+
+mod_multinomial
 ```
 
 ###
 
-This is a recurring fact of data science: there are always more DGMs you *could* fit than you actually will, and there are many possible DGMs for the same question. We never know for certain which one is true — we just use our best judgment, often guided by which coefficients' confidence intervals exclude zero, as the degenerate `islandTorgersen` interval above just showed.
+From here on, you never touch this formula again. `mod_multinomial` is the fixed, saved model every later exercise in this tutorial addresses — the two you discarded never got a permanent name at all, which was deliberate: there are always more DGMs you *could* fit than you actually will, and we never know for certain which one is true. We just use our best judgment, often guided by which coefficients' confidence intervals exclude zero, exactly as the last three exercises did.
 
 ### Exercise 11
 
-Add `#| cache: true` to the top of your `mod_multinomial` chunk. Render.
+Add `#| cache: true` to the top of your `mod_multinomial` chunk, and add `*_cache/` to your `.gitignore`. In the R Terminal, run:
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+```
+show_file(".gitignore")
+```
+
+CP/CR.
 
 ```{r tidymodels-11}
 question_text(NULL,
@@ -633,37 +650,6 @@ question_text(NULL,
 
 ###
 
-<pre><code>#| cache: true
-mod_multinomial <- multinom_reg() |>
-  set_engine("nnet") |>
-  fit(species ~ bill_length_mm + flipper_length_mm, data = penguins)
-</code></pre>
-
-###
-
-Caching `mod_multinomial` means R will not refit the model on every render. The fitted model is saved to disk and reloaded instead.
-
-### Exercise 12
-
-Add `*_cache/` to your `.gitignore`. In the R Terminal, run:
-
-```
-show_file(".gitignore")
-```
-
-CP/CR.
-
-```{r tidymodels-12}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
-```
-
-###
-
 ```
 analysis_files
 *_cache/
@@ -671,9 +657,75 @@ analysis_files
 
 ###
 
-The cache directory is regenerated by every render — committing it would add noise to your repo history.
+Fitting `mod_multinomial` runs over all 342 rows of `penguins_clean`, and caching means it only reruns when the code producing it actually changes — not every time you edit unrelated text. The cache directory itself is regenerated every render, so it's excluded from git rather than committed.
+
+### Exercise 12
+
+Show both equations for `mod_multinomial`, the same way you did earlier for the one-variable model. This time, loop over `unique(tidy(mod_multinomial)$y.level)` instead of naming each level by hand — a pattern that keeps working no matter how many categories a future outcome has. Add `#| results: asis` to a new chunk.
+
+```
+#| results: asis
+for (lvl in unique(tidy(mod_multinomial)$y.level)) {
+  cat(build_equation(mod_multinomial, lvl, "Adelie"))
+}
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-12}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+```{r tidymodels-12-test}
+#| echo: true
+#| results: asis
+for (lvl in unique(tidy(mod_multinomial)$y.level)) {
+  cat(build_equation(mod_multinomial, lvl, "Adelie"))
+}
+```
+
+###
+
+Looping over `unique(tidy(mod_multinomial)$y.level)` guarantees you see every comparison the model actually fit, never just one of them — with three species that's two equations, but the same line of code would print five for a six-category outcome without any changes.
 
 ### Exercise 13
+
+The rest of this tutorial uses the shorter name `penguins` for the cleaned data. In a new code chunk, reassign `penguins <- penguins_clean`. Render.
+
+```
+penguins <- penguins_clean
+```
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r tidymodels-13}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r tidymodels-13-test}
+#| echo: true
+penguins <- penguins_clean
+```
+
+###
+
+`penguins_clean` did its job — keeping the original `penguins` around while you worked out what to filter and confirmed the row count by hand. Reassigning it now, deliberately and by name, is different from silently overwriting `penguins` before you knew what was in it.
+
+### Exercise 14
 
 Commit and push, with a message like "Fit multinomial regression model for penguin species." In the bash Terminal, run:
 
@@ -683,7 +735,7 @@ git log -1
 
 CP/CR.
 
-```{r tidymodels-13}
+```{r tidymodels-14}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -704,7 +756,7 @@ Date:   Wed Jul 29 2026
 
 ###
 
-The fitted DGM is the machine we built so we can answer questions. Everything in the next section — marginal effects — uses this machine.
+`mod_multinomial` is not the answer to anything by itself — it's the machine we built so we can answer questions, which is exactly what the next section does with it.
 
 ## Marginal Effects
 ###
