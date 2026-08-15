@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Miscellaneous Tutorials
-Version: 0.0.1.9008
+Version: 0.1.0
 Authors@R:
     c(
     person(given = "David",
@@ -34,13 +34,7 @@ Suggests:
     Lahman,
     leaflet,
     learnr,
-    LiblineaR,
     maps,
-    marginaleffects,
-    MASS,
-    nnet,
-    ordered,
-    plotly,
     purrr,
     quarto,
     readr,
@@ -52,7 +46,6 @@ Suggests:
     sf,
     testthat,
     tidycensus,
-    tidymodels,
     tidyr,
     tidyverse,
     viridis
