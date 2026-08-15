@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Miscellaneous Tutorials
-Version: 0.0.1.9007
+Version: 0.0.1.9008
 Authors@R:
     c(
     person(given = "David",
@@ -27,7 +27,6 @@ Suggests:
     DBI,
     dbplyr,
     duckdb,
-    ggdist,
     ggridges,
     httr2,
     jsonlite,
@@ -41,7 +40,6 @@ Suggests:
     MASS,
     nnet,
     ordered,
-    ordinal,
     plotly,
     purrr,
     quarto,
