@@ -176,6 +176,8 @@ From the R Terminal, run these three commands:
 
 This will create a `data` directory in your project. This is a good place to store any data that you are working with.
 
+We will soon stop giving you commands like these and just have AI do it.
+
 CP/CR.
 
 ```{r introduction-3}
