@@ -1,14 +1,5 @@
 r4ds-3 tutorial data: Databases (DuckDB)
 
-nameby_year.duckdb
-  Baby name popularity data from the babynames R package (SSA records,
-  1880–2017), exported to DuckDB. Source: US Social Security Administration.
-
-nycflights13.duckdb
-  On-time data for all flights departing NYC airports (JFK, LGA, EWR) in 2013,
-  from the nycflights13 R package. Includes flights, airlines, airports, planes,
-  and weather tables. Source: US Bureau of Transportation Statistics.
-
 seda_2025.duckdb
   District and state reading/math achievement scores from the Stanford Education
   Data Archive (SEDA) Version 2025.1. Three tables:

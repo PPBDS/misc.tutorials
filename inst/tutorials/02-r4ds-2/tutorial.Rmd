@@ -244,7 +244,7 @@ us_births_1994_2014.xlsx
 
 ###
 
-FiveThirtyEight published this data under a CC-BY license alongside their 2016 article. It combines two overlapping government sources: a CDC-derived file covering 1994–1999 and an Social Secutiry Admisintration (SSA) file covering 2000–2014; the combined spreadsheet uses the SSA data for the 2000–2003 overlap to avoid double-counting. Both sources use registration date rather than birth date, which introduces a small lag but does not materially affect the patterns you will analyze.
+FiveThirtyEight published this data under a CC-BY license alongside their 2016 article. It combines two overlapping government sources: a CDC-derived file covering 1994–1999 and a Social Security Administration (SSA) file covering 2000–2014; the combined spreadsheet uses the SSA data for the 2000–2003 overlap to avoid double-counting. Both sources use registration date rather than birth date, which introduces a small lag but does not materially affect the patterns you will analyze.
 
 ### Exercise 2
 
@@ -739,6 +739,12 @@ FiveThirtyEight used a Bayesian smoothing model to achieve a similar decompositi
 
 Commit `analysis.qmd` with the message `"Add births analysis"` and push to GitHub.
 
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
 CP/CR.
 
 ```{r births-17}
@@ -748,6 +754,13 @@ question_text(NULL,
     try_again_button = "Edit Answer",
     incorrect = NULL,
     rows = 5)
+```
+
+###
+
+```
+abc1234 Add births analysis
+...
 ```
 
 ###
@@ -1262,6 +1275,12 @@ The trendline is nearly flat — the correlation between recruit rank and peak c
 
 Commit `analysis.qmd` with the message `"Add basketball recruits analysis"` and push to GitHub.
 
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
 CP/CR.
 
 ```{r basketball-recruits-15}
@@ -1271,6 +1290,14 @@ question_text(NULL,
     try_again_button = "Edit Answer",
     incorrect = NULL,
     rows = 5)
+```
+
+###
+
+```
+abc1234 Add basketball recruits analysis
+def5678 Add births analysis
+...
 ```
 
 ###
@@ -1318,6 +1345,8 @@ quarto publish gh-pages analysis.qmd
 ````
 
 If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+
+Copy/paste the resulting URL below.
 
 ```{r summary-2}
 question_text(NULL,

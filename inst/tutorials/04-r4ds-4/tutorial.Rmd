@@ -823,6 +823,8 @@ question_text(NULL,
     rows = 20)
 ```
 
+###
+
 ```{r crypto-markets-17-test}
 #| echo: true
 prices     <- open_dataset("data/daily_prices.parquet") |>

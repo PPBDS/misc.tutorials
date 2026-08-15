@@ -40,7 +40,6 @@ Suggests:
      marginaleffects,
     MASS,
     nnet,
-    nycflights13,
     ordered,
     ordinal,
     plotly,

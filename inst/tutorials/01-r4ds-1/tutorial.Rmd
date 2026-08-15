@@ -16,13 +16,10 @@ description: 'Introduces AI-assisted data analysis with music data. Students ins
 library(learnr)
 library(tutorial.helpers)
 library(tidyverse)
-library(quarto) # Total hack to shut up renv! Really need to put this in the package help file.
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-options(tutorial.exercise.timelimit = 60,
+options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
 billboard_small <- billboard |>
@@ -161,6 +158,8 @@ music_map_data <- music |>
 ## Introduction
 ###
 
+This tutorial covers key concepts from [Chapter 1: Data Visualization](https://r4ds.hadley.nz/data-visualize.html), [Chapter 3: Data Transformation](https://r4ds.hadley.nz/data-transform.html), [Chapter 5: Data Tidying](https://r4ds.hadley.nz/data-tidy.html), and [Chapter 7: Data Import](https://r4ds.hadley.nz/data-import.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
 You will use AI to analyze two music datasets: Billboard chart rankings and a sample from the Million Song Dataset. Your job is to steer the analysis, render often, inspect the output, and decide what the data can honestly show.
 
 ###
@@ -245,10 +244,9 @@ question_text(NULL,
 
 Your last chunk should look like this:
 
-<pre><code>```{r}
-#| message: false
+<pre><code>#| message: false
 library(tidyverse)
-```</code></pre>
+</code></pre>
 
 ###
 
@@ -436,7 +434,9 @@ question_text(NULL,
 
 ```{r billboard-hot-100-5-test}
 #| echo: true
-ggplot(billboard, aes(x = wk6)) +
+billboard |>
+  filter(!is.na(wk6)) |>
+  ggplot(aes(x = wk6)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "darkseagreen", color = "white") +
   labs(
     title = "Week 6 rankings only include songs still on the chart",
@@ -720,7 +720,13 @@ Commit and push the Billboard work. Use the commit message:
 Add Billboard chart analysis
 ```
 
-CP/CR or write a short note describing how you committed and pushed.
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r billboard-hot-100-14}
 question_text(NULL,
@@ -733,7 +739,10 @@ question_text(NULL,
 
 ###
 
-A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used to commit and push.
+```
+abc1234 Add Billboard chart analysis
+...
+```
 
 ###
 
@@ -1303,7 +1312,7 @@ Older recordings (darker points) concentrate in the US and UK, reflecting where 
 ## Summary
 ###
 
-This tutorial used AI to explore two music datasets. You investigated the structure of Billboard chart data, built ranking-over-time plots, downloaded and inspected a CSV file, discovered missing metadata, compared two genres of your choice, and mapped artist locations with an honest account of the data's limitations.
+This tutorial used AI to explore two music datasets. You investigated the structure of Billboard chart data, built ranking-over-time plots, downloaded and inspected a CSV file, discovered missing metadata, and mapped artist locations — colored by familiarity, hotness, genre, and release year — with an honest account of the data's limitations.
 
 ### Exercise 1
 

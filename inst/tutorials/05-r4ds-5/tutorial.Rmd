@@ -24,7 +24,7 @@ library(purrr)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 60,
+options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 
 centroid_lon <- function(coords) {
@@ -891,7 +891,15 @@ leaflet() |>
 
 ### Exercise 21
 
-Commit `analysis.qmd` with a message like "Add wildfire perimeters analysis" and push to GitHub. Copy/paste the URL to your GitHub repo.
+Commit `analysis.qmd` with the message `"Add wildfire perimeters analysis"` and push to GitHub.
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r wildfire-perimeters-21}
 question_text(NULL,
@@ -899,7 +907,14 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 1)
+	rows = 5)
+```
+
+###
+
+```
+abc1234 Add wildfire perimeters analysis
+...
 ```
 
 ###
@@ -1466,8 +1481,15 @@ now dominated by viewers who have no particular attachment to films from that er
 
 ### Exercise 11
 
-Commit `analysis.qmd` with a message like "Add movie rankings analysis" and push to GitHub.
-Copy/paste the URL to your GitHub repo.
+Commit `analysis.qmd` with the message `"Add movie rankings analysis"` and push to GitHub.
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r movie-rankings-11}
 question_text(NULL,
@@ -1475,7 +1497,15 @@ question_text(NULL,
 	allow_retry = TRUE,
 	try_again_button = "Edit Answer",
 	incorrect = NULL,
-	rows = 1)
+	rows = 5)
+```
+
+###
+
+```
+abc1234 Add movie rankings analysis
+def5678 Add wildfire perimeters analysis
+...
 ```
 
 ###
