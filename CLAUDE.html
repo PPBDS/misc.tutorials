@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,7 +45,7 @@
 <code>echo = FALSE</code>, test-chunk discipline, code-chunk labeling, the setup-chunk skeleton, data handling, and formatting conventions.</li>
 </ul><p><code>misc.tutorials</code> is one of the packages the base guide governs by default — it is <strong>not</strong> an exception (those are <code>vscode.tutorials</code> and <code>tutorial.helpers</code>). In the base guide’s normal-vs-modeling split, every tutorial here is a <strong>normal</strong> tutorial: we mostly don’t care which code does what — we care about the output. The modeling tutorials (code-visible, slow-down-and-look) live in <code>primer.tutorials</code>, tutorial 05 and higher.</p>
 <p><strong>Precedence.</strong> On workflow and shared conventions, the base guide wins. On <code>misc.tutorials</code>-specific content this file wins. Any departure from the base guide must be an <strong>explicit, on-the-record override</strong> stated here — never a silent difference. (The base guide already carries the <em>Choosing topics (misc.tutorials-specific)</em> section; this file does not repeat it.)</p>
-<p><strong>Override — explicit <code>data/</code> scaffold in the r4ds sequence.</strong> The base guide (§4, Introduction step 3) says to state the goal and confirm with bash <code>ls</code>. The five <code>r4ds-*</code> tutorials instead spell out the commands — <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code>, <code>dir.create("data")</code>, <code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files()</a></code> in the R Terminal — because they sit earliest in the sequence and students should see exactly what is happening. <code>r4ds-4</code> and <code>r4ds-5</code> add the transition note: “We will soon stop giving you commands like these and just have AI do it.” Every later tutorial (<code>census</code>, <code>baseball</code>, …) follows the base guide’s goal-stated + bash-<code>ls</code> form.</p>
+<p><strong>Override — explicit <code>data/</code> scaffold in <code>r4ds-1</code> and <code>r4ds-2</code> only.</strong> The base guide (§4, Introduction step 3) says to state the goal and confirm with bash <code>ls</code>. The first two r4ds tutorials instead spell out the commands — <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code>, <code>dir.create("data")</code>, <code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files()</a></code> in the R Terminal — because students arrive fresh from the infrastructure tutorials and should see exactly what is happening. <code>r4ds-2</code> adds the transition note: “We will soon stop giving you commands like these and just have AI do it.” From <code>r4ds-3</code> on, every tutorial (including <code>census</code>, <code>baseball</code>, …) follows the base guide’s goal-stated + bash-<code>ls</code> form. (This narrowing is one instance of the pacing gradient recorded below.)</p>
 <p><strong>Override — no interpretation exercises.</strong> The base guide (§4, <em>Analysis path</em>) requires a dedicated interpretation exercise after each significant visualization, asking students to write one or two sentences about what the plot shows. <code>misc.tutorials</code> does <strong>not</strong> follow this rule. The tutorials here are structured around AI-assisted artifact creation; students steer the analysis and judge the output, but are not asked to write prose interpretations in the QMD. Knowledge drops carry the interpretive commentary instead. Do not add interpretation exercises to any tutorial in this package.</p>
 </div>
 <div class="section level2">
@@ -58,6 +58,14 @@
 </ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, crypto/prediction markets, wildfires/film rankings, census demographics) is chosen to suit it.</p>
 <p>The division of the R for Data Science material into five tutorials (<code>r4ds-1</code> … <code>r4ds-5</code>) is reasonable but <strong>arbitrary</strong> — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see <code>TODO.txt</code> on <code>r4ds-4</code>) or merge two short ones.</p>
 </div>
+<div class="section level2">
+<h2 id="the-r4ds-sequence--place-in-the-class-and-pacing">The r4ds sequence — place in the class and pacing<a class="anchor" aria-label="anchor" href="#the-r4ds-sequence--place-in-the-class-and-pacing"></a></h2>
+<p>The class workflow: students complete the <strong>first four <code>vscode.tutorials</code> infrastructure tutorials</strong> — Workspace, Workflow, Code, and Quarto — and then do <code>r4ds-1</code> through <code>r4ds-5</code> as their first data-science practice. Two standing consequences:</p>
+<ul><li>
+<strong>Prerequisite contract.</strong> The r4ds tutorials may assume exactly what those four tutorials teach (the base guide’s <em>Assumed skills</em> boundary) and nothing more. A skill the sequence needs but the four do not teach — driving an AI agent, whatever else — is a gap: fix it in <code>vscode.tutorials</code>, or scaffold it explicitly in <code>r4ds-1</code>/<code>r4ds-2</code>; never assume it silently. (R packages are not part of this contract: the student environment guarantees every package the tutorials need is preinstalled, so tutorials never include install exercises.)</li>
+<li>
+<strong>Pacing gradient.</strong> <code>r4ds-1</code> is the student’s first post-infrastructure tutorial and goes slowest: more explanation, smaller setup steps, explicit commands where later tutorials just state goals. <code>r4ds-2</code> is slightly faster. <code>r4ds-3</code>–<code>r4ds-5</code> may assume <code>r4ds-1</code> and <code>r4ds-2</code> are complete and move at full speed. The explicit <code>data/</code> scaffold override (above) is one instance of this gradient.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="per-tutorial-map">Per-tutorial map<a class="anchor" aria-label="anchor" href="#per-tutorial-map"></a></h2>
 <table class="table"><colgroup><col width="20%"><col width="40%"><col width="28%"><col width="12%"></colgroup><thead><tr><th>Tutorial</th>
@@ -76,7 +84,7 @@
 </td>
 </tr><tr><td><code>r4ds-3</code></td>
 <td>Databases</td>
-<td>DBI, dbplyr, duckdb, nycflights13, babynames</td>
+<td>DBI, dbplyr, duckdb</td>
 <td><code>*.duckdb</code></td>
 </tr><tr><td><code>r4ds-4</code></td>
 <td>Arrow / Parquet</td>

@@ -39,16 +39,19 @@ here — never a silent difference. (The base guide already carries the
 *Choosing topics (misc.tutorials-specific)* section; this file does not
 repeat it.)
 
-**Override — explicit `data/` scaffold in the r4ds sequence.** The base
-guide (§4, Introduction step 3) says to state the goal and confirm with
-bash `ls`. The five `r4ds-*` tutorials instead spell out the commands —
-[`getwd()`](https://rdrr.io/r/base/getwd.html), `dir.create("data")`,
+**Override — explicit `data/` scaffold in `r4ds-1` and `r4ds-2` only.**
+The base guide (§4, Introduction step 3) says to state the goal and
+confirm with bash `ls`. The first two r4ds tutorials instead spell out
+the commands — [`getwd()`](https://rdrr.io/r/base/getwd.html),
+`dir.create("data")`,
 [`list.files()`](https://rdrr.io/r/base/list.files.html) in the R
-Terminal — because they sit earliest in the sequence and students should
-see exactly what is happening. `r4ds-4` and `r4ds-5` add the transition
-note: “We will soon stop giving you commands like these and just have AI
-do it.” Every later tutorial (`census`, `baseball`, …) follows the base
-guide’s goal-stated + bash-`ls` form.
+Terminal — because students arrive fresh from the infrastructure
+tutorials and should see exactly what is happening. `r4ds-2` adds the
+transition note: “We will soon stop giving you commands like these and
+just have AI do it.” From `r4ds-3` on, every tutorial (including
+`census`, `baseball`, …) follows the base guide’s goal-stated +
+bash-`ls` form. (This narrowing is one instance of the pacing gradient
+recorded below.)
 
 **Override — no interpretation exercises.** The base guide (§4,
 *Analysis path*) requires a dedicated interpretation exercise after each
@@ -84,13 +87,36 @@ material could be split into more or fewer. Treat the count as a
 convenience, not a fixed boundary, when deciding whether to split a long
 tutorial (see `TODO.txt` on `r4ds-4`) or merge two short ones.
 
+## The r4ds sequence — place in the class and pacing
+
+The class workflow: students complete the **first four
+`vscode.tutorials` infrastructure tutorials** — Workspace, Workflow,
+Code, and Quarto — and then do `r4ds-1` through `r4ds-5` as their first
+data-science practice. Two standing consequences:
+
+- **Prerequisite contract.** The r4ds tutorials may assume exactly what
+  those four tutorials teach (the base guide’s *Assumed skills*
+  boundary) and nothing more. A skill the sequence needs but the four do
+  not teach — driving an AI agent, whatever else — is a gap: fix it in
+  `vscode.tutorials`, or scaffold it explicitly in `r4ds-1`/`r4ds-2`;
+  never assume it silently. (R packages are not part of this contract:
+  the student environment guarantees every package the tutorials need is
+  preinstalled, so tutorials never include install exercises.)
+- **Pacing gradient.** `r4ds-1` is the student’s first
+  post-infrastructure tutorial and goes slowest: more explanation,
+  smaller setup steps, explicit commands where later tutorials just
+  state goals. `r4ds-2` is slightly faster. `r4ds-3`–`r4ds-5` may assume
+  `r4ds-1` and `r4ds-2` are complete and move at full speed. The
+  explicit `data/` scaffold override (above) is one instance of this
+  gradient.
+
 ## Per-tutorial map
 
 | Tutorial | Storage technology | Key packages | Data |
 |----|----|----|----|
 | `r4ds-1` | Delimited files (CSV) | readr, maps | `music.csv` |
 | `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
-| `r4ds-3` | Databases | DBI, dbplyr, duckdb, nycflights13, babynames | `*.duckdb` |
+| `r4ds-3` | Databases | DBI, dbplyr, duckdb | `*.duckdb` |
 | `r4ds-4` | Arrow / Parquet | arrow, viridis | `*.parquet` |
 | `r4ds-5` | Spatial / web | jsonlite, leaflet, purrr, httr2, rvest | `wildfires.geojson`, `imdb_snapshots.rds` |
 | `census` | Web API | tidycensus, sf | `*.rds` |
