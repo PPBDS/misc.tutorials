@@ -68,7 +68,7 @@ This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4
 
 Using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[rvest](https://rvest.tidyverse.org/)**, **[httr2](https://httr2.r-lib.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will extract nested elements from lists, expand list-columns into tidy tables, scrape HTML tables from archived web pages, split compound text columns using regex, and render geographic polygon boundaries as interactive maps. The analysis uses two datasets: wildfire perimeter polygons from the National Interagency Fire Center and five archived snapshots of the IMDb Top 250 from the Wayback Machine.
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+Use whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code and always available, and "ask AI" means the agent of your choice.
 
 ### Exercise 1
 

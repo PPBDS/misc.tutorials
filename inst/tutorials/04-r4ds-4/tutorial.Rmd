@@ -34,7 +34,7 @@ This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley
 
 The tutorial has two sections: one uses cryptocurrency price, metadata, and category files to analyze market composition, and the other uses prediction-market history, market metadata, and topic labels to study forecast accuracy near resolution. Both sections use **[arrow](https://arrow.apache.org/docs/r/)** to read parquet files efficiently.
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+Use whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code and always available, and "ask AI" means the agent of your choice.
 
 ### Exercise 1
 

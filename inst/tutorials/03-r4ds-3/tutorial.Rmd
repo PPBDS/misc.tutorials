@@ -108,7 +108,7 @@ This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databas
 
 You will use the  **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query two datasets recently featured in the *New York Times*: the Stanford Education Data Archive (SEDA) reading scores across 13,000 US school districts, and the American Time Use Survey (ATUS), which records how non-employed Americans spend their weekdays.
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code). Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+Use whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code and always available, and "ask AI" means the agent of your choice.
 
 ### Exercise 1
 

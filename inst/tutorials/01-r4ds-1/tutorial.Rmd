@@ -163,7 +163,7 @@ This tutorial covers key concepts from [Chapter 1: Data Visualization](https://r
 You will use AI to analyze two music datasets: Billboard chart rankings and a sample from the Million Song Dataset. Your job is to steer the analysis, render often, inspect the output, and decide what the data can honestly show.
 
 ###
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files without copy/pasting. You may also use a chat-based AI (such as ChatGPT or Claude on the web), though this will require manually copying code into your Quarto document. Our instructions are written assuming you are using an agentic coding tool, but the choice is yours.
+Work with whichever AI agent you prefer, as you learned in the earlier tutorials. **GitHub Copilot** is built into VS Code and always available, and any other agent works just as well --- when we say "ask AI," we mean the agent of your choice. The rhythm is always the same: describe the result you want, let the agent edit your files, review its changes, render, and inspect the output.
 
 ### Exercise 1
 
@@ -755,10 +755,13 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 
 ### Exercise 1
 
-Download `music.csv` from this URL and save it as `data/music.csv`:
+Download `music.csv` into your `data/` directory. In the R Terminal, run:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv
+download.file(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv",
+  "data/music.csv"
+)
 ```
 
 In a bash Terminal, run:
@@ -786,7 +789,7 @@ music.csv
 
 ###
 
-CSV files are plain-text tables. AI can write the download code, but you still need to verify that the file landed where your project expects it.
+CSV files are plain-text tables. `download.file()` fetches a file from a URL and saves it at the path you give --- here, into the `data/` directory you created earlier. Later tutorials will hand you just the URL and let you (or AI) manage the download; either way, always verify that the file landed where your project expects it.
 
 ### Exercise 2
 

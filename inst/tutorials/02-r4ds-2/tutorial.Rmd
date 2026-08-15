@@ -87,7 +87,7 @@ This section covers key concepts from [Chapter 9: Layers](https://r4ds.hadley.nz
 
 You will learn about working with tabular data from Excel files using **[readxl](https://readxl.tidyverse.org/)** and **[ggplot2](https://ggplot2.tidyverse.org/)**. Key techniques include calendar heatmaps with `geom_tile()`, ordered factors for correct axis sorting, grouped summaries as the foundation for visualizations, boxplots, and scatter plots with annotated outliers.
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+Work with whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code and always available, and "ask AI" always means the agent of your choice. Describe the result you want, let the agent edit your files, review its changes, and render.
 
 
 ### Exercise 1
@@ -211,10 +211,14 @@ New Year's Day and Christmas show the deepest dips; even the 13th of each month 
 
 ### Exercise 1
 
-Download the Excel file `us_births_1994_2014.xlsx` from this URL and save it in your `data/` directory:
+Download the Excel file `us_births_1994_2014.xlsx` into your `data/` directory. In the R Terminal, run:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/us_births_1994_2014.xlsx
+download.file(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/us_births_1994_2014.xlsx",
+  "data/us_births_1994_2014.xlsx",
+  mode = "wb"
+)
 ```
 
 In a bash Terminal, run:
@@ -780,10 +784,14 @@ The guiding question: does being a top-ranked teenager actually predict who beco
 
 ### Exercise 1
 
-Download the Excel file `nba_recruits.xlsx` from this URL and save it in your `data/` directory:
+Download the Excel file `nba_recruits.xlsx` into your `data/` directory. In the R Terminal, run:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/nba_recruits.xlsx
+download.file(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/nba_recruits.xlsx",
+  "data/nba_recruits.xlsx",
+  mode = "wb"
+)
 ```
 
 In a bash Terminal, run:
@@ -813,7 +821,7 @@ nba_recruits.xlsx  us_births_1994_2014.xlsx
 
 ###
 
-The Pudding collected recruit rankings from 247Sports and career statistics from Basketball-Reference. The dataset covers draft classes from 1998 through approximately 2013 — players drafted more recently did not yet have enough career data to evaluate. Excel `.xlsx` files are binary, not plain text — your AI agent downloads them correctly, but the binary-versus-text distinction is the thing to carry away.
+The Pudding collected recruit rankings from 247Sports and career statistics from Basketball-Reference. The dataset covers draft classes from 1998 through approximately 2013 — players drafted more recently did not yet have enough career data to evaluate. Excel `.xlsx` files are binary, not plain text — that is why `download.file()` needs `mode = "wb"` ("write binary"): without it, Windows corrupts binary files by translating what it mistakes for line endings. The binary-versus-text distinction is the thing to carry away.
 
 ### Exercise 2
 
