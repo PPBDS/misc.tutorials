@@ -1,0 +1,9 @@
+movie_title,original_release_date,actor,franchise,tomatometer_rating,audience_rating,tomatometer_count,audience_count,directors
+Spider-Man,2002-05-03,Tobey Maguire,Raimi,90.0,67.0,245.0,,Sam Raimi
+Spider-Man 2,2004-06-30,Tobey Maguire,Raimi,93.0,82.0,274.0,1151886.0,Sam Raimi
+Spider-Man 3,2007-05-04,Tobey Maguire,Raimi,62.0,51.0,261.0,2265043.0,Sam Raimi
+The Amazing Spider-Man,2012-07-03,Andrew Garfield,Webb,73.0,77.0,332.0,815587.0,Marc Webb
+The Amazing Spider-Man 2,2014-05-02,Andrew Garfield,Webb,51.0,64.0,308.0,222281.0,Marc Webb
+Spider-Man: Homecoming,2017-07-07,Tom Holland,MCU,92.0,87.0,390.0,108167.0,Jon Watts
+Spider-Man: Far From Home,2019-07-02,Tom Holland,MCU,90.0,95.0,441.0,69242.0,Jon Watts
+Spider-Man: No Way Home,2021-12-17,Tom Holland,MCU,93.0,97.0,430.0,50000.0,Jon Watts
