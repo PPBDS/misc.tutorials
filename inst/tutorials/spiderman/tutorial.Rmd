@@ -1,0 +1,770 @@
+---
+title: Spider-Man
+author: Var Kurapati
+tutorial:
+  id: spiderman
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: 'Students use Rotten Tomatoes data to compare the three live-action
+  Spider-Man actors. They clean and explore critic and audience scores across eight
+  films, compute the gap between them, analyze trends by actor and by year, and
+  publish a multi-page Quarto website.'
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(knitr)
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+options(tutorial.exercise.timelimit = 600,
+        tutorial.storage = "local")
+
+films <- readRDS("data/films.rds")
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+###
+
+Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Garfield, and Tom Holland, across three different studios and eight films. Fans argue endlessly about who did it best — but "best" usually means one of two very different things: what critics thought, or what audiences thought. This tutorial uses **Rotten Tomatoes** scores to ask: **do critics and audiences actually agree on who the best Spider-Man is?**
+
+We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind.
+
+<div style="display: flex; justify-content: center;">
+  <img src="images/spiderman.jpg" style="height: 300px; width: auto;"/>
+</div>
+
+### Exercise 1
+
+You should be connected to a repo named `spiderman`. If you are not, create one and connect to it.
+
+Create a new file, `analysis.qmd`, with the title `"Spider-Man"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+This tutorial builds a website. Create a `.gitignore` that ignores generated files:
+
+```
+_site/
+.quarto/
+*_files
+*_cache
+*.html
+```
+
+Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+<pre><code>_site/
+.quarto/
+*_files
+*_cache
+*.html
+</code></pre>
+
+###
+
+This tutorial builds a website rather than a single page. The final product will have three pages: an introduction page (`analysis.qmd`), a scores page (`scores.qmd`), and a trends page (`trends.qmd`). A `_quarto.yml` file will tie them together into a navigable site.
+
+### Exercise 2
+
+In your `analysis.qmd`, add a new code chunk with `library(tidyverse)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
+
+```
+execute:
+  echo: false
+```
+
+Render. In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+<pre><code>#| message: false
+library(tidyverse)
+</code></pre>
+
+###
+
+Everything in this tutorial builds on **tidyverse** functions you already know from earlier tutorials — `count()`, `mutate()`, `filter()`, and `ggplot2`. What's new here is the dataset, not the tools.
+
+### Exercise 3
+
+Create a `data` directory at the top level of the `spiderman` repo. In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```
+analysis.qmd  data
+```
+
+###
+
+Keeping data files in a `data/` subdirectory separates raw inputs from analysis outputs. When a project grows, this makes it easy to find the source data.
+
+## Who splits critics and audiences?
+###
+
+Every film has two Rotten Tomatoes scores: the **Tomatometer**, an aggregate of professional critic reviews, and the **Popcornmeter**, an aggregate of audience ratings. Most of the time these two scores move together — a great film is a great film. But sometimes they diverge sharply, and that gap is often more interesting than either score on its own.
+
+### Exercise 1
+
+Download the film data from this URL and save it in your `data/` directory:
+
+```
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/spiderman/data/spiderman_rt_clean.csv
+```
+
+In the bash Terminal, run:
+
+```
+ls data
+```
+
+CP/CR.
+
+```{r who-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```
+spiderman_rt_clean.csv
+```
+
+###
+
+This dataset covers all eight live-action Spider-Man films: three starring Tobey Maguire (2002–2007, directed by Sam Raimi), two starring Andrew Garfield (2012–2014, directed by Marc Webb), and three starring Tom Holland (2017–2021, directed by Jon Watts, part of the MCU). Scores come from each film's Rotten Tomatoes page.
+
+### Exercise 2
+
+In a new code chunk in `analysis.qmd`, read `data/spiderman_rt_clean.csv` and print all 8 rows. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r who-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+```{r who-2-test}
+#| echo: true
+read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
+  select(movie_title, actor, tomatometer_rating, audience_rating)
+```
+
+###
+
+Each row is one film. `tomatometer_rating` is the critic score, `audience_rating` is the audience score, and both are already on a 0–100 scale. `actor` and `franchise` group the films by era, which is the variable this tutorial cares most about.
+
+### Exercise 3
+
+Compute `critic_audience_gap` as `tomatometer_rating` minus `audience_rating`, and sort from largest gap (critics far ahead of audiences) to smallest. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r who-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r who-3-test}
+#| echo: true
+read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
+  mutate(critic_audience_gap = tomatometer_rating - audience_rating) |>
+  select(movie_title, actor, critic_audience_gap) |>
+  arrange(desc(critic_audience_gap))
+```
+
+###
+
+The original 2002 *Spider-Man* has the largest gap of any film: critics scored it 23 points higher than audiences did. At the other end, *The Amazing Spider-Man 2* has the largest gap in the opposite direction — audiences liked it 13 points more than critics did. A positive gap means critics were more generous; a negative gap means audiences were.
+
+### Exercise 4
+
+Filter to films with a negative gap — the ones audiences liked more than critics did. Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r who-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```{r who-4-test}
+#| echo: true
+read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
+  mutate(critic_audience_gap = tomatometer_rating - audience_rating) |>
+  filter(critic_audience_gap < 0) |>
+  select(movie_title, actor, critic_audience_gap) |>
+  arrange(critic_audience_gap)
+```
+
+###
+
+Four of the eight films skew toward audiences over critics — both Garfield films and two of the three Holland films. Notably, none of the three Maguire films appear here: every Raimi-directed film scored higher with critics than with audiences.
+
+### Exercise 5
+
+Read `data/spiderman_rt_clean.csv`, compute `critic_audience_gap`, and assign the result to `films`. Save it with `saveRDS(films, "data/films.rds")`. Create a new R script called `spiderman.R` in your repo. In it, write this pipeline and run it in a bash Terminal with `Rscript spiderman.R`. In the R Terminal, run `show_file("spiderman.R")`. CP/CR.
+
+```{r who-5}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+<pre><code>library(tidyverse)
+
+films <- read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
+  mutate(critic_audience_gap = tomatometer_rating - audience_rating)
+
+saveRDS(films, "data/films.rds")
+</code></pre>
+
+###
+
+Note that `audience_count` for the 2021 *No Way Home* is a floor, not an exact figure — Rotten Tomatoes displays it as "50,000+ Verified Ratings" rather than a precise count, unlike the other seven films. If you ever compute anything using `audience_count`, treat that row differently or exclude it, the same way you'd exclude a known-incomplete data point in any dataset.
+
+### Exercise 6
+
+Add `data/films.rds` to your `.gitignore`. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r who-6}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+<pre><code>_site/
+.quarto/
+*_files
+*_cache
+*.html
+data/films.rds
+</code></pre>
+
+###
+
+The `.rds` file is regenerated by running `spiderman.R`, so it does not need to be committed. Anyone who clones the repo can recreate it by running the script.
+
+### Exercise 7
+
+In `analysis.qmd`, update the data chunk to load the RDS file instead of re-reading the CSV. Replace its contents with `films <- readRDS("data/films.rds")`. Add `#| cache: true`. Render.
+
+In the bash Terminal, run `ls data`. CP/CR.
+
+```{r who-7}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 4)
+```
+
+###
+
+```
+films.rds  spiderman_rt_clean.csv
+```
+
+###
+
+`readRDS()` loads the binary file in milliseconds — far faster than re-parsing a CSV. Caching it goes one step further: on subsequent renders, even the `readRDS()` call is skipped.
+
+### Exercise 8
+
+Create a new file `scores.qmd` with the same YAML header and library chunk as `analysis.qmd`. Add a data chunk that reads `films <- readRDS("data/films.rds")` with `#| cache: true`. Render `scores.qmd`.
+
+In the R Terminal, run `show_file("scores.qmd", chunk = "Last")`. CP/CR.
+
+```{r who-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 5)
+```
+
+###
+
+<pre><code>#| cache: true
+films <- readRDS("data/films.rds")
+</code></pre>
+
+###
+
+Each page of a Quarto website runs in its own R session — objects defined in `analysis.qmd` are not available in `scores.qmd`. The RDS approach keeps all pages in sync.
+
+### Exercise 9
+
+In `scores.qmd`, add a new code chunk that makes a bar chart of `critic_audience_gap` for all 8 films, ordered from most audience-favored to most critic-favored, colored by `actor`. Render `scores.qmd`.
+
+In the R Terminal, run `show_file("scores.qmd", chunk = "Last")`. CP/CR.
+
+```{r who-9}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 16)
+```
+
+###
+
+```{r who-9-test}
+#| echo: true
+films |>
+  ggplot(aes(x = critic_audience_gap,
+             y = fct_reorder(movie_title, critic_audience_gap),
+             fill = actor)) +
+  geom_col() +
+  geom_vline(xintercept = 0, color = "gray40") +
+  scale_fill_manual(values = c("Tobey Maguire" = "#c0392b",
+                                "Andrew Garfield" = "#2980b9",
+                                "Tom Holland" = "#27ae60")) +
+  labs(
+    title    = "Critics and audiences don't always agree on Spider-Man",
+    subtitle = "Positive = critics scored it higher, negative = audiences did",
+    x        = "Critic score minus audience score",
+    y        = NULL,
+    fill     = "Actor",
+    caption  = "Source: Rotten Tomatoes"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The three Maguire films sit entirely on the critics-favored side, and the two Garfield films sit entirely on the audience-favored side — a clean split by era. The Holland films are the most balanced of the three, clustering close to zero on both sides of the line. No single actor was universally loved by both critics and audiences across every film, but Holland's era comes closest.
+
+### Exercise 10
+
+Commit `analysis.qmd`, `scores.qmd`, and `spiderman.R` with the message `"Add scores comparison"` and push to GitHub. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r who-10}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+commit 4b7e2a9
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Sat Aug 15 09:12:04 2026 -0700
+
+    Add scores comparison
+```
+
+###
+
+The scores page shows who critics and audiences favored. The next section asks how each era compares on its own terms — which actor scored highest overall, and how did scores move across the eight films over time?
+
+## Trends across eras
+###
+
+Comparing individual films only tells part of the story. Grouping films by actor and looking at averages — and watching how scores moved release to release — reveals whether an era was consistently strong, or just had one standout film carrying it.
+
+<div style="display: flex; justify-content: center;">
+  <img src="images/theater.jpg" style="height: 300px; width: auto;"/>
+</div>
+
+### Exercise 1
+
+Create a new file `trends.qmd` with the same YAML, libraries, and data chunk as the other pages. Add a working chunk that computes the average `tomatometer_rating`, average `audience_rating`, and average `critic_audience_gap` per actor, keeping actors in release order (Maguire, Garfield, Holland). Render `trends.qmd`.
+
+In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+
+```{r trends-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 10)
+```
+
+###
+
+```{r trends-1-test}
+#| echo: true
+films |>
+  mutate(actor = fct_inorder(actor)) |>
+  summarize(
+    films        = n(),
+    avg_critic   = mean(tomatometer_rating),
+    avg_audience = mean(audience_rating),
+    avg_gap      = mean(critic_audience_gap),
+    .by = actor
+  )
+```
+
+###
+
+Holland has the highest average score with both critics (91.7) and audiences (93.0) of the three actors, and the smallest average gap between them (−1.3) — the two groups nearly agree. Maguire has the largest average gap (15.0), driven mostly by the original 2002 film's unusually large critic-audience split.
+
+### Exercise 2
+
+Update your chunk to show a bar chart comparing average critic score and average audience score side by side for each actor. Render.
+
+In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+
+```{r trends-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 14)
+```
+
+###
+
+```{r trends-2-test}
+#| echo: true
+films |>
+  mutate(actor = fct_inorder(actor)) |>
+  summarize(
+    Critic   = mean(tomatometer_rating),
+    Audience = mean(audience_rating),
+    .by = actor
+  ) |>
+  pivot_longer(cols = c(Critic, Audience), names_to = "source", values_to = "score") |>
+  ggplot(aes(x = actor, y = score, fill = source)) +
+  geom_col(position = "dodge") +
+  scale_fill_manual(values = c("Critic" = "#34495e", "Audience" = "#e67e22")) +
+  labs(
+    title    = "Tom Holland's films score highest with both critics and audiences",
+    subtitle = "Average Rotten Tomatoes scores by actor",
+    x        = NULL,
+    y        = "Average score",
+    fill     = NULL,
+    caption  = "Source: Rotten Tomatoes"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+###
+
+This view makes the era comparison direct: Holland's films are highest on both bars, Garfield's are lowest on both, and Maguire's sit in between — but with the largest visual gap between the two bars, reflecting the critic-audience split found earlier.
+
+### Exercise 3
+
+Update your chunk to show a line chart of `tomatometer_rating` and `audience_rating` across all 8 films in release order, with both lines on the same plot. Render.
+
+In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+
+```{r trends-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 16)
+```
+
+###
+
+```{r trends-3-test}
+#| echo: true
+films |>
+  mutate(movie_title = fct_inorder(movie_title)) |>
+  pivot_longer(cols = c(tomatometer_rating, audience_rating),
+               names_to = "source", values_to = "score") |>
+  mutate(source = if_else(source == "tomatometer_rating", "Critic", "Audience")) |>
+  ggplot(aes(x = movie_title, y = score, color = source, group = source)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c("Critic" = "#34495e", "Audience" = "#e67e22")) +
+  labs(
+    title    = "Critic and audience scores across all eight films",
+    subtitle = "In release order, 2002-2021",
+    x        = NULL,
+    y        = "Score",
+    color    = NULL,
+    caption  = "Source: Rotten Tomatoes"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
+```
+
+###
+
+Both lines dip together at each franchise's weakest entry — *Spider-Man 3* and *The Amazing Spider-Man 2* — showing that critics and audiences do agree on quality in the aggregate, even when they disagree on the exact score. The lines are closest together, and highest overall, across the three Holland films at the right of the chart.
+
+### Exercise 4
+
+Commit `trends.qmd` with the message `"Add trends analysis"` and push to GitHub. In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r trends-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 6)
+```
+
+###
+
+```
+commit 9a1f6d3
+Author: Var Kurapati <vkurapat@example.com>
+Date:   Sat Aug 15 11:48:27 2026 -0700
+
+    Add trends analysis
+```
+
+###
+
+The scores page and the trends page together answer the two central questions: who did critics and audiences favor, and how did each era hold up on average and over time? The final section ties these together into a published website.
+
+## Summary
+###
+
+You have built three pages of analysis. Now wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
+
+### Exercise 1
+
+Create a `_quarto.yml` file at the top level of your repo with the following contents:
+
+```
+project:
+  type: website
+
+website:
+  title: "Spider-Man"
+  navbar:
+    left:
+      - href: analysis.qmd
+        text: Home
+      - href: scores.qmd
+        text: Scores
+      - href: trends.qmd
+        text: Trends
+
+format:
+  html:
+    theme: cosmo
+```
+
+In the bash Terminal, run:
+
+```
+quarto render
+ls
+```
+
+In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 15)
+```
+
+###
+
+<pre><code>project:
+  type: website
+
+website:
+  title: "Spider-Man"
+  navbar:
+    left:
+      - href: analysis.qmd
+        text: Home
+      - href: scores.qmd
+        text: Scores
+      - href: trends.qmd
+        text: Trends
+
+format:
+  html:
+    theme: cosmo
+</code></pre>
+
+###
+
+`_quarto.yml` turns a folder of `.qmd` files into a navigable website. Without it, each file renders independently with no connection between pages.
+
+### Exercise 2
+
+Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs introducing the topic: what Rotten Tomatoes' critic and audience scores measure, why they sometimes diverge, and what this analysis investigates. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r summary-2}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 20)
+```
+
+###
+
+Your `analysis.qmd` should have a YAML header, a libraries chunk, a data chunk, and 2–3 paragraphs of introductory prose.
+
+###
+
+The home page should give a reader who knows nothing about the dataset enough context to understand the scores and trends pages. Good introductory text names the data source, frames the central question, and previews the main findings.
+
+### Exercise 3
+
+Publish the website to GitHub Pages. In the bash Terminal, run:
+
+```
+quarto publish gh-pages
+```
+
+Copy/paste the resulting URL below.
+
+```{r summary-3}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+`quarto publish gh-pages` without a filename publishes the whole website. All three pages are now live via the navbar.
+
+### Exercise 4
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-4}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 3)
+```
+
+###
+
+Rotten Tomatoes scores are updated as new reviews and ratings come in, so re-downloading this data in the future may produce slightly different numbers than what you analyzed here — particularly for *No Way Home*, whose audience count was still climbing at time of writing. The same workflow used here — download a CSV, clean it, compute a derived variable, save an RDS, compare groups, analyze trends, build a website — applies to any dataset with a natural grouping variable. The tools are the same; only the question changes.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```
