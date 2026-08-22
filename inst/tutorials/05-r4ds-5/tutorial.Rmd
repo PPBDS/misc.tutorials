@@ -72,7 +72,7 @@ Use whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code a
 
 ### Exercise 1
 
-You should be connected to a repo named `r4ds-5`. If you are not, create one and connect to it.
+You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
 Create a new file, `analysis.qmd`, with the title `"Wildfires and Movies"` and your name as the author. In a bash Terminal, render it:
 

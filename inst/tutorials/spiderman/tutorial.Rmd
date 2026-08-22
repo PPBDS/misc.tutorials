@@ -45,7 +45,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-You should be connected to a repo named `spiderman`. If you are not, create one and connect to it.
+You should be doing this tutorial in a repo named `spiderman`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
 Create a new file, `analysis.qmd`, with the title `"Spider-Man"` and your name as the author. In a bash Terminal, render it:
 

@@ -92,7 +92,7 @@ Work with whichever AI agent you prefer --- **GitHub Copilot** is built into VS 
 
 ### Exercise 1
 
-You should be connected to a repo named `r4ds-2`. If you are not, create one and connect to it.
+You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births and Basketball Recruits"`) and your name as author. In a bash terminal, run:
 

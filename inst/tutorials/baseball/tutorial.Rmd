@@ -40,7 +40,7 @@ We recommend using an agentic coding tool such as [Gemini CLI](https://github.co
 
 ### Exercise 1
 
-You should be connected to a repo named `baseball`. If you are not, create one and connect to it.
+You should be doing this tutorial in a repo named `baseball`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
 In this repo, create a new Quarto **website** project, just as you did in the website tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Baseball"`.
 
