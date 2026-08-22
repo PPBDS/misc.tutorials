@@ -29,7 +29,8 @@ us_births_1994_2014.xlsx
     select(year, month, date_of_month, day_of_week, births) |>
     arrange(year, month, date_of_month)
 
-  writexl::write_xlsx(births, "inst/extdata/r4ds-2/us_births_1994_2014.xlsx")
+  writexl::write_xlsx(births,
+    "inst/tutorials/02-r4ds-2/data/us_births_1994_2014.xlsx")
 
 nba_recruits.xlsx
   Top-ranked high school basketball recruits (1998–2013 draft classes) and
@@ -54,5 +55,7 @@ nba_recruits.xlsx
            recruit_group, nba_mean_ws48, top_mean_wa,
            total_seasons, tier)
 
-  dir.create("inst/extdata/r4ds-2", recursive = TRUE, showWarnings = FALSE)
-  writexl::write_xlsx(nba_recruits, "inst/extdata/r4ds-2/nba_recruits.xlsx")
+  dir.create("inst/tutorials/02-r4ds-2/data", recursive = TRUE,
+             showWarnings = FALSE)
+  writexl::write_xlsx(nba_recruits,
+    "inst/tutorials/02-r4ds-2/data/nba_recruits.xlsx")

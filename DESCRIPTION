@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Miscellaneous Tutorials
-Version: 0.1.0.9001
+Version: 0.2.0
 Authors@R:
     c(
     person(given = "David",
@@ -47,5 +47,4 @@ Suggests:
     testthat,
     tidycensus,
     tidyr,
-    tidyverse,
-    viridis
+    tidyverse

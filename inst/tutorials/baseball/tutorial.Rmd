@@ -20,9 +20,7 @@ library(Lahman)
 
 knitr::opts_chunk$set(echo = FALSE)
 knitr::opts_chunk$set(out.width = '90%')
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-options(tutorial.exercise.timelimit = 60,
+options(tutorial.exercise.timelimit = 600,
         tutorial.storage = "local")
 ```
 
@@ -83,13 +81,10 @@ question_text(NULL,
 
 ###
 
-Your `.gitignore` should include:
-
-```
-/_site/
+<pre><code>/_site/
 /.quarto/
 /*_files/
-```
+</code></pre>
 
 ###
 
@@ -122,8 +117,6 @@ question_text(NULL,
 ```
 
 ###
-
-Your `_quarto.yml` should look something like this:
 
 <pre><code>project:
   type: website
@@ -170,8 +163,6 @@ question_text(NULL,
 
 ###
 
-Your `index.qmd` might look like this:
-
 <pre><code>---
 title: "Baseball"
 ---
@@ -186,7 +177,7 @@ starting with its signature event: the home run.
 
 ###
 
-A published analysis is read by people, not just rendered by a machine. The words around a chart are what tell a reader why it matters --- AI can draft them, but you decide what the page actually claims. You now have a working site with one page; the next sections add the analysis pages and link them in.
+A published analysis is read by people, not just rendered by a machine. The words around a chart are what tell a reader why it matters --- AI can draft them, but you decide what the page actually claims. Note what `index.qmd` does *not* contain: a Quarto website's navigation lives in `_quarto.yml`, not in the pages, so adding a page means editing two files.
 
 ## Home runs
 ###
@@ -195,7 +186,7 @@ Major League Baseball has kept detailed records since 1871, and the **Lahman** d
 
 ### Exercise 1
 
-Create a new page in your website named `home-runs.qmd`, and add it to the site navigation in `_quarto.yml` so it appears in the navbar with the label `Home runs`.
+Create a new page in your website named `home-runs.qmd`, giving it the title `"Home runs"`, and add it to the site navigation in `_quarto.yml` so it appears in the navbar with the same label.
 
 The Lahman data comes from an R package you may need to install. In the R Terminal, run:
 
@@ -448,11 +439,80 @@ The red points sit right on the trend line: once we measure a rate, the strike a
 
 ### Exercise 8
 
-You are done iterating on this plot, so it earns caching. Add `#| cache: true` as the first line inside the home-runs plot chunk. Render. Caching saves the chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `home-runs_cache/` directory next to `home-runs.qmd`.
+Before caching anything, split the work. Caching the chunk that draws the plot would be self-defeating: every time you adjusted a label, the cache would be invalidated and the whole thing would run again. The part worth caching is the aggregation, which does not change when you restyle a chart.
+
+Move the aggregation into its own chunk above the plot, assigning the season-level table to `hr_by_season`, and leave the plot chunk with nothing but the code that draws from it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("home-runs.qmd")
+```
+
+CP/CR.
+
+```{r home-runs-8}
+question_text(NULL,
+  answer(NULL, correct = TRUE),
+  allow_retry = TRUE,
+  try_again_button = "Edit Answer",
+  incorrect = NULL,
+  rows = 25)
+```
+
+###
+
+<pre><code>---
+title: "Home runs"
+---
+
+&#96;&#96;&#96;{r}
+#| message: false
+library(tidyverse)
+library(Lahman)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+hr_by_season &lt;- Teams |>
+  group_by(yearID) |>
+  summarise(HR = sum(HR, na.rm = TRUE),
+            team_games = sum(G),
+            .groups = "drop") |>
+  mutate(hr_per_game = HR / team_games,
+         shortened = yearID %in% c(1918, 1919, 1981, 1994, 1995, 2020))
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+hr_by_season |>
+  ggplot(aes(x = yearID, y = hr_per_game)) +
+  geom_line(color = "grey70") +
+  geom_point(aes(color = shortened), size = 1.1) +
+  scale_color_manual(
+    values = c(`FALSE` = "navy", `TRUE` = "red"),
+    labels = c("Full season", "Shortened season"),
+    name = NULL
+  ) +
+  labs(
+    title = "Home runs per game reveal baseball's real eras",
+    subtitle = "MLB home runs per team per game, 1871-2025",
+    x = "Season",
+    y = "Home runs per game",
+    caption = "Source: Lahman Teams table"
+  )
+&#96;&#96;&#96;
+</code></pre>
+
+###
+
+Separating preparation from presentation is worth doing even when nothing is cached. The data chunk answers "what are the numbers?", the plot chunk answers "how should they look?", and you can rewrite either without disturbing the other. It also makes the page readable: someone scanning your source can see the whole analysis in one short chunk.
+
+### Exercise 9
+
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `hr_by_season` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `home-runs_cache/` directory next to `home-runs.qmd`.
 
 To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r home-runs-8}
+```{r home-runs-9}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -469,9 +529,9 @@ _quarto.yml  _site  home-runs.qmd  home-runs_cache  home-runs_files  index.qmd
 
 ###
 
-Our aggregation is fast, so caching saves little here --- but it is a habit worth building, like `.gitignore`. The payoff grows with the data: a Statcast analysis reads millions of pitch-level rows, and caching the slow step means you wait once, not on every render. Cache finished work you have stopped changing, never code you are still exploring.
+Our aggregation is fast, so caching saves little here --- but it is a habit worth building, like `.gitignore`. The payoff grows with the data: a Statcast analysis reads millions of pitch-level rows, and caching that step means you wait once rather than on every render. Note what caching is keyed to: the chunk's own code. Restyling the plot in the chunk below leaves this one's cache intact, which is exactly why the split was worth making.
 
-### Exercise 9
+### Exercise 10
 
 The Source Control change count just jumped, because `home-runs_cache/` and everything inside it now look like untracked work to git. Cached files are machine-specific and regenerated on every render, so they should never go to GitHub.
 
@@ -483,7 +543,7 @@ Add a line to your `.gitignore` that ignores the cache directories:
 
 In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r home-runs-9}
+```{r home-runs-10}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -504,7 +564,7 @@ question_text(NULL,
 
 The Source Control change count should drop back to where it was before the render. The cache is useful locally but is generated output, so the same rule that kept `_site/` out of git keeps the cache out too.
 
-### Exercise 10
+### Exercise 11
 
 Commit and push the home runs page. Use the commit message:
 
@@ -512,9 +572,15 @@ Commit and push the home runs page. Use the commit message:
 Add home runs analysis
 ```
 
-CP/CR or write a short note describing how you committed and pushed.
+In the bash Terminal, run:
 
-```{r home-runs-10}
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r home-runs-11}
 question_text(NULL,
   answer(NULL, correct = TRUE),
   allow_retry = TRUE,
@@ -525,11 +591,14 @@ question_text(NULL,
 
 ###
 
-A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used to commit and push.
+```
+abc1234 Add home runs analysis
+def5678 Add analysis pages and .gitignore
+```
 
 ###
 
-Home runs per game is one of the cleanest ways to see baseball's history in a single line, but it hides who actually hit them. The 2019 spike and the late-1990s climb were the work of specific players --- and that is the subject of the next page.
+Home runs per game is one of the cleanest ways to see baseball's history in a single line, but a rate hides who produced it. The 2019 spike and the late-1990s climb were the work of specific players, and the league total says nothing about whether many hitters improved a little or a few improved enormously --- a distinction any aggregate measure buries.
 
 ## Sluggers
 ###
@@ -538,7 +607,7 @@ The league trend is made of individual careers. The **Lahman** `Batting` table r
 
 ### Exercise 1
 
-Create a new page named `sluggers.qmd`, and add it to the navbar in `_quarto.yml` with the label `Sluggers`.
+Create a new page named `sluggers.qmd`, giving it the title `"Sluggers"`, and add it to the navbar in `_quarto.yml` with the same label.
 
 At the top of the page, add a code chunk that loads `library(tidyverse)` and `library(Lahman)` with `#| message: false`, then prints the `Batting` table.
 
@@ -768,7 +837,13 @@ Commit and push the sluggers page. Use the commit message:
 Add sluggers analysis
 ```
 
-CP/CR or write a short note describing how you committed and pushed.
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r sluggers-7}
 question_text(NULL,
@@ -781,11 +856,14 @@ question_text(NULL,
 
 ###
 
-A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used to commit and push.
+```
+abc1234 Add sluggers analysis
+def5678 Add home runs analysis
+```
 
 ###
 
-You now have a two-page analysis: a league-wide trend and the players behind it. The last step is to tie them together on the home page and put the site on the web.
+Two pages, two units of observation: the home runs page counts seasons, the sluggers page counts careers. Keeping each page to one grain is what makes a multi-page site easier to read than one long document --- a reader always knows what a row means.
 
 ## Summary
 ###
@@ -815,8 +893,6 @@ question_text(NULL,
 
 ###
 
-Your `index.qmd` might look like this:
-
 <pre><code>---
 title: "Baseball"
 ---
@@ -843,9 +919,9 @@ A website's landing page is where a visitor decides whether to keep reading. Sta
 
 Publish the site to GitHub Pages. In a bash Terminal, run:
 
-````
+```
 quarto publish gh-pages
-````
+```
 
 If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
 
@@ -862,7 +938,10 @@ question_text(NULL,
 
 ###
 
-Your answer should be the public `https://...` URL created by `quarto publish gh-pages`.
+```
+[✓] Deploying gh-pages branch to website
+[✓] Published to https://<your-github-username>.github.io/baseball/
+```
 
 ###
 
@@ -883,7 +962,9 @@ question_text(NULL,
 
 ###
 
-Your answer should be the GitHub repository URL for the project that contains your website.
+```
+https://github.com/<your-github-username>/baseball
+```
 
 ###
 

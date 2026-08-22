@@ -1,0 +1,1161 @@
+---
+title: Prediction Markets
+author: David Kane
+tutorial:
+  id: prediction-markets
+output:
+  learnr::tutorial:
+    df_print: default
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: 'Students join four parquet files covering 800 resolved Manifold Markets
+  questions and 43,694 daily probability snapshots to ask whether crowd forecasts get
+  more accurate as a deadline approaches, and whether their stated probabilities are
+  honest. Final artifacts are an accuracy-by-time-horizon chart and a calibration curve.'
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+library(tutorial.helpers)
+library(tidyverse)
+library(arrow)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(out.width = '90%')
+options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
+```
+
+```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+```
+
+## Introduction
+###
+
+This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+A prediction market lets people bet on whether a future event will happen. Each trade moves the price toward the bettor's belief, so the current price reads as the crowd's estimate of the probability. You will work with four parquet files describing 800 resolved markets and 43,694 daily probability snapshots, reading them with **[arrow](https://arrow.apache.org/docs/r/)**, and finish with two charts: one asking whether forecasts sharpen as the deadline nears, and one asking whether a market that says 70% is right about 70% of the time.
+
+Use whichever AI agent you prefer --- **GitHub Copilot** is built into VS Code and always available, and "ask AI" means the agent of your choice.
+
+### Exercise 1
+
+You should be doing this tutorial in a repo named `prediction-markets`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+
+Create a new file, `analysis.qmd`, with the title `"Prediction Markets"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+
+CP/CR.
+
+```{r introduction-1}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
+```
+
+###
+
+```
+analysis_files
+```
+
+###
+
+The data comes from **Manifold Markets**, a play-money platform launched in 2022. Traders use Mana, a fictional currency, which matters for how you read the results: nobody is risking rent on these forecasts, so the incentive to be right is weaker than on a real-money exchange like Kalshi or Polymarket. The questions themselves are real events — model releases, elections, geopolitical outcomes — and every market in this dataset has already resolved, so the true answer is known for all 800.
+
+### Exercise 2
+
+In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
+
+```
+library(tidyverse)
+library(arrow)
+```
+
+Also add the following to the YAML header to remove all code echoes from the HTML:
+
+```
+execute:
+  echo: false
+```
+
+Render. In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r introduction-2}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
+```
+
+###
+
+<pre><code>#| message: false
+library(tidyverse)
+library(arrow)
+</code></pre>
+
+###
+
+Parquet stores a table column-by-column rather than row-by-row, so a query that touches one column reads only that column's bytes, and repeated values inside a column compress well. It shows in this data: 43,694 daily snapshots occupy 186 KB. **arrow** is one of several tools for data too large or slow for ordinary in-memory work — **[duckdb](https://r.duckdb.org/)** runs SQL directly against parquet files, **[data.table](https://rdatatable.gitlab.io/data.table/)** is the classic in-memory speed package, and **[fst](https://www.fstpackage.org/)** is a fast R-only binary format for local caching. All of them take **[dplyr](https://dplyr.tidyverse.org/)** verbs or something close, so the vocabulary you have transfers.
+
+### Exercise 3
+
+Create a `data` directory at the top level of the `prediction-markets` repo. In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r introduction-3}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
+```
+
+###
+
+```
+analysis.html  analysis.qmd  analysis_files  data
+```
+
+###
+
+The four files you are about to download are a small relational database rather than one table. `markets` has one row per question, `history` has one row per market per day, and `groups` lists topic labels. The fourth, `market_groups`, exists only to connect the other two: a market can carry several topics and a topic covers many markets, so neither table can hold the relationship on its own. A table whose whole job is to join two others is called a junction table, and it is the standard answer to a many-to-many relationship.
+
+
+## Does the crowd get it right?
+###
+
+Picture a market where people bet on whether a future event will happen: a new
+law passes, a company goes bankrupt, a model breaks a benchmark. Each trade
+moves the price toward the bettor's belief, and the current price is the
+crowd's best estimate of the probability of YES. As the resolution date
+approaches and more information becomes available, does the crowd get smarter?
+
+In this section you will join four parquet files representing 800 resolved
+markets and 43,694 daily probability snapshots to answer that question. Along
+the way you will encounter a **many-to-many join** — a table relationship that
+silently multiplies rows if you are not careful — and build two charts: one
+that tracks whether prediction markets converge as the resolution date
+approaches, and a calibration curve that tests whether crowd probabilities are
+accurate in a deeper sense.
+
+### Exercise 1
+
+Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
+
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/history.parquet`
+
+In a new code chunk, print the schema of `history.parquet` without loading it into memory. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-1}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 4)
+```
+
+###
+
+```{r crowd-1-test}
+#| echo: true
+open_dataset("data/history.parquet")
+```
+
+###
+
+Manifold Markets is a play-money prediction platform launched in 2022. Users trade with Mana (Ṁ), a fictional currency, but the questions in this dataset are real events such as AI model releases, elections, and geopolitical outcomes. Each row is one market on one day, and `probability` is the crowd-implied chance of YES at the end of that day.
+
+### Exercise 2
+
+Create the main forecasting table in that chunk. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an `outcome_numeric` field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as `joined` and print the row count as a join check. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-2}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crowd-2-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
+joined |> nrow()
+```
+
+###
+
+The row count does not change: this is a one-to-many join, with one market row matched to many daily history rows, so each of the 43,694 history rows simply gains its market's columns. In this dataset 63% of markets resolved NO and 37% YES. That imbalance matters, because any average over these rows mixes two different forecasting situations: markets where the event happened and markets where it did not.
+
+### Exercise 3
+
+Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
+
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/market_groups.parquet`
+
+Keep the code that defines `markets` and `joined`. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to `markets`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-3}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r crowd-3-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(outcome_numeric = if_else(outcome == "YES", 1, 0))
+
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+
+groups |> glimpse()
+market_groups |> glimpse()
+```
+
+###
+
+The `groups` file is a reference table: one row per topic group, 115 of them. The `market_groups` file is a junction table — 2,820 rows recording which markets belong to which groups, with both keys repeating. A junction table is how a many-to-many relationship is stored, and the next few exercises show why that matters.
+
+### Exercise 4
+
+Every daily snapshot needs the core accuracy measure: how far the crowd's probability sat from what actually happened. Extend the chunk that builds `joined` so each row carries that distance, then summarize its mean and median so you know the baseline before considering time to resolution. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-4}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 14)
+```
+
+###
+
+```{r crowd-4-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(
+    outcome_numeric  = if_else(outcome == "YES", 1, 0),
+    prediction_error = abs(probability - outcome_numeric)
+  )
+
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+
+joined |>
+  summarise(
+    mean_error   = mean(prediction_error),
+    median_error = median(prediction_error)
+  )
+```
+
+###
+
+`prediction_error` is measured in probability units from 0 to 1. The mean of 0.289 says the crowd sat about 29 percentage points from the truth across all snapshots — but that pools a forecast made six months out with one made on resolution day. Note also that the new column is created in the chunk that defines `joined`, not in a later one: a derived column that lives somewhere else disappears the next time the document is rendered from scratch.
+
+### Exercise 5
+
+Add a second field to the same chunk: for every snapshot, the number of calendar days remaining until that market resolved. As a data check, count how many snapshots fall on the final day and how many are one to seven days out. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-5}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 14)
+```
+
+###
+
+```{r crowd-5-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(
+    outcome_numeric    = if_else(outcome == "YES", 1, 0),
+    prediction_error   = abs(probability - outcome_numeric),
+    days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date)
+  )
+
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+
+joined |>
+  summarise(
+    final_day    = sum(days_to_resolution == 0),
+    one_to_seven = sum(days_to_resolution >= 1 & days_to_resolution <= 7)
+  )
+```
+
+###
+
+There are exactly 800 final-day rows, one per market, and 5,600 rows in the one-to-seven-day window, because each market can contribute up to seven of them. The 43,694 snapshots are spread very unevenly across time horizons, which is why later summaries have to report how much data sits behind each number.
+
+### Exercise 6
+
+The comparison to come is across time horizons, not individual days. In the same chunk, add a field that sorts each snapshot into one of five horizons — more than 90 days out, 30 to 90, 7 to 30, 1 to 7, and the final day — kept in chronological rather than alphabetical order. Count the rows in each to check the distribution. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-6}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 20)
+```
+
+###
+
+```{r crowd-6-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(
+    outcome_numeric    = if_else(outcome == "YES", 1, 0),
+    prediction_error   = abs(probability - outcome_numeric),
+    days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date),
+    time_bucket = factor(
+      case_when(
+        days_to_resolution >  90 ~ "90+ days",
+        days_to_resolution >  30 ~ "30–90 days",
+        days_to_resolution >   7 ~ "7–30 days",
+        days_to_resolution >=  1 ~ "1–7 days",
+        TRUE                     ~ "Final day"
+      ),
+      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
+      ordered = TRUE
+    )
+  )
+
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+
+joined |> count(time_bucket)
+```
+
+###
+
+The 7–30 day bucket is the largest, with 16,467 rows, because many of these markets last only a few weeks. Storing the horizons as an ordered category rather than plain text is what keeps them in time order everywhere they are used; as text they would sort alphabetically and put "1–7 days" first.
+
+### Exercise 7
+
+That chunk now builds everything the rest of the section needs, so make it a pure data chunk: delete the row-count check at the end, leaving only the file loads and the definition of `joined`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-7}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 20)
+```
+
+###
+
+```{r crowd-7-test}
+#| echo: true
+markets <- read_parquet("data/markets.parquet")
+
+joined <- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(
+    outcome_numeric    = if_else(outcome == "YES", 1, 0),
+    prediction_error   = abs(probability - outcome_numeric),
+    days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date),
+    time_bucket = factor(
+      case_when(
+        days_to_resolution >  90 ~ "90+ days",
+        days_to_resolution >  30 ~ "30–90 days",
+        days_to_resolution >   7 ~ "7–30 days",
+        days_to_resolution >=  1 ~ "1–7 days",
+        TRUE                     ~ "Final day"
+      ),
+      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
+      ordered = TRUE
+    )
+  )
+
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+```
+
+###
+
+A chunk that both defines an expensive object and uses it cannot be cached cleanly, because every change to the analysis at the bottom invalidates the expensive work at the top. Separating the two is the refactoring that makes caching possible, and it is worth doing even when nothing is slow yet.
+
+### Exercise 8
+
+Add `#| cache: true` to that chunk and render. The first render does the work; later ones read the four tables back from disk.
+
+In the bash Terminal, run:
+
+```
+ls
+```
+
+CP/CR.
+
+```{r crowd-8}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```
+analysis.html  analysis.qmd  analysis_cache  analysis_files  data
+```
+
+###
+
+The first render with caching wrote `analysis_cache/` to disk; every later render reads the four tables back instead of re-joining 43,694 rows. Each cached chunk is keyed by a hash of its own code, so editing one chunk re-runs that chunk and leaves the others alone.
+
+### Exercise 9
+
+The Source Control change count jumped because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub --- they are machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r crowd-9}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+<pre><code>analysis_files
+analysis_cache
+</code></pre>
+
+###
+
+The Source Control count should drop back to where it was before the render. A cache is a local convenience, not a result: anyone who clones your repo regenerates it by rendering, and committing it would add binary files that conflict on every machine that rebuilds them.
+
+### Exercise 10
+
+Start a new chunk and stress-test the topic join before using it in analysis. Join `markets` to `market_groups` by `market_id`, print the resulting row count, and compare it to the original 800 market rows. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-10}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crowd-10-test}
+#| echo: true
+markets |>
+  left_join(market_groups, by = "market_id") |>
+  nrow()
+```
+
+###
+
+The row count climbs from 800 to 2,885, because a market reappears once for every group it belongs to. Any per-market summary computed after this join would silently over-weight the markets carrying the most topic labels. The safe workflow is to finish market-level calculations first and attach topic labels last.
+
+### Exercise 11
+
+Use the topic lookup table to profile the dataset. Attach `groups` to `market_groups`, then count how many group memberships fall into each `broad_category`, sorted from most to least common. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-11}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crowd-11-test}
+#| echo: true
+market_groups |>
+  left_join(groups, by = "group_slug") |>
+  count(broad_category, sort = TRUE)
+```
+
+###
+
+This join does not inflate the row count, because each `group_slug` points to exactly one row in the reference table; joining from a many-row table into a one-row-per-key lookup is the safe direction. The counts skew toward economics, politics, AI, and geopolitics — which tells you what Manifold users were trading in this window, not what prediction markets cover in general.
+
+### Exercise 12
+
+Measure how long these markets stay open. In `markets`, parse the creation and resolution timestamps, compute each market's duration in days, and summarize the median and maximum duration. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-12}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crowd-12-test}
+#| echo: true
+markets |>
+  mutate(
+    created_at  = ymd_hms(created_at),
+    resolved_at = ymd_hms(resolved_at),
+    duration_days = as.numeric(as.Date(resolved_at) - as.Date(created_at))
+  ) |>
+  summarise(
+    median_duration = median(duration_days),
+    max_duration    = max(duration_days)
+  )
+```
+
+###
+
+The median market lives 36 days and the longest 240. Timestamps arrive as text here, as they usually do from a web API, and carry a time zone: these are UTC, so a market resolving late in the evening in one country resolves the next day in the data. Short lifetimes mean the most informative probability changes often happen close to the resolution date.
+
+### Exercise 13
+
+Inspect one high-attention market before aggregating across all of them. Find the market with the most traders, isolate its probability history from `joined`, and plot probability over time with the final outcome encoded by line color. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-13}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crowd-13-test}
+#| echo: true
+top_market <- markets |>
+  slice_max(total_traders, n = 1) |>
+  pull(market_id)
+
+joined |>
+  filter(market_id == top_market) |>
+  ggplot(aes(x = date, y = probability, color = outcome)) +
+  geom_line(linewidth = 1.2) +
+  labs(
+    title = "Probability trajectory for most-traded market",
+    x     = "Date",
+    y     = "Crowd-implied probability",
+    color = "Outcome"
+  ) +
+  theme_minimal()
+```
+
+###
+
+One market's probability path can be noisy, flat, or event-driven, and a single trajectory proves nothing about accuracy in general. The summaries that follow ask whether these paths become more accurate on average as resolution approaches.
+
+### Exercise 14
+
+Compare the full error distribution across time horizons with a box plot of `prediction_error` by `time_bucket`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-14}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crowd-14-test}
+#| echo: true
+joined |>
+  ggplot(aes(x = time_bucket, y = prediction_error)) +
+  geom_boxplot() +
+  labs(
+    title = "Prediction error shrinks near the deadline",
+    x     = "Days until resolution",
+    y     = "Prediction error (|probability − outcome|)"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The boxes move lower and get tighter as resolution approaches: forecasts are not only more accurate near the deadline but also less variable. The final-day box is nearly flat against zero, with a scatter of outliers — the markets that were still confidently wrong on the last day.
+
+### Exercise 15
+
+Create a compact accuracy summary for the final chart: compute mean prediction error for each `time_bucket`, include the number of snapshots in each bucket, save it as `accuracy`, and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-15}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```{r crowd-15-test}
+#| echo: true
+accuracy <- joined |>
+  group_by(time_bucket) |>
+  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
+
+accuracy
+```
+
+###
+
+Mean error falls monotonically from 0.398 at 90+ days to 0.090 on the final day — four times more accurate at the deadline than three months out. The biggest single drop is between the final week (0.181) and the final day. That does not mean traders suddenly get smarter; it usually means decisive information has arrived.
+
+### Exercise 16
+
+Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the `accuracy` summary above it. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-16}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 12)
+```
+
+###
+
+```{r crowd-16-test}
+#| echo: true
+accuracy <- joined |>
+  group_by(time_bucket) |>
+  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
+
+accuracy |>
+  ggplot(aes(x = time_bucket, y = mean_error, group = 1)) +
+  geom_line(linewidth = 1.2, color = "#2166ac") +
+  geom_point(size = 3, color = "#2166ac") +
+  labs(
+    title    = "Prediction markets get smarter near the deadline",
+    subtitle = "Mean absolute error in Manifold Markets forecasts, by days remaining",
+    x        = "Days until resolution",
+    y        = "Mean absolute error"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The summary and the chart it feeds live in the same chunk, which is what keeps the document renderable from a clean session: a plot that depends on an object built in some earlier, since-replaced chunk works in your current session and fails for everyone else. The line itself is the section's main result, and it is exactly the pattern prediction-market analysts look for.
+
+### Exercise 17
+
+Convergence says markets get more accurate over time. The deeper question is whether they are well *calibrated* — whether events given a 70% chance actually happen about 70% of the time. Before testing that, look at the shape of the final-day forecasts. Leave the accuracy chart where it is and start a new chunk: filter `joined` to the snapshots on resolution day and plot the distribution of `probability`. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-17}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 6)
+```
+
+###
+
+```{r crowd-17-test}
+#| echo: true
+joined |>
+  filter(days_to_resolution == 0) |>
+  ggplot(aes(x = probability)) +
+  geom_histogram(bins = 20, fill = "#2166ac", alpha = 0.7) +
+  labs(x = "Final-day probability", y = "Number of markets",
+       title = "Most markets resolve near certainty") +
+  theme_minimal()
+```
+
+###
+
+The distribution is sharply bimodal: of the 800 markets, 373 fall in the lowest bin and 201 in the highest by resolution day. That also tells you where the calibration test will be weak — the middle of the range has only a handful of markets each, because genuine uncertainty rarely survives to the final day.
+
+### Exercise 18
+
+Build the calibration table from those final-day snapshots. Group the markets into probability bins ten percentage points wide, and for each bin compute the fraction that actually resolved YES (`actual_rate`) along with the number of markets (`n`). Save the result as `calibration` and print it. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-18}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 8)
+```
+
+###
+
+```{r crowd-18-test}
+#| echo: true
+calibration <- joined |>
+  filter(days_to_resolution == 0) |>
+  mutate(prob_bin = round(probability * 10) / 10) |>
+  group_by(prob_bin) |>
+  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
+
+calibration
+```
+
+###
+
+This table is the building block of any probabilistic evaluation: for each predicted-probability bin, what fraction of those events actually happened. Perfect calibration would put `actual_rate` at 0.70 in the 0.7 bin. Read the `n` column alongside it — the 0.0 and 1.0 bins hold 373 and 202 markets, while the 0.7 and 0.8 bins hold 13 and 11.
+
+### Exercise 19
+
+Extend that chunk into a calibration curve, keeping the `calibration` summary above it. Put predicted probability on the x-axis and actual resolution rate on the y-axis, add a dashed 45° reference line for perfect calibration, scale both axes as percentages, and size each point by the number of markets in the bin. Give it a title that a reader could check against the plot. Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r crowd-19}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 14)
+```
+
+###
+
+```{r crowd-19-test}
+#| echo: true
+calibration <- joined |>
+  filter(days_to_resolution == 0) |>
+  mutate(prob_bin = round(probability * 10) / 10) |>
+  group_by(prob_bin) |>
+  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
+
+calibration |>
+  ggplot(aes(x = prob_bin, y = actual_rate)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray60") +
+  geom_line(color = "#2166ac") +
+  geom_point(aes(size = n), color = "#2166ac", alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = "Predicted probability", y = "Actual resolution rate",
+       title = "Calibration is tight at the extremes and noisy in between",
+       subtitle = "Point size shows how many markets landed in each probability bin",
+       size = "Markets") +
+  theme_minimal()
+```
+
+###
+
+A well-calibrated forecaster lies on the diagonal: the stated probability matches the long-run frequency of the event. The large dots at 0 and 1, where most of the data lives, sit almost exactly on the line — 0.5% of the bottom bin resolved YES and 99.5% of the top one. The middle is a different story: those bins hold between 11 and 30 markets each, they zigzag across the diagonal, and the 70–90% bins all sit *above* it, at 92%, 91%, and 100%. With eleven markets, the difference between 91% and 70% is two events. Dot size is carrying real information here — trust the big dots, treat the small ones skeptically, and let the title say so.
+
+### Exercise 20
+
+Stage `analysis.qmd`, commit with the message
+`"Add prediction market accuracy analysis"`, and push to GitHub. In the
+bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r crowd-20}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 5)
+```
+
+###
+
+```
+abc1234 Add prediction market accuracy analysis
+def5678 Add analysis.qmd and .gitignore
+```
+
+###
+
+Prediction-market accuracy improves here because resolution dates concentrate information. A final-day price is not magic; it is a market incorporating facts that often did not exist weeks earlier. These are also play-money markets on one platform over eight months, so the convergence result is about Manifold in this window, not about prediction markets in general.
+
+## Summary
+###
+
+This tutorial covered key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+You read parquet files with **arrow**, inspected a schema before pulling anything into memory, joined market metadata onto a daily snapshot series, survived a many-to-many join through a junction table, and turned timestamps into an ordered factor of time horizons. The two charts you published answer different questions: mean error by horizon shows that forecasts *sharpen* toward the deadline, and the calibration curve shows where the stated probabilities can be *trusted*.
+
+### Exercise 1
+
+Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of both final charts.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r summary-1}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 30)
+```
+
+###
+
+<pre><code>---
+title: "Prediction Markets"
+author: &lt;your name&gt;
+execute:
+  echo: false
+---
+
+&#96;&#96;&#96;{r}
+#| message: false
+library(tidyverse)
+library(arrow)
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+#| cache: true
+markets &lt;- read_parquet("data/markets.parquet")
+
+joined &lt;- open_dataset("data/history.parquet") |>
+  collect() |>
+  left_join(markets, by = "market_id") |>
+  mutate(
+    outcome_numeric    = if_else(outcome == "YES", 1, 0),
+    prediction_error   = abs(probability - outcome_numeric),
+    days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date),
+    time_bucket = factor(
+      case_when(
+        days_to_resolution >  90 ~ "90+ days",
+        days_to_resolution >  30 ~ "30–90 days",
+        days_to_resolution >   7 ~ "7–30 days",
+        days_to_resolution >=  1 ~ "1–7 days",
+        TRUE                     ~ "Final day"
+      ),
+      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
+      ordered = TRUE
+    )
+  )
+
+groups        &lt;- read_parquet("data/groups.parquet")
+market_groups &lt;- read_parquet("data/market_groups.parquet")
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+accuracy &lt;- joined |>
+  group_by(time_bucket) |>
+  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
+
+accuracy |>
+  ggplot(aes(x = time_bucket, y = mean_error, group = 1)) +
+  geom_line(linewidth = 1.2, color = "#2166ac") +
+  geom_point(size = 3, color = "#2166ac") +
+  labs(
+    title    = "Prediction markets get smarter near the deadline",
+    subtitle = "Mean absolute error in Manifold Markets forecasts, by days remaining",
+    x        = "Days until resolution",
+    y        = "Mean absolute error"
+  ) +
+  theme_minimal()
+&#96;&#96;&#96;
+
+&#96;&#96;&#96;{r}
+calibration &lt;- joined |>
+  filter(days_to_resolution == 0) |>
+  mutate(prob_bin = round(probability * 10) / 10) |>
+  group_by(prob_bin) |>
+  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
+
+calibration |>
+  ggplot(aes(x = prob_bin, y = actual_rate)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray60") +
+  geom_line(color = "#2166ac") +
+  geom_point(aes(size = n), color = "#2166ac", alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
+  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
+  labs(x = "Predicted probability", y = "Actual resolution rate",
+       title = "Calibration is tight at the extremes and noisy in between",
+       subtitle = "Point size shows how many markets landed in each probability bin",
+       size = "Markets") +
+  theme_minimal()
+&#96;&#96;&#96;
+</code></pre>
+
+###
+
+The finished document is four chunks long, even though you worked through two dozen exercises: the libraries, one cached data chunk, and two charts. That is what a reproducible analysis looks like — only the steps whose results appear in the output survive, and every stress test, row count and schema check along the way was scaffolding.
+
+### Exercise 2
+
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
+
+```
+quarto publish gh-pages analysis.qmd
+```
+
+If the bash Terminal is still running from rendering, stop it first using `Ctrl/Cmd + C`.
+
+Copy/paste the resulting URL below.
+
+```{r summary-2}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 1)
+```
+
+###
+
+```
+[✓] Deploying gh-pages branch to website
+[✓] Published to https://&lt;your-github-username&gt;.github.io/prediction-markets/
+```
+
+###
+
+Only the file's *output* travels to that URL. Readers see the two charts, not the parquet files behind them, which is why the caption naming Manifold Markets is the only provenance they get. A chart that reports a play-money platform without saying so invites a reader to assume real money was at stake.
+
+### Exercise 3
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r summary-3}
+question_text(NULL,
+    answer(NULL, correct = TRUE),
+    allow_retry = TRUE,
+    try_again_button = "Edit Answer",
+    incorrect = NULL,
+    rows = 3)
+```
+
+###
+
+Calibration and accuracy are different virtues, and this dataset separates them cleanly. A forecaster who says 50% about everything is perfectly calibrated and useless; one who commits to 5% and 95% is far more informative but easier to embarrass. Manifold's curve is tight at the extremes, where most markets sit, and wanders in the middle, where few do — which is the shape you would expect when the interesting questions are also the rare ones.
+
+```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+```

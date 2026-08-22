@@ -72,30 +72,32 @@ seda_2025.duckdb
 
 atus.duckdb
   Time-diary microdata from the Bureau of Labor Statistics American Time Use
-  Survey (ATUS), 2003–2023. Three tables:
+  Survey (ATUS), 2003–2024. Three tables:
 
-    respondents    ~221,000 rows — one row per person surveyed. Columns:
+    respondents    252,808 rows — one row per person surveyed. Columns:
                    tucaseid (chr), year (int), sex (chr: "Male"/"Female"),
                    age (int), employment_status (chr: "Employed"/
                    "Unemployed"/"Not in labor force"), day_type (chr:
                    "Weekday"/"Weekend/Holiday"), weight (dbl).
 
-    activities   ~5,600,000 rows — one row per activity per respondent.
+    activities   4,880,021 rows — one row per activity per respondent.
                    Columns: tucaseid (chr), activity_code (int: 6-digit
                    packed integer), duration_min (int), start_hhmm (int:
                    packed HHMM, e.g., 1430 = 2:30 PM).
 
-    activity_codes  ~400 rows — lookup table. Columns: activity_code (int),
+    activity_codes  426 rows — lookup table. Columns: activity_code (int),
                    major_code (int), major_name (chr), sub_code (int),
                    sub_name (chr), detail_code (int).
 
   Activity code structure: 6-digit packed integer.
-    activity_code %/% 10000        → major category (01–18)
+    activity_code %/% 10000        → major category (01–18, plus 50 =
+                                     "Data Codes", the survey's bucket for
+                                     unclassifiable/missing answers)
     (activity_code %/% 100) %% 100 → sub-category
     activity_code %% 100           → detailed activity
   Example: 120303 = Leisure (12) > TV and Movies (03) > Watching TV (03)
 
-  Source: US Bureau of Labor Statistics. American Time Use Survey, 2003–2023.
+  Source: US Bureau of Labor Statistics. American Time Use Survey, 2003–2024.
   https://www.bls.gov/tus/database.htm
   License: Public domain (US federal government data).
 
