@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,8 +55,8 @@
 <strong><a href="https://r4ds.hadley.nz/" class="external-link">R for Data Science (2e)</a></strong> — the <code>r4ds-1</code> … <code>r4ds-5</code> tutorials.</li>
 <li>
 <strong><a href="https://walker-data.com/census-r/" class="external-link">Analyzing US Census Data</a></strong> by Kyle Walker — the <code>census</code> tutorial.</li>
-</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, crypto/prediction markets, wildfires/film rankings, census demographics) is chosen to suit it.</p>
-<p>The division of the R for Data Science material into five tutorials (<code>r4ds-1</code> … <code>r4ds-5</code>) is reasonable but <strong>arbitrary</strong> — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial (see <code>TODO.txt</code> on <code>r4ds-4</code>) or merge two short ones.</p>
+</ul><p><strong>The organizing theme is storage technology.</strong> Each tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (music, births/basketball, baby names/flights, crypto, wildfires/film rankings, census demographics) is chosen to suit it.</p>
+<p>The division of the R for Data Science material into five tutorials (<code>r4ds-1</code> … <code>r4ds-5</code>) is reasonable but <strong>arbitrary</strong> — the same material could be split into more or fewer. Treat the count as a convenience, not a fixed boundary, when deciding whether to split a long tutorial or merge two short ones. This has already happened once: in August 2026 <code>r4ds-4</code> had grown to 51 exercises, and its prediction-market half was split out as the <code>prediction-markets</code> tutorial, leaving 32 and 25. Note what the split did to the numbering — <code>prediction-markets</code> is a peer of <code>r4ds-4</code>, not a successor to <code>r4ds-5</code>, so it took a topic name rather than an <code>r4ds-6</code> slot. Prefer a topic name for any future split, since a tutorial’s id becomes the name of every student’s repo and renumbering the sequence would break repos that already exist.</p>
 </div>
 <div class="section level2">
 <h2 id="the-r4ds-sequence--place-in-the-class-and-pacing">The r4ds sequence — place in the class and pacing<a class="anchor" aria-label="anchor" href="#the-r4ds-sequence--place-in-the-class-and-pacing"></a></h2>
@@ -88,8 +88,10 @@
 <td><code>*.duckdb</code></td>
 </tr><tr><td><code>r4ds-4</code></td>
 <td>Arrow / Parquet</td>
-<td>arrow, viridis</td>
-<td><code>*.parquet</code></td>
+<td>arrow</td>
+<td>
+<code>daily_prices.parquet</code>, <code>coin_metadata.parquet</code>, <code>categories.parquet</code>
+</td>
 </tr><tr><td><code>r4ds-5</code></td>
 <td>Spatial / web</td>
 <td>jsonlite, leaflet, purrr, httr2, rvest</td>
@@ -106,7 +108,35 @@
 <td>
 <code><a href="http://cdalzell.github.io/Lahman/reference/Teams.html" class="external-link">Lahman::Teams</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/Batting.html" class="external-link">Lahman::Batting</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/People.html" class="external-link">Lahman::People</a></code>
 </td>
-</tr></tbody></table></div>
+</tr><tr><td><code>ducks</code></td>
+<td>Delimited files (CSV)</td>
+<td>sf, maps, ggridges</td>
+<td><code>mallards.csv</code></td>
+</tr><tr><td><code>sharks</code></td>
+<td>Delimited files (CSV)</td>
+<td>maps</td>
+<td>
+<code>attacks.csv</code>, <code>attacks.rds</code>, <code>attacks_clean.csv</code>
+</td>
+</tr><tr><td><code>spiderman</code></td>
+<td>Delimited files (CSV)</td>
+<td>tidyverse</td>
+<td>
+<code>films.rds</code>, <code>spiderman_rt_clean.csv</code>
+</td>
+</tr><tr><td><code>movies</code></td>
+<td>Delimited files (CSV)</td>
+<td>tidyverse</td>
+<td><code>movies.csv</code></td>
+</tr><tr><td><code>prediction-markets</code></td>
+<td>Arrow / Parquet</td>
+<td>arrow</td>
+<td>
+<code>markets.parquet</code>, <code>history.parquet</code>, <code>groups.parquet</code>, <code>market_groups.parquet</code>
+</td>
+</tr></tbody></table><p><code>ducks</code>, <code>sharks</code> and <code>spiderman</code> are <strong>project-tier</strong> tutorials (see the next section); <code>movies</code> and <code>prediction-markets</code> each build a single page. Note that <code>ducks</code>, <code>sharks</code>, <code>spiderman</code> and <code>movies</code> all read plain CSV: per the project tier’s <em>topic-driven, not a new storage technology</em> override, they are organized around a domain rather than around a storage technology they introduce. <code>prediction-markets</code> is the one topic-named tutorial that does share a storage technology with an <code>r4ds-*</code> tutorial, because it was split out of <code>r4ds-4</code> rather than written fresh.</p>
+<p><code>movies</code> and <code>spiderman</code> both draw on Rotten Tomatoes data, which is worth revisiting — two tutorials on the same source is thin justification for two tutorials.</p>
+</div>
 <div class="section level2">
 <h2 id="project-tutorials-baseball-and-later">Project tutorials (<code>baseball</code> and later)<a class="anchor" aria-label="anchor" href="#project-tutorials-baseball-and-later"></a></h2>
 <p><code>baseball</code> is the first of a newer tier of tutorials (topics like baseball, stocks, Bitcoin, weather, US maps) whose distinguishing feature is that <strong>the final artifact is a <em>project</em> — not a single published <code>analysis.qmd</code> page.</strong> A “project” is any multi-file Quarto/R artifact a student creates and publishes: a simple multi-page <strong>website</strong> (baseball’s form), but equally a <strong>Shiny app</strong>, a <strong>Quarto dashboard</strong>, or similar. Students are assumed to have done the <code>vscode.tutorials</code> material for whichever project type a tutorial uses, so the project <em>mechanics</em> are not re-taught. The following base-guide defaults are written for the single-page model and are <strong>overridden on the record</strong> for this tier (the first three are general to every project type; the fourth is specific to the website form <code>baseball</code> uses):</p>
@@ -147,12 +177,12 @@
 </div>
 <div class="section level2">
 <h2 id="cran--build-size">CRAN / build size<a class="anchor" aria-label="anchor" href="#cran--build-size"></a></h2>
-<p>The tutorial data files are large (duckdb, parquet, and geojson run into multiple MB each; the package is ~48 MB on disk). Under the <code>data/</code>-in-tutorial convention the package <strong>ships its data and is not CRAN-distributable</strong> (see <em>Data handling</em> above) — a trade-off we accept in exchange for the package’s code matching the student’s code. The old CRAN-stripping machinery (the <code>.Rbuildignore</code> <code>extdata</code> rule and the <code>R/zzz.R</code> re-download hook) has been removed entirely.</p>
+<p>The tutorial data files are large. As of August 2026 <code>inst/</code> alone is <strong>118 MB</strong> and the working tree is about <strong>207 MB</strong> — and one tutorial dominates: <code>r4ds-3</code> is <strong>72 MB</strong>, almost all of it <code>atus.duckdb</code> (47 MB) and <code>seda_2025.duckdb</code> (27 MB), with <code>r4ds-5</code> (19 MB, mostly <code>wildfires.geojson</code>) and <code>ducks</code> (10 MB) next. This is no longer just a <code>devtools::check()</code> size NOTE; it is a real install cost every student pays at the start of the course. When adding or replacing data, prefer the smallest file that still supports the analysis, and treat a multi-tens-of-MB addition as a decision needing justification rather than a default. Subsetting <code>atus.duckdb</code> is the single biggest available win. Under the <code>data/</code>-in-tutorial convention the package <strong>ships its data and is not CRAN-distributable</strong> (see <em>Data handling</em> above) — a trade-off we accept in exchange for the package’s code matching the student’s code. The old CRAN-stripping machinery (the <code>.Rbuildignore</code> <code>extdata</code> rule and the <code>R/zzz.R</code> re-download hook) has been removed entirely.</p>
 <p>The test chunks that depend on data files <code>skip_on_cran()</code> (see <code>tests/testthat/test-tutorials.R</code>); that stays regardless, since the point is simply not to run heavy data code on CRAN’s checkers.</p>
 </div>
 <div class="section level2">
 <h2 id="description">DESCRIPTION<a class="anchor" aria-label="anchor" href="#description"></a></h2>
-<p>Per the base guide, every package <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>-ed in a tutorial must be listed in <code>DESCRIPTION</code> (<code>Imports</code> or <code>Suggests</code>) or GitHub Actions <code>R CMD check</code> fails. This package keeps only <code>tutorial.helpers</code> and <code>utils</code> under <code>Imports</code>; every tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus, leaflet, plotly, …) lives under <code>Suggests</code>. When a new tutorial adds a library, add it to <code>Suggests</code>.</p>
+<p>Per the base guide, every package <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>-ed in a tutorial must be listed in <code>DESCRIPTION</code> (<code>Imports</code> or <code>Suggests</code>) or GitHub Actions <code>R CMD check</code> fails. This package keeps only <code>tutorial.helpers</code> under <code>Imports</code> (<code>utils</code> was dropped along with <code>R/zzz.R</code> — see <em>Data handling</em>); every tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus, leaflet, plotly, …) lives under <code>Suggests</code>. When a new tutorial adds a library, add it to <code>Suggests</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="checking">Checking<a class="anchor" aria-label="anchor" href="#checking"></a></h2>

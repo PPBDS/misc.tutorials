@@ -78,14 +78,22 @@ spreadsheets, databases, Arrow files, spatial formats, and web APIs —
 and then works with that data using the
 **[tidyverse](https://www.tidyverse.org/)**. The storage technology is
 the spine of each tutorial; the subject-area domain (music,
-births/basketball, baby names/flights, crypto/prediction markets,
-wildfires/film rankings, census demographics) is chosen to suit it.
+births/basketball, baby names/flights, crypto, wildfires/film rankings,
+census demographics) is chosen to suit it.
 
 The division of the R for Data Science material into five tutorials
 (`r4ds-1` … `r4ds-5`) is reasonable but **arbitrary** — the same
 material could be split into more or fewer. Treat the count as a
 convenience, not a fixed boundary, when deciding whether to split a long
-tutorial (see `TODO.txt` on `r4ds-4`) or merge two short ones.
+tutorial or merge two short ones. This has already happened once: in
+August 2026 `r4ds-4` had grown to 51 exercises, and its
+prediction-market half was split out as the `prediction-markets`
+tutorial, leaving 32 and 25. Note what the split did to the numbering —
+`prediction-markets` is a peer of `r4ds-4`, not a successor to `r4ds-5`,
+so it took a topic name rather than an `r4ds-6` slot. Prefer a topic
+name for any future split, since a tutorial’s id becomes the name of
+every student’s repo and renumbering the sequence would break repos that
+already exist.
 
 ## The r4ds sequence — place in the class and pacing
 
@@ -117,10 +125,29 @@ data-science practice. Two standing consequences:
 | `r4ds-1` | Delimited files (CSV) | readr, maps | `music.csv` |
 | `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
 | `r4ds-3` | Databases | DBI, dbplyr, duckdb | `*.duckdb` |
-| `r4ds-4` | Arrow / Parquet | arrow, viridis | `*.parquet` |
+| `r4ds-4` | Arrow / Parquet | arrow | `daily_prices.parquet`, `coin_metadata.parquet`, `categories.parquet` |
 | `r4ds-5` | Spatial / web | jsonlite, leaflet, purrr, httr2, rvest | `wildfires.geojson`, `imdb_snapshots.rds` |
 | `census` | Web API | tidycensus, sf | `*.rds` |
 | `baseball` | R data package (Lahman) | Lahman, tidyverse | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) |
+| `ducks` | Delimited files (CSV) | sf, maps, ggridges | `mallards.csv` |
+| `sharks` | Delimited files (CSV) | maps | `attacks.csv`, `attacks.rds`, `attacks_clean.csv` |
+| `spiderman` | Delimited files (CSV) | tidyverse | `films.rds`, `spiderman_rt_clean.csv` |
+| `movies` | Delimited files (CSV) | tidyverse | `movies.csv` |
+| `prediction-markets` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` |
+
+`ducks`, `sharks` and `spiderman` are **project-tier** tutorials (see
+the next section); `movies` and `prediction-markets` each build a single
+page. Note that `ducks`, `sharks`, `spiderman` and `movies` all read
+plain CSV: per the project tier’s *topic-driven, not a new storage
+technology* override, they are organized around a domain rather than
+around a storage technology they introduce. `prediction-markets` is the
+one topic-named tutorial that does share a storage technology with an
+`r4ds-*` tutorial, because it was split out of `r4ds-4` rather than
+written fresh.
+
+`movies` and `spiderman` both draw on Rotten Tomatoes data, which is
+worth revisiting — two tutorials on the same source is thin
+justification for two tutorials.
 
 ## Project tutorials (`baseball` and later)
 
@@ -288,13 +315,22 @@ package) and is the default for the project tier where it applies.
 
 ## CRAN / build size
 
-The tutorial data files are large (duckdb, parquet, and geojson run into
-multiple MB each; the package is ~48 MB on disk). Under the
-`data/`-in-tutorial convention the package **ships its data and is not
-CRAN-distributable** (see *Data handling* above) — a trade-off we accept
-in exchange for the package’s code matching the student’s code. The old
-CRAN-stripping machinery (the `.Rbuildignore` `extdata` rule and the
-`R/zzz.R` re-download hook) has been removed entirely.
+The tutorial data files are large. As of August 2026 `inst/` alone is
+**118 MB** and the working tree is about **207 MB** — and one tutorial
+dominates: `r4ds-3` is **72 MB**, almost all of it `atus.duckdb` (47 MB)
+and `seda_2025.duckdb` (27 MB), with `r4ds-5` (19 MB, mostly
+`wildfires.geojson`) and `ducks` (10 MB) next. This is no longer just a
+`devtools::check()` size NOTE; it is a real install cost every student
+pays at the start of the course. When adding or replacing data, prefer
+the smallest file that still supports the analysis, and treat a
+multi-tens-of-MB addition as a decision needing justification rather
+than a default. Subsetting `atus.duckdb` is the single biggest available
+win. Under the `data/`-in-tutorial convention the package **ships its
+data and is not CRAN-distributable** (see *Data handling* above) — a
+trade-off we accept in exchange for the package’s code matching the
+student’s code. The old CRAN-stripping machinery (the `.Rbuildignore`
+`extdata` rule and the `R/zzz.R` re-download hook) has been removed
+entirely.
 
 The test chunks that depend on data files `skip_on_cran()` (see
 `tests/testthat/test-tutorials.R`); that stays regardless, since the
@@ -305,10 +341,11 @@ point is simply not to run heavy data code on CRAN’s checkers.
 Per the base guide, every package
 [`library()`](https://rdrr.io/r/base/library.html)-ed in a tutorial must
 be listed in `DESCRIPTION` (`Imports` or `Suggests`) or GitHub Actions
-`R CMD check` fails. This package keeps only `tutorial.helpers` and
-`utils` under `Imports`; every tutorial-specific package (arrow, DBI,
-duckdb, readxl, sf, tidycensus, leaflet, plotly, …) lives under
-`Suggests`. When a new tutorial adds a library, add it to `Suggests`.
+`R CMD check` fails. This package keeps only `tutorial.helpers` under
+`Imports` (`utils` was dropped along with `R/zzz.R` — see *Data
+handling*); every tutorial-specific package (arrow, DBI, duckdb, readxl,
+sf, tidycensus, leaflet, plotly, …) lives under `Suggests`. When a new
+tutorial adds a library, add it to `Suggests`.
 
 ## Checking
 
