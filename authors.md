@@ -11,12 +11,12 @@ Source:
 [`DESCRIPTION`](https://github.com/PPBDS/misc.tutorials/blob/main/DESCRIPTION)
 
 Kane D (2026). *misc.tutorials: Miscellaneous Tutorials*. R package
-version 0.1.0.9000, <https://ppbds.github.io/misc.tutorials/>.
+version 0.1.0.9001, <https://ppbds.github.io/misc.tutorials/>.
 
     @Manual{,
       title = {misc.tutorials: Miscellaneous Tutorials},
       author = {David Kane},
       year = {2026},
-      note = {R package version 0.1.0.9000},
+      note = {R package version 0.1.0.9001},
       url = {https://ppbds.github.io/misc.tutorials/},
     }
