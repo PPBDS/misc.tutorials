@@ -1,32 +1,31 @@
 ---
 title: Prediction Markets
 author: David Kane
-tutorial:
-  id: prediction-markets
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Students join four parquet files covering 800 resolved Manifold Markets
   questions and 43,694 daily probability snapshots to ask whether crowd forecasts get
   more accurate as a deadline approaches, and whether their stated probabilities are
   honest. Final artifacts are an accuracy-by-time-horizon chart and a calibration curve.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(arrow)
-
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -58,17 +57,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -105,21 +105,23 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(arrow)
-</code></pre>
+```
 
 ###
 
@@ -131,13 +133,14 @@ Create a `data` directory at the top level of the `prediction-markets` repo. In 
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the prediction-markets repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -185,18 +188,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 4)
+```{r}
+#| label: crowd-1
+#| echo: false
+learnr2::question(
+  "In a new code chunk, print the schema of history.parquet without loading it into memory. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-1-test}
+```{r}
+#| label: crowd-1-answer
 #| echo: true
 open_dataset("data/history.parquet")
 ```
@@ -217,18 +222,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crowd-2
+#| echo: false
+learnr2::question(
+  "Create the main forecasting table in that chunk. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an outcome_numeric field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as joined and print the row count as a join check. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-2-test}
+```{r}
+#| label: crowd-2-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -261,18 +268,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 12)
+```{r}
+#| label: crowd-3
+#| echo: false
+learnr2::question(
+  "Keep the code that defines markets and joined. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to markets. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-3-test}
+```{r}
+#| label: crowd-3-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -304,18 +313,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 14)
+```{r}
+#| label: crowd-4
+#| echo: false
+learnr2::question(
+  "Every daily snapshot needs the core accuracy measure: how far the crowd's probability sat from what actually happened. Extend the chunk that builds joined so each row carries that distance, then summarize its mean and median so you know the baseline before considering time to resolution. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-4-test}
+```{r}
+#| label: crowd-4-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -353,18 +364,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 14)
+```{r}
+#| label: crowd-5
+#| echo: false
+learnr2::question(
+  "Add a second field to the same chunk: for every snapshot, the number of calendar days remaining until that market resolved. As a data check, count how many snapshots fall on the final day and how many are one to seven days out. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-5-test}
+```{r}
+#| label: crowd-5-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -403,18 +416,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-6}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 20)
+```{r}
+#| label: crowd-6
+#| echo: false
+learnr2::question(
+  "The comparison to come is across time horizons, not individual days. In the same chunk, add a field that sorts each snapshot into one of five horizons — more than 90 days out, 30 to 90, 7 to 30, 1 to 7, and the final day — kept in chronological rather than alphabetical order. Count the rows in each to check the distribution. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-6-test}
+```{r}
+#| label: crowd-6-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -460,18 +475,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-7}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 20)
+```{r}
+#| label: crowd-7
+#| echo: false
+learnr2::question(
+  "That chunk now builds everything the rest of the section needs, so make it a pure data chunk: delete the row-count check at the end, leaving only the file loads and the definition of joined. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-7-test}
+```{r}
+#| label: crowd-7-answer
 #| echo: true
 markets <- read_parquet("data/markets.parquet")
 
@@ -515,13 +532,14 @@ ls
 
 CP/CR.
 
-```{r crowd-8}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-8
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -540,20 +558,22 @@ The Source Control change count jumped because `analysis_cache/` and everything 
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r crowd-9}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-9
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -571,18 +591,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-10}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-10
+#| echo: false
+learnr2::question(
+  "Start a new chunk and stress-test the topic join before using it in analysis. Join markets to market_groups by market_id, print the resulting row count, and compare it to the original 800 market rows. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-10-test}
+```{r}
+#| label: crowd-10-answer
 #| echo: true
 markets |>
   left_join(market_groups, by = "market_id") |>
@@ -605,18 +627,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-11}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-11
+#| echo: false
+learnr2::question(
+  "Use the topic lookup table to profile the dataset. Attach groups to market_groups, then count how many group memberships fall into each broad_category, sorted from most to least common. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-11-test}
+```{r}
+#| label: crowd-11-answer
 #| echo: true
 market_groups |>
   left_join(groups, by = "group_slug") |>
@@ -639,18 +663,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-12}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crowd-12
+#| echo: false
+learnr2::question(
+  "Measure how long these markets stay open. In markets, parse the creation and resolution timestamps, compute each market's duration in days, and summarize the median and maximum duration. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-12-test}
+```{r}
+#| label: crowd-12-answer
 #| echo: true
 markets |>
   mutate(
@@ -672,26 +698,23 @@ The median market lives 36 days and the longest 240. Timestamps arrive as text h
 
 Inspect one high-attention market before aggregating across all of them. Find the market with the most traders, isolate its probability history from `joined`, and plot probability over time with the final outcome encoded by line color. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crowd-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crowd-13
+#| echo: false
+learnr2::question(
+  "Inspect one high-attention market before aggregating across all of them. Find the market with the most traders, isolate its probability history from joined, and plot probability over time with the final outcome encoded by line color. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-13-test}
+```{r}
+#| label: crowd-13-answer
 #| echo: true
 top_market <- markets |>
   slice_max(total_traders, n = 1) |>
@@ -718,26 +741,23 @@ One market's probability path can be noisy, flat, or event-driven, and a single 
 
 Compare the full error distribution across time horizons with a box plot of `prediction_error` by `time_bucket`. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crowd-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crowd-14
+#| echo: false
+learnr2::question(
+  "Compare the full error distribution across time horizons with a box plot of prediction_error by time_bucket. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-14-test}
+```{r}
+#| label: crowd-14-answer
 #| echo: true
 joined |>
   ggplot(aes(x = time_bucket, y = prediction_error)) +
@@ -766,18 +786,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-15}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-15
+#| echo: false
+learnr2::question(
+  "Create a compact accuracy summary for the final chart: compute mean prediction error for each time_bucket, include the number of snapshots in each bucket, save it as accuracy, and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-15-test}
+```{r}
+#| label: crowd-15-answer
 #| echo: true
 accuracy <- joined |>
   group_by(time_bucket) |>
@@ -794,26 +816,23 @@ Mean error falls monotonically from 0.398 at 90+ days to 0.090 on the final day 
 
 Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the `accuracy` summary above it. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crowd-16}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 12)
+```{r}
+#| label: crowd-16
+#| echo: false
+learnr2::question(
+  "Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the accuracy summary above it. Use the title \"Prediction markets get smarter near the deadline\" and the subtitle \"Mean absolute error in Manifold Markets forecasts, by days remaining\". Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-16-test}
+```{r}
+#| label: crowd-16-answer
 #| echo: true
 accuracy <- joined |>
   group_by(time_bucket) |>
@@ -840,26 +859,23 @@ The summary and the chart it feeds live in the same chunk, which is what keeps t
 
 Convergence says markets get more accurate over time. The deeper question is whether they are well *calibrated* — whether events given a 70% chance actually happen about 70% of the time. Before testing that, look at the shape of the final-day forecasts. Leave the accuracy chart where it is and start a new chunk: filter `joined` to the snapshots on resolution day and plot the distribution of `probability`. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crowd-17}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: crowd-17
+#| echo: false
+learnr2::question(
+  "Convergence says markets get more accurate over time. The deeper question is whether they are well calibrated — whether events given a 70% chance actually happen about 70% of the time. Before testing that, look at the shape of the final-day forecasts. Leave the accuracy chart where it is and start a new chunk: filter joined to the snapshots on resolution day and plot the distribution of probability. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-17-test}
+```{r}
+#| label: crowd-17-answer
 #| echo: true
 joined |>
   filter(days_to_resolution == 0) |>
@@ -886,18 +902,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crowd-18}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crowd-18
+#| echo: false
+learnr2::question(
+  "Build the calibration table from those final-day snapshots. Group the markets into probability bins ten percentage points wide, and for each bin compute the fraction that actually resolved YES (actual_rate) along with the number of markets (n). Save the result as calibration and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-18-test}
+```{r}
+#| label: crowd-18-answer
 #| echo: true
 calibration <- joined |>
   filter(days_to_resolution == 0) |>
@@ -916,26 +934,23 @@ This table is the building block of any probabilistic evaluation: for each predi
 
 Extend that chunk into a calibration curve, keeping the `calibration` summary above it. Put predicted probability on the x-axis and actual resolution rate on the y-axis, add a dashed 45° reference line for perfect calibration, scale both axes as percentages, and size each point by the number of markets in the bin. Give it a title that a reader could check against the plot. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crowd-19}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 14)
+```{r}
+#| label: crowd-19
+#| echo: false
+learnr2::question(
+  "Extend that chunk into a calibration curve, keeping the calibration summary above it. Put predicted probability on the x-axis and actual resolution rate on the y-axis, add a dashed 45° reference line for perfect calibration, scale both axes as percentages, and size each point by the number of markets in the bin. Give it a title that a reader could check against the plot. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crowd-19-test}
+```{r}
+#| label: crowd-19-answer
 #| echo: true
 calibration <- joined |>
   filter(days_to_resolution == 0) |>
@@ -973,13 +988,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r crowd-20}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crowd-20
+#| echo: false
+learnr2::question(
+  "Stage analysis.qmd, commit with the message \"Add prediction market accuracy analysis\", and push to GitHub. In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1012,35 +1028,37 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of both final charts. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Prediction Markets"
-author: &lt;your name&gt;
+author: <your name>
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(arrow)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
-markets &lt;- read_parquet("data/markets.parquet")
+markets <- read_parquet("data/markets.parquet")
 
-joined &lt;- open_dataset("data/history.parquet") |>
+joined <- open_dataset("data/history.parquet") |>
   collect() |>
   left_join(markets, by = "market_id") |>
   mutate(
@@ -1060,12 +1078,12 @@ joined &lt;- open_dataset("data/history.parquet") |>
     )
   )
 
-groups        &lt;- read_parquet("data/groups.parquet")
-market_groups &lt;- read_parquet("data/market_groups.parquet")
-&#96;&#96;&#96;
+groups        <- read_parquet("data/groups.parquet")
+market_groups <- read_parquet("data/market_groups.parquet")
+```
 
-&#96;&#96;&#96;{r}
-accuracy &lt;- joined |>
+```{r}
+accuracy <- joined |>
   group_by(time_bucket) |>
   summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
 
@@ -1080,10 +1098,10 @@ accuracy |>
     y        = "Mean absolute error"
   ) +
   theme_minimal()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-calibration &lt;- joined |>
+```{r}
+calibration <- joined |>
   filter(days_to_resolution == 0) |>
   mutate(prob_bin = round(probability * 10) / 10) |>
   group_by(prob_bin) |>
@@ -1101,8 +1119,8 @@ calibration |>
        subtitle = "Point size shows how many markets landed in each probability bin",
        size = "Markets") +
   theme_minimal()
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1120,20 +1138,21 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 ```
 [✓] Deploying gh-pages branch to website
-[✓] Published to https://&lt;your-github-username&gt;.github.io/prediction-markets/
+[✓] Published to https://<your-github-username>.github.io/prediction-markets/
 ```
 
 ###
@@ -1144,18 +1163,37 @@ Only the file's *output* travels to that URL. Readers see the two charts, not th
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 Calibration and accuracy are different virtues, and this dataset separates them cleanly. A forecaster who says 50% about everything is perfectly calibrated and useless; one who commits to 5% and 95% is far more informative but easier to embarrass. Manifold's curve is tight at the extremes, where most markets sit, and wanders in the middle, where few do — which is the shape you would expect when the interesting questions are also the rare ones.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "prediction-markets")
 ```

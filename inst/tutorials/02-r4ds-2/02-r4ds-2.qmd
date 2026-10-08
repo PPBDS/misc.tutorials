@@ -1,28 +1,20 @@
 ---
 title: R4DS 2
 author: David Kane
-tutorial:
-  id: r4ds-2
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'This tutorial for "R for Data Science" covers Chapter 9: Layers, Chapter 10: Exploratory Data Analysis, Chapter 11: Communication, and Chapter 20: Spreadsheets. Exercises practice ggplot2 techniques — calendar heatmaps, line charts, boxplots, and scatter plots — using US birth data and NBA recruit datasets read from Excel files with readxl.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
-library(knitr)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(readxl)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
@@ -77,7 +69,13 @@ basketball_tibble <- read_excel(
   )
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -110,23 +108,25 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
-</code></pre>
+```
+analysis_files
+```
 
 ###
 
@@ -151,21 +151,23 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(readxl)
-</code></pre>
+```
 
 ###
 
@@ -185,13 +187,14 @@ We will soon stop giving you commands like these and just have AI do it.
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "We will soon stop giving you commands like these and just have AI do it. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -214,9 +217,7 @@ Keeping raw data in its own `data/` directory is the convention [Chapter 20: Spr
 
 In 2015, FiveThirtyEight published ["Some People Are Too Superstitious to Have a Baby on Friday the 13th"](https://fivethirtyeight.com/features/some-people-are-too-superstitious-to-have-a-baby-on-friday-the-13th/), which showed US births relative to average — adjusted for time trends, seasonality, and day of week — across the full calendar year.
 
-```{r}
-knitr::include_graphics("images/us-births-heatmap.png")
-```
+![](images/us-births-heatmap.png){width=90%}
 
 New Year's Day and Christmas show the deepest dips; even the 13th of each month is slightly lower than surrounding days. You will investigate this dataset and produce a version of this chart.
 
@@ -240,13 +241,14 @@ ls data
 
 CP/CR.
 
-```{r births-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-1
+#| echo: false
+learnr2::question(
+  "download.file( \"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/us_births_1994_2014.xlsx\", \"data/us_births_1994_2014.xlsx\", mode = \"wb\" ) In a bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -267,19 +269,21 @@ Display the structure of `data/us_births_1994_2014.xlsx` — its column names, t
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-2-test}
+```{r}
+#| label: births-2-answer
 #| echo: true
 glimpse(read_excel("data/us_births_1994_2014.xlsx"))
 ```
@@ -294,19 +298,21 @@ Show summary statistics for the `births` and `year` columns. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-3-test}
+```{r}
+#| label: births-3-answer
 #| echo: true
 read_excel("data/us_births_1994_2014.xlsx") |>
   select(births, year) |>
@@ -331,19 +337,21 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r births-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-4
+#| echo: false
+learnr2::question(
+  "Build a tibble named births_tibble from the spreadsheet in which day_of_week is an ordered factor running \"Sun\", \"Mon\", \"Tues\", \"Wed\", \"Thurs\", \"Fri\", \"Sat\", then display its structure. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-4-test}
+```{r}
+#| label: births-4-answer
 #| echo: true
 births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
@@ -373,18 +381,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r births-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-5
+#| echo: false
+learnr2::question(
+  "births_tibble is worth keeping around, so the chunk that builds it should do nothing else. Delete the display line from that chunk, leaving only the definition of births_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>births_tibble &lt;- read_excel("data/us_births_1994_2014.xlsx") |>
+```
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
     day_of_week = factor(
       day_of_week,
@@ -392,7 +402,7 @@ question_text(NULL,
       ordered = TRUE
     )
   )
-</code></pre>
+```
 
 ###
 
@@ -408,13 +418,14 @@ In the bash Terminal, run `ls`.
 
 CP/CR.
 
-```{r births-6}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-6
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -435,20 +446,22 @@ The Source Control change count just jumped, because `analysis_cache/` and every
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r births-7}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-7
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -460,19 +473,21 @@ In a new code chunk, compute the average number of births for each calendar posi
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-8}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-8-test}
+```{r}
+#| label: births-8-answer
 #| echo: true
 births_tibble |>
   group_by(month, date_of_month) |>
@@ -487,27 +502,24 @@ This summary collapses 7,670 daily observations into 366 cells (one per calendar
 
 Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r births-9}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-9
+#| echo: false
+learnr2::question(
+  "Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-9-test}
+```{r}
+#| label: births-9-answer
 #| echo: true
 births_tibble |>
   group_by(month, date_of_month) |>
@@ -540,19 +552,21 @@ Compute, for each year, the number of births on December 25 and the average numb
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-10}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-10
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-10-test}
+```{r}
+#| label: births-10-answer
 #| echo: true
 christmas_data <- births_tibble |>
   filter(month == 12) |>
@@ -585,19 +599,21 @@ Show summary statistics for `christmas_data`. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-11}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-11
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-11-test}
+```{r}
+#| label: births-11-answer
 #| echo: true
 summary(christmas_data)
 ```
@@ -610,27 +626,24 @@ The `pct_of_baseline` ranges from 48.1% to 70.8% — a 23-point swing across jus
 
 Make a line and point chart of `pct_of_baseline` by year. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r births-12}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-12
+#| echo: false
+learnr2::question(
+  "Make a line and point chart of pct_of_baseline by year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-12-test}
+```{r}
+#| label: births-12-answer
 #| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline)) +
@@ -655,27 +668,24 @@ There seems to be a general downward trend as well as an oscillating pattern. Tw
 
 Update the plot to color each point by the weekday that December 25 fell on that year. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r births-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-13
+#| echo: false
+learnr2::question(
+  "Update the plot to color each point by the weekday that December 25 fell on that year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-13-test}
+```{r}
+#| label: births-13-answer
 #| echo: true
 christmas_data |>
   ggplot(aes(x = year, y = pct_of_baseline, color = weekday)) +
@@ -708,19 +718,21 @@ Fit a linear model that explains each day's birth count from year, month, and da
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: births-14
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-14-test}
+```{r}
+#| label: births-14-answer
 #| echo: true
 births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
                    data = births_tibble)
@@ -744,19 +756,21 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r births-15}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-15
+#| echo: false
+learnr2::question(
+  "Add a column to births_tibble named pct_resid holding each day's residual from births_model, expressed as a percentage of the overall mean birth count. Assign the result to births_adjusted and display its structure. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-15-test}
+```{r}
+#| label: births-15-answer
 #| echo: true
 births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
                    data = births_tibble)
@@ -777,19 +791,21 @@ Collapse `births_adjusted` to one row per calendar position — 365 of them, wit
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r births-16}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-16
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-16-test}
+```{r}
+#| label: births-16-answer
 #| echo: true
 births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
                    data = births_tibble)
@@ -813,27 +829,24 @@ This collapses 7,670 daily residuals to 365 calendar positions. Each row shows h
 
 Plot `calendar_resid` as a line chart with `calendar_date` on the x-axis and `mean_pct_resid` on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r births-17}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: births-17
+#| echo: false
+learnr2::question(
+  "Plot calendar_resid as a line chart with calendar_date on the x-axis and mean_pct_resid on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r births-17-test}
+```{r}
+#| label: births-17-answer
 #| echo: true
 calendar_resid |>
   ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
@@ -858,9 +871,7 @@ calendar_resid |>
 
 Original FiveThirtyEight graphic for comparison:
 
-```{r}
-knitr::include_graphics("images/us-births-heatmap.png")
-```
+![](images/us-births-heatmap.png){width=90%}
 
 The pattern matches the FiveThirtyEight original: deep dips at Christmas, New Year's Day, and July 4; the rest of the year hovering near zero. After removing year, month, and weekday effects, the September peak disappears — it was entirely seasonal. What remains is the calendar of human decisions: the days families choose to avoid.
 
@@ -878,13 +889,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r births-18}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: births-18
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -903,9 +915,7 @@ The births analysis is a textbook EDA iteration: a simple plot reveals a pattern
 
 In 2019, The Pudding published [*How Many High School Stars Actually Make It in the NBA?*](https://pudding.cool/2019/03/hype/), which tracked every top-ranked high school basketball recruit from 1998 onward to see how their careers actually unfolded.
 
-```{r}
-knitr::include_graphics("images/nba-hype.jpg")
-```
+![](images/nba-hype.jpg){width=90%}
 
 The guiding question: does being a top-ranked teenager actually predict who becomes an NBA star? Our spreadsheet `data/nba_recruits.xlsx` contains The Pudding's dataset — one row per player, with recruit ranking, draft information, and career statistics.
 
@@ -929,13 +939,14 @@ ls data
 
 CP/CR.
 
-```{r basketball-recruits-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-1
+#| echo: false
+learnr2::question(
+  "download.file( \"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/02-r4ds-2/data/nba_recruits.xlsx\", \"data/nba_recruits.xlsx\", mode = \"wb\" ) In a bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -956,19 +967,21 @@ Display the structure of `data/nba_recruits.xlsx` — its column names, their ty
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r basketball-recruits-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-2-test}
+```{r}
+#| label: basketball-recruits-2-answer
 #| echo: true
 read_excel("data/nba_recruits.xlsx") |> glimpse()
 ```
@@ -983,19 +996,21 @@ Show summary statistics for `rank`, `nba_mean_ws48`, `top_mean_wa`, `total_seaso
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r basketball-recruits-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-3-test}
+```{r}
+#| label: basketball-recruits-3-answer
 #| echo: true
 read_excel("data/nba_recruits.xlsx") |>
   select(rank, nba_mean_ws48, top_mean_wa, total_seasons, drafted) |>
@@ -1012,19 +1027,21 @@ Count the players in each career `tier`. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r basketball-recruits-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-4-test}
+```{r}
+#| label: basketball-recruits-4-answer
 #| echo: true
 read_excel("data/nba_recruits.xlsx") |>
   count(tier)
@@ -1046,19 +1063,21 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r basketball-recruits-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: basketball-recruits-5
+#| echo: false
+learnr2::question(
+  "Build a tibble named basketball_tibble from the spreadsheet in which tier is an ordered factor running \"Never played\", \"Brief career\", \"Solid career\", \"All-Star level\", \"Superstar\". Count the players in each tier again. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-5-test}
+```{r}
+#| label: basketball-recruits-5-answer
 #| echo: true
 basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
   mutate(
@@ -1088,19 +1107,21 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r basketball-recruits-6}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 15)
+```{r}
+#| label: basketball-recruits-6
+#| echo: false
+learnr2::question(
+  "Extend that pipeline so recruit_group is an ordered factor too, running \"#1–10\", \"#11–25\", \"#26–50\", \"#51–100\", \"Outside top 100\". Count the players in each recruit group. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-6-test}
+```{r}
+#| label: basketball-recruits-6-answer
 #| echo: true
 basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
   mutate(
@@ -1136,18 +1157,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r basketball-recruits-7}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 15)
+```{r}
+#| label: basketball-recruits-7
+#| echo: false
+learnr2::question(
+  "basketball_tibble is the object the rest of this section is built on, so the chunk that creates it should do nothing else. Delete the counting line from that chunk, leaving only the definition of basketball_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>basketball_tibble &lt;- read_excel("data/nba_recruits.xlsx") |>
+```
+basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
       tier,
@@ -1159,7 +1182,7 @@ question_text(NULL,
       levels = c("#1–10", "#11–25", "#26–50", "#51–100", "Outside top 100")
     )
   )
-</code></pre>
+```
 
 ###
 
@@ -1173,13 +1196,14 @@ In the bash Terminal, run `ls`.
 
 CP/CR.
 
-```{r basketball-recruits-8}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-8
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1200,27 +1224,24 @@ A cache is keyed to the code in the chunk, not to the file it reads. Change a le
 
 Add a new code chunk to your QMD that creates a bar chart from `basketball_tibble` showing the proportion of players in each career tier broken down by recruit group, with recruit groups on the y-axis and career tier as the fill color. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r basketball-recruits-9}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: basketball-recruits-9
+#| echo: false
+learnr2::question(
+  "Add a new code chunk to your QMD that creates a bar chart from basketball_tibble showing the proportion of players in each career tier broken down by recruit group, with recruit groups on the y-axis and career tier as the fill color. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-9-test}
+```{r}
+#| label: basketball-recruits-9-answer
 #| echo: true
 basketball_tibble |>
   ggplot(aes(x = fct_rev(recruit_group), fill = tier)) +
@@ -1246,27 +1267,24 @@ Among the four ranked groups, the funnel is clear: the "Never played" segment sh
 
 Replace the code in the previous chunk to filter `basketball_tibble` to the four ranked groups (excluding `"Outside top 100"`) before plotting the proportional bar chart, so all groups share the same data structure. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r basketball-recruits-10}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: basketball-recruits-10
+#| echo: false
+learnr2::question(
+  "Replace the code in the previous chunk to filter basketball_tibble to the four ranked groups (excluding \"Outside top 100\") before plotting the proportional bar chart, so all groups share the same data structure. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-10-test}
+```{r}
+#| label: basketball-recruits-10-answer
 #| echo: true
 basketball_tibble |>
   filter(recruit_group != "Outside top 100") |>
@@ -1293,27 +1311,24 @@ With the "Outside top 100" group removed, the four bars represent comparable coh
 
 Replace the code in that chunk with a boxplot comparing career Win Shares per 48 minutes across recruit groups, with recruit groups on the y-axis. Only the players who actually have a career WS48 value belong in the plot. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r basketball-recruits-11}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: basketball-recruits-11
+#| echo: false
+learnr2::question(
+  "Replace the code in that chunk with a boxplot comparing career Win Shares per 48 minutes across recruit groups, with recruit groups on the y-axis. Only the players who actually have a career WS48 value belong in the plot. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-11-test}
+```{r}
+#| label: basketball-recruits-11-answer
 #| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
@@ -1342,19 +1357,21 @@ Replace the code in that chunk with a table of the ten players with the highest 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r basketball-recruits-12}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 7)
+```{r}
+#| label: basketball-recruits-12
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-12-test}
+```{r}
+#| label: basketball-recruits-12-answer
 #| echo: true
 basketball_tibble |>
   filter(!is.na(nba_mean_ws48)) |>
@@ -1371,27 +1388,24 @@ Three of the ten — Stephen Curry (5th), Hassan Whiteside (7th), and Jimmy Butl
 
 Replace the code in that chunk with a scatter plot of peak Wins Added against recruit rank, colored by career tier, with a straight-line trend added and at least four notable players labelled by name. Only players who have both a rank and a peak Wins Added value belong in the plot. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r basketball-recruits-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 15)
+```{r}
+#| label: basketball-recruits-13
+#| echo: false
+learnr2::question(
+  "Replace the code in that chunk with a scatter plot of peak Wins Added against recruit rank, colored by career tier, with a straight-line trend added and at least four notable players labelled by name. Only players who have both a rank and a peak Wins Added value belong in the plot. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
 
-```{r basketball-recruits-13-test}
+```{r}
+#| label: basketball-recruits-13-answer
 #| echo: true
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
@@ -1445,13 +1459,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r basketball-recruits-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: basketball-recruits-14
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1485,33 +1500,35 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of your plots. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Analyzing US Births and Basketball Recruits"
-author: &lt;your name&gt;
+author: <your name>
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(readxl)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
-births_tibble &lt;- read_excel("data/us_births_1994_2014.xlsx") |>
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
     day_of_week = factor(
       day_of_week,
@@ -1519,15 +1536,15 @@ births_tibble &lt;- read_excel("data/us_births_1994_2014.xlsx") |>
       ordered = TRUE
     )
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-births_model &lt;- lm(births ~ factor(year) + factor(month) + day_of_week,
+```{r}
+births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
                    data = births_tibble)
 
-calendar_resid &lt;- births_tibble |>
+calendar_resid <- births_tibble |>
   mutate(pct_resid = resid(births_model) / mean(births) * 100) |>
-  filter(!(month == 2 &amp; date_of_month == 29)) |>
+  filter(!(month == 2 & date_of_month == 29)) |>
   group_by(month, date_of_month) |>
   summarize(mean_pct_resid = mean(pct_resid), .groups = "drop") |>
   mutate(calendar_date = as.Date(paste("2001", month, date_of_month,
@@ -1550,11 +1567,11 @@ calendar_resid |>
     caption = "Source: FiveThirtyEight/SSA (1994–2014)"
   ) +
   theme_minimal()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
-basketball_tibble &lt;- read_excel("data/nba_recruits.xlsx") |>
+basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
       tier,
@@ -1566,9 +1583,9 @@ basketball_tibble &lt;- read_excel("data/nba_recruits.xlsx") |>
       levels = c("#1–10", "#11–25", "#26–50", "#51–100", "Outside top 100")
     )
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 basketball_tibble |>
   filter(!is.na(rank), !is.na(top_mean_wa)) |>
   ggplot(aes(x = rank, y = top_mean_wa, color = tier)) +
@@ -1603,8 +1620,8 @@ basketball_tibble |>
     caption = "Source: The Pudding, 2019"
   ) +
   theme_minimal()
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1622,13 +1639,14 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1639,18 +1657,37 @@ A GitHub Pages URL makes the rendered HTML publicly accessible. Unlike the Live 
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 The GitHub repo holds the source — `analysis.qmd` — behind the published page. Anyone can clone it, reproduce the analysis, or adapt it for a different dataset.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "02-r4ds-2")
 ```

@@ -1,28 +1,19 @@
 ---
 title: Movies
 author: Harshil Kurapati
-tutorial:
-  id: movies
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: "Explore Rotten Tomatoes movie data stored as a CSV file and discover how critic and audience scores diverge across genres."
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(message = FALSE)
-options(tutorial.exercise.timelimit = 60,
-        tutorial.storage = "local")
 
 movies <- read_csv("data/movies.csv",
                    show_col_types = FALSE)
@@ -41,7 +32,13 @@ movies_summary <- movies_gap |>
   arrange(mean_gap)
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -70,17 +67,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -103,13 +101,14 @@ https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movie
 
 In the bash Terminal, run `ls data`. CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -134,22 +133,24 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 
 movies <- read_csv("data/movies.csv", show_col_types = FALSE)
-</code></pre>
+```
 
 ###
 
@@ -160,13 +161,14 @@ The `tomatoMeter` is the percentage of approved critics who gave the film a posi
 Commit and push your work with a message like "Initial project setup with movies data". Copy-paste the output of `git log --oneline -3` into the answer box.
 
 
-```{r introduction-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: introduction-4
+#| echo: false
+learnr2::question(
+  "Commit and push your work with a message like \"Initial project setup with movies data\". Copy-paste the output of git log --oneline -3 into the answer box.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -199,18 +201,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-1
+#| echo: false
+learnr2::question(
+  "<!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. --> In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-1-test}
+```{r}
+#| label: explore-1-answer
 #| echo: true
 glimpse(movies)
 ```
@@ -229,18 +233,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-2
+#| echo: false
+learnr2::question(
+  "Inside the same chunk, add a call to names(movies) below glimpse(movies). Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-2-test}
+```{r}
+#| label: explore-2-answer
 #| echo: true
 names(movies)
 ```
@@ -259,18 +265,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-3
+#| echo: false
+learnr2::question(
+  "Add a new chunk that counts how many values are missing in each column. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-3-test}
+```{r}
+#| label: explore-3-answer
 #| echo: true
 movies |>
   summarize(across(everything(), ~sum(is.na(.))))
@@ -290,18 +298,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-4
+#| echo: false
+learnr2::question(
+  "Add a new chunk that shows the title and boxOffice for the first 10 films that have a non-missing box office value. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-4-test}
+```{r}
+#| label: explore-4-answer
 #| echo: true
 movies |>
   filter(!is.na(boxOffice)) |>
@@ -330,18 +340,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-5
+#| echo: false
+learnr2::question(
+  "*_cache/ /.quarto/ Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-5-test}
+```{r}
+#| label: explore-5-answer
 #| echo: true
 movies_clean <- movies |>
   separate_longer_delim(genre, delim = ", ")
@@ -363,18 +375,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-6
+#| echo: false
+learnr2::question(
+  "Add a new chunk that counts how many rows there are per genre after splitting, sorted from most to least common. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-6-test}
+```{r}
+#| label: explore-6-answer
 #| echo: true
 movies_clean |>
   count(genre, sort = TRUE)
@@ -394,18 +408,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r explore-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-7
+#| echo: false
+learnr2::question(
+  "Add a new chunk that computes the mean audienceScore and mean tomatoMeter across all films in movies. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-7-test}
+```{r}
+#| label: explore-7-answer
 #| echo: true
 movies |>
   summarize(mean_audience = mean(audienceScore),
@@ -418,26 +434,23 @@ Critics score films slightly higher on average than audiences — 64.4 versus 62
 
 ### Exercise 8
 
-Add a new chunk that plots the distribution of `tomatoMeter` as a histogram. Label the x-axis "Tomatometer Score", the y-axis "Count", and give the plot a title. Render, then run:
+Add a new chunk that plots the distribution of `tomatoMeter` as a histogram. Label the x-axis "Tomatometer Score", the y-axis "Count", and give the plot a title. Render, then take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r explore-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: explore-8
+#| echo: false
+learnr2::question(
+  "Add a new chunk that plots the distribution of tomatoMeter as a histogram. Label the x-axis \"Tomatometer Score\", the y-axis \"Count\", and give the plot a title. Render, then take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r explore-8-test}
+```{r}
+#| label: explore-8-answer
 #| echo: true
 movies |>
   ggplot(aes(x = tomatoMeter)) +
@@ -455,13 +468,14 @@ Critic scores skew heavily toward the high end — counts rise steadily from low
 
 Commit your work with a message like "Add data exploration and tomatoMeter histogram". Copy-paste the output of `git log --oneline -3` into the answer box.
 
-```{r explore-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: explore-9
+#| echo: false
+learnr2::question(
+  "Commit your work with a message like \"Add data exploration and tomatoMeter histogram\". Copy-paste the output of git log --oneline -3 into the answer box.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -484,18 +498,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-1
+#| echo: false
+learnr2::question(
+  "Add a new chunk to analysis.qmd that creates a gap column equal to tomatoMeter - audienceScore and stores the result as movies_gap. Make sure the gap column is visible in the output. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-1-test}
+```{r}
+#| label: gap-1-answer
 #| echo: true
 movies_gap <- movies_clean |>
   mutate(gap = tomatoMeter - audienceScore)
@@ -519,18 +535,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-2
+#| echo: false
+learnr2::question(
+  "Add a new chunk that shows the 8 films with the largest positive gaps — the films critics love most relative to audiences. Note that because movies_clean has one row per genre, some films appear more than once — make sure each film only appears once in your results. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-2-test}
+```{r}
+#| label: gap-2-answer
 #| echo: true
 movies_gap |>
   distinct(title, .keep_all = TRUE) |>
@@ -557,18 +575,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-3
+#| echo: false
+learnr2::question(
+  "<!-- VK: gap_by_genre should be defined before the plot chunk but the tutorial uses one evolving chunk. Got an \"object not found\" error. Can instead split into two chunks. --> In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-3-test}
+```{r}
+#| label: gap-3-answer
 #| echo: true
 movies_gap |>
   distinct(title, .keep_all = TRUE) |>
@@ -591,18 +611,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-4
+#| echo: false
+learnr2::question(
+  "Add a new chunk that summarizes the distribution of gap across all films — compute the mean, median, and standard deviation. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-4-test}
+```{r}
+#| label: gap-4-answer
 #| echo: true
 movies_gap |>
   summarize(mean_gap   = mean(gap),
@@ -624,18 +646,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-5
+#| echo: false
+learnr2::question(
+  "Add a new chunk that groups movies_gap by genre and computes the mean gap for each genre, without any filter. Arrange by mean gap. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-5-test}
+```{r}
+#| label: gap-5-answer
 #| echo: true
 movies_gap |>
 summarize(mean_gap = mean(gap, na.rm = TRUE),
@@ -658,18 +682,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r gap-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-6
+#| echo: false
+learnr2::question(
+  "Update that same chunk to filter to genres with at least 100 films and store the result as movies_summary. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-6-test}
+```{r}
+#| label: gap-6-answer
 #| echo: true
 movies_summary <- movies_gap |>
   summarize(mean_gap = mean(gap, na.rm = TRUE),
@@ -687,26 +713,23 @@ After filtering, 22 genres remain — enough to see a clear pattern. Action and 
 
 ### Exercise 7
 
-Add a new chunk that plots `movies_summary` as a horizontal bar chart showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then run:
+Add a new chunk that plots `movies_summary` as a horizontal bar chart showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r gap-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: gap-7
+#| echo: false
+learnr2::question(
+  "Add a new chunk that plots movies_summary as a horizontal bar chart showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r gap-7-test}
+```{r}
+#| label: gap-7-answer
 #| echo: true
 movies_summary |>
   ggplot(aes(x = mean_gap,
@@ -739,20 +762,22 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 20)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 Your `analysis.qmd` should look something like this:
 
-<pre><code>---
+````{verbatim}
+---
 title: "Movie Analysis"
 author: "Your Name"
 format: html
@@ -760,19 +785,19 @@ execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 library(tidyverse)
 
 movies <- read_csv("data/movies.csv", show_col_types = FALSE)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 movies_clean <- movies |>
   separate_longer_delim(genre, delim = ", ")
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 movies_gap <- movies_clean |>
   mutate(gap = tomatoMeter - audienceScore)
 
@@ -780,17 +805,17 @@ movies_summary <- movies_gap |>
   summarize(mean_gap = mean(gap, na.rm = TRUE), n = n(), .by = genre) |>
   filter(n >= 100) |>
   arrange(mean_gap)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 movies |>
   ggplot(aes(x = tomatoMeter)) +
   geom_histogram(binwidth = 5) +
   labs(title = "Distribution of Rotten Tomatoes Critic Scores",
        x = "Tomatometer Score", y = "Count")
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 movies_summary |>
   ggplot(aes(x = mean_gap, y = fct_reorder(genre, mean_gap))) +
   geom_col() +
@@ -798,8 +823,8 @@ movies_summary |>
   labs(title = "Average Critic vs. Audience Score Gap by Genre",
        subtitle = "Positive = critics rate higher; Negative = audiences rate higher",
        x = "Mean Gap (Tomatometer - Audience Score)", y = "Genre")
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ### Exercise 2
 
@@ -811,13 +836,14 @@ quarto publish gh-pages analysis.qmd
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -828,18 +854,37 @@ Your answer should be the public `https://...` URL created by `quarto publish gh
 
 Commit and push your final work. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push your final work. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 Your repo holds the source that reproduces the published page. The published URL shows the result; the repo shows how it was made.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "movies")
 ```

@@ -1,29 +1,21 @@
 ---
 title: Analyzing US Census Data
 author: David Kane and Alec Rogers
-tutorial:
-  id: census
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: "Companion to the tidycensus chapters of 'Analyzing US Census Data' by Kyle Walker. Pulls American Community Survey data with tidycensus and builds three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age."
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(tidycensus)
 library(sf)
-library(knitr)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 # The data below was pulled once with tidycensus and saved, so this tutorial
 # renders without hitting the Census API. Students make the live calls in their
@@ -47,7 +39,13 @@ edu_state <- read_rds("data/edu_state.rds")
 age_ca <- read_rds("data/age_ca.rds")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -75,17 +73,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -123,21 +122,24 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render again. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(tidycensus)
-library(sf)</code></pre>
+library(sf)
+```
 
 ###
 
@@ -171,13 +173,14 @@ Run only the second command for evidence. Never paste the key itself anywhere.
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Run only the second command for evidence. Never paste the key itself anywhere. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -207,18 +210,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r texas-income-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: texas-income-1
+#| echo: false
+learnr2::question(
+  "Add a chunk to analysis.qmd that uses tidycensus to get 2020 median household income for every county in Texas, with county geometry attached for mapping, and saves it as income_tx. Add #| message: false to the chunk to hide the connection messages. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 income_tx <- get_acs(
   geography = "county",
   variables = "B19013_001",
@@ -226,7 +231,7 @@ income_tx <- get_acs(
   year = 2020,
   geometry = TRUE
 )
-</code></pre>
+```
 
 ###
 
@@ -236,18 +241,20 @@ Every ACS request comes down to three choices: the **geographic level** (county 
 
 Add a chunk that prints `income_tx` so you can see its structure. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r texas-income-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: texas-income-2
+#| echo: false
+learnr2::question(
+  "Add a chunk that prints income_tx so you can see its structure. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-2-test}
+```{r}
+#| label: texas-income-2-answer
 #| echo: true
 income_tx
 ```
@@ -268,18 +275,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r texas-income-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: texas-income-3
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that shows the structure of income_tx. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-3-test}
+```{r}
+#| label: texas-income-3-answer
 #| echo: true
 glimpse(income_tx)
 ```
@@ -300,18 +309,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r texas-income-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 7)
+```{r}
+#| label: texas-income-4
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that summarizes median household income and margin of error across the Texas counties. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-4-test}
+```{r}
+#| label: texas-income-4-answer
 #| echo: true
 income_tx |>
   st_drop_geometry() |>
@@ -331,26 +342,23 @@ The income spread is large enough that a map should be interesting: Texas counti
 
 Replace the working chunk with a histogram of county median household income. Render and look at the shape of the distribution.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r texas-income-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: texas-income-5
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a histogram of county median household income. Render and look at the shape of the distribution. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-5-test}
+```{r}
+#| label: texas-income-5-answer
 #| echo: true
 #| message: false
 ggplot(income_tx, aes(x = estimate)) +
@@ -371,26 +379,23 @@ The histogram shows the distribution but not the geography. A few high-income co
 
 Replace the histogram with a choropleth map of median income across the counties using **ggplot2**. Render and check the map in your Live Server tab.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r texas-income-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: texas-income-6
+#| echo: false
+learnr2::question(
+  "Replace the histogram with a choropleth map of median income across the counties using ggplot2. Render and check the map in your Live Server tab. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-6-test}
+```{r}
+#| label: texas-income-6-answer
 #| echo: true
 #| message: false
 ggplot(income_tx) +
@@ -405,26 +410,23 @@ This is a **choropleth** — each county drawn from its boundary and shaded by i
 
 Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r texas-income-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: texas-income-7
+#| echo: false
+learnr2::question(
+  "Improve the map: give it a perceptually uniform color scale (the viridis family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r texas-income-7-test}
+```{r}
+#| label: texas-income-7-answer
 #| echo: true
 #| message: false
 ggplot(income_tx) +
@@ -447,13 +449,14 @@ Commit your work. Stage `analysis.qmd`, commit with the message `"Add Texas inco
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r texas-income-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: texas-income-8
+#| echo: false
+learnr2::question(
+  "CP/CR, or write a short note describing how you committed and pushed.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -477,18 +480,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 7)
+```{r}
+#| label: education-by-state-1
+#| echo: false
+learnr2::question(
+  "Add a chunk that uses tidycensus to get 2020 educational attainment for state-level geographies and save it as edu_state. You need the table total plus the bachelor's-and-higher levels: variables B15003_001 (total), B15003_022, B15003_023, B15003_024, and B15003_025. Pass summary_var = \"B15003_001\" so the total rides along on every row. Add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 edu_state <- get_acs(
   geography = "state",
   variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
@@ -496,7 +501,7 @@ edu_state <- get_acs(
   geometry = FALSE,
   summary_var = "B15003_001"
 )
-</code></pre>
+```
 
 ###
 
@@ -514,18 +519,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: education-by-state-2
+#| echo: false
+learnr2::question(
+  "Add a working chunk that prints edu_state. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-2-test}
+```{r}
+#| label: education-by-state-2-answer
 #| echo: true
 edu_state
 ```
@@ -546,18 +553,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: education-by-state-3
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that shows the structure of edu_state. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-3-test}
+```{r}
+#| label: education-by-state-3-answer
 #| echo: true
 glimpse(edu_state)
 ```
@@ -578,18 +587,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: education-by-state-4
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a summary by variable that reports how many rows each variable has and the smallest and largest estimates. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-4-test}
+```{r}
+#| label: education-by-state-4-answer
 #| echo: true
 edu_state |>
   group_by(variable) |>
@@ -610,18 +621,20 @@ You are done changing the chunk that downloads `edu_state`, and re-downloading i
 
 First, clean up. Delete the working chunk that summarized `edu_state`, leaving the `edu_state <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r education-by-state-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: education-by-state-5
+#| echo: false
+learnr2::question(
+  "First, clean up. Delete the working chunk that summarized edu_state, leaving the edu_state <- get_acs(...) chunk as the last chunk in the file. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 edu_state <- get_acs(
   geography = "state",
   variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
@@ -629,7 +642,7 @@ edu_state <- get_acs(
   geometry = FALSE,
   summary_var = "B15003_001"
 )
-</code></pre>
+```
 
 ###
 
@@ -639,19 +652,21 @@ A chunk ready to cache should contain only the artifact it builds. The explorato
 
 Add `#| cache: true` as the second line inside the chunk, just below `#| message: false`. Render the QMD. Rendering creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-downloading from the Census API. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r education-by-state-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: education-by-state-6
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the second line inside the chunk, just below #| message: false. Render the QMD. Rendering creates an analysis_cache/ directory next to your analysis.qmd, which holds the saved tibble so Quarto can reload it on subsequent renders rather than re-downloading from the Census API. To confirm the directory is there, run ls in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis.qmd  analysis_cache  analysis_files  analysis.html
-</code></pre>
+```
+analysis.qmd  analysis_cache  analysis_files  analysis.html
+```
 
 ###
 
@@ -663,20 +678,22 @@ The Source Control change count just jumped, because `analysis_cache/` and every
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r education-by-state-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: education-by-state-7
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -694,18 +711,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: education-by-state-8
+#| echo: false
+learnr2::question(
+  "Add a new working chunk that collapses edu_state to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-8-test}
+```{r}
+#| label: education-by-state-8-answer
 #| echo: true
 edu_state |>
   group_by(GEOID, NAME) |>
@@ -732,18 +751,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r education-by-state-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: education-by-state-9
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that summarizes the distribution of the state-level bachelor's-or-higher percentages. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-9-test}
+```{r}
+#| label: education-by-state-9-answer
 #| echo: true
 edu_state |>
   group_by(GEOID, NAME) |>
@@ -763,26 +784,23 @@ The middle state-level geography is around 31%, while the minimum is about 21% a
 
 Replace the working chunk with a histogram of the state-level bachelor's-or-higher percentages. Render and look at the shape of the distribution.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r education-by-state-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: education-by-state-10
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a histogram of the state-level bachelor's-or-higher percentages. Render and look at the shape of the distribution. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-10-test}
+```{r}
+#| label: education-by-state-10-answer
 #| echo: true
 
 edu_state |>
@@ -810,26 +828,23 @@ The histogram shows that most state-level geographies cluster in a fairly narrow
 
 Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r education-by-state-11}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 9)
+```{r}
+#| label: education-by-state-11
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-11-test}
+```{r}
+#| label: education-by-state-11-answer
 #| echo: true
 edu_state |>
   group_by(GEOID, NAME) |>
@@ -850,26 +865,23 @@ Ordering the bars turns the distribution into a comparison. The rough chart show
 
 Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r education-by-state-12}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 9)
+```{r}
+#| label: education-by-state-12
+#| echo: false
+learnr2::question(
+  "Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r education-by-state-12-test}
+```{r}
+#| label: education-by-state-12-answer
 #| echo: true
 edu_state |>
   group_by(GEOID, NAME) |>
@@ -901,13 +913,14 @@ Commit your work. Stage `analysis.qmd`, commit with the message `"Add state educ
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r education-by-state-13}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: education-by-state-13
+#| echo: false
+learnr2::question(
+  "CP/CR, or write a short note describing how you committed and pushed.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -931,18 +944,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-median-age-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: california-median-age-1
+#| echo: false
+learnr2::question(
+  "Add a chunk that uses tidycensus to get 2020 median age and total population for every county in California, naming the variables median_age (B01002_001) and population (B01003_001). You are building a non-map chart, so set geometry = FALSE. Save it as age_ca and add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 age_ca <- get_acs(
   geography = "county",
   variables = c(median_age = "B01002_001", population = "B01003_001"),
@@ -950,7 +965,7 @@ age_ca <- get_acs(
   year = 2020,
   geometry = FALSE
 )
-</code></pre>
+```
 
 ###
 
@@ -968,18 +983,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-median-age-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: california-median-age-2
+#| echo: false
+learnr2::question(
+  "Add a working chunk that prints age_ca. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-2-test}
+```{r}
+#| label: california-median-age-2-answer
 #| echo: true
 age_ca
 ```
@@ -1000,18 +1017,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-median-age-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: california-median-age-3
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that shows the structure of age_ca. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-3-test}
+```{r}
+#| label: california-median-age-3-answer
 #| echo: true
 glimpse(age_ca)
 ```
@@ -1032,18 +1051,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-median-age-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: california-median-age-4
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a summary by variable that reports how many rows each variable has and the smallest and largest estimates. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-4-test}
+```{r}
+#| label: california-median-age-4-answer
 #| echo: true
 age_ca |>
   group_by(variable) |>
@@ -1070,18 +1091,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r california-median-age-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 7)
+```{r}
+#| label: california-median-age-5
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that reshapes age_ca to one row per county, with one column for median_age and one for population. Print the table sorted from largest to smallest population. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-5-test}
+```{r}
+#| label: california-median-age-5-answer
 #| echo: true
 age_ca |>
   select(NAME, variable, estimate) |>
@@ -1097,26 +1120,23 @@ age_ca |>
 
 Replace the working chunk with a histogram of median age across California counties. Render and look at the shape of the distribution.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r california-median-age-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: california-median-age-6
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a histogram of median age across California counties. Render and look at the shape of the distribution. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-6-test}
+```{r}
+#| label: california-median-age-6-answer
 #| echo: true
 #| message: false
 age_ca |>
@@ -1140,26 +1160,23 @@ The histogram shows that most counties sit in the mid-30s to mid-40s, with a few
 
 Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r california-median-age-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: california-median-age-7
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-7-test}
+```{r}
+#| label: california-median-age-7-answer
 #| echo: true
 #| message: false
 age_ca |>
@@ -1177,26 +1194,23 @@ The rough scatterplot has the right variables, but the population axis is hard t
 
 Improve the scatterplot: use a log-scaled population axis, label the largest counties, add a title, clean axis labels, and a source caption. Render and compare to ours.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r california-median-age-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: california-median-age-8
+#| echo: false
+learnr2::question(
+  "Improve the scatterplot: use a log-scaled population axis, label the largest counties, add a title, clean axis labels, and a source caption. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r california-median-age-8-test}
+```{r}
+#| label: california-median-age-8-answer
 #| echo: true
 #| message: false
 age_ca |>
@@ -1229,13 +1243,14 @@ Commit your work. Stage `analysis.qmd`, commit with the message `"Add California
 
 CP/CR, or write a short note describing how you committed and pushed.
 
-```{r california-median-age-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: california-median-age-9
+#| echo: false
+learnr2::question(
+  "CP/CR, or write a short note describing how you committed and pushed.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1257,32 +1272,34 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 25)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render and confirm all three figures appear. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Analyzing US Census Data"
-author: "&lt;your name&gt;"
+author: "<your name>"
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(tidycensus)
 library(sf)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 income_tx <- get_acs(
   geography = "county",
@@ -1291,9 +1308,9 @@ income_tx <- get_acs(
   year = 2020,
   geometry = TRUE
 )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 ggplot(income_tx) +
   geom_sf(aes(fill = estimate), color = "white", size = 0.1) +
@@ -1303,9 +1320,9 @@ ggplot(income_tx) +
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_void()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 #| cache: true
 edu_state <- get_acs(
@@ -1315,9 +1332,9 @@ edu_state <- get_acs(
   geometry = FALSE,
   summary_var = "B15003_001"
 )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 edu_state |>
   group_by(GEOID, NAME) |>
   summarize(
@@ -1336,9 +1353,9 @@ edu_state |>
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_minimal()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 age_ca <- get_acs(
   geography = "county",
@@ -1347,9 +1364,9 @@ age_ca <- get_acs(
   year = 2020,
   geometry = FALSE
 )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 age_ca |>
   select(NAME, variable, estimate) |>
   pivot_wider(names_from = variable, values_from = estimate) |>
@@ -1368,8 +1385,8 @@ age_ca |>
     caption = "Source: ACS 5-year estimates via tidycensus"
   ) +
   theme_minimal()
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1385,13 +1402,14 @@ quarto publish gh-pages analysis.qmd
 
 If a render is still running, stop it first with `Ctrl/Cmd + C`. Copy and paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "If a render is still running, stop it first with Ctrl/Cmd + C. Copy and paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1402,18 +1420,37 @@ Publishing turns your `analysis.qmd` into a public page anyone can view — the 
 
 Commit and push any remaining changes. Copy and paste the URL of your GitHub repo below.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy and paste the URL of your GitHub repo below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 The workflow you used here — **tidycensus** to pull ACS data (with boundaries when you want a map), **sf** to hold the geometry, and **ggplot2** to draw it — is the standard modern approach to US Census analysis. From here, Walker's book goes on to time-series comparisons, spatial statistics, and modeling, all built on the same foundation.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "census")
 ```

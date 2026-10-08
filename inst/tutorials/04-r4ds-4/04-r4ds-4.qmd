@@ -1,29 +1,28 @@
 ---
 title: R4DS 4
 author: David Kane
-tutorial:
-  id: r4ds-4
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: "Arrow / Parquet files: cryptocurrency market composition"
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(arrow)
-
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600, tutorial.storage = "local")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -55,17 +54,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -102,21 +102,23 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(arrow)
-</code></pre>
+```
 
 ###
 
@@ -128,13 +130,14 @@ Create a `data` directory at the top level of the `r4ds-4` repo. In the bash Ter
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the r4ds-4 repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -153,9 +156,7 @@ In production, a parquet *dataset* is usually not one file but a directory of th
 
 Bitcoin launched the cryptocurrency market in 2009, and for its first several years it *was* the market. That had already stopped being true by the time this dataset opens: on January 1, 2018, Ethereum and the other smart-contract platforms held about 52% of the value of the 22 coins tracked here, against Bitcoin's 48%. Which categories held the market over the eight years that followed?
 
-```{r}
-knitr::include_graphics("images/morningstar-chart.png")
-```
+![](images/morningstar-chart.png){width=90%}
 
 In this section you will join three parquet files — daily prices, coin metadata, and category labels — to build a chart, similar to the one above from [this *Morningstar* article](https://global.morningstar.com/en-gb/economy/5-charts-on-crypto-s-past-present-and-future), showing how each category's share of the total crypto market evolved. **arrow** makes it practical to inspect, filter, and summarize those files before pulling anything into memory.
 
@@ -175,13 +176,14 @@ ls data
 
 CP/CR.
 
-```{r crypto-markets-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: crypto-markets-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -206,18 +208,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: crypto-markets-2
+#| echo: false
+learnr2::question(
+  "In a new code chunk, inspect the schema of data/daily_prices.parquet without pulling the full file into memory. Don't assign the result — just print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-2-test}
+```{r}
+#| label: crypto-markets-2-answer
 #| echo: true
 open_dataset("data/daily_prices.parquet")
 ```
@@ -238,18 +242,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 4)
+```{r}
+#| label: crypto-markets-3
+#| echo: false
+learnr2::question(
+  "Take a random sample of 10 rows from data/daily_prices.parquet and collect the result into a tibble. Do not assign it — just print it so you can see a variety of coins and dates. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-3-test}
+```{r}
+#| label: crypto-markets-3-answer
 #| echo: true
 set.seed(9)
 open_dataset("data/daily_prices.parquet") |>
@@ -273,18 +279,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-4}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crypto-markets-4
+#| echo: false
+learnr2::question(
+  "That last answer read the entire file into memory before sampling it. This time, leave the data on disk: get each coin's average market cap since the start of 2025, ordered from largest to smallest, doing the filtering and the averaging inside the parquet file and bringing only the finished 22-row summary back into R. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-4-test}
+```{r}
+#| label: crypto-markets-4-answer
 #| echo: true
 open_dataset("data/daily_prices.parquet") |>
   filter(date_raw >= "2025-01-01") |>
@@ -310,13 +318,14 @@ ls data/prices_by_coin
 
 CP/CR.
 
-```{r crypto-markets-5}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: crypto-markets-5
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls data/prices_by_coin CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -344,18 +353,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-6}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-6
+#| echo: false
+learnr2::question(
+  "Bring the whole price file into memory as an analysis table named prices. Print a random sample of prices so you can inspect the daily price fields before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-6-test}
+```{r}
+#| label: crypto-markets-6-answer
 #| echo: true
 set.seed(9)
 prices     <- open_dataset("data/daily_prices.parquet") |>
@@ -380,18 +391,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-7}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-7
+#| echo: false
+learnr2::question(
+  "Load coin_metadata.parquet as metadata in the same chunk, below the prices line. Print metadata instead of prices so you can inspect the coin-level fields before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-7-test}
+```{r}
+#| label: crypto-markets-7-answer
 #| echo: true
 prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
@@ -416,18 +429,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-8}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-8
+#| echo: false
+learnr2::question(
+  "Load categories.parquet as categories in the same chunk, below the metadata line. Print categories instead of metadata so you can inspect the category lookup table before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-8-test}
+```{r}
+#| label: crypto-markets-8-answer
 #| echo: true
 prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
@@ -454,18 +469,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-9}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-9
+#| echo: false
+learnr2::question(
+  "metadata records when each coin launched. Show the coin, its name, and its launch date for the 22 coins so you can see how those dates were recorded. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-9-test}
+```{r}
+#| label: crypto-markets-9-answer
 #| echo: true
 metadata |>
   select(coin_id, coin_name, launch_date)
@@ -487,18 +504,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-10}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 6)
+```{r}
+#| label: crypto-markets-10
+#| echo: false
+learnr2::question(
+  "Add a real date column to metadata that handles both conventions, then list the coins from oldest to newest, showing the original text next to the parsed date. Every coin should end up with a date and no missing values. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-10-test}
+```{r}
+#| label: crypto-markets-10-answer
 #| echo: true
 metadata |>
   mutate(launch = as_date(parse_date_time(launch_date, orders = c("mdy", "ymd")))) |>
@@ -514,26 +533,23 @@ Parsing a date means telling the parser the *order of the components*, not their
 
 Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the `btc` rows of `prices`. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-11}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-11
+#| echo: false
+learnr2::question(
+  "Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the btc rows of prices. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-11-test}
+```{r}
+#| label: crypto-markets-11-answer
 #| echo: true
 prices |>
   filter(coin_id == "btc") |>
@@ -552,26 +568,23 @@ Two cycles are visible, and the second dwarfs the first. Bitcoin's 2021 high was
 
 Now plot Bitcoin's market cap over time: a line chart of `market_cap_usd`, in trillions, for the `btc` rows. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-12}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-12
+#| echo: false
+learnr2::question(
+  "Now plot Bitcoin's market cap over time: a line chart of market_cap_usd, in trillions, for the btc rows. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-12-test}
+```{r}
+#| label: crypto-markets-12-answer
 #| echo: true
 prices |>
   filter(coin_id == "btc") |>
@@ -590,26 +603,23 @@ Price is what one unit costs; market cap is price times circulating supply. Bitc
 
 Now compare market cap across all 22 coins with a boxplot of `market_cap_usd`, in billions, per coin, ordered by median market cap, with a log-scale axis. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-13}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crypto-markets-13
+#| echo: false
+learnr2::question(
+  "Now compare market cap across all 22 coins with a boxplot of market_cap_usd, in billions, per coin, ordered by median market cap, with a log-scale axis. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-13-test}
+```{r}
+#| label: crypto-markets-13-answer
 #| echo: true
 prices |>
   ggplot(aes(x = fct_reorder(coin_id, market_cap_usd, .fun = median, na.rm = TRUE),
@@ -638,18 +648,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-14}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: crypto-markets-14
+#| echo: false
+learnr2::question(
+  "Join prices to metadata by coin_id to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-14-test}
+```{r}
+#| label: crypto-markets-14-answer
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id")
@@ -671,18 +683,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-15}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-15
+#| echo: false
+learnr2::question(
+  "Before joining categories, check whether it shares any column names with the table you just built. Resolve any collision, then add the category labels to the pipe by category_id. Still do not assign — just print the result. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-15-test}
+```{r}
+#| label: crypto-markets-15-answer
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -705,18 +719,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-16}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-16
+#| echo: false
+learnr2::question(
+  "The join pipeline is ready. Extend it to print the first 5 rows of the joined result. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-16-test}
+```{r}
+#| label: crypto-markets-16-answer
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -740,18 +756,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-17}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 4)
+```{r}
+#| label: crypto-markets-17
+#| echo: false
+learnr2::question(
+  "date_raw is still a character string, which means sorting, filtering by date range, and time-series plots all behave unexpectedly. Add a proper date field to the pipe so the steps that follow can use it. End with the range of dates as a sanity check. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-17-test}
+```{r}
+#| label: crypto-markets-17-answer
 #| echo: true
 prices |>
   left_join(metadata, by = "coin_id") |>
@@ -777,18 +795,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r crypto-markets-18}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 15)
+```{r}
+#| label: crypto-markets-18
+#| echo: false
+learnr2::question(
+  "Finalize the data-preparation chunk. Merge the three file loads and the join pipe into a single chunk, assign the pipe's result to crypto, and keep nothing but those loads and that pipe. End by printing crypto. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-18-test}
+```{r}
+#| label: crypto-markets-18-answer
 #| echo: true
 prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
@@ -821,13 +841,14 @@ ls
 
 CP/CR.
 
-```{r crypto-markets-19}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 5)
+```{r}
+#| label: crypto-markets-19
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -852,13 +873,14 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r crypto-markets-20}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 4)
+```{r}
+#| label: crypto-markets-20
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to .gitignore drops it back. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -876,26 +898,23 @@ Cache files are fully reproducible — anyone can regenerate them by rendering �
 
 Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in `crypto` and plot it as a line chart, with market cap shown in trillions of dollars. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-21}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crypto-markets-21
+#| echo: false
+learnr2::question(
+  "Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in crypto and plot it as a line chart, with market cap shown in trillions of dollars. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-21-test}
+```{r}
+#| label: crypto-markets-21-answer
 #| echo: true
 crypto |>
   group_by(date) |>
@@ -914,26 +933,23 @@ These 22 coins were worth $0.58T on the first day of the data and $2.35T on the 
 
 Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-22}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 8)
+```{r}
+#| label: crypto-markets-22
+#| echo: false
+learnr2::question(
+  "Break the market-cap trend out by category. For each day and category, aggregate the coin-level market caps, then plot category market cap over time as a multi-line chart. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-22-test}
+```{r}
+#| label: crypto-markets-22-answer
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -952,26 +968,23 @@ This chart is hard to read because Bitcoin dominates the absolute dollar scale a
 
 Now build a stacked area chart of category market-cap shares over time. The total height of the chart should always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-23}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 10)
+```{r}
+#| label: crypto-markets-23
+#| echo: false
+learnr2::question(
+  "Now build a stacked area chart of category market-cap shares over time. The total height of the chart should always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-23-test}
+```{r}
+#| label: crypto-markets-23-answer
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -991,26 +1004,23 @@ Normalising every column to 100% is what makes shares comparable across days whe
 
 Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. The subtitle should state what the chart actually shows. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-24}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 14)
+```{r}
+#| label: crypto-markets-24
+#| echo: false
+learnr2::question(
+  "Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. The subtitle should state what the chart actually shows. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-24-test}
+```{r}
+#| label: crypto-markets-24-answer
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -1034,26 +1044,23 @@ A subtitle is a claim, and a reader will trust it more readily than the picture 
 
 Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r crypto-markets-25}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 12)
+```{r}
+#| label: crypto-markets-25
+#| echo: false
+learnr2::question(
+  "Add event context to the final chart by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r crypto-markets-25-test}
+```{r}
+#| label: crypto-markets-25-answer
 #| echo: true
 crypto |>
   group_by(date, category_name) |>
@@ -1087,13 +1094,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r crypto-markets-26}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: crypto-markets-26
+#| echo: false
+learnr2::question(
+  "Commit analysis.qmd with the message \"Crypto market composition analysis\" and push to GitHub. In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1126,46 +1134,48 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Crypto Markets"
-author: &lt;your name&gt;
+author: <your name>
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(arrow)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
-prices     &lt;- open_dataset("data/daily_prices.parquet") |>
+prices     <- open_dataset("data/daily_prices.parquet") |>
   collect()
-metadata   &lt;- open_dataset("data/coin_metadata.parquet") |>
+metadata   <- open_dataset("data/coin_metadata.parquet") |>
   collect()
-categories &lt;- open_dataset("data/categories.parquet") |>
+categories <- open_dataset("data/categories.parquet") |>
   collect()
 
-crypto &lt;- prices |>
+crypto <- prices |>
   left_join(metadata, by = "coin_id") |>
   left_join(select(categories, -description), by = "category_id") |>
   mutate(date = ymd(date_raw))
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 crypto |>
   group_by(date, category_name) |>
   summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
@@ -1182,8 +1192,8 @@ crypto |>
        title = "Crypto market cap share by category, 2018–2026",
        subtitle = "Bitcoin gained share as smart-contract platforms shrank and stablecoins grew",
        caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1201,13 +1211,14 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1218,18 +1229,37 @@ Publishing the QMD creates a public URL anyone can use to view the rendered proj
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-    answer(NULL, correct = TRUE),
-    allow_retry = TRUE,
-    try_again_button = "Edit Answer",
-    incorrect = NULL,
-    rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 **arrow** understands only a subset of R expressions before data is collected into memory, so a good workflow is to push filtering, selecting, and simple aggregation down to the files, then do more flexible work on the small result that comes back.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "04-r4ds-4")
 ```

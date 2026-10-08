@@ -1,31 +1,23 @@
 ---
 title: R4DS 5
 author: David Kane
-tutorial:
-  id: r4ds-5
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Working with hierarchical JSON data, web scraping with rvest and httr2, and iteration with purrr, using wildfire perimeter and IMDb movie datasets.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
 
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(leaflet)
 library(rvest)
 library(httr2)
 library(purrr)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 centroid_lon <- function(coords) {
   mean(map_dbl(coords[[1]], 1))
@@ -58,7 +50,13 @@ big_fires <- fires |>
 imdb_snapshots <- readRDS("data/imdb_snapshots.rds")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -90,23 +88,25 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
-</code></pre>
+```
+analysis_files
+```
 
 ###
 
@@ -142,25 +142,27 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(purrr)
 library(leaflet)
 library(rvest)
 library(httr2)
 library(jsonlite)
-</code></pre>
+```
 
 ###
 
@@ -181,19 +183,21 @@ Create a `data` directory at the top level of the `r4ds-5` repo. In the bash Ter
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the r4ds-5 repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis.html  analysis.qmd  analysis_files  data
-</code></pre>
+```
+analysis.html  analysis.qmd  analysis_files  data
+```
 
 ###
 
@@ -204,9 +208,7 @@ question_text(NULL,
 
 The **[National Interagency Fire Center](https://data-nifc.opendata.arcgis.com/)** maintains a consolidated archive of finalized wildfire perimeter polygons — one polygon per fire, with metadata on name, acreage, year, state, and managing agency — published as a GeoJSON file. GeoJSON stores geometry as deeply nested lists that often must be reformatted before they can be analyzed. Using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **purrr**, and **leaflet**, you will flatten that nested structure, analyze 33 years of burned acreage, and render the actual fire boundaries as an interactive polygon map — the kind of visualization the [New York Times](https://www.nytimes.com/interactive/2020/us/fires-map-tracker.html) built during the 2020 fire season:
 
-```{r}
-knitr::include_graphics("images/nyt-fire-map.png")
-```
+![](images/nyt-fire-map.png){width=90%}
 
 ###
 
@@ -228,19 +230,21 @@ ls data
 
 CP/CR.
 
-```{r wildfire-perimeters-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: wildfire-perimeters-1
+#| echo: false
+learnr2::question(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/wildfires.geojson In a bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>wildfires.geojson
-</code></pre>
+```
+wildfires.geojson
+```
 
 ###
 
@@ -254,18 +258,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-2-test}
+```{r}
+#| label: wildfire-perimeters-2-answer
 #| echo: true
 # your path will be "data/wildfires.geojson"
 raw <- jsonlite::read_json("data/wildfires.geojson")
@@ -284,18 +290,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: wildfire-perimeters-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-3-test}
+```{r}
+#| label: wildfire-perimeters-3-answer
 #| echo: true
 pluck(raw, "features", 1) |> names()
 ```
@@ -312,18 +320,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-4}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: wildfire-perimeters-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-4-test}
+```{r}
+#| label: wildfire-perimeters-4-answer
 #| echo: true
 pluck(raw, "features", 1, "geometry", "coordinates", 1, 1)
 ```
@@ -340,18 +350,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-5}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-5
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-5-test}
+```{r}
+#| label: wildfire-perimeters-5-answer
 #| echo: true
 tibble(features = raw$features)
 ```
@@ -368,18 +380,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-6}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-6
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-6-test}
+```{r}
+#| label: wildfire-perimeters-6-answer
 #| echo: true
 tibble(features = raw$features) |>
   unnest_wider(features)
@@ -397,18 +411,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-7}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-7
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-7-test}
+```{r}
+#| label: wildfire-perimeters-7-answer
 #| echo: true
 tibble(features = raw$features) |>
   unnest_wider(features) |>
@@ -427,18 +443,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-8}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: wildfire-perimeters-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>fires <- jsonlite::read_json("data/wildfires.geojson") |>
+```
+fires <- jsonlite::read_json("data/wildfires.geojson") |>
   pluck("features") |>
   tibble(features = _) |>
   unnest_wider(features) |>
@@ -450,11 +468,12 @@ question_text(NULL,
     fire_year = as.integer(fire_year)
   )
 fires
-</code></pre>
+```
 
 ###
 
-```{r wildfire-perimeters-8-test}
+```{r}
+#| label: wildfire-perimeters-8-answer
 #| echo: true
 fires
 ```
@@ -471,18 +490,20 @@ That GeoJSON pipeline takes time on every render. Strip the `fires` print line f
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-9}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: wildfire-perimeters-9
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>fires <- jsonlite::read_json("data/wildfires.geojson") |>
+```
+fires <- jsonlite::read_json("data/wildfires.geojson") |>
   pluck("features") |>
   tibble(features = _) |>
   unnest_wider(features) |>
@@ -493,7 +514,7 @@ question_text(NULL,
     gis_acres = as.numeric(gis_acres),
     fire_year = as.integer(fire_year)
   )
-</code></pre>
+```
 
 ###
 
@@ -503,20 +524,22 @@ A chunk that only assigns a variable produces no visible output in the rendered 
 
 Add `#| cache: true` as the first line inside the `fires` chunk. Render the QMD. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`. To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r wildfire-perimeters-10}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-10
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the first line inside the fires chunk. Render the QMD. Rendering with caching turned on creates an analysis_cache/ directory next to your analysis.qmd. To confirm the directory is there, run ls in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>$ ls
+```
+$ ls
 analysis.html  analysis.qmd  analysis_cache  analysis_files  data
-</code></pre>
+```
 
 ###
 
@@ -528,20 +551,22 @@ The Source Control change count jumped because `analysis_cache/` now looks like 
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r wildfire-perimeters-11}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-11
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -555,18 +580,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-12}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: wildfire-perimeters-12
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-12-test}
+```{r}
+#| label: wildfire-perimeters-12-answer
 #| echo: true
 fires |> filter(str_detect(incident, "August"))
 fires |> arrange(desc(gis_acres)) |> head(10)
@@ -582,20 +609,23 @@ Evolve the working chunk to plot the distribution of fire sizes in `fires`. Use 
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r wildfire-perimeters-13}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: wildfire-perimeters-13
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-13-test}
+```{r}
+#| label: wildfire-perimeters-13-answer
 #| echo: true
 fires |>
   ggplot(aes(x = gis_acres)) +
@@ -619,20 +649,23 @@ Plot the total acres burned per year in `fires` as a line chart. Give it a prope
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r wildfire-perimeters-14}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: wildfire-perimeters-14
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-14-test}
+```{r}
+#| label: wildfire-perimeters-14-answer
 #| echo: true
 fires |>
   group_by(fire_year) |>
@@ -658,20 +691,23 @@ Evolve the working chunk to show total acres burned by state in `fires`. Show on
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r wildfire-perimeters-15}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: wildfire-perimeters-15
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-15-test}
+```{r}
+#| label: wildfire-perimeters-15-answer
 #| echo: true
 fires |>
   group_by(state) |>
@@ -700,18 +736,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-16}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: wildfire-perimeters-16
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-16-test}
+```{r}
+#| label: wildfire-perimeters-16-answer
 #| echo: true
 big_fires <- fires |> filter(gis_acres >= 100000)
 big_fires
@@ -729,18 +767,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r wildfire-perimeters-17}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 14)
+```{r}
+#| label: wildfire-perimeters-17
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-17-test}
+```{r}
+#| label: wildfire-perimeters-17-answer
 #| echo: true
 centroid_lon <- function(coords) {
   mean(map_dbl(coords[[1]], 1))
@@ -768,20 +808,23 @@ The `big_fires` chunk is finished, so delete the `big_fires` print line from the
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r wildfire-perimeters-18}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: wildfire-perimeters-18
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-18-test}
+```{r}
+#| label: wildfire-perimeters-18-answer
 #| echo: true
 big_fires |>
   count(agency) |>
@@ -807,20 +850,23 @@ In a new working chunk, build a circle-marker leaflet map of `big_fires` where e
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the map in your rendered page and paste it below.
 
-```{r wildfire-perimeters-19}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: wildfire-perimeters-19
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-19-test}
+```{r}
+#| label: wildfire-perimeters-19-answer
 #| echo: true
 leaflet(big_fires) |>
   addTiles() |>
@@ -844,20 +890,23 @@ Replace the circle markers with the actual boundary shapes of the ten largest fi
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the map in your rendered page and paste it below.
 
-```{r wildfire-perimeters-20}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 16)
+```{r}
+#| label: wildfire-perimeters-20
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r wildfire-perimeters-20-test}
+```{r}
+#| label: wildfire-perimeters-20-answer
 #| echo: true
 top_ten <- big_fires |> slice_max(gis_acres, n = 10)
 
@@ -898,20 +947,22 @@ git log --oneline -3
 
 CP/CR.
 
-```{r wildfire-perimeters-21}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: wildfire-perimeters-21
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>abc1234 Add wildfire perimeters analysis
+```
+abc1234 Add wildfire perimeters analysis
 ...
-</code></pre>
+```
 
 ###
 
@@ -935,7 +986,9 @@ a 1,250-row panel dataset tracking how film rankings shifted over seven years.
 
 Here is the plot you will build:
 
-```{r movie-rankings-graphic}
+```{r}
+#| label: movie-rankings-graphic
+#| echo: false
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
   select(snap_year, title, year, rank) |>
@@ -981,20 +1034,22 @@ ls data
 
 CP/CR.
 
-```{r movie-rankings-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: movie-rankings-1
+#| echo: false
+learnr2::question(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/05-r4ds-5/data/imdb_snapshots.rds In a bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>imdb_snapshots.rds
+```
+imdb_snapshots.rds
 wildfires.geojson
-</code></pre>
+```
 
 ###
 
@@ -1026,18 +1081,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r movie-rankings-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: movie-rankings-2
+#| echo: false
+learnr2::question(
+  "Read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-2-test}
+```{r}
+#| label: movie-rankings-2-answer
 #| echo: true
 readRDS("data/imdb_snapshots.rds") |>
   count(snap_year)
@@ -1065,18 +1122,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r movie-rankings-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: movie-rankings-3
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-3-test}
+```{r}
+#| label: movie-rankings-3-answer
 #| echo: true
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
@@ -1112,18 +1171,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r movie-rankings-4}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: movie-rankings-4
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-4-test}
+```{r}
+#| label: movie-rankings-4-answer
 #| echo: true
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
@@ -1166,18 +1227,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r movie-rankings-5}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: movie-rankings-5
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-5-test}
+```{r}
+#| label: movie-rankings-5-answer
 #| echo: true
 nolan_titles <- c(
   "The Dark Knight", "Inception", "Interstellar",
@@ -1205,26 +1268,23 @@ Filter `imdb_snapshots` to Interstellar and make a bar chart showing its rank in
 
 Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r movie-rankings-6}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: movie-rankings-6
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-6-test}
+```{r}
+#| label: movie-rankings-6-answer
 #| echo: true
 imdb_snapshots |>
   filter(title == "Interstellar") |>
@@ -1261,18 +1321,20 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r movie-rankings-7}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: movie-rankings-7
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-7-test}
+```{r}
+#| label: movie-rankings-7-answer
 #| echo: true
 imdb_snapshots |>
   count(title, name = "n_snapshots") |>
@@ -1312,18 +1374,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r movie-rankings-8}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: movie-rankings-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>snap_urls <- c(
+```
+snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
@@ -1339,21 +1403,22 @@ request(snap_urls[1]) |>
   resp_body_html() |>
   html_element("table") |>
   html_table() |>
-  select(`Rank &amp; Title`, `IMDb Rating`)
-</code></pre>
+  select(`Rank & Title`, `IMDb Rating`)
+```
 
 ###
 
-<pre><code># A tibble: 250 x 2
-   `Rank &amp; Title`                                     `IMDb Rating`
-   &lt;chr&gt;                                                      &lt;dbl&gt;
+```
+# A tibble: 250 x 2
+   `Rank & Title`                                     `IMDb Rating`
+   <chr>                                                      <dbl>
  1 "\n      1.\n      The Shawshank Redemption\n   ...           9.2
  2 "\n      2.\n      The Godfather\n      (1972)\n...           9.2
  3 "\n      3.\n      The Godfather: Part II\n     ...           9
  4 "\n      4.\n      The Dark Knight\n      (2008)...           8.9
  5 "\n      5.\n      Pulp Fiction\n      (1994)\n ...           8.9
 # i 245 more rows
-</code></pre>
+```
 
 ###
 
@@ -1383,18 +1448,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r movie-rankings-9}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 20)
+```{r}
+#| label: movie-rankings-9
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>snap_urls <- c(
+```
+snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
@@ -1412,7 +1479,7 @@ scrape_snapshot <- function(url, snap_year) {
   tbl       <- page |> html_element("table") |> html_table()
   attr_vals <- page |> html_elements("td strong") |> html_attr("title")
   tbl |>
-    select(rank_title_year = `Rank &amp; Title`, rating = `IMDb Rating`) |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
     mutate(
       rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
       number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
@@ -1427,11 +1494,12 @@ scrape_snapshot <- function(url, snap_year) {
 }
 
 scrape_snapshot(snap_urls[1], snap_years[1])
-</code></pre>
+```
 
 ###
 
-```{r movie-rankings-9-test}
+```{r}
+#| label: movie-rankings-9-answer
 #| echo: true
 imdb_snapshots |>
   filter(snap_year == 2015)
@@ -1456,18 +1524,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r movie-rankings-10}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 20)
+```{r}
+#| label: movie-rankings-10
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>snap_urls <- c(
+```
+snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
@@ -1485,7 +1555,7 @@ scrape_snapshot <- function(url, snap_year) {
   tbl       <- page |> html_element("table") |> html_table()
   attr_vals <- page |> html_elements("td strong") |> html_attr("title")
   tbl |>
-    select(rank_title_year = `Rank &amp; Title`, rating = `IMDb Rating`) |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
     mutate(
       rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
       number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
@@ -1503,11 +1573,12 @@ imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
   list_rbind()
 
 imdb_snapshots
-</code></pre>
+```
 
 ###
 
-```{r movie-rankings-10-test}
+```{r}
+#| label: movie-rankings-10-answer
 #| echo: true
 imdb_snapshots
 ```
@@ -1533,18 +1604,20 @@ the years, the function, and the assignment.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r movie-rankings-11}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 20)
+```{r}
+#| label: movie-rankings-11
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>snap_urls <- c(
+```
+snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
@@ -1562,7 +1635,7 @@ scrape_snapshot <- function(url, snap_year) {
   tbl       <- page |> html_element("table") |> html_table()
   attr_vals <- page |> html_elements("td strong") |> html_attr("title")
   tbl |>
-    select(rank_title_year = `Rank &amp; Title`, rating = `IMDb Rating`) |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
     mutate(
       rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
       number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
@@ -1578,7 +1651,7 @@ scrape_snapshot <- function(url, snap_year) {
 
 imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
   list_rbind()
-</code></pre>
+```
 
 ###
 
@@ -1593,20 +1666,22 @@ Add `#| cache: true` as the first line inside the `imdb_snapshots` chunk. Render
 This render is the slow one — it makes all five requests. To confirm the cache directory
 is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r movie-rankings-12}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: movie-rankings-12
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the first line inside the imdb_snapshots chunk. Render the QMD. This render is the slow one — it makes all five requests. To confirm the cache directory is there, run ls in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>$ ls
+```
+$ ls
 analysis.html  analysis.qmd  analysis_cache  analysis_files  data
-</code></pre>
+```
 
 ###
 
@@ -1627,26 +1702,23 @@ In a new code chunk, make a rough bar chart of the average rank change from 2015
 
 Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r movie-rankings-13}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: movie-rankings-13
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-13-test}
+```{r}
+#| label: movie-rankings-13-answer
 #| echo: true
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
@@ -1680,26 +1752,23 @@ the sample size (190 films appear in both the 2015 and 2022 snapshots).
 
 Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r movie-rankings-14}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 14)
+```{r}
+#| label: movie-rankings-14
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r movie-rankings-14-test}
+```{r}
+#| label: movie-rankings-14-answer
 #| echo: true
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
@@ -1749,21 +1818,23 @@ git log --oneline -3
 
 CP/CR.
 
-```{r movie-rankings-15}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: movie-rankings-15
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>abc1234 Add movie rankings analysis
+```
+abc1234 Add movie rankings analysis
 def5678 Add wildfire perimeters analysis
 ...
-</code></pre>
+```
 
 ###
 
@@ -1792,25 +1863,27 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check your Live Server tab. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Wildfires and Movies"
 author: Your Name
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(purrr)
@@ -1818,9 +1891,9 @@ library(leaflet)
 library(rvest)
 library(httr2)
 library(jsonlite)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 fires <- jsonlite::read_json("data/wildfires.geojson") |>
   pluck("features") |>
@@ -1833,9 +1906,9 @@ fires <- jsonlite::read_json("data/wildfires.geojson") |>
     gis_acres = as.numeric(gis_acres),
     fire_year = as.integer(fire_year)
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 centroid_lon <- function(coords) {
   mean(map_dbl(coords[[1]], 1))
 }
@@ -1849,9 +1922,9 @@ big_fires <- fires |>
     lon = map_dbl(geometry_coordinates, centroid_lon),
     lat = map_dbl(geometry_coordinates, centroid_lat)
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 top_ten <- big_fires |> slice_max(gis_acres, n = 10)
 
 leaflet() |>
@@ -1873,9 +1946,9 @@ leaflet() |>
     popup = paste0(top_ten$incident, " (", top_ten$fire_year, "), ",
                    format(round(top_ten$gis_acres), big.mark = ","), " acres")
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
@@ -1895,7 +1968,7 @@ scrape_snapshot <- function(url, snap_year) {
   tbl       <- page |> html_element("table") |> html_table()
   attr_vals <- page |> html_elements("td strong") |> html_attr("title")
   tbl |>
-    select(rank_title_year = `Rank &amp; Title`, rating = `IMDb Rating`) |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
     mutate(
       rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
       number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
@@ -1911,9 +1984,9 @@ scrape_snapshot <- function(url, snap_year) {
 
 imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
   list_rbind()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 imdb_snapshots |>
   filter(snap_year %in% c(2015, 2022)) |>
   select(snap_year, title, year, rank) |>
@@ -1940,8 +2013,8 @@ imdb_snapshots |>
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1961,24 +2034,26 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>$ quarto publish gh-pages analysis.qmd
-? Publish site to https://&lt;your-github-username&gt;.github.io/r4ds-5/ (Y/n) Y
+```
+$ quarto publish gh-pages analysis.qmd
+? Publish site to https://<your-github-username>.github.io/r4ds-5/ (Y/n) Y
 [✓] Preparing to publish site
 [✓] Rendering for publish
 [✓] Uploading gh-pages branch
-[✓] Published to https://&lt;your-github-username&gt;.github.io/r4ds-5/
-</code></pre>
+[✓] Published to https://<your-github-username>.github.io/r4ds-5/
+```
 
 ###
 
@@ -1988,18 +2063,37 @@ The leaflet polygon map you built is fully interactive in the published page —
 
 Commit and push all your files. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push all your files. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 The five IMDb snapshots form panel data: the same movies observed at multiple points in time. A single snapshot can only rank movies; five snapshots let you ask which films aged well, which fell off, and how taste shifted over seven years. The Wayback Machine is one of the few ways to reconstruct panel data for things that were never formally archived.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "05-r4ds-5")
 ```

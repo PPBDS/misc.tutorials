@@ -1,34 +1,26 @@
 ---
 title: R4DS 3
 author: David Kane and Alec Rogers
-tutorial:
-  id: r4ds-3
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Students use DuckDB and dbplyr to analyze two datasets featured in the
   New York Times: the Stanford Education Data Archive (SEDA) test scores across 13,000
   US school districts, and the American Time Use Survey (ATUS). Final artifacts are a
   state-level arrow chart of post-COVID reading score changes and a stacked area chart
   of daily time use by sex.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
 
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 con_seda <- dbConnect(duckdb::duckdb(),
                       dbdir = "data/seda_2025.duckdb",
@@ -97,7 +89,13 @@ hourly_avg <- dbplyr_act |>
   collect()
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -129,17 +127,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -171,23 +170,25 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
-</code></pre>
+```
 
 ###
 
@@ -199,13 +200,14 @@ Create a `data` directory at the top level of the `r4ds-3` repo. In the bash Ter
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the r4ds-3 repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -230,9 +232,7 @@ years.
 Here's [what the *New York Times* found](https://www.nytimes.com/2026/05/13/upshot/test-scores-school-districts-us.html)
 from this same data in May of 2026.
 
-```{r}
-knitr::include_graphics("images/us-ed-state-reading-change-nyt.png")
-```
+![](images/us-ed-state-reading-change-nyt.png){width=90%}
 
 ### Exercise 1
 
@@ -247,13 +247,14 @@ Run `ls data` in the bash Terminal.
 
 CP/CR.
 
-```{r us-education-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: us-education-1
+#| echo: false
+learnr2::question(
+  "Run ls data in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -272,18 +273,20 @@ Create a new working chunk in `analysis.qmd`. Connect to the database file and d
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-2-test}
+```{r}
+#| label: us-education-2-answer
 #| echo: true
 dbListTables(con_seda)
 ```
@@ -298,18 +301,20 @@ In the current working chunk, create a lazy reference to the `district_scores` t
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-3-test}
+```{r}
+#| label: us-education-3-answer
 #| echo: true
 dbplyr_dist <- tbl(con_seda, "district_scores")
 dbplyr_dist
@@ -325,18 +330,20 @@ Count the number of district-year observations per year in `dbplyr_dist`. Collec
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-4}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-4-test}
+```{r}
+#| label: us-education-4-answer
 #| echo: true
 dbplyr_dist |>
   count(year) |>
@@ -354,18 +361,20 @@ Compute the mean `rla_score` across all districts and years where `rla_score` is
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-5}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-5
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-5-test}
+```{r}
+#| label: us-education-5-answer
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
@@ -383,18 +392,20 @@ Compute the mean `rla_score` grouped by year, for districts with non-missing sco
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-6}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: us-education-6
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-6-test}
+```{r}
+#| label: us-education-6-answer
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
@@ -414,18 +425,20 @@ Databases do not run R. Instead of the result, display the query that the databa
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-7}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 8)
+```{r}
+#| label: us-education-7
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-7-test}
+```{r}
+#| label: us-education-7-answer
 #| echo: true
 dbplyr_dist |>
   filter(!is.na(rla_score)) |>
@@ -445,18 +458,20 @@ For each district, compute the change in reading score from 2015 to 2023, where 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-8}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: us-education-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-8-test}
+```{r}
+#| label: us-education-8-answer
 #| echo: true
 score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
@@ -478,18 +493,20 @@ In the same working chunk, also compute `state_change` using the `state_scores` 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-9}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-9
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-9-test}
+```{r}
+#| label: us-education-9-answer
 #| echo: true
 score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
@@ -522,18 +539,20 @@ Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-10}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: us-education-10
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>score_change <- dbplyr_dist |>
+```
+score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
   select(district_id, district_name, state, year, rla_score) |>
   collect() |>
@@ -547,7 +566,7 @@ state_change <- tbl(con_seda, "state_scores") |>
   pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
   filter(!is.na(rla_2015), !is.na(rla_2023)) |>
   mutate(rla_change = rla_2023 - rla_2015)
-</code></pre>
+```
 
 ###
 
@@ -566,13 +585,14 @@ Render. In the bash Terminal, run `ls`.
 
 CP/CR.
 
-```{r us-education-11}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-11
+#| echo: false
+learnr2::question(
+  "Render. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -589,20 +609,22 @@ The first render with caching writes `analysis_cache/` to disk; later renders re
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r us-education-12}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-12
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -612,26 +634,23 @@ Cache files are machine-specific and regenerated on every render — they should
 
 Create a new working code chunk in `analysis.qmd`. From `dbplyr_dist`, filter to 2023 with non-missing `rla_score`, collect, and plot the distribution as a histogram. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r us-education-13}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: us-education-13
+#| echo: false
+learnr2::question(
+  "Create a new working code chunk in analysis.qmd. From dbplyr_dist, filter to 2023 with non-missing rla_score, collect, and plot the distribution as a histogram. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-13-test}
+```{r}
+#| label: us-education-13-answer
 #| echo: true
 dist_2023 <- dbplyr_dist |>
   filter(year == 2023, !is.na(rla_score)) |>
@@ -658,26 +677,23 @@ ggplot(dist_2023, aes(x = rla_score)) +
 
 Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r us-education-14}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: us-education-14
+#| echo: false
+learnr2::question(
+  "Plot the distribution of rla_change from score_change as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-14-test}
+```{r}
+#| label: us-education-14-answer
 #| echo: true
 ggplot(score_change, aes(x = rla_change)) +
   geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
@@ -697,9 +713,7 @@ ggplot(score_change, aes(x = rla_change)) +
 
 79% of the 9,644 districts sit left of the dashed line. The *New York Times* published the same histogram over a longer window — 2015 to 2025 — and got 83%, along with the useful companion fact that math held up better than reading:
 
-```{r}
-knitr::include_graphics("images/us-ed-district-score-change-nyt.png")
-```
+![](images/us-ed-district-score-change-nyt.png){width=90%}
 
 The four-point gap between 79% and 83% is mostly the endpoint. The national series you printed in Exercise 6 keeps falling after 2023 — −0.122 in 2024, −0.124 in 2025 — so measuring to 2025 instead of 2023 pushes more districts to the left of the line. When two versions of "the same" statistic disagree, the window is the first thing to check.
 
@@ -709,18 +723,20 @@ Print `state_change` sorted by `rla_change`. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r us-education-15}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: us-education-15
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-15-test}
+```{r}
+#| label: us-education-15-answer
 #| echo: true
 state_change |>
   arrange(rla_change)
@@ -735,32 +751,27 @@ state_change |>
 Let's reconstruct the *New York Times* arrow chart from the beginning of this section. Recall:
 
 
-```{r}
-knitr::include_graphics("images/us-ed-state-reading-change-nyt.png")
-```
+![](images/us-ed-state-reading-change-nyt.png){width=90%}
 
 Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r us-education-16}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 15)
+```{r}
+#| label: us-education-16
+#| echo: false
+learnr2::question(
+  "Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r us-education-16-test}
+```{r}
+#| label: us-education-16-answer
 #| echo: true
 #| fig.height: 10
 state_change |>
@@ -803,13 +814,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r us-education-17}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: us-education-17
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -838,9 +850,7 @@ covers 2003 through 2024, 252,808 respondents, and 4,880,021 activity records.
 In 2015, here's [what the *New York Times* found](https://www.nytimes.com/interactive/2015/01/06/upshot/how-nonemployed-americans-spend-their-weekdays-men-vs-women.html)
 from this same survey.
 
-```{r}
-knitr::include_graphics("images/men-v-women-atus-nyt.png")
-```
+![](images/men-v-women-atus-nyt.png){width=90%}
 
 ### Exercise 1
 
@@ -854,13 +864,14 @@ In the bash Terminal, run `ls data`.
 
 CP/CR.
 
-```{r time-use-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: time-use-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -879,18 +890,20 @@ Create a new working chunk in `analysis.qmd`. Connect to `data/atus.duckdb` and 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: time-use-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-2-test}
+```{r}
+#| label: time-use-2-answer
 #| echo: true
 dbListTables(con_atus)
 ```
@@ -905,18 +918,20 @@ In the current working chunk, replace the table listing with lazy references to 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: time-use-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-3-test}
+```{r}
+#| label: time-use-3-answer
 #| echo: true
 dbplyr_act   <- tbl(con_atus, "activities")
 dbplyr_resp  <- tbl(con_atus, "respondents")
@@ -934,18 +949,20 @@ In the current working chunk, replace the print of `dbplyr_act` with `dbplyr_res
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-4}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: time-use-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-4-test}
+```{r}
+#| label: time-use-4-answer
 #| echo: true
 dbplyr_resp
 ```
@@ -960,18 +977,20 @@ Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` i
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-5}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: time-use-5
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-5-test}
+```{r}
+#| label: time-use-5-answer
 #| echo: true
 dbplyr_codes |>
   collect()
@@ -987,18 +1006,20 @@ For each table in the database, count the number of rows. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-6}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 5)
+```{r}
+#| label: time-use-6
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-6-test}
+```{r}
+#| label: time-use-6-answer
 #| echo: true
 list(
   activities     = dbplyr_act  |> summarize(n = n()) |> collect(),
@@ -1017,18 +1038,20 @@ Count how many activity records fall in each major activity category, largest fi
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-7}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: time-use-7
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-7-test}
+```{r}
+#| label: time-use-7-answer
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1047,18 +1070,20 @@ Now ask a different question of the same table: what is the average length of a 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-8}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: time-use-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-8-test}
+```{r}
+#| label: time-use-8-answer
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1079,18 +1104,20 @@ Count the number of respondents by `sex` and `employment_status`. Collect and pr
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-9}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: time-use-9
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-9-test}
+```{r}
+#| label: time-use-9-answer
 #| echo: true
 dbplyr_resp |>
   count(sex, employment_status, sort = FALSE) |>
@@ -1108,18 +1135,20 @@ Count the number of respondents by `year`. Collect and print, arranged by year. 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-10}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 7)
+```{r}
+#| label: time-use-10
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-10-test}
+```{r}
+#| label: time-use-10-answer
 #| echo: true
 dbplyr_resp |>
   count(year) |>
@@ -1137,18 +1166,20 @@ For weekday respondents who are not in the labor force, compute how many minutes
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-11}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 10)
+```{r}
+#| label: time-use-11
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-11-test}
+```{r}
+#| label: time-use-11-answer
 #| echo: true
 dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1173,18 +1204,20 @@ Collapse those person-level totals one step further: average them across respond
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-12}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: time-use-12
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-12-test}
+```{r}
+#| label: time-use-12-answer
 #| echo: true
 activity_avg <- dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
@@ -1214,18 +1247,20 @@ Start a new code chunk. Build the dataset behind the final chart: for weekday no
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r time-use-13}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: time-use-13
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-13-test}
+```{r}
+#| label: time-use-13-answer
 #| echo: true
 keep_cats <- c(
   "Personal Care Activities",
@@ -1259,26 +1294,23 @@ hourly_avg
 
 Start a new code chunk. Make a horizontal grouped bar chart from `activity_avg` showing average daily minutes by category, with the bars colored by sex and ordered by average minutes. Leave out the `Data Codes` bucket, which is missing-data bookkeeping rather than an activity. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r time-use-14}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: time-use-14
+#| echo: false
+learnr2::question(
+  "Start a new code chunk. Make a horizontal grouped bar chart from activity_avg showing average daily minutes by category, with the bars colored by sex and ordered by average minutes. Leave out the Data Codes bucket, which is missing-data bookkeeping rather than an activity. Give the chart a title, subtitle, axis labels, and a data source caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-14-test}
+```{r}
+#| label: time-use-14-answer
 #| echo: true
 activity_avg |>
   filter(major_name != "Data Codes") |>
@@ -1304,26 +1336,27 @@ The caregiving gap is the biggest one on the chart, and it is much bigger than t
 
 Start a new code chunk. Recall the *New York Times* chart from the beginning of this section:
 
-```{r}
-knitr::include_graphics("images/men-v-women-atus-nyt.png")
-```
+![](images/men-v-women-atus-nyt.png){width=90%}
 
 Build a stacked area chart from `hourly_avg` showing how the day fills up: hour along the horizontal axis, average minutes vertically, one colored band per activity category, and a separate panel for each sex. Label the hour axis in clock time rather than in numbers. Give the chart a title, subtitle, and data source caption. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r time-use-15}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 12)
+```{r}
+#| label: time-use-15
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r time-use-15-test}
+```{r}
+#| label: time-use-15-answer
 #| echo: true
 ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(alpha = 0.85) +
@@ -1360,13 +1393,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r time-use-16}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: time-use-16
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1401,58 +1435,60 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check your Live Server tab. The page should show your three graphics and nothing else, so if either of the two data-building chunks still prints a tibble, delete that print first. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Analyzing School Districts and Americans' Time Use"
-author: "&lt;your name&gt;"
+author: "<your name>"
 format: html
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(DBI)
 library(duckdb)
 library(dbplyr)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-con_seda &lt;- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb")
-dbplyr_dist &lt;- tbl(con_seda, "district_scores")
-&#96;&#96;&#96;
+```{r}
+con_seda <- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb")
+dbplyr_dist <- tbl(con_seda, "district_scores")
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 #| cache.extra: !expr file.mtime("data/seda_2025.duckdb")
-score_change &lt;- dbplyr_dist |>
+score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
   select(district_id, district_name, state, year, rla_score) |>
   collect() |>
   pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
   filter(!is.na(rla_2015), !is.na(rla_2023)) |>
   mutate(rla_change = rla_2023 - rla_2015)
-state_change &lt;- tbl(con_seda, "state_scores") |>
+state_change <- tbl(con_seda, "state_scores") |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
   select(stateabb, state_name, year, rla_score) |>
   collect() |>
   pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
   filter(!is.na(rla_2015), !is.na(rla_2023)) |>
   mutate(rla_change = rla_2023 - rla_2015)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 state_change |>
   arrange(rla_2023) |>
   mutate(state_name = fct_inorder(state_name)) |>
@@ -1475,15 +1511,15 @@ state_change |>
   ) +
   theme_minimal() +
   theme(axis.text.y = element_text(size = 9))
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-con_atus &lt;- dbConnect(duckdb::duckdb(), dbdir = "data/atus.duckdb")
-dbplyr_act   &lt;- tbl(con_atus, "activities")
-dbplyr_resp  &lt;- tbl(con_atus, "respondents")
-dbplyr_codes &lt;- tbl(con_atus, "activity_codes")
+```{r}
+con_atus <- dbConnect(duckdb::duckdb(), dbdir = "data/atus.duckdb")
+dbplyr_act   <- tbl(con_atus, "activities")
+dbplyr_resp  <- tbl(con_atus, "respondents")
+dbplyr_codes <- tbl(con_atus, "activity_codes")
 
-activity_avg &lt;- dbplyr_act |>
+activity_avg <- dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
             by = "activity_code") |>
   inner_join(dbplyr_resp |>
@@ -1496,19 +1532,19 @@ activity_avg &lt;- dbplyr_act |>
   group_by(sex, major_name) |>
   summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
   collect()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-keep_cats &lt;- c(
+```{r}
+keep_cats <- c(
   "Personal Care Activities",
   "Household Activities",
-  "Caring For &amp; Helping Household (HH) Members",
+  "Caring For & Helping Household (HH) Members",
   "Socializing, Relaxing, and Leisure"
 )
 
-hourly_avg &lt;- dbplyr_act |>
+hourly_avg <- dbplyr_act |>
   mutate(hour = start_hhmm %/% 100L) |>
-  filter(hour >= 6L, hour &lt;= 23L) |>
+  filter(hour >= 6L, hour <= 23L) |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
             by = "activity_code") |>
   filter(major_name %in% keep_cats) |>
@@ -1520,9 +1556,9 @@ hourly_avg &lt;- dbplyr_act |>
   group_by(sex, hour, major_name) |>
   summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
   collect()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 activity_avg |>
   filter(major_name != "Data Codes") |>
   mutate(major_name = fct_reorder(major_name, avg_daily_min)) |>
@@ -1537,9 +1573,9 @@ activity_avg |>
     caption = "Source: BLS American Time Use Survey (2003–2024). Weekday non-employed respondents."
   ) +
   theme_minimal()
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
   geom_area(alpha = 0.85) +
   facet_wrap(~ sex) +
@@ -1557,8 +1593,8 @@ ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
   ) +
   theme_minimal() +
   theme(legend.position = "bottom")
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1576,13 +1612,14 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1608,13 +1645,14 @@ Every plot on that page was produced without ever loading a full SEDA or ATUS ta
 
 Commit and push all your files. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-	answer(NULL, correct = TRUE),
-	allow_retry = TRUE,
-	try_again_button = "Edit Answer",
-	incorrect = NULL,
-	rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push all your files. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1627,5 +1665,23 @@ https://github.com/<your-github-username>/r4ds-3
 
 SEDA and ATUS are both maintained by their original institutions and reissued annually, which is exactly why the cached chunk in your document is keyed on the database file's modification time rather than on the code alone. Drop next year's file into `data/`, render, and the numbers update themselves; leave the cache unkeyed and they never would.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "03-r4ds-3")
 ```

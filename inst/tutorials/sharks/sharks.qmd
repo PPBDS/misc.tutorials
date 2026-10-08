@@ -1,36 +1,34 @@
 ---
 title: Sharks
 author: Var Kurapati
-tutorial:
-  id: sharks
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Students use the Global Shark Attack File to investigate whether fear
   of sharks is justified. They clean and explore over a century of attack data, map
   incidents by country, analyze trends over time and by activity type, and publish
   a multi-page Quarto website.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
-library(knitr)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(maps)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 attacks <- readRDS("data/attacks.rds")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -76,23 +74,25 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
-</code></pre>
+```
 
 ###
 
@@ -115,21 +115,23 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(maps)
-</code></pre>
+```
 
 ###
 
@@ -141,13 +143,14 @@ Create a `data` directory at the top level of the `sharks` repo. In the bash Ter
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the sharks repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -181,13 +184,14 @@ ls data
 
 CP/CR.
 
-```{r where-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: where-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -206,18 +210,20 @@ In a new code chunk in `analysis.qmd`, read `data/attacks_clean.csv` and print t
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-2-test}
+```{r}
+#| label: where-2-answer
 #| echo: true
 read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   head(10)
@@ -233,18 +239,20 @@ Count incidents per country, sorted from most to least. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-3-test}
+```{r}
+#| label: where-3-answer
 #| echo: true
 read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   count(Country, sort = TRUE) |>
@@ -261,18 +269,20 @@ Count fatal vs non-fatal attacks. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-4-test}
+```{r}
+#| label: where-4-answer
 #| echo: true
 read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   count(Fatal, sort = TRUE)
@@ -286,18 +296,20 @@ Only 943 of the 5,094 incidents were fatal — about 18.5%. The vast majority of
 
 Read `data/attacks_clean.csv`, clean the `Country` column to lowercase for map matching, and assign the result to `attacks`. Save it with `saveRDS(attacks, "data/attacks.rds")`. Create a new R script called `sharks.R` in your repo. In it, write this pipeline and run it in a bash Terminal with `Rscript sharks.R`. In the R Terminal, run `show_file("sharks.R")`. CP/CR.
 
-```{r where-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: where-5
+#| echo: false
+learnr2::question(
+  "Read data/attacks_clean.csv, clean the Country column to lowercase for map matching, and assign the result to attacks. Save it with saveRDS(attacks, \"data/attacks.rds\"). Create a new R script called sharks.R in your repo. In it, write this pipeline and run it in a bash Terminal with Rscript sharks.R. In the R Terminal, run show_file(\"sharks.R\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>library(tidyverse)
+```
+library(tidyverse)
 
 attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   mutate(
@@ -310,7 +322,7 @@ attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   )
 
 saveRDS(attacks, "data/attacks.rds")
-</code></pre>
+```
 
 ###
 
@@ -320,24 +332,26 @@ saveRDS(attacks, "data/attacks.rds")
 
 Add `data/attacks.rds` to your `.gitignore`. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r where-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: where-6
+#| echo: false
+learnr2::question(
+  "Add data/attacks.rds to your .gitignore. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
 data/attacks.rds
-</code></pre>
+```
 
 ###
 
@@ -349,13 +363,14 @@ In `analysis.qmd`, update the data chunk to load the RDS file instead of re-read
 
 In the bash Terminal, run `ls data`. CP/CR.
 
-```{r where-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: where-7
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -374,20 +389,22 @@ Create a new file `map.qmd` with the same YAML header and library chunk as `anal
 
 In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| cache: true
+```
+#| cache: true
 attacks <- readRDS("data/attacks.rds")
-</code></pre>
+```
 
 ###
 
@@ -397,20 +414,23 @@ Each page of a Quarto website runs in its own R session — objects defined in `
 
 In `map.qmd`, add a new code chunk that makes a world map showing the number of shark attacks per country, colored by attack count. Use `map_data("world")` for the base map. Render `map.qmd`.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the map in your rendered page and paste it below.
 
-```{r where-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: where-9
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-9-test}
+```{r}
+#| label: where-9-answer
 #| echo: true
 world_map <- map_data("world") |>
   mutate(region = str_to_lower(region))
@@ -454,13 +474,14 @@ git log -1
 
 CP/CR.
 
-```{r where-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: where-10
+#| echo: false
+learnr2::question(
+  "Commit analysis.qmd, map.qmd, and sharks.R with the message \"Add shark attack map\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -492,18 +513,20 @@ Create a new file `trends.qmd` with the same YAML, libraries, and data chunk as 
 
 In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
 
-```{r when-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: when-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-1-test}
+```{r}
+#| label: when-1-answer
 #| echo: true
 attacks |>
   count(Year)
@@ -517,20 +540,23 @@ Attacks were rare before 1950 — not because sharks were less common, but becau
 
 Update your chunk to show a line chart of attacks per year. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r when-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: when-2
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-2-test}
+```{r}
+#| label: when-2-answer
 #| echo: true
 attacks |>
   count(Year) |>
@@ -558,18 +584,20 @@ Update your chunk to count attacks by activity, keeping only activities with at 
 
 In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
 
-```{r when-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: when-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-3-test}
+```{r}
+#| label: when-3-answer
 #| echo: true
 attacks |>
   count(Activity, sort = TRUE) |>
@@ -584,20 +612,23 @@ Surfing leads with 972 incidents — well ahead of swimming (791) despite far fe
 
 Update your chunk to show a bar chart of attacks by activity, filtered to activities with at least 50 incidents. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r when-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: when-4
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-4-test}
+```{r}
+#| label: when-4-answer
 #| echo: true
 attacks |>
   count(Activity, sort = TRUE) |>
@@ -622,20 +653,23 @@ The pattern reflects who spends time in the ocean, not how aggressive sharks are
 
 Update your chunk to show fatal vs non-fatal attacks by activity, for activities with at least 50 incidents. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r when-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: when-5
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-5-test}
+```{r}
+#| label: when-5-answer
 #| echo: true
 attacks |>
   filter(Fatal_clean %in% c("Fatal", "Non-fatal")) |>
@@ -671,13 +705,14 @@ git log -1
 
 CP/CR.
 
-```{r when-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: when-6
+#| echo: false
+learnr2::question(
+  "Commit trends.qmd with the message \"Add trends analysis\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -732,18 +767,20 @@ ls
 
 In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 15)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"_quarto.yml\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>project:
+```
+project:
   type: website
 
 website:
@@ -760,7 +797,7 @@ website:
 format:
   html:
     theme: cosmo
-</code></pre>
+```
 
 ###
 
@@ -772,13 +809,14 @@ Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs 
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 20)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -799,13 +837,14 @@ quarto publish gh-pages
 
 Copy/paste the resulting URL below.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -816,18 +855,37 @@ question_text(NULL,
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-4
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 The Global Shark Attack File is updated regularly and is freely available at [sharkattackfile.net](https://www.sharkattackfile.net/). The same workflow used here — download a CSV, clean it, save an RDS, map locations, analyze patterns, build a website — applies to any incident database. The tools are the same; only the question changes.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "sharks")
 ```

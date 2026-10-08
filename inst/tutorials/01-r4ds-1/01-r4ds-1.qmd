@@ -1,27 +1,20 @@
 ---
 title: R4DS 1
 author: David Kane
-tutorial:
-  id: r4ds-1
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Introduces AI-assisted data analysis with music data. Students inspect the Billboard Hot 100 and a sample of the Million Song Dataset, investigate variable meanings and data limitations, and develop an analysis.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(maps)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 billboard_small <- billboard |>
   select(artist, track, date.entered, wk1:wk4) |>
@@ -151,7 +144,13 @@ music_map_data <- music |>
   filter(!(artist.latitude == 0 & artist.longitude == 0))
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -180,13 +179,14 @@ In the bash Terminal, run `ls`.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -209,17 +209,18 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -232,10 +233,11 @@ analysis_files
 
 A CSV is the plainest possible table: one line per row, values separated by commas, and a first line naming the columns.
 
-<pre><code>"artist.name","artist.familiarity","song.year"
+```
+"artist.name","artist.familiarity","song.year"
 "Casual",0.581793766,0
 "The Box Tops",0.630630038,1969
-</code></pre>
+```
 
 No types, no formulas, no formatting — which is exactly why every programming language, database, and spreadsheet program can read one. That bare simplicity is why CSV is still the lingua franca of data exchange.
 
@@ -260,20 +262,22 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
-</code></pre>
+```
 
 ###
 
@@ -291,13 +295,14 @@ This will create a `data` directory in your project. This is a good place to sto
 
 CP/CR.
 
-```{r introduction-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 7)
+```{r}
+#| label: introduction-4
+#| echo: false
+learnr2::question(
+  "This will create a data directory in your project. This is a good place to store any data that you are working with. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -326,18 +331,20 @@ Before plotting, inspect the data. Add a code chunk to your QMD that prints `bil
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-1-test}
+```{r}
+#| label: billboard-hot-100-1-answer
 #| echo: true
 billboard
 ```
@@ -350,18 +357,20 @@ billboard
 
 Change that chunk to print just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render it. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-2
+#| echo: false
+learnr2::question(
+  "Change that chunk to print just a few identifying columns from billboard: artist, track, date entered, and the first four week columns. Render it. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-2-test}
+```{r}
+#| label: billboard-hot-100-2-answer
 #| echo: true
 billboard |>
   select(artist, track, date.entered, wk1:wk4) |>
@@ -376,18 +385,20 @@ The weekly columns are relative to when each song entered the chart. `wk4` means
 
 Summarize the `date.entered` column so you can see the time period covered by the dataset. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-3
+#| echo: false
+learnr2::question(
+  "Summarize the date.entered column so you can see the time period covered by the dataset. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-3-test}
+```{r}
+#| label: billboard-hot-100-3-answer
 #| echo: true
 summary(billboard$date.entered)
 ```
@@ -402,26 +413,23 @@ Before interpreting any plot, always ask what time period and population the dat
 
 Make a histogram of the `wk1` rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r billboard-hot-100-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: billboard-hot-100-4
+#| echo: false
+learnr2::question(
+  "Make a histogram of the wk1 rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-4-test}
+```{r}
+#| label: billboard-hot-100-4-answer
 #| echo: true
 ggplot(billboard, aes(x = wk1)) +
   geom_histogram(binwidth = 5, boundary = 0, fill = "steelblue", color = "white") +
@@ -442,26 +450,23 @@ Rankings are reversed from many numeric measures: smaller numbers are better. A 
 
 Make a similar histogram of the `wk6` rankings, including the number of values used in the plot. Update your working chunk, render, and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r billboard-hot-100-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: billboard-hot-100-5
+#| echo: false
+learnr2::question(
+  "Make a similar histogram of the wk6 rankings, including the number of values used in the plot. Update your working chunk, render, and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-5-test}
+```{r}
+#| label: billboard-hot-100-5-answer
 #| echo: true
 billboard |>
   filter(!is.na(wk6)) |>
@@ -484,18 +489,20 @@ The distribution shifts toward better ranks, but the histogram alone cannot tell
 
 Create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-6
+#| echo: false
+learnr2::question(
+  "Create a small table showing how many rankings are missing and present for wk1, wk4, wk10, wk20, wk40, and wk76. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-6-test}
+```{r}
+#| label: billboard-hot-100-6-answer
 #| echo: true
 billboard |>
   summarise(
@@ -522,18 +529,20 @@ billboard |>
 
 Compare each song's `wk1` and `wk6` ranks. Count how many songs improved, stayed the same, got worse, or were missing by week 6. Also report the median rank change for songs with both weeks. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-7
+#| echo: false
+learnr2::question(
+  "Compare each song's wk1 and wk6 ranks. Count how many songs improved, stayed the same, got worse, or were missing by week 6. Also report the median rank change for songs with both weeks. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-7-test}
+```{r}
+#| label: billboard-hot-100-7-answer
 #| echo: true
 billboard |>
   mutate(
@@ -566,26 +575,23 @@ The week 6 histogram is not just the same songs later. Some songs have dropped o
 
 Reshape `billboard` so the week columns become two columns, `week` and `rank`, then plot each song's ranking over time. Update your working chunk, render, and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r billboard-hot-100-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: billboard-hot-100-8
+#| echo: false
+learnr2::question(
+  "Reshape billboard so the week columns become two columns, week and rank, then plot each song's ranking over time. Update your working chunk, render, and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-8-test}
+```{r}
+#| label: billboard-hot-100-8-answer
 #| echo: true
 billboard |>
   mutate(song = str_c(artist, " - ", track)) |>
@@ -616,18 +622,20 @@ Each line required AI to reshape the Billboard table from wide format — one co
 
 With the data in long form, one row per song-week, you can ask something the wide table made awkward: do any songs leave the chart and later come back? Create a small table that counts songs by whether they re-entered. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-9
+#| echo: false
+learnr2::question(
+  "With the data in long form, one row per song-week, you can ask something the wide table made awkward: do any songs leave the chart and later come back? Create a small table that counts songs by whether they re-entered. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-9-test}
+```{r}
+#| label: billboard-hot-100-9-answer
 #| echo: true
 billboard |>
   pivot_longer(
@@ -657,18 +665,20 @@ The full trajectory plot is useful, but it is too dense to explain individual st
 
 Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r billboard-hot-100-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-10
+#| echo: false
+learnr2::question(
+  "Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-10-test}
+```{r}
+#| label: billboard-hot-100-10-answer
 #| echo: true
 billboard_song_summary <- billboard |>
   mutate(song = str_c(artist, " - ", track)) |>
@@ -714,26 +724,23 @@ Filtering to top-10 songs keeps the focus on recognizable hits while still leavi
 
 Plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r billboard-hot-100-11}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: billboard-hot-100-11
+#| echo: false
+learnr2::question(
+  "Plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r billboard-hot-100-11-test}
+```{r}
+#| label: billboard-hot-100-11-answer
 #| echo: true
 billboard_longer <- billboard |>
   mutate(song = str_c(artist, " - ", track)) |>
@@ -835,13 +842,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r billboard-hot-100-12}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: billboard-hot-100-12
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -879,13 +887,14 @@ ls data
 
 CP/CR.
 
-```{r million-song-dataset-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-1
+#| echo: false
+learnr2::question(
+  "download.file( \"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv\", \"data/music.csv\" ) In a bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -904,18 +913,20 @@ Add a new chunk that reads `data/music.csv` into an object named `music` and the
 
 Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-2-test}
+```{r}
+#| label: million-song-dataset-2-answer
 #| echo: true
 music <- read_csv("data/music.csv", show_col_types = FALSE)
 music
@@ -931,19 +942,21 @@ That chunk does two jobs: it defines `music` and it prints it. Reading a file is
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: million-song-dataset-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>music <- read_csv("data/music.csv", show_col_types = FALSE)
-</code></pre>
+```
+music <- read_csv("data/music.csv", show_col_types = FALSE)
+```
 
 ###
 
@@ -955,13 +968,14 @@ Add `#| cache: true` as the first line inside that chunk, then render. Rendering
 
 To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r million-song-dataset-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-4
+#| echo: false
+learnr2::question(
+  "To confirm the directory is there, run ls in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -980,20 +994,22 @@ The Source Control change count just jumped, because `analysis_cache/` and every
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r million-song-dataset-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-5
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>analysis_files
+```
+analysis_files
 analysis_cache
-</code></pre>
+```
 
 ###
 
@@ -1005,18 +1021,20 @@ Your data chunk now does one job, and it should stay that way. Start a new code 
 
 Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-6
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-6-test}
+```{r}
+#| label: million-song-dataset-6-answer
 #| echo: true
 names(music)
 ```
@@ -1029,18 +1047,20 @@ The dotted naming convention groups variables by entity: `artist.*` columns desc
 
 Show the structure of just the artist columns of `music` — the type of each column with a few example values. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-7
+#| echo: false
+learnr2::question(
+  "Show the structure of just the artist columns of music — the type of each column with a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-7-test}
+```{r}
+#| label: million-song-dataset-7-answer
 #| echo: true
 music |>
   select(starts_with("artist")) |>
@@ -1055,18 +1075,20 @@ This compact view shows one line per column, which works here because the artist
 
 Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-8
+#| echo: false
+learnr2::question(
+  "Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-8-test}
+```{r}
+#| label: million-song-dataset-8-answer
 #| echo: true
 music |>
   select(
@@ -1093,13 +1115,15 @@ Find out what `artist.familiarity` and `artist.hotttnesss` measure — the [data
 
 Describe what each one measures below.
 
-```{r million-song-dataset-9}
-question_text(NULL,
-  message = "`artist.familiarity` estimates how well known an artist is. `artist.hotttnesss` estimates how much buzz or current popularity an artist has.",
-  answer(NULL, correct = TRUE),
-  allow_retry = FALSE,
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-9
+#| echo: false
+learnr2::question(
+  "Describe what each one measures below.",
+  learnr2::answer("`artist.familiarity` estimates how well known an artist is. `artist.hotttnesss` estimates how much buzz or current popularity an artist has.", correct = TRUE),
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1110,18 +1134,20 @@ Both variables run from 0 to 1, where higher values mean more familiarity or mor
 
 Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-10
+#| echo: false
+learnr2::question(
+  "Get summary statistics — minimum, maximum, median, and quartiles — for artist.familiarity, artist.hotttnesss, song.year, and song.tempo. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-10-test}
+```{r}
+#| label: million-song-dataset-10-answer
 #| echo: true
 music |>
   select(artist.familiarity, artist.hotttnesss, song.year, song.tempo) |>
@@ -1134,20 +1160,23 @@ Notice the minimums. `song.year` has a minimum of 0, which is not a real release
 
 ### Exercise 11
 
-The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and in the R Terminal, run `show_file("analysis.qmd", chunk = "Last")` CP/CR.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.
 
-```{r million-song-dataset-11}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: million-song-dataset-11
+#| echo: false
+learnr2::question(
+  "The summary didn't give a clear picture of the distribution of song years. Plot the distribution of song.year, filtering out rows where song.year is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-11-test}
+```{r}
+#| label: million-song-dataset-11-answer
 #| echo: true
 music |>
   filter(song.year > 0) |>
@@ -1170,18 +1199,20 @@ The dataset skews heavily toward recent music: over half the songs are from the 
 
 We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-12}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: million-song-dataset-12
+#| echo: false
+learnr2::question(
+  "We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-12-test}
+```{r}
+#| label: million-song-dataset-12-answer
 #| echo: true
 music |>
   summarise(
@@ -1203,18 +1234,20 @@ Missingness in this file is wildly uneven. `artist.location` (9,999), `song.titl
 
 Artist locations are also stored as latitude and longitude. Count how many artists have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r million-song-dataset-13}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: million-song-dataset-13
+#| echo: false
+learnr2::question(
+  "Artist locations are also stored as latitude and longitude. Count how many artists have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-13-test}
+```{r}
+#| label: million-song-dataset-13-answer
 #| echo: true
 music |>
   summarise(
@@ -1232,26 +1265,23 @@ Latitude 0, longitude 0 is a real place — a point in the Gulf of Guinea off th
 
 Make a world map showing the locations of artists with usable coordinates. Filter out artists where both latitude and longitude equal 0, use the **[maps](https://cran.r-project.org/package=maps)** package for the world background, and add a title and subtitle that note the coverage limitation.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r million-song-dataset-14}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: million-song-dataset-14
+#| echo: false
+learnr2::question(
+  "Make a world map showing the locations of artists with usable coordinates. Filter out artists where both latitude and longitude equal 0, use the maps package for the world background, and add a title and subtitle that note the coverage limitation. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-14-test}
+```{r}
+#| label: million-song-dataset-14-answer
 #| echo: true
 world <- map_data("world")
 
@@ -1287,26 +1317,23 @@ The map reveals a strong geographic bias: most artists with usable coordinates a
 
 Iterate the map. Color the artist points by `artist.familiarity`, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r million-song-dataset-15}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: million-song-dataset-15
+#| echo: false
+learnr2::question(
+  "Iterate the map. Color the artist points by artist.familiarity, filter out artists with familiarity at or below 0, and update the title and subtitle to reflect what the color now shows. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-15-test}
+```{r}
+#| label: million-song-dataset-15-answer
 #| echo: true
 world <- map_data("world")
 
@@ -1343,26 +1370,23 @@ The geographic pattern in familiarity is partly a coverage artifact — artists 
 
 Iterate the map again. Assign each artist a genre using these five terms in order of priority: `rock`, `pop`, `blues`, `jazz`, `metal`. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Render and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r million-song-dataset-16}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: million-song-dataset-16
+#| echo: false
+learnr2::question(
+  "Iterate the map again. Assign each artist a genre using these five terms in order of priority: rock, pop, blues, jazz, metal. Artists that do not match any term should be excluded. Color the points by genre and add a title and subtitle describing the geographic pattern. Render and inspect the plot in the rendered HTML. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-16-test}
+```{r}
+#| label: million-song-dataset-16-answer
 #| echo: true
 world <- map_data("world")
 
@@ -1407,26 +1431,23 @@ Blues clusters heavily in the United States, metal shows notable presence in Nor
 
 Iterate the map one more time. Color the artist points by `song.year`, filtering out rows where `song.year` is 0. Update the title and subtitle. Render and inspect the plot in the rendered HTML.
 
-In the R Terminal, run:
+Take a screenshot of the map in your rendered page and paste it below.
 
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r million-song-dataset-17}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: million-song-dataset-17
+#| echo: false
+learnr2::question(
+  "Iterate the map one more time. Color the artist points by song.year, filtering out rows where song.year is 0. Update the title and subtitle. Render and inspect the plot in the rendered HTML. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r million-song-dataset-17-test}
+```{r}
+#| label: million-song-dataset-17-answer
 #| echo: true
 world <- map_data("world")
 
@@ -1476,30 +1497,32 @@ show_file("analysis.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 30)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Analyzing Music Data"
-author: &lt;your name&gt;
+author: <your name>
 execute:
   echo: false
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 billboard_longer <- billboard |>
   mutate(song = str_c(artist, " - ", track)) |>
   pivot_longer(
@@ -1529,14 +1552,14 @@ billboard_top10_stories <- bind_rows(
     slice_max(first_best_week, n = 1, with_ties = FALSE) |>
     mutate(story = "Slowest to #1"),
   billboard_song_summary |>
-    filter(best_rank &lt;= 10) |>
+    filter(best_rank <= 10) |>
     slice_max(weeks_on_chart, n = 1, with_ties = FALSE) |>
     mutate(story = "Longest top-10 run")
 )
 
 billboard_top10_longer <- billboard_longer |>
   semi_join(
-    billboard_song_summary |> filter(best_rank &lt;= 10),
+    billboard_song_summary |> filter(best_rank <= 10),
     by = c("artist", "track", "song")
   )
 
@@ -1578,18 +1601,18 @@ billboard_top10_longer |>
     color = "Song",
     caption = "Source: tidyr::billboard"
   )
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 #| cache: true
 music <- read_csv("data/music.csv", show_col_types = FALSE)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 world <- map_data("world")
 
 music |>
-  filter(!(artist.latitude == 0 &amp; artist.longitude == 0), song.year &gt; 0) |>
+  filter(!(artist.latitude == 0 & artist.longitude == 0), song.year > 0) |>
   ggplot() +
   geom_map(
     data = world, map = world,
@@ -1611,8 +1634,8 @@ music |>
   ) +
   theme_minimal() +
   theme(axis.text = element_blank(), axis.ticks = element_blank())
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -1630,13 +1653,14 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1651,13 +1675,14 @@ Publishing turns your local analysis into a public artifact that someone else ca
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -1672,5 +1697,23 @@ Your repo should contain the source files that reproduce your published page. Th
 
 The ideas you used today are covered in depth in [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. The chapters on [data visualization](https://r4ds.hadley.nz/data-visualize.html), [data transformation](https://r4ds.hadley.nz/data-transform.html), [data tidying](https://r4ds.hadley.nz/data-tidy.html), and [data import](https://r4ds.hadley.nz/data-import.html) are worth reading to deepen your understanding of the analysis behind your work.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "01-r4ds-1")
 ```

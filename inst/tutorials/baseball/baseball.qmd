@@ -1,30 +1,28 @@
 ---
 title: Baseball
 author: David Kane
-tutorial:
-  id: baseball
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Build a multi-page Quarto website about Major League Baseball history using the Lahman database. Students discover why total home runs appear to collapse in certain seasons, normalize to home runs per game to expose the sport''s real eras, and profile the career home run leaders.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(Lahman)
-
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -66,25 +64,27 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>/_site/
+```
+/_site/
 /.quarto/
 /*_files/
-</code></pre>
+```
 
 ###
 
@@ -107,18 +107,20 @@ show_file("_quarto.yml")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"_quarto.yml\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>project:
+```
+project:
   type: website
 
 website:
@@ -134,7 +136,7 @@ format:
 
 execute:
   echo: false
-</code></pre>
+```
 
 ###
 
@@ -152,18 +154,20 @@ show_file("index.qmd")
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"index.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+```
+---
 title: "Baseball"
 ---
 
@@ -173,7 +177,7 @@ This site explores the history of Major League Baseball through its
 data. Using the Lahman database --- a complete record of every team and
 player season since 1871 --- we look at how the game has changed,
 starting with its signature event: the home run.
-</code></pre>
+```
 
 ###
 
@@ -198,18 +202,20 @@ At the top of `home-runs.qmd`, add a code chunk that loads `library(tidyverse)` 
 
 Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
 
-```{r home-runs-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: home-runs-1
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-1-test}
+```{r}
+#| label: home-runs-1-answer
 #| echo: true
 #| message: false
 library(tidyverse)
@@ -228,18 +234,20 @@ That table is too wide to read. Change the chunk to show just the columns we nee
 
 Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
 
-```{r home-runs-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: home-runs-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-2-test}
+```{r}
+#| label: home-runs-2-answer
 #| echo: true
 Teams |>
   select(yearID, name, G, HR)
@@ -255,18 +263,20 @@ Add up all teams' home runs and all teams' games within each season. Produce a t
 
 Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
 
-```{r home-runs-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: home-runs-3
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-3-test}
+```{r}
+#| label: home-runs-3-answer
 #| echo: true
 Teams |>
   group_by(yearID) |>
@@ -283,20 +293,23 @@ Now the unit of observation is a *season*: one row per year, from 1871 to 2025. 
 
 Plot total home runs by season as a line. Aggregate the home runs per year inside the chunk and put `yearID` on the x-axis and total home runs on the y-axis. Give it a title, axis labels, and a source caption.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r home-runs-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: home-runs-4
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-4-test}
+```{r}
+#| label: home-runs-4-answer
 #| echo: true
 Teams |>
   group_by(yearID) |>
@@ -323,18 +336,20 @@ Investigate those collapses. Build a small table comparing a normal recent seaso
 
 Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
 
-```{r home-runs-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 7)
+```{r}
+#| label: home-runs-5
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-5-test}
+```{r}
+#| label: home-runs-5-answer
 #| echo: true
 Teams |>
   group_by(yearID) |>
@@ -353,20 +368,23 @@ The mystery dissolves. In 2020 the season was cut to 60 games by the COVID-19 pa
 
 Redo the plot using home runs per game instead of the total: divide each season's total home runs by its total team-games, and plot that rate against the season. Keep a title, labels, and caption.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r home-runs-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: home-runs-6
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-6-test}
+```{r}
+#| label: home-runs-6-answer
 #| echo: true
 Teams |>
   group_by(yearID) |>
@@ -394,20 +412,23 @@ The artifact dips are gone, and the real story appears. The rate sits near zero 
 
 Polish the plot. Flag the shortened seasons --- 1918, 1919, 1981, 1994, 1995, and 2020 --- in a different color so a reader can see that the very seasons that fooled us earlier are ordinary once we use a rate. Add a legend and update the labels.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r home-runs-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 16)
+```{r}
+#| label: home-runs-7
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r home-runs-7-test}
+```{r}
+#| label: home-runs-7-answer
 #| echo: true
 Teams |>
   group_by(yearID) |>
@@ -451,38 +472,40 @@ show_file("home-runs.qmd")
 
 CP/CR.
 
-```{r home-runs-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 25)
+```{r}
+#| label: home-runs-8
+#| echo: false
+learnr2::question(
+  "Move the aggregation into its own chunk above the plot, assigning the season-level table to hr_by_season, and leave the plot chunk with nothing but the code that draws from it. Render. In the R Terminal, run: show_file(\"home-runs.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+````{verbatim}
+---
 title: "Home runs"
 ---
 
-&#96;&#96;&#96;{r}
+```{r}
 #| message: false
 library(tidyverse)
 library(Lahman)
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
-hr_by_season &lt;- Teams |>
+```{r}
+hr_by_season <- Teams |>
   group_by(yearID) |>
   summarise(HR = sum(HR, na.rm = TRUE),
             team_games = sum(G),
             .groups = "drop") |>
   mutate(hr_per_game = HR / team_games,
          shortened = yearID %in% c(1918, 1919, 1981, 1994, 1995, 2020))
-&#96;&#96;&#96;
+```
 
-&#96;&#96;&#96;{r}
+```{r}
 hr_by_season |>
   ggplot(aes(x = yearID, y = hr_per_game)) +
   geom_line(color = "grey70") +
@@ -499,8 +522,8 @@ hr_by_season |>
     y = "Home runs per game",
     caption = "Source: Lahman Teams table"
   )
-&#96;&#96;&#96;
-</code></pre>
+```
+````
 
 ###
 
@@ -512,20 +535,22 @@ Now cache the data chunk. Add `#| cache: true` as the first line inside the `hr_
 
 To confirm the directory is there, run `ls` in the **bash Terminal**. CP/CR.
 
-```{r home-runs-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: home-runs-9
+#| echo: false
+learnr2::question(
+  "To confirm the directory is there, run ls in the bash Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>$ ls
+```
+$ ls
 _quarto.yml  _site  home-runs.qmd  home-runs_cache  home-runs_files  index.qmd
-</code></pre>
+```
 
 ###
 
@@ -543,22 +568,24 @@ Add a line to your `.gitignore` that ignores the cache directories:
 
 In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r home-runs-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: home-runs-10
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>/_site/
+```
+/_site/
 /.quarto/
 /*_files/
 /*_cache/
-</code></pre>
+```
 
 ###
 
@@ -580,13 +607,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r home-runs-11}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: home-runs-11
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -613,18 +641,20 @@ At the top of the page, add a code chunk that loads `library(tidyverse)` and `li
 
 Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
 
-```{r sluggers-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: sluggers-1
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"sluggers.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-1-test}
+```{r}
+#| label: sluggers-1-answer
 #| echo: true
 #| message: false
 library(tidyverse)
@@ -643,18 +673,20 @@ Add up each player's home runs across all of their seasons, and show the 15 play
 
 Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
 
-```{r sluggers-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: sluggers-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"sluggers.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-2-test}
+```{r}
+#| label: sluggers-2-answer
 #| echo: true
 Batting |>
   group_by(playerID) |>
@@ -672,18 +704,20 @@ Join the `People` table to attach each leader's name. Build a clean table showin
 
 Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
 
-```{r sluggers-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 8)
+```{r}
+#| label: sluggers-3
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run show_file(\"sluggers.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-3-test}
+```{r}
+#| label: sluggers-3-answer
 #| echo: true
 Batting |>
   group_by(playerID) |>
@@ -706,20 +740,23 @@ Barry Bonds leads with 762, ahead of Hank Aaron (755) and Babe Ruth (714). Joini
 
 Turn the leaders into a bar chart. Put career home runs on the x-axis and player names on the y-axis, ordered so the leader is on top. Add a title, labels, and a caption.
 
-Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r sluggers-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: sluggers-4
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-4-test}
+```{r}
+#| label: sluggers-4-answer
 #| echo: true
 Batting |>
   group_by(playerID) |>
@@ -746,20 +783,23 @@ Ordering the bars with `fct_reorder()` makes the ranking instantly legible --- a
 
 Color the bars by whether each player was active during the steroid era. Treat a player as active in that era if their career overlapped the years 1994 to 2009 (their last season was 1994 or later and their first season was 2009 or earlier). Add a legend and update the title.
 
-Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r sluggers-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 16)
+```{r}
+#| label: sluggers-5
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-5-test}
+```{r}
+#| label: sluggers-5-answer
 #| echo: true
 Batting |>
   group_by(playerID) |>
@@ -795,20 +835,23 @@ Nine of the top fifteen were active between 1994 and 2009 --- the same window wh
 
 Zoom in on the career home run leader, Barry Bonds. Plot his home runs in each season of his career as a bar chart, with season on the x-axis. Add a title and labels.
 
-Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`. CP/CR.
+Render. Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r sluggers-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: sluggers-6
+#| echo: false
+learnr2::question(
+  "Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r sluggers-6-test}
+```{r}
+#| label: sluggers-6-answer
 #| echo: true
 Batting |>
   filter(playerID == "bondsba01") |>
@@ -845,13 +888,14 @@ git log --oneline -3
 
 CP/CR.
 
-```{r sluggers-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: sluggers-7
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -882,18 +926,20 @@ show_file("index.qmd")
 
 CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"index.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>---
+```
+---
 title: "Baseball"
 ---
 
@@ -909,7 +955,7 @@ the rate instead reveals baseball's real eras, from the dead-ball era to
 the 2019 "juiced ball." The **Sluggers** page ranks the career home run
 leaders and finds most of them clustered in the steroid era, the same
 years the per-game rate peaked.
-</code></pre>
+```
 
 ###
 
@@ -927,13 +973,14 @@ If the bash Terminal is still running from rendering, stop it first using `Ctrl/
 
 Copy/paste the resulting URL below.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 1)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -951,13 +998,14 @@ question_text(NULL,
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -970,5 +1018,23 @@ https://github.com/<your-github-username>/baseball
 
 Your repo holds the source that reproduces the published site; the published site shows the result. Together they are a complete piece of work: a reader can both see what you found and check how you found it. The home-runs-per-game pattern, the career leaders, and the link between them are a small but genuine finding about how baseball changed --- the kind of self-contained, honest analysis that makes a good final project.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "baseball")
 ```

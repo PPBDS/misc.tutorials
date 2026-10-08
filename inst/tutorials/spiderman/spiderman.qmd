@@ -1,35 +1,33 @@
 ---
 title: Spider-Man
 author: Var Kurapati
-tutorial:
-  id: spiderman
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Students use Rotten Tomatoes data to compare the three live-action
   Spider-Man actors. They clean and explore critic and audience scores across eight
   films, compute the gap between them, analyze trends by actor and by year, and
   publish a multi-page Quarto website.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
-library(knitr)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 films <- readRDS("data/films.rds")
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -75,23 +73,25 @@ show_file(".gitignore")
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
-</code></pre>
+```
 
 ###
 
@@ -114,20 +114,22 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
-</code></pre>
+```
 
 ###
 
@@ -139,13 +141,14 @@ Create a `data` directory at the top level of the `spiderman` repo. In the bash 
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the spiderman repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -179,13 +182,14 @@ ls data
 
 CP/CR.
 
-```{r who-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: who-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -204,18 +208,20 @@ In a new code chunk in `analysis.qmd`, read `data/spiderman_rt_clean.csv` and pr
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r who-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: who-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r who-2-test}
+```{r}
+#| label: who-2-answer
 #| echo: true
 read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
   select(movie_title, actor, tomatometer_rating, audience_rating)
@@ -231,18 +237,20 @@ Compute `critic_audience_gap` as `tomatometer_rating` minus `audience_rating`, a
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r who-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: who-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r who-3-test}
+```{r}
+#| label: who-3-answer
 #| echo: true
 read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
   mutate(critic_audience_gap = tomatometer_rating - audience_rating) |>
@@ -260,18 +268,20 @@ Filter to films with a negative gap — the ones audiences liked more than criti
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r who-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: who-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r who-4-test}
+```{r}
+#| label: who-4-answer
 #| echo: true
 read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
   mutate(critic_audience_gap = tomatometer_rating - audience_rating) |>
@@ -288,24 +298,26 @@ Four of the eight films skew toward audiences over critics — both Garfield fil
 
 Read `data/spiderman_rt_clean.csv`, compute `critic_audience_gap`, and assign the result to `films`. Save it with `saveRDS(films, "data/films.rds")`. Create a new R script called `spiderman.R` in your repo. In it, write this pipeline and run it in a bash Terminal with `Rscript spiderman.R`. In the R Terminal, run `show_file("spiderman.R")`. CP/CR.
 
-```{r who-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: who-5
+#| echo: false
+learnr2::question(
+  "Read data/spiderman_rt_clean.csv, compute critic_audience_gap, and assign the result to films. Save it with saveRDS(films, \"data/films.rds\"). Create a new R script called spiderman.R in your repo. In it, write this pipeline and run it in a bash Terminal with Rscript spiderman.R. In the R Terminal, run show_file(\"spiderman.R\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>library(tidyverse)
+```
+library(tidyverse)
 
 films <- read_csv("data/spiderman_rt_clean.csv", show_col_types = FALSE) |>
   mutate(critic_audience_gap = tomatometer_rating - audience_rating)
 
 saveRDS(films, "data/films.rds")
-</code></pre>
+```
 
 ###
 
@@ -315,24 +327,26 @@ Note that `audience_count` for the 2021 *No Way Home* is a floor, not an exact f
 
 Add `data/films.rds` to your `.gitignore`. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r who-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: who-6
+#| echo: false
+learnr2::question(
+  "Add data/films.rds to your .gitignore. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
 data/films.rds
-</code></pre>
+```
 
 ###
 
@@ -344,13 +358,14 @@ In `analysis.qmd`, update the data chunk to load the RDS file instead of re-read
 
 In the bash Terminal, run `ls data`. CP/CR.
 
-```{r who-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: who-7
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -369,20 +384,22 @@ Create a new file `scores.qmd` with the same YAML header and library chunk as `a
 
 In the R Terminal, run `show_file("scores.qmd", chunk = "Last")`. CP/CR.
 
-```{r who-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: who-8
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"scores.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| cache: true
+```
+#| cache: true
 films <- readRDS("data/films.rds")
-</code></pre>
+```
 
 ###
 
@@ -392,20 +409,23 @@ Each page of a Quarto website runs in its own R session — objects defined in `
 
 In `scores.qmd`, add a new code chunk that makes a bar chart of `critic_audience_gap` for all 8 films, ordered from most audience-favored to most critic-favored, colored by `actor`. Render `scores.qmd`.
 
-In the R Terminal, run `show_file("scores.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r who-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 16)
+```{r}
+#| label: who-9
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r who-9-test}
+```{r}
+#| label: who-9-answer
 #| echo: true
 films |>
   ggplot(aes(x = critic_audience_gap,
@@ -441,13 +461,14 @@ git log -1
 
 CP/CR.
 
-```{r who-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: who-10
+#| echo: false
+learnr2::question(
+  "Commit analysis.qmd, scores.qmd, and spiderman.R with the message \"Add scores comparison\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -479,18 +500,20 @@ Create a new file `trends.qmd` with the same YAML, libraries, and data chunk as 
 
 In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
 
-```{r trends-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: trends-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r trends-1-test}
+```{r}
+#| label: trends-1-answer
 #| echo: true
 films |>
   mutate(actor = fct_inorder(actor)) |>
@@ -511,20 +534,23 @@ Holland has the highest average score with both critics (91.7) and audiences (93
 
 Update your chunk to show a bar chart comparing average critic score and average audience score side by side for each actor. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r trends-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: trends-2
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r trends-2-test}
+```{r}
+#| label: trends-2-answer
 #| echo: true
 films |>
   mutate(actor = fct_inorder(actor)) |>
@@ -557,20 +583,23 @@ This view makes the era comparison direct: Holland's films are highest on both b
 
 Update your chunk to show a line chart of `tomatometer_rating` and `audience_rating` across all 8 films in release order, with both lines on the same plot. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r trends-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 16)
+```{r}
+#| label: trends-3
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r trends-3-test}
+```{r}
+#| label: trends-3-answer
 #| echo: true
 films |>
   mutate(movie_title = fct_inorder(movie_title)) |>
@@ -608,13 +637,14 @@ git log -1
 
 CP/CR.
 
-```{r trends-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: trends-4
+#| echo: false
+learnr2::question(
+  "Commit trends.qmd with the message \"Add trends analysis\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -669,18 +699,20 @@ ls
 
 In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
 
-```{r summary-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 15)
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"_quarto.yml\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>project:
+```
+project:
   type: website
 
 website:
@@ -697,7 +729,7 @@ website:
 format:
   html:
     theme: cosmo
-</code></pre>
+```
 
 ###
 
@@ -709,13 +741,14 @@ Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs 
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 20)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -736,13 +769,14 @@ quarto publish gh-pages
 
 Copy/paste the resulting URL below.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -753,18 +787,37 @@ question_text(NULL,
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-4
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 Rotten Tomatoes scores are updated as new reviews and ratings come in, so re-downloading this data in the future may produce slightly different numbers than what you analyzed here — particularly for *No Way Home*, whose audience count was still climbing at time of writing. The same workflow used here — download a CSV, clean it, compute a derived variable, save an RDS, compare groups, analyze trends, build a website — applies to any dataset with a natural grouping variable. The tools are the same; only the question changes.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "spiderman")
 ```

@@ -1,33 +1,25 @@
 ---
 title: Ducks
 author: Var Kurapati
-tutorial:
-  id: ducks
-output:
-  learnr::tutorial:
-    df_print: default
-    progressive: true
-    allow_skip: true
-runtime: shiny_prerendered
 description: 'Students use GPS tracking data from 52 Mallard ducks fitted with GPS
   collars at Lake Constance, Germany to explore movement patterns, seasonal activity,
   and individual variation. Final artifact is a multi-page Quarto website with a
   map, seasonal analysis, and written interpretation.'
+format: live-html
+engine: knitr
+toc: true
 ---
 
-```{r setup, include = FALSE}
-library(learnr)
-library(tutorial.helpers)
-library(knitr)
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
 library(tidyverse)
 library(sf)
 library(maps)
 library(ggridges)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(out.width = '90%')
-options(tutorial.exercise.timelimit = 600,
-        tutorial.storage = "local")
 
 mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
@@ -46,7 +38,13 @@ mallards <- read_csv("data/mallards.csv",
   )
 ```
 
-```{r info-section, child = system.file("child_documents/info_section.Rmd", package = "tutorial.helpers")}
+## Information
+###
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
 ```
 
 ## Introduction
@@ -95,27 +93,29 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
-If that fails, it is probably because you have not yet loaded `library(tutorial.helpers)` in the R Terminal.
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
-```{r introduction-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
-</code></pre>
+```
 
 ###
 
@@ -138,21 +138,23 @@ show_file("analysis.qmd", chunk = "Last")
 
 CP/CR.
 
-```{r introduction-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| message: false
+```
+#| message: false
 library(tidyverse)
 library(sf)
-</code></pre>
+```
 
 ###
 
@@ -168,13 +170,14 @@ Create a `data` directory at the top level of the `ducks` repo. In the bash Term
 
 CP/CR.
 
-```{r introduction-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the ducks repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -204,13 +207,14 @@ ls data
 
 CP/CR.
 
-```{r where-do-they-go-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: where-do-they-go-1
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run: ls data CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -229,18 +233,20 @@ Create a new code chunk in `analysis.qmd` that reads `data/mallards.csv` and pri
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-do-they-go-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-do-they-go-2-test}
+```{r}
+#| label: where-do-they-go-2-answer
 #| echo: true
 read_csv("data/mallards.csv", show_col_types = FALSE) |>
   head(10)
@@ -260,18 +266,20 @@ Count GPS fixes per duck, sorted from most to least. Render.
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-do-they-go-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-do-they-go-3-test}
+```{r}
+#| label: where-do-they-go-3-answer
 #| echo: true
 read_csv("data/mallards.csv", show_col_types = FALSE) |>
   count(duck_id, sort = TRUE)
@@ -287,18 +295,20 @@ Summarize the geographic range of the data: minimum and maximum latitude and lon
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-do-they-go-4
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-do-they-go-4-test}
+```{r}
+#| label: where-do-they-go-4-answer
 #| echo: true
 read_csv("data/mallards.csv", show_col_types = FALSE) |>
   summarise(
@@ -328,18 +338,20 @@ Feel free to copy and paste our code below directly into your QMD as a starting 
 
 In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: where-do-they-go-5
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-do-they-go-5-test}
+```{r}
+#| label: where-do-they-go-5-answer
 #| echo: true
 mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
@@ -367,18 +379,20 @@ The `season` column is an ordered factor so plots display seasons in natural cal
 
 Now that `mallards` is built, save it to disk so that `map.qmd` and `seasons.qmd` can read it without duplicating the data pipeline. Create a new R script called `mallards.R` in your repo. In it, write the pipeline from Exercise 5 and save the result with `saveRDS(mallards, "data/mallards.rds")`. Run the script in a bash Terminal with `Rscript mallards.R`. In the R Terminal, run `show_file("mallards.R")`. CP/CR.
 
-```{r where-do-they-go-6}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 10)
+```{r}
+#| label: where-do-they-go-6
+#| echo: false
+learnr2::question(
+  "Now that mallards is built, save it to disk so that map.qmd and seasons.qmd can read it without duplicating the data pipeline. Create a new R script called mallards.R in your repo. In it, write the pipeline from Exercise 5 and save the result with saveRDS(mallards, \"data/mallards.rds\"). Run the script in a bash Terminal with Rscript mallards.R. In the R Terminal, run show_file(\"mallards.R\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>library(tidyverse)
+```
+library(tidyverse)
 
 mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
   mutate(
@@ -396,7 +410,7 @@ mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
   )
 
 saveRDS(mallards, "data/mallards.rds")
-</code></pre>
+```
 
 ###
 
@@ -406,24 +420,26 @@ saveRDS(mallards, "data/mallards.rds")
 
 Add `data/mallards.rds` to your `.gitignore` — generated files that can be rebuilt from source should not go to GitHub. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
-```{r where-do-they-go-7}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-do-they-go-7
+#| echo: false
+learnr2::question(
+  "Add data/mallards.rds to your .gitignore — generated files that can be rebuilt from source should not go to GitHub. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>_site/
+```
+_site/
 .quarto/
 *_files
 *_cache
 *.html
 data/mallards.rds
-</code></pre>
+```
 
 ###
 
@@ -435,13 +451,14 @@ In `analysis.qmd`, update the `mallards` chunk to load the RDS file instead of r
 
 CP/CR.
 
-```{r where-do-they-go-8}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 4)
+```{r}
+#| label: where-do-they-go-8
+#| echo: false
+learnr2::question(
+  "In analysis.qmd, update the mallards chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: mallards <- readRDS(\"data/mallards.rds\"). Add #| cache: true. Render. In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -458,20 +475,22 @@ mallards.csv  mallards.rds
 
 Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `analysis.qmd`. Add a data chunk that reads `mallards <- readRDS("data/mallards.rds")` with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
-```{r where-do-they-go-9}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: where-do-they-go-9
+#| echo: false
+learnr2::question(
+  "Create a new file map.qmd in your repo. Add the same YAML header and library chunk as analysis.qmd. Add a data chunk that reads mallards <- readRDS(\"data/mallards.rds\") with #| cache: true. Render map.qmd. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-<pre><code>#| cache: true
+```
+#| cache: true
 mallards <- readRDS("data/mallards.rds")
-</code></pre>
+```
 
 ###
 
@@ -481,20 +500,23 @@ Each page of a Quarto website is an independent document with its own R session 
 
 In `map.qmd`, add a new working chunk that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 46–55°N, longitudes 7–25°E). Use `geom_sf()` with a world boundary layer from `rnaturalearth`. Render `map.qmd`.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the map in your rendered page and paste it below.
 
-```{r where-do-they-go-10}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 14)
+```{r}
+#| label: where-do-they-go-10
+#| echo: false
+learnr2::question(
+  "Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r where-do-they-go-10-test}
+```{r}
+#| label: where-do-they-go-10-answer
 #| echo: true
 world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
 
@@ -546,13 +568,14 @@ git log -1
 
 CP/CR.
 
-```{r where-do-they-go-11}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: where-do-they-go-11
+#| echo: false
+learnr2::question(
+  "Commit analysis.qmd, map.qmd, and mallards.R with the message \"Add duck map\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -580,18 +603,20 @@ Create a new file `seasons.qmd` in your repo with the same YAML, libraries, and 
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
-```{r when-do-they-move-1}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: when-do-they-move-1
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-do-they-move-1-test}
+```{r}
+#| label: when-do-they-move-1-answer
 #| echo: true
 mallards |>
   count(month)
@@ -607,18 +632,20 @@ Get summary statistics for `speed`. Render `seasons.qmd`.
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
-```{r when-do-they-move-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 5)
+```{r}
+#| label: when-do-they-move-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-do-they-move-2-test}
+```{r}
+#| label: when-do-they-move-2-answer
 #| echo: true
 mallards |>
   summarise(
@@ -639,18 +666,20 @@ Filter `mallards` to `speed <= 30` to remove GPS errors, then compute mean speed
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
-```{r when-do-they-move-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: when-do-they-move-3
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-do-they-move-3-test}
+```{r}
+#| label: when-do-they-move-3-answer
 #| echo: true
 mallards |>
   filter(speed <= 30) |>
@@ -665,20 +694,23 @@ Mean speed peaks in August–September and again in March, when ducks are most a
 ### Exercise 4
 
 Make a ridge plot of speed distributions by month, with GPS errors removed. Use `ggridges`. Render `seasons.qmd`.
-In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
-```{r when-do-they-move-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 12)
+```{r}
+#| label: when-do-they-move-4
+#| echo: false
+learnr2::question(
+  "Make a ridge plot of speed distributions by month, with GPS errors removed. Use ggridges. Render seasons.qmd. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
 ```
 
 ###
 
-```{r when-do-they-move-4-test}
+```{r}
+#| label: when-do-they-move-4-answer
 #| echo: true
 library(ggridges)
 
@@ -713,13 +745,14 @@ git log -1
 
 CP/CR.
 
-```{r when-do-they-move-5}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: when-do-they-move-5
+#| echo: false
+learnr2::question(
+  "Commit seasons.qmd with the message \"Add seasonal movement analysis\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -791,13 +824,14 @@ Place the image after your introductory paragraphs. Render and confirm it appear
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
-```{r summary-2}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 20)
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -818,13 +852,14 @@ quarto publish gh-pages
 
 Copy/paste the resulting URL below.
 
-```{r summary-3}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 3)
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
@@ -835,20 +870,39 @@ question_text(NULL,
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
-```{r summary-4}
-question_text(NULL,
-  answer(NULL, correct = TRUE),
-  allow_retry = TRUE,
-  try_again_button = "Edit Answer",
-  incorrect = NULL,
-  rows = 6)
+```{r}
+#| label: summary-4
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
 ```
 
 ###
 
 Movebank hosts thousands of published animal tracking studies under open licenses. The same workflow used here — download a CSV, clean timestamps and coordinates, save an RDS, map locations, analyze movement patterns, build a website — applies to any species in the archive, from monarch butterflies to great white sharks. The **[move2](https://cran.r-project.org/package=move2)** R package connects directly to Movebank's API, so for a more advanced project you could pull any tracking dataset straight into R without a manual download.
 
-```{r download-answers, child = system.file("child_documents/download_answers.Rmd", package = "tutorial.helpers")}
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "ducks")
 ```
 
 
