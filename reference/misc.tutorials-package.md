@@ -11,8 +11,9 @@ R*](https://walker-data.com/census-r/) by Kyle Walker.
 ## Details
 
 A collection of interactive tutorials covering R for Data Science
-essentials and US Census data analysis. This package makes extensive use
-of the tools in the tutorial.helpers package.
+essentials and US Census data analysis. The tutorials are built with the
+learnr2 package, which renders each one to a static page whose code runs
+in the browser via WebR.
 
 ## R for Data Science Tutorials
 
@@ -44,7 +45,7 @@ ggplot2.
 ## Running Tutorials
 
 To run a tutorial, use:
-`learnr::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")`
+`learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")`
 
 Available tutorial names are: r4ds-1, r4ds-2, r4ds-3, r4ds-4, r4ds-5,
 and census.

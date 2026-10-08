@@ -1,7 +1,7 @@
 # CLAUDE.md — misc.tutorials
 
 `misc.tutorials` is an R package of **“normal” (post-infrastructure)
-learnr tutorials**. It is governed by the base tutorial guide and adds
+learnr2 tutorials**. It is governed by the base tutorial guide and adds
 only what is specific to this package below.
 
 ## Base tutorial guide (read this first)
@@ -15,22 +15,21 @@ ecosystem, at `claude-md/tutorials/CLAUDE.md` in the
 truth for everything common to all such tutorials:
 
 - the AI-era philosophy — students create artifacts by prompting an AI
-  agent, not by typing code into learnr exercise chunks;
+  agent, not by typing code into exercise cells;
 - the workflow — student work lives in `analysis.qmd`; they render with
   `quarto render` in a bash terminal and view the result via **Live
   Server**;
-- exercise rhythm, the `question_text()` question types, knowledge-drop
-  discipline, CP/CR and `show_file()` evidence;
+- exercise rhythm, the question types, knowledge-drop discipline, CP/CR
+  and `show_file()` evidence;
 - `echo = FALSE`, test-chunk discipline, code-chunk labeling, the
   setup-chunk skeleton, data handling, and formatting conventions.
 
 `misc.tutorials` is one of the packages the base guide governs by
-default — it is **not** an exception (those are `vscode.tutorials` and
-`tutorial.helpers`). In the base guide’s normal-vs-modeling split, every
-tutorial here is a **normal** tutorial: we mostly don’t care which code
-does what — we care about the output. The modeling tutorials
-(code-visible, slow-down-and-look) live in `primer.tutorials`, tutorial
-05 and higher.
+default — it is **not** an exception (that is `vscode.tutorials`). In
+the base guide’s normal-vs-modeling split, every tutorial here is a
+**normal** tutorial: we mostly don’t care which code does what — we care
+about the output. The modeling tutorials (code-visible,
+slow-down-and-look) live in `primer.tutorials`, tutorial 05 and higher.
 
 **Precedence.** On workflow and shared conventions, the base guide wins.
 On `misc.tutorials`-specific content this file wins. Any departure from
@@ -62,6 +61,37 @@ creation; students steer the analysis and judge the output, but are not
 asked to write prose interpretations in the QMD. Knowledge drops carry
 the interpretive commentary instead. Do not add interpretation exercises
 to any tutorial in this package.
+
+## Tutorial format: learnr2
+
+Every tutorial is a **learnr2** Quarto document,
+`inst/tutorials/<name>/<name>.qmd`, rendered to a static page. Where the
+base guide describes learnr mechanics (`question_text()`, setup-chunk
+boilerplate, child documents), learnr2’s vignettes “Translating learnr
+Tutorials” and “Tutorials in the Age of AI” govern instead. House
+choices, shared with `vscode.tutorials`:
+
+- **Prompts stay in the prose.** Each question’s instructions are
+  ordinary text above its chunk; the `question()` call carries a
+  plain-text copy in `text` with `show_text = FALSE`, so the downloaded
+  answers still show what was asked.
+- **Boilerplate** sits under `## Information` (`information-1`,
+  `student_info()`) and `## Download answers` (`download-answers-1`, the
+  minutes question; `download-answers-2`, `download_answers_button()`).
+- **The `setup` chunk** is a hidden (`#| include: false`) chunk holding
+  the libraries and data objects that our answer chunks use at render
+  time. It runs once when the tutorial is built, never in the student’s
+  browser.
+- **Plots are checked with screenshots.** An exercise whose result is a
+  plot or map asks the student to “Take a screenshot of the plot (or
+  map) in your rendered page and paste it below” (`allow_image = TRUE`),
+  not for `show_file()` output: a screenshot proves the right picture
+  was drawn, code proves only that code exists. Keep `show_file()` CP/CR
+  for exercises whose result is text — a printed tibble, summary
+  statistics, a YAML header.
+- **Never mention learnr or tutorial.helpers.** `show_file()` comes from
+  **learnr2**, and students load it with
+  [`library(learnr2)`](https://github.com/PPBDS/learnr2).
 
 ## What this package is
 
@@ -250,10 +280,10 @@ choices for these tutorials are still under discussion.)
 
 **A tutorial’s data lives in a `data/` directory inside that tutorial’s
 own folder** — `inst/tutorials/<name>/data/<file>`, sitting next to
-`tutorial.Rmd` and at the same level as the `images/` directory (if
-there is one). This is now the **base-guide default** (§6, *Data
-handling*); the rationale — the package’s own code becomes identical to
-the student’s code — lives there. Every file-based tutorial has been
+`<name>.qmd` and at the same level as the `images/` directory (if there
+is one). This is now the **base-guide default** (§6, *Data handling*);
+the rationale — the package’s own code becomes identical to the
+student’s code — lives there. Every file-based tutorial has been
 migrated to this layout; `inst/extdata/` and the old re-download
 machinery are **gone**. This section records the
 `misc.tutorials`-specific mechanics:
@@ -261,9 +291,10 @@ machinery are **gone**. This section records the
 - **The package’s setup and test chunks read data with the exact
   relative path a student writes:** `read_csv("data/music.csv")`, not
   `../../extdata/r4ds-1/music.csv`. Both resolve to `data/<file>`
-  because a tutorial knits with its own folder as the working directory,
-  and the student’s `analysis.qmd` sits in a repo with its own `data/`.
-  Our answer chunks and the student’s prompts now match exactly.
+  because a tutorial renders with its own folder as the working
+  directory, and the student’s `analysis.qmd` sits in a repo with its
+  own `data/`. Our answer chunks and the student’s prompts now match
+  exactly.
 - **Student-facing download URLs point at the same in-tutorial location
   on GitHub:**
   `.../raw/refs/heads/main/inst/tutorials/<name>/data/<file>`. Students
@@ -341,20 +372,23 @@ point is simply not to run heavy data code on CRAN’s checkers.
 Per the base guide, every package
 [`library()`](https://rdrr.io/r/base/library.html)-ed in a tutorial must
 be listed in `DESCRIPTION` (`Imports` or `Suggests`) or GitHub Actions
-`R CMD check` fails. This package keeps only `tutorial.helpers` under
-`Imports` (`utils` was dropped along with `R/zzz.R` — see *Data
-handling*); every tutorial-specific package (arrow, DBI, duckdb, readxl,
-sf, tidycensus, leaflet, plotly, …) lives under `Suggests`. When a new
-tutorial adds a library, add it to `Suggests`.
+`R CMD check` fails. This package keeps only `learnr2` under `Imports`
+(with `Remotes: PPBDS/learnr2`, since it is not on CRAN) (`utils` was
+dropped along with `R/zzz.R` — see *Data handling*); every
+tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus,
+leaflet, plotly, …) lives under `Suggests`. When a new tutorial adds a
+library, add it to `Suggests`.
 
 ## Checking
 
-Standard base-guide checks apply
-([`rmarkdown::render()`](https://pkgs.rstudio.com/rmarkdown/reference/render.html)
-for a quick syntax pass, `devtools::check()` before any PR,
-[`learnr::run_tutorial()`](https://pkgs.rstudio.com/learnr/reference/run_tutorial.html)
-for the student view). `devtools::check()` may report a size NOTE — see
-*CRAN / build size* above.
+Run
+[`learnr2::check_tutorial()`](https://ppbds.github.io/learnr2/reference/check_tutorial.html)
+for the static checks and
+[`learnr2::render_tutorials()`](https://ppbds.github.io/learnr2/reference/render_tutorials.html)
+for a real render, `devtools::check()` before any PR, and
+[`learnr2::run_tutorial()`](https://ppbds.github.io/learnr2/reference/run_tutorial.html)
+(after `devtools::load_all()`) for the student view. `devtools::check()`
+may report a size NOTE — see *CRAN / build size* above.
 
 ## Open items
 

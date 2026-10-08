@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Miscellaneous Tutorials">
-<meta name="description" content="Collection of interactive tutorials, including material from R for Data Science (2e) by Wickham, Cetinkaya-Rundel, and Grolemund, and from Analyzing US Census Data by Walker. Makes extensive use of the tools in the tutorial.helpers package.">
-<meta property="og:description" content="Collection of interactive tutorials, including material from R for Data Science (2e) by Wickham, Cetinkaya-Rundel, and Grolemund, and from Analyzing US Census Data by Walker. Makes extensive use of the tools in the tutorial.helpers package.">
+<meta name="description" content="Collection of interactive tutorials, including material from R for Data Science (2e) by Wickham, Cetinkaya-Rundel, and Grolemund, and from Analyzing US Census Data by Walker. Tutorials are built with the learnr2 package and run in the browser via Quarto and WebR.">
+<meta property="og:description" content="Collection of interactive tutorials, including material from R for Data Science (2e) by Wickham, Cetinkaya-Rundel, and Grolemund, and from Analyzing US Census Data by Walker. Tutorials are built with the learnr2 package and run in the browser via Quarto and WebR.">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,22 +55,22 @@
 <div class="section level2">
 <h2 id="about-this-package">About this package<a class="anchor" aria-label="anchor" href="#about-this-package"></a>
 </h2>
-<p><strong>misc.tutorials</strong> is a collection of interactive tutorials covering <em>R for Data Science</em> essentials and US Census data analysis. Makes extensive use of the tools in the <strong><a href="https://ppbds.github.io/tutorial.helpers/" class="external-link">tutorial.helpers</a></strong> package.</p>
+<p><strong>misc.tutorials</strong> is a collection of interactive tutorials covering <em>R for Data Science</em> essentials and US Census data analysis. Tutorials are built with the <strong><a href="https://ppbds.github.io/learnr2/" class="external-link">learnr2</a></strong> package and run in the browser via Quarto and WebR.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Install the development version from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"PPBDS/misc.tutorials"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"PPBDS/misc.tutorials"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="tutorials">Tutorials<a class="anchor" aria-label="anchor" href="#tutorials"></a>
 </h2>
 <p>The recommended way to launch the tutorials is with the <a href="https://open-vsx.org/extension/PPBDS/vscode-r-tutorials" class="external-link">R Tutorials extension for VS Code</a>, which lists every installed tutorial and lets you start one with a click.</p>
-<p>As a backup, you can launch a tutorial from the R console with <code><a href="https://pkgs.rstudio.com/learnr/reference/run_tutorial.html" class="external-link">learnr::run_tutorial()</a></code>, providing the short name of the tutorial and the package name.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>learnr<span class="sc">::</span><span class="fu">run_tutorial</span>(<span class="at">name =</span> <span class="st">"01-r4ds-1"</span>,</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                     <span class="at">package =</span> <span class="st">"misc.tutorials"</span>)</span></code></pre></div>
+<p>As a backup, you can launch a tutorial from the R console with <code><a href="https://ppbds.github.io/learnr2/reference/run_tutorial.html" class="external-link">learnr2::run_tutorial()</a></code>, providing the short name of the tutorial and the package name.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>learnr2<span class="sc">::</span><span class="fu">run_tutorial</span>(<span class="at">name =</span> <span class="st">"01-r4ds-1"</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                      <span class="at">package =</span> <span class="st">"misc.tutorials"</span>)</span></code></pre></div>
 <div class="section level3">
 <h3 id="r-for-data-science">R for Data Science<a class="anchor" aria-label="anchor" href="#r-for-data-science"></a>
 </h3>

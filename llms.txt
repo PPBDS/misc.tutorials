@@ -5,10 +5,9 @@ Package website: <https://ppbds.github.io/misc.tutorials/>
 ## About this package
 
 **misc.tutorials** is a collection of interactive tutorials covering *R
-for Data Science* essentials and US Census data analysis. Makes
-extensive use of the tools in the
-**[tutorial.helpers](https://ppbds.github.io/tutorial.helpers/)**
-package.
+for Data Science* essentials and US Census data analysis. Tutorials are
+built with the **[learnr2](https://ppbds.github.io/learnr2/)** package
+and run in the browser via Quarto and WebR.
 
 ## Installation
 
@@ -16,7 +15,7 @@ Install the development version from [GitHub](https://github.com/) with:
 
 ``` r
 
-remotes::install_github("PPBDS/misc.tutorials")
+pak::pak("PPBDS/misc.tutorials")
 ```
 
 ## Tutorials
@@ -27,12 +26,12 @@ Code](https://open-vsx.org/extension/PPBDS/vscode-r-tutorials), which
 lists every installed tutorial and lets you start one with a click.
 
 As a backup, you can launch a tutorial from the R console with
-[`learnr::run_tutorial()`](https://pkgs.rstudio.com/learnr/reference/run_tutorial.html),
+[`learnr2::run_tutorial()`](https://ppbds.github.io/learnr2/reference/run_tutorial.html),
 providing the short name of the tutorial and the package name.
 
 ``` R
-learnr::run_tutorial(name = "01-r4ds-1",
-                     package = "misc.tutorials")
+learnr2::run_tutorial(name = "01-r4ds-1",
+                      package = "misc.tutorials")
 ```
 
 ### R for Data Science

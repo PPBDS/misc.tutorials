@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,20 +34,34 @@
 
 <div id="claudemd--misctutorials" class="section level1">
 
-<p><code>misc.tutorials</code> is an R package of <strong>“normal” (post-infrastructure) learnr tutorials</strong>. It is governed by the base tutorial guide and adds only what is specific to this package below.</p>
+<p><code>misc.tutorials</code> is an R package of <strong>“normal” (post-infrastructure) learnr2 tutorials</strong>. It is governed by the base tutorial guide and adds only what is specific to this package below.</p>
 <div class="section level2">
 <h2 id="base-tutorial-guide-read-this-first">Base tutorial guide (read this first)<a class="anchor" aria-label="anchor" href="#base-tutorial-guide-read-this-first"></a></h2>
 <p>These tutorials inherit the <strong>base tutorial guide</strong> — the default contract for authoring any normal data science tutorial in this ecosystem, at <code>claude-md/tutorials/CLAUDE.md</code> in the <a href="https://github.com/PPBDS/ai-rules" class="external-link">PPBDS/ai-rules</a> repo (locally: <a href="../ai-rules/claude-md/tutorials/CLAUDE.html"><code>../ai-rules/claude-md/tutorials/CLAUDE.md</code></a>). <strong>Read it before working on any tutorial here.</strong> It is the source of truth for everything common to all such tutorials:</p>
-<ul><li>the AI-era philosophy — students create artifacts by prompting an AI agent, not by typing code into learnr exercise chunks;</li>
+<ul><li>the AI-era philosophy — students create artifacts by prompting an AI agent, not by typing code into exercise cells;</li>
 <li>the workflow — student work lives in <code>analysis.qmd</code>; they render with <code>quarto render</code> in a bash terminal and view the result via <strong>Live Server</strong>;</li>
-<li>exercise rhythm, the <code>question_text()</code> question types, knowledge-drop discipline, CP/CR and <code>show_file()</code> evidence;</li>
+<li>exercise rhythm, the question types, knowledge-drop discipline, CP/CR and <code>show_file()</code> evidence;</li>
 <li>
 <code>echo = FALSE</code>, test-chunk discipline, code-chunk labeling, the setup-chunk skeleton, data handling, and formatting conventions.</li>
-</ul><p><code>misc.tutorials</code> is one of the packages the base guide governs by default — it is <strong>not</strong> an exception (those are <code>vscode.tutorials</code> and <code>tutorial.helpers</code>). In the base guide’s normal-vs-modeling split, every tutorial here is a <strong>normal</strong> tutorial: we mostly don’t care which code does what — we care about the output. The modeling tutorials (code-visible, slow-down-and-look) live in <code>primer.tutorials</code>, tutorial 05 and higher.</p>
+</ul><p><code>misc.tutorials</code> is one of the packages the base guide governs by default — it is <strong>not</strong> an exception (that is <code>vscode.tutorials</code>). In the base guide’s normal-vs-modeling split, every tutorial here is a <strong>normal</strong> tutorial: we mostly don’t care which code does what — we care about the output. The modeling tutorials (code-visible, slow-down-and-look) live in <code>primer.tutorials</code>, tutorial 05 and higher.</p>
 <p><strong>Precedence.</strong> On workflow and shared conventions, the base guide wins. On <code>misc.tutorials</code>-specific content this file wins. Any departure from the base guide must be an <strong>explicit, on-the-record override</strong> stated here — never a silent difference. (The base guide already carries the <em>Choosing topics (misc.tutorials-specific)</em> section; this file does not repeat it.)</p>
 <p><strong>Override — explicit <code>data/</code> scaffold in <code>r4ds-1</code> and <code>r4ds-2</code> only.</strong> The base guide (§4, Introduction step 3) says to state the goal and confirm with bash <code>ls</code>. The first two r4ds tutorials instead spell out the commands — <code><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd()</a></code>, <code>dir.create("data")</code>, <code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files()</a></code> in the R Terminal — because students arrive fresh from the infrastructure tutorials and should see exactly what is happening. <code>r4ds-2</code> adds the transition note: “We will soon stop giving you commands like these and just have AI do it.” From <code>r4ds-3</code> on, every tutorial (including <code>census</code>, <code>baseball</code>, …) follows the base guide’s goal-stated + bash-<code>ls</code> form. (This narrowing is one instance of the pacing gradient recorded below.)</p>
 <p><strong>Override — no interpretation exercises.</strong> The base guide (§4, <em>Analysis path</em>) requires a dedicated interpretation exercise after each significant visualization, asking students to write one or two sentences about what the plot shows. <code>misc.tutorials</code> does <strong>not</strong> follow this rule. The tutorials here are structured around AI-assisted artifact creation; students steer the analysis and judge the output, but are not asked to write prose interpretations in the QMD. Knowledge drops carry the interpretive commentary instead. Do not add interpretation exercises to any tutorial in this package.</p>
 </div>
+<div class="section level2">
+<h2 id="tutorial-format-learnr2">Tutorial format: learnr2<a class="anchor" aria-label="anchor" href="#tutorial-format-learnr2"></a></h2>
+<p>Every tutorial is a <strong>learnr2</strong> Quarto document, <code>inst/tutorials/&lt;name&gt;/&lt;name&gt;.qmd</code>, rendered to a static page. Where the base guide describes learnr mechanics (<code>question_text()</code>, setup-chunk boilerplate, child documents), learnr2’s vignettes “Translating learnr Tutorials” and “Tutorials in the Age of AI” govern instead. House choices, shared with <code>vscode.tutorials</code>:</p>
+<ul><li>
+<strong>Prompts stay in the prose.</strong> Each question’s instructions are ordinary text above its chunk; the <code>question()</code> call carries a plain-text copy in <code>text</code> with <code>show_text = FALSE</code>, so the downloaded answers still show what was asked.</li>
+<li>
+<strong>Boilerplate</strong> sits under <code>## Information</code> (<code>information-1</code>, <code>student_info()</code>) and <code>## Download answers</code> (<code>download-answers-1</code>, the minutes question; <code>download-answers-2</code>, <code>download_answers_button()</code>).</li>
+<li>
+<strong>The <code>setup</code> chunk</strong> is a hidden (<code>#| include: false</code>) chunk holding the libraries and data objects that our answer chunks use at render time. It runs once when the tutorial is built, never in the student’s browser.</li>
+<li>
+<strong>Plots are checked with screenshots.</strong> An exercise whose result is a plot or map asks the student to “Take a screenshot of the plot (or map) in your rendered page and paste it below” (<code>allow_image = TRUE</code>), not for <code>show_file()</code> output: a screenshot proves the right picture was drawn, code proves only that code exists. Keep <code>show_file()</code> CP/CR for exercises whose result is text — a printed tibble, summary statistics, a YAML header.</li>
+<li>
+<strong>Never mention learnr or tutorial.helpers.</strong> <code>show_file()</code> comes from <strong>learnr2</strong>, and students load it with <code><a href="https://github.com/PPBDS/learnr2" class="external-link">library(learnr2)</a></code>.</li>
+</ul></div>
 <div class="section level2">
 <h2 id="what-this-package-is">What this package is<a class="anchor" aria-label="anchor" href="#what-this-package-is"></a></h2>
 <p>A collection of tutorials covering material from two companion texts:</p>
@@ -162,9 +176,9 @@
 </div>
 <div class="section level2">
 <h2 id="data-handling--package-specifics">Data handling — package specifics<a class="anchor" aria-label="anchor" href="#data-handling--package-specifics"></a></h2>
-<p><strong>A tutorial’s data lives in a <code>data/</code> directory inside that tutorial’s own folder</strong> — <code>inst/tutorials/&lt;name&gt;/data/&lt;file&gt;</code>, sitting next to <code>tutorial.Rmd</code> and at the same level as the <code>images/</code> directory (if there is one). This is now the <strong>base-guide default</strong> (§6, <em>Data handling</em>); the rationale — the package’s own code becomes identical to the student’s code — lives there. Every file-based tutorial has been migrated to this layout; <code>inst/extdata/</code> and the old re-download machinery are <strong>gone</strong>. This section records the <code>misc.tutorials</code>-specific mechanics:</p>
+<p><strong>A tutorial’s data lives in a <code>data/</code> directory inside that tutorial’s own folder</strong> — <code>inst/tutorials/&lt;name&gt;/data/&lt;file&gt;</code>, sitting next to <code>&lt;name&gt;.qmd</code> and at the same level as the <code>images/</code> directory (if there is one). This is now the <strong>base-guide default</strong> (§6, <em>Data handling</em>); the rationale — the package’s own code becomes identical to the student’s code — lives there. Every file-based tutorial has been migrated to this layout; <code>inst/extdata/</code> and the old re-download machinery are <strong>gone</strong>. This section records the <code>misc.tutorials</code>-specific mechanics:</p>
 <ul><li>
-<strong>The package’s setup and test chunks read data with the exact relative path a student writes:</strong> <code>read_csv("data/music.csv")</code>, not <code>../../extdata/r4ds-1/music.csv</code>. Both resolve to <code>data/&lt;file&gt;</code> because a tutorial knits with its own folder as the working directory, and the student’s <code>analysis.qmd</code> sits in a repo with its own <code>data/</code>. Our answer chunks and the student’s prompts now match exactly.</li>
+<strong>The package’s setup and test chunks read data with the exact relative path a student writes:</strong> <code>read_csv("data/music.csv")</code>, not <code>../../extdata/r4ds-1/music.csv</code>. Both resolve to <code>data/&lt;file&gt;</code> because a tutorial renders with its own folder as the working directory, and the student’s <code>analysis.qmd</code> sits in a repo with its own <code>data/</code>. Our answer chunks and the student’s prompts now match exactly.</li>
 <li>
 <strong>Student-facing download URLs point at the same in-tutorial location on GitHub:</strong> <code>.../raw/refs/heads/main/inst/tutorials/&lt;name&gt;/data/&lt;file&gt;</code>. Students download into their own project’s <code>data/</code> directory and read <code>data/&lt;file&gt;</code>.</li>
 <li>
@@ -182,11 +196,11 @@
 </div>
 <div class="section level2">
 <h2 id="description">DESCRIPTION<a class="anchor" aria-label="anchor" href="#description"></a></h2>
-<p>Per the base guide, every package <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>-ed in a tutorial must be listed in <code>DESCRIPTION</code> (<code>Imports</code> or <code>Suggests</code>) or GitHub Actions <code>R CMD check</code> fails. This package keeps only <code>tutorial.helpers</code> under <code>Imports</code> (<code>utils</code> was dropped along with <code>R/zzz.R</code> — see <em>Data handling</em>); every tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus, leaflet, plotly, …) lives under <code>Suggests</code>. When a new tutorial adds a library, add it to <code>Suggests</code>.</p>
+<p>Per the base guide, every package <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>-ed in a tutorial must be listed in <code>DESCRIPTION</code> (<code>Imports</code> or <code>Suggests</code>) or GitHub Actions <code>R CMD check</code> fails. This package keeps only <code>learnr2</code> under <code>Imports</code> (with <code>Remotes: PPBDS/learnr2</code>, since it is not on CRAN) (<code>utils</code> was dropped along with <code>R/zzz.R</code> — see <em>Data handling</em>); every tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus, leaflet, plotly, …) lives under <code>Suggests</code>. When a new tutorial adds a library, add it to <code>Suggests</code>.</p>
 </div>
 <div class="section level2">
 <h2 id="checking">Checking<a class="anchor" aria-label="anchor" href="#checking"></a></h2>
-<p>Standard base-guide checks apply (<code><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">rmarkdown::render()</a></code> for a quick syntax pass, <code>devtools::check()</code> before any PR, <code><a href="https://pkgs.rstudio.com/learnr/reference/run_tutorial.html" class="external-link">learnr::run_tutorial()</a></code> for the student view). <code>devtools::check()</code> may report a size NOTE — see <em>CRAN / build size</em> above.</p>
+<p>Run <code><a href="https://ppbds.github.io/learnr2/reference/check_tutorial.html" class="external-link">learnr2::check_tutorial()</a></code> for the static checks and <code><a href="https://ppbds.github.io/learnr2/reference/render_tutorials.html" class="external-link">learnr2::render_tutorials()</a></code> for a real render, <code>devtools::check()</code> before any PR, and <code><a href="https://ppbds.github.io/learnr2/reference/run_tutorial.html" class="external-link">learnr2::run_tutorial()</a></code> (after <code>devtools::load_all()</code>) for the student view. <code>devtools::check()</code> may report a size NOTE — see <em>CRAN / build size</em> above.</p>
 </div>
 <div class="section level2">
 <h2 id="open-items">Open items<a class="anchor" aria-label="anchor" href="#open-items"></a></h2>

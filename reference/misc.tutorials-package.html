@@ -19,7 +19,7 @@ by Kyle Walker."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,8 +59,8 @@ by Kyle Walker.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>A collection of interactive tutorials covering R for Data Science essentials
-and US Census data analysis. This package makes extensive use of the tools in
-the tutorial.helpers package.</p>
+and US Census data analysis. The tutorials are built with the learnr2 package,
+which renders each one to a static page whose code runs in the browser via WebR.</p>
     </div>
     <div class="section level2">
     <h2 id="r-for-data-science-tutorials">R for Data Science Tutorials<a class="anchor" aria-label="anchor" href="#r-for-data-science-tutorials"></a></h2>
@@ -87,7 +87,7 @@ median age, including choropleth maps drawn with ggplot2.</p>
 
 
 <p>To run a tutorial, use:
-<code>learnr::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")</code></p>
+<code>learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")</code></p>
 <p>Available tutorial names are: r4ds-1, r4ds-2, r4ds-3, r4ds-4, r4ds-5, and
 census.</p>
     </div>
