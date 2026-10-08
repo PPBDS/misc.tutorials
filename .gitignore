@@ -15,6 +15,7 @@ docs/
 # Quarto
 **/.quarto/
 **/*_files/
+inst/tutorials/*/_extensions/
 
 # OS
 .DS_Store

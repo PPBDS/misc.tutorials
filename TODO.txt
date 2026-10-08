@@ -1,3 +1,24 @@
+## Priorities
+
+* R4DS-1 is too long. Cut it down to just one exapple.
+
+* R4DS-1 then has room to remind students of various things that they may have forgotten.
+
+    * repo name can be either R4DS-1 or r4ds-1, but lowercase is always preferable.
+
+    * If show_file() fails, it means you did not load tutorial.helpers.
+    
+    * Save analysis.qmd in the correct place. It must go in r4ds-1/. It is easy for this to end up in /workspaces/ or /workspaces/codespace-starter. And then badness happens.
+
+    * So, maybe show images of saving the file?
+
+    * Review the structure of /workspaces. Create an image that shows how the file system is organized.
+
+ * R4DS-2 could probably also use some of the above reminders.    
+
+ R4DS 1 - 5 are evolving into a nice collection of tutorials, I think. Should be a core part of what we use going forward. Need to make sure each tutorial is a reasonable length. Should take about 45 minutes on average.
+
+
 ## Var
 
 

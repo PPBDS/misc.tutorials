@@ -1,6 +1,6 @@
 Package: misc.tutorials
 Title: Miscellaneous Tutorials
-Version: 0.2.0
+Version: 0.2.1
 Authors@R:
     c(
     person(given = "David",
@@ -10,9 +10,11 @@ Authors@R:
            comment = c(ORCID = "0000-0002-6660-3934")))
 Description: Collection of interactive tutorials, including material from
     'R for Data Science (2e)' by Wickham, Cetinkaya-Rundel, and Grolemund,
-    and from 'Analyzing US Census Data' by Walker. Makes extensive use of 
-    the tools in the 'tutorial.helpers' package.
+    and from 'Analyzing US Census Data' by Walker. Tutorials are built
+    with the 'learnr2' package and run in the browser via 'Quarto' and 'WebR'.
 Depends: R (>= 4.1.0)
+SystemRequirements: Quarto command line tool
+    (https://github.com/quarto-dev/quarto-cli).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -21,7 +23,9 @@ Config/testthat/edition: 3
 BugReports: https://github.com/PPBDS/misc.tutorials/issues
 URL: https://ppbds.github.io/misc.tutorials/, https://github.com/PPBDS/misc.tutorials
 Imports:
-    tutorial.helpers
+    learnr2
+Remotes:
+    PPBDS/learnr2
 Suggests:
     arrow,
     DBI,
@@ -33,7 +37,6 @@ Suggests:
     knitr,
     Lahman,
     leaflet,
-    learnr,
     maps,
     purrr,
     quarto,

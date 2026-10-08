@@ -99,6 +99,6 @@ jobs:
 
       - name: Render all tutorials
         run: |
-          paths <- tutorial.helpers::return_tutorial_paths(package = "misc.tutorials")
-          tutorial.helpers::knit_tutorials(paths)
+          paths <- learnr2::available_tutorials(package = "misc.tutorials", type = "quarto")$path
+          learnr2::render_tutorials(paths)
         shell: Rscript {0}

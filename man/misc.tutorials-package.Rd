@@ -16,8 +16,8 @@ by Kyle Walker.
 }
 \details{
 A collection of interactive tutorials covering R for Data Science essentials
-and US Census data analysis. This package makes extensive use of the tools in
-the tutorial.helpers package.
+and US Census data analysis. The tutorials are built with the learnr2 package,
+which renders each one to a static page whose code runs in the browser via WebR.
 }
 \section{R for Data Science Tutorials}{
 
@@ -43,7 +43,7 @@ median age, including choropleth maps drawn with ggplot2.
 \section{Running Tutorials}{
 
 To run a tutorial, use:
-\code{learnr::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")}
+\code{learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")}
 
 Available tutorial names are: r4ds-1, r4ds-2, r4ds-3, r4ds-4, r4ds-5, and
 census.
