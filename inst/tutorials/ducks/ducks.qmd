@@ -8,6 +8,8 @@ description: 'Students use GPS tracking data from 52 Mallard ducks fitted with G
 format: live-html
 engine: knitr
 toc: true
+learnr2:
+  ordering: 9
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}

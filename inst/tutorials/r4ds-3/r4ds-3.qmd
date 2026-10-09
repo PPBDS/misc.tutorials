@@ -9,6 +9,8 @@ description: 'Students use DuckDB and dbplyr to analyze two datasets featured in
 format: live-html
 engine: knitr
 toc: true
+learnr2:
+  ordering: 3
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}

@@ -8,6 +8,8 @@ description: 'Students use Rotten Tomatoes data to compare the three live-action
 format: live-html
 engine: knitr
 toc: true
+learnr2:
+  ordering: 11
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}

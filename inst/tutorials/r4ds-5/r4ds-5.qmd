@@ -5,6 +5,8 @@ description: 'Working with hierarchical JSON data, web scraping with rvest and h
 format: live-html
 engine: knitr
 toc: true
+learnr2:
+  ordering: 6
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}

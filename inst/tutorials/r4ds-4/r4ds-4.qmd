@@ -5,6 +5,8 @@ description: "Arrow / Parquet files: cryptocurrency market composition"
 format: live-html
 engine: knitr
 toc: true
+learnr2:
+  ordering: 4
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
