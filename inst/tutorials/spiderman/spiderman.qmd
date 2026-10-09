@@ -24,7 +24,6 @@ films <- readRDS("data/films.rds")
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -33,7 +32,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Garfield, and Tom Holland, across three different studios and eight films. Fans argue endlessly about who did it best — but "best" usually means one of two very different things: what critics thought, or what audiences thought. This tutorial uses **Rotten Tomatoes** scores to ask: **do critics and audiences actually agree on who the best Spider-Man is?**
 
@@ -164,7 +162,6 @@ analysis.qmd  data
 Keeping data files in a `data/` subdirectory separates raw inputs from analysis outputs. When a project grows, this makes it easy to find the source data.
 
 ## Who splits critics and audiences?
-###
 
 Every film has two Rotten Tomatoes scores: the **Tomatometer**, an aggregate of professional critic reviews, and the **Popcornmeter**, an aggregate of audience ratings. Most of the time these two scores move together — a great film is a great film. But sometimes they diverge sharply, and that gap is often more interesting than either score on its own.
 
@@ -488,7 +485,6 @@ Date:   Sat Aug 15 09:12:04 2026 -0700
 The scores page shows who critics and audiences favored. The next section asks how each era compares on its own terms — which actor scored highest overall, and how did scores move across the eight films over time?
 
 ## Trends across eras
-###
 
 Comparing individual films only tells part of the story. Grouping films by actor and looking at averages — and watching how scores moved release to release — reveals whether an era was consistently strong, or just had one standout film carrying it.
 
@@ -664,7 +660,6 @@ Date:   Sat Aug 15 11:48:27 2026 -0700
 The scores page and the trends page together answer the two central questions: who did critics and audiences favor, and how did each era hold up on average and over time? The final section ties these together into a published website.
 
 ## Summary
-###
 
 You have built three pages of analysis. Now wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
 

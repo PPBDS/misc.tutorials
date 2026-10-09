@@ -53,7 +53,6 @@ imdb_snapshots <- readRDS("data/imdb_snapshots.rds")
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -62,7 +61,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/hierarchical), [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping), [Chapter 25: Functions](https://r4ds.hadley.nz/functions), and [Chapter 26: Iterations](https://r4ds.hadley.nz/iteration) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
@@ -206,7 +204,6 @@ analysis.html  analysis.qmd  analysis_files  data
 **jsonlite** is R's standard package for reading and writing JSON. It is used directly when loading local JSON files like the GeoJSON you are about to download, and indirectly inside packages like **httr2**, which calls jsonlite under the hood when parsing responses from web requests. JSON is a common format for transmitting data on the web, and jsonlite is how R reads it.
 
 ## Wildfire perimeters
-###
 
 The **[National Interagency Fire Center](https://data-nifc.opendata.arcgis.com/)** maintains a consolidated archive of finalized wildfire perimeter polygons — one polygon per fire, with metadata on name, acreage, year, state, and managing agency — published as a GeoJSON file. GeoJSON stores geometry as deeply nested lists that often must be reformatted before they can be analyzed. Using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **purrr**, and **leaflet**, you will flatten that nested structure, analyze 33 years of burned acreage, and render the actual fire boundaries as an interactive polygon map — the kind of visualization the [New York Times](https://www.nytimes.com/interactive/2020/us/fires-map-tracker.html) built during the 2020 fire season:
 
@@ -971,7 +968,6 @@ abc1234 Add wildfire perimeters analysis
 The **NIFC** also publishes current-year fire perimeters in real time — the **IRWIN** (Integrated Reporting of Wildland-Fire Information) feed is updated multiple times per day during active fire season. The historical archive used here is finalized geometry; the live feed shows boundaries as incident command teams map them in the field.
 
 ## Movie rankings
-###
 
 This section covers web scraping with **httr2**, which fetches pages, and **rvest**, which
 parses them. You will write a scraping function that fetches one Wayback Machine snapshot
@@ -1847,7 +1843,6 @@ lists; its rankings often differ substantially from IMDb's because its user base
 younger and more cinephile than IMDb's general audience.
 
 ## Summary
-###
 
 This section covered key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/hierarchical), [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping), [Chapter 25: Functions](https://r4ds.hadley.nz/functions), and [Chapter 26: Iterations](https://r4ds.hadley.nz/iteration) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 

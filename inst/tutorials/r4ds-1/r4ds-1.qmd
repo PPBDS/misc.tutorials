@@ -147,7 +147,6 @@ music_map_data <- music |>
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -156,7 +155,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This tutorial covers key concepts from [Chapter 1: Data Visualization](https://r4ds.hadley.nz/data-visualize.html), [Chapter 3: Data Transformation](https://r4ds.hadley.nz/data-transform.html), [Chapter 5: Data Tidying](https://r4ds.hadley.nz/data-tidy.html), and [Chapter 7: Data Import](https://r4ds.hadley.nz/data-import.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
@@ -323,7 +321,6 @@ learnr2::question(
 The file you will put in `data/` is a 10,000-song teaching sample of the [Million Song Dataset](http://millionsongdataset.com/), a 280 GB research collection of audio features and metadata for a million contemporary tracks. The full release is distributed as HDF5 files, one per track. The teaching version flattens the handful of fields students care about into a single comma-separated table.
 
 ## Billboard Hot 100
-###
 
 The [`billboard`](https://tidyr.tidyverse.org/reference/billboard.html) tibble is included in **[tidyr](https://tidyr.tidyverse.org/)**. It records songs that appeared in the Billboard Hot 100 in the year 2000 and tracks their rankings over time.
 
@@ -866,7 +863,6 @@ abc1234 Add Billboard chart analysis
 Ranks are ordinal, not interval — the gap between #1 and #2 isn't the same as the gap between #50 and #51. The trajectory plot shows each song's *position* over time but not the *magnitude* of its popularity: two songs sitting at rank 50 in the same week could have had very different actual sales or airplay numbers. When working with rank data, be careful about treating it as a continuous measure.
 
 ## Million Song Dataset
-###
 
 The **music** CSV file comes from a teaching version of the [Million Song Dataset](https://corgis-edu.github.io/corgis/csv/music/). It includes 10,000 rows and many variables about artists, songs, and audio features. Unlike the Billboard data, which came pre-loaded and tidy, this dataset arrives as a raw CSV with 35 columns — more than you can scan at a glance — so the first step is understanding what is in it.
 
@@ -1483,7 +1479,6 @@ music |>
 Older recordings (darker points) concentrate in the US and UK, reflecting where the recording industry was established earliest. Newer recordings (brighter points) spread more globally as recording technology and distribution became accessible worldwide. This connects the year histogram to geography: the dataset's recency bias is not uniform, it varies by region. The 53% of songs with a `song.year` of 0 are excluded here, so this map is sparser than the others. Across the three maps, the clearest geographic signals come from genre and from recording age. A map that shows a geographic pattern is not the same as a map that explains it, and naming the limitation — here, the 63% of artists with missing coordinates — is part of the analysis, because it tells readers what to trust.
 
 ## Summary
-###
 
 This tutorial used AI to explore two music datasets. You investigated the structure of Billboard chart data, built ranking-over-time plots, downloaded and parsed a CSV file, cached the parse so it runs once per change, discovered missing metadata, and mapped artist locations — colored by familiarity, genre, and release year — with an honest account of the data's limitations.
 

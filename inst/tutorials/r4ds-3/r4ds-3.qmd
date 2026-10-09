@@ -92,7 +92,6 @@ hourly_avg <- dbplyr_act |>
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -101,7 +100,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
@@ -224,7 +222,6 @@ At the simplest level, a database is a collection of data frames — called tabl
 
 
 ## US education
-###
 
 This section uses the [Stanford Education Data Archive (SEDA)](https://edopportunity.org/),
 which converts each state's standardized test results into a common
@@ -839,7 +836,6 @@ def5678 Add .gitignore
 About 79% of the 9,644 districts with comparable 2015 and 2023 scores lost ground in reading, and every post-COVID year in the national series is worse than the one before it. That is the finding worth reporting. What the state chart adds is a caution about the story people usually attach to it: a decline this broad has exactly two exceptions, one of them with a famous literacy statute behind it and one without, which is not enough evidence to credit legislation for the pattern.
 
 ## Time use
-###
 
 This section uses a DuckDB database built from the Bureau of Labor Statistics
 [American Time Use Survey (ATUS)](https://www.bls.gov/tus/), which asks one
@@ -1418,8 +1414,6 @@ def5678 Add SEDA district reading analysis
 ATUS microdata is released every June for the prior year and is free from the BLS. Researchers use it for paid and unpaid labor, sleep inequality, caregiving, commuting, and how time use shifts with the business cycle. The published estimates all apply the survey weight you ignored in these charts, so your numbers describe ATUS respondents rather than the US population — close enough to see the pattern, not close enough to quote.
 
 ## Summary
-
-###
 
 This tutorial covered [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 

@@ -22,7 +22,6 @@ library(arrow)
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -31,7 +30,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This tutorial covers key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
@@ -157,7 +155,6 @@ The four files you are about to download are a small relational database rather 
 
 
 ## Does the crowd get it right?
-###
 
 Picture a market where people bet on whether a future event will happen: a new
 law passes, a company goes bankrupt, a model breaks a benchmark. Each trade
@@ -1012,7 +1009,6 @@ def5678 Add analysis.qmd and .gitignore
 Prediction-market accuracy improves here because resolution dates concentrate information. A final-day price is not magic; it is a market incorporating facts that often did not exist weeks earlier. These are also play-money markets on one platform over eight months, so the convergence result is about Manifold in this window, not about prediction markets in general.
 
 ## Summary
-###
 
 This tutorial covered key concepts from [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 

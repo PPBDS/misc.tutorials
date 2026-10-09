@@ -42,7 +42,6 @@ age_ca <- read_rds("data/age_ca.rds")
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -51,7 +50,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This tutorial follows Kyle Walker's [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Mapping Census data with R](https://walker-data.com/census-r/mapping-census-data-with-r.html) chapters from [Analyzing US Census Data](https://walker-data.com/census-r/). You will pull data from the American Community Survey through the Census API and turn it into three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age.
 
@@ -196,7 +194,6 @@ learnr2::question(
 The key is tied to your email, not a Census account — there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits, and every `get_acs()` call in this tutorial picks it up automatically from here on.
 
 ## Texas income
-###
 
 Median household income is one of the most-requested ACS variables. Its code is `B19013_001`. In this section you will map it across all 254 Texas counties.
 
@@ -466,7 +463,6 @@ learnr2::question(
 A choropleth shades each area by a value, so it is only as honest as the variable behind it. Median household income is a good fit because it is roughly comparable across counties; a raw count like "number of high earners" would mostly track county population and mislead.
 
 ## Education by state
-###
 
 Educational attainment lives in ACS table B15003, which breaks the adult population into 25 completed schooling levels from "no schooling" up to "doctorate." In this section you will compare the share of adults with at least a bachelor's degree across all state-level geographies.
 
@@ -930,7 +926,6 @@ learnr2::question(
 This section used the same table as a county-level education map would use, but changed the geography to states and territories. That is one of **tidycensus**'s central ideas: the variables define what you measure, and the geography defines the units you compare.
 
 ## California median age
-###
 
 Not every Census question is a map. Here you will pull median age and total population for California counties, then ask whether larger counties tend to be younger or older. This section also revisits the reshaping step that long-format ACS data often needs.
 
@@ -1260,7 +1255,6 @@ learnr2::question(
 Median age is itself an ACS estimate with a margin of error, just like income. For large counties the margin is tiny, but for the smallest counties a difference of a year or two between counties may be inside the margin and not real.
 
 ## Summary
-###
 
 This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker. You pulled American Community Survey data through the Census API with **tidycensus**, learned how ACS estimates carry margins of error, reshaped long-format results into the wide shape that plotting needs, and built three published artifacts: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age.
 

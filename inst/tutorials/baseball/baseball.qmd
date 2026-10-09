@@ -19,7 +19,6 @@ library(Lahman)
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -28,7 +27,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 In this tutorial you will build a small **website** about the history of Major League Baseball. You will use AI to do the analysis and the **[Lahman](https://cran.r-project.org/package=Lahman)** baseball database as your data source. Your job is to steer the analysis, render often, inspect the output, and write the words that turn a few charts into a page worth reading.
 
@@ -186,7 +184,6 @@ starting with its signature event: the home run.
 A published analysis is read by people, not just rendered by a machine. The words around a chart are what tell a reader why it matters --- AI can draft them, but you decide what the page actually claims. Note what `index.qmd` does *not* contain: a Quarto website's navigation lives in `_quarto.yml`, not in the pages, so adding a page means editing two files.
 
 ## Home runs
-###
 
 Major League Baseball has kept detailed records since 1871, and the **Lahman** database packages that history for R. Its `Teams` table holds one row per team per season; its `Batting` table holds one row per player per season. We start with the home run --- the sport's signature event --- and a puzzle hiding in plain sight.
 
@@ -631,7 +628,6 @@ def5678 Add analysis pages and .gitignore
 Home runs per game is one of the cleanest ways to see baseball's history in a single line, but a rate hides who produced it. The 2019 spike and the late-1990s climb were the work of specific players, and the league total says nothing about whether many hitters improved a little or a few improved enormously --- a distinction any aggregate measure buries.
 
 ## Sluggers
-###
 
 The league trend is made of individual careers. The **Lahman** `Batting` table records every player's batting line for every season, and the `People` table holds their names and biographical details. We will find the career home run leaders and connect them back to the eras we just discovered.
 
@@ -912,7 +908,6 @@ def5678 Add home runs analysis
 Two pages, two units of observation: the home runs page counts seasons, the sluggers page counts careers. Keeping each page to one grain is what makes a multi-page site easier to read than one long document --- a reader always knows what a row means.
 
 ## Summary
-###
 
 This tutorial used AI to build a multi-page website about Major League Baseball history with the **Lahman** database. You discovered why total home runs appear to collapse in shortened seasons, normalized to home runs per game to expose the sport's real eras, and ranked the career home run leaders --- connecting nine of the top fifteen back to the steroid-era spike in the league rate.
 

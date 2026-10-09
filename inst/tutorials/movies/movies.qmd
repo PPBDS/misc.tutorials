@@ -35,7 +35,6 @@ movies_summary <- movies_gap |>
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -44,8 +43,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-
-###
 
 You will use AI to analyze a dataset of roughly 30,000 films from Rotten Tomatoes. Your job is to read the CSV, inspect and clean the data, build two plots, and publish a reproducible analysis page.
 
@@ -184,8 +181,6 @@ A successful submission can be a terminal paste showing `git push`, or a short n
 Committing before any real analysis creates a clean baseline. If something later goes wrong — a chunk breaks, an accidental deletion — you can always return to this point.
 
 ## Exploring the Data
-
-###
 
 The `movies.csv` file has 8 columns covering roughly 30,000 films. Two matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). A third column, `genre`, will need cleaning before it is useful.
 
@@ -486,8 +481,6 @@ The skewed histogram is worth keeping in the rendered document — it shows that
 
 ## Critic vs. Audience Gap
 
-###
-
 The gap is `tomatoMeter - audienceScore`. A positive value means critics rated the movie higher than audiences; a negative value means audiences rated it higher.
 
 ### Exercise 1
@@ -749,8 +742,6 @@ movies_summary |>
 Horror and Documentary rank at the top — critics consistently value them above audience scores. Action and Kids & family rank at the bottom — audiences consistently rate them above critics. This critic-audience divergence by genre is a well-documented pattern: critics reward novelty and formal technique, while audiences reward entertainment value and genre execution.
 
 ## Summary
-
-###
 
 In this tutorial you used AI to analyze a Rotten Tomatoes dataset. You downloaded a CSV, cleaned the genre column, built a histogram of critic scores, computed the critic-audience gap by genre, and published a bar chart showing how that gap varies across genres.
 

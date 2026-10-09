@@ -72,7 +72,6 @@ basketball_tibble <- read_excel(
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -81,7 +80,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 This section covers key concepts from [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html), [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/eda.html), [Chapter 11: Communication](https://r4ds.hadley.nz/communication.html), and [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
@@ -215,7 +213,6 @@ learnr2::question(
 Keeping raw data in its own `data/` directory is the convention [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) assumes: the spreadsheet you download stays untouched in one known place, and every change you make to it lives in code rather than in the file itself. That is what makes a spreadsheet analysis reproducible — an Excel workbook edited by hand carries no record of what was edited, while a QMD that reads the original workbook records every step.
 
 ## Births
-###
 
 In 2015, FiveThirtyEight published ["Some People Are Too Superstitious to Have a Baby on Friday the 13th"](https://fivethirtyeight.com/features/some-people-are-too-superstitious-to-have-a-baby-on-friday-the-13th/), which showed US births relative to average — adjusted for time trends, seasonality, and day of week — across the full calendar year.
 
@@ -913,7 +910,6 @@ abc1234 Add births analysis
 The births analysis is a textbook EDA iteration: a simple plot reveals a pattern, a second makes it look noisy, and a third reveals the confound that was blurring the signal. That cycle — inspect, notice, refine — is the core loop Chapter 10 describes.
 
 ## Basketball recruits
-###
 
 In 2019, The Pudding published [*How Many High School Stars Actually Make It in the NBA?*](https://pudding.cool/2019/03/hype/), which tracked every top-ranked high school basketball recruit from 1998 onward to see how their careers actually unfolded.
 
@@ -1484,7 +1480,6 @@ def5678 Add births analysis
 The basketball section shows a two-part finding: recruit rank predicts NBA entry (the bar chart), but not career quality once there (the boxplot and scatter plot). The scatter's nearly-flat trendline — and labelled outliers like Draymond Green (#95), Klay Thompson (#58), and Gilbert Arenas (#99) — tell the same story with individual names attached.
 
 ## Summary
-###
 
 This section covered key concepts from [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html), [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/eda.html), [Chapter 11: Communication](https://r4ds.hadley.nz/communication.html), and [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 

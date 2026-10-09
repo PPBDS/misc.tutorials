@@ -41,7 +41,6 @@ mallards <- read_csv("data/mallards.csv",
 ```
 
 ## Information
-###
 
 ```{r}
 #| label: information-1
@@ -50,7 +49,6 @@ learnr2::student_info()
 ```
 
 ## Introduction
-###
 
 Mallards (*Anas platyrhynchos*) are the most familiar duck in the world — the green-headed bird you've seen in every park pond. But most people don't know how far they actually travel, or how differently individual ducks behave. This tutorial uses GPS tracking data from 52 Mallards fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, to explore where they go, when they move most, and how much individuals differ.
 
@@ -189,7 +187,6 @@ data  analysis.html  analysis.qmd  *_files
 ```
 
 ## Where do they go?
-###
 
 Lake Constance sits at the border of Germany, Switzerland, and Austria at roughly 47.5°N, 9.5°E. It is one of the largest freshwater lakes in Central Europe and an important staging area for waterfowl. But Mallards are not purely resident birds — some individuals make substantial seasonal movements while others barely leave the lake. The GPS data reveals exactly who goes where.
 
@@ -595,7 +592,6 @@ Date:   Wed July 08 10:23:41 2026 -0700
 The map shows where ducks go. The next section asks when — how does duck movement vary across seasons and months?
 
 ## When do they move?
-###
 
 GPS speed tells us not just where a duck was, but how actively it was moving at each fix. A speed near zero means the duck was resting or feeding; **higher speeds mean active flight**. Combined with timestamps, speed reveals the seasonal rhythm of duck activity across the 10-year study.
 
@@ -773,7 +769,6 @@ The map and the seasonal chart answer different questions: the map shows the geo
 
 
 ## Summary
-###
 
 
 You have built three pages of analysis. Now you will wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
