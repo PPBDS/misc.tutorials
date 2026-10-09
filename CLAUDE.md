@@ -175,6 +175,17 @@ one topic-named tutorial that does share a storage technology with an
 `r4ds-*` tutorial, because it was split out of `r4ds-4` rather than
 written fresh.
 
+**List order.** Each tutorial’s YAML header sets `learnr2:` /
+`ordering: <n>`, which fixes its place in the VS Code tutorial list
+(lowest first; tutorials without it sort after, by folder name). Current
+order: `r4ds-1`–`r4ds-4` (1–4), `prediction-markets` (5, beside the
+`r4ds-4` it was split from), `r4ds-5` (6), `census` (7), then
+`baseball`, `ducks`, `sharks`, `spiderman`, `movies` (8–12). A new
+tutorial must set an `ordering`. Because `ordering` now controls the
+sequence, folder names carry no numeric prefix (the r4ds folders were
+renamed from `01-r4ds-1` … `05-r4ds-5` to `r4ds-1` … `r4ds-5` in October
+2026).
+
 `movies` and `spiderman` both draw on Rotten Tomatoes data, which is
 worth revisiting — two tutorials on the same source is thin
 justification for two tutorials.

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -149,6 +149,7 @@
 <code>markets.parquet</code>, <code>history.parquet</code>, <code>groups.parquet</code>, <code>market_groups.parquet</code>
 </td>
 </tr></tbody></table><p><code>ducks</code>, <code>sharks</code> and <code>spiderman</code> are <strong>project-tier</strong> tutorials (see the next section); <code>movies</code> and <code>prediction-markets</code> each build a single page. Note that <code>ducks</code>, <code>sharks</code>, <code>spiderman</code> and <code>movies</code> all read plain CSV: per the project tier’s <em>topic-driven, not a new storage technology</em> override, they are organized around a domain rather than around a storage technology they introduce. <code>prediction-markets</code> is the one topic-named tutorial that does share a storage technology with an <code>r4ds-*</code> tutorial, because it was split out of <code>r4ds-4</code> rather than written fresh.</p>
+<p><strong>List order.</strong> Each tutorial’s YAML header sets <code>learnr2:</code> / <code>ordering: &lt;n&gt;</code>, which fixes its place in the VS Code tutorial list (lowest first; tutorials without it sort after, by folder name). Current order: <code>r4ds-1</code>–<code>r4ds-4</code> (1–4), <code>prediction-markets</code> (5, beside the <code>r4ds-4</code> it was split from), <code>r4ds-5</code> (6), <code>census</code> (7), then <code>baseball</code>, <code>ducks</code>, <code>sharks</code>, <code>spiderman</code>, <code>movies</code> (8–12). A new tutorial must set an <code>ordering</code>. Because <code>ordering</code> now controls the sequence, folder names carry no numeric prefix (the r4ds folders were renamed from <code>01-r4ds-1</code> … <code>05-r4ds-5</code> to <code>r4ds-1</code> … <code>r4ds-5</code> in October 2026).</p>
 <p><code>movies</code> and <code>spiderman</code> both draw on Rotten Tomatoes data, which is worth revisiting — two tutorials on the same source is thin justification for two tutorials.</p>
 </div>
 <div class="section level2">
