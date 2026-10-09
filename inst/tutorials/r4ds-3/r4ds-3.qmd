@@ -242,7 +242,7 @@ Download the DuckDB database `seda_2025.duckdb` from this URL and save it in you
 `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/03-r4ds-3/data/seda_2025.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
 ```
 
 Run `ls data` in the bash Terminal. 
@@ -859,7 +859,7 @@ from this same survey.
 Download the DuckDB database `atus.duckdb` from this URL and save it in your `data/` directory:
 
 ```
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/03-r4ds-3/data/atus.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/atus.duckdb
 ```
 
 In the bash Terminal, run `ls data`.
@@ -1685,5 +1685,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "03-r4ds-3")
+learnr2::download_answers_button(filename_prefix = "r4ds-3")
 ```

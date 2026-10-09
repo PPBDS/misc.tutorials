@@ -876,7 +876,7 @@ Download `music.csv` into your `data/` directory. In the R Terminal, run:
 
 ```
 download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv",
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-1/data/music.csv",
   "data/music.csv"
 )
 ```
@@ -893,7 +893,7 @@ CP/CR.
 #| label: million-song-dataset-1
 #| echo: false
 learnr2::question(
-  "download.file( \"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/01-r4ds-1/data/music.csv\", \"data/music.csv\" ) In a bash Terminal, run: ls data CP/CR.",
+  "download.file( \"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-1/data/music.csv\", \"data/music.csv\" ) In a bash Terminal, run: ls data CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -1717,5 +1717,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "01-r4ds-1")
+learnr2::download_answers_button(filename_prefix = "r4ds-1")
 ```
