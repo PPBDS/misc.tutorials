@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,12 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="misctutorials-development-version">misc.tutorials (development version)<a class="anchor" aria-label="anchor" href="#misctutorials-development-version"></a></h2>
-<ul><li>Rebuilt every tutorial on <strong>learnr2</strong>, which renders each one to a static Quarto page whose code runs in the browser via WebR. <strong>learnr2</strong> is the package’s only tutorial dependency (it also supplies <code>show_file()</code>), and the tests and CI render tutorials with <code><a href="https://ppbds.github.io/learnr2/reference/check_tutorial.html" class="external-link">learnr2::check_tutorial()</a></code> and <code><a href="https://ppbds.github.io/learnr2/reference/render_tutorials.html" class="external-link">learnr2::render_tutorials()</a></code>. Plot exercises now ask for a screenshot of the rendered plot instead of the code that drew it.</li>
+<ul><li><p>The R for Data Science material is now ten tutorials instead of five. Each two-topic tutorial was split in two, keeping its first topic and spinning the second out under a topic name: <code>r4ds-1</code> (Billboard) and <code>music</code>, <code>r4ds-2</code> (US births) and <code>nba-recruits</code>, <code>r4ds-3</code> (school districts) and <code>time-use</code>, <code>r4ds-5</code> (wildfires) and <code>imdb-rankings</code>. With <code>prediction-markets</code> (split from <code>r4ds-4</code> in August) the family runs 18–25 exercises per tutorial, and the VS Code list shows each spin-out directly after its parent (<code>ordering</code> 1–10), followed by <code>census</code>, <code>baseball</code>, <code>ducks</code>, <code>sharks</code>, and <code>movies</code>.</p></li>
+<li><p><code>spiderman</code> is retired; its Spider-Man comparison is now the closing topic of <code>movies</code>.</p></li>
+<li><p><code>ducks</code> and <code>sharks</code> are rebuilt on the multi-page website form that <code>baseball</code> introduced, and every tutorial now follows the three-exercise caching arc exactly once. <code>census</code> and <code>baseball</code> were shortened as well; every tutorial now runs 18–28 exercises.</p></li>
+<li><p>Package-wide clean-up: every question carries a complete plain-text copy of its prompt; faked listings include the <code>AGENTS.md</code> that every fresh repo contains; faked <code>git log</code> and <code>quarto publish</code> transcripts match their real shape; knowledge drops are trimmed to two sentences about the data or the output; retired AI-tool recommendations are replaced by “Use AI however you like.”; stale <code>quarto preview</code> instructions and maintainer comments are gone.</p></li>
+<li><p><code>r4ds-1</code> ships <code>billboard.csv</code> (a copy of <code><a href="https://tidyr.tidyverse.org/reference/billboard.html" class="external-link">tidyr::billboard</a></code>) instead of loading the data from a package; <code>r4ds-3</code> and <code>time-use</code> have students gitignore their <code>.duckdb</code> files; <code>sharks</code> no longer ships <code>attacks.csv</code> or <code>attacks.rds</code>.</p></li>
+<li><p>Rebuilt every tutorial on <strong>learnr2</strong>, which renders each one to a static Quarto page whose code runs in the browser via WebR. <strong>learnr2</strong> is the package’s only tutorial dependency (it also supplies <code>show_file()</code>), and the tests and CI render tutorials with <code><a href="https://ppbds.github.io/learnr2/reference/check_tutorial.html" class="external-link">learnr2::check_tutorial()</a></code> and <code><a href="https://ppbds.github.io/learnr2/reference/render_tutorials.html" class="external-link">learnr2::render_tutorials()</a></code>. Plot exercises now ask for a screenshot of the rendered plot instead of the code that drew it.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="misctutorials-001">misc.tutorials 0.0.1<a class="anchor" aria-label="anchor" href="#misctutorials-001"></a></h2>

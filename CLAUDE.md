@@ -47,8 +47,9 @@ the commands — [`getwd()`](https://rdrr.io/r/base/getwd.html),
 Terminal — because students arrive fresh from the infrastructure
 tutorials and should see exactly what is happening. `r4ds-2` adds the
 transition note: “We will soon stop giving you commands like these and
-just have AI do it.” From `r4ds-3` on, every tutorial (including
-`census`, `baseball`, …) follows the base guide’s goal-stated +
+just have AI do it.” Every other tutorial — `music` and `nba-recruits`
+(which sit between `r4ds-2` and `r4ds-3` in the list), `r4ds-3` on,
+`census`, `baseball`, … — follows the base guide’s goal-stated +
 bash-`ls` form. (This narrowing is one instance of the pacing gradient
 recorded below.)
 
@@ -95,100 +96,121 @@ choices, shared with `vscode.tutorials`:
 
 ## What this package is
 
-A collection of tutorials covering material from two companion texts:
+A collection of tutorials covering material from two companion texts,
+plus a set of topic tutorials:
 
-- **[R for Data Science (2e)](https://r4ds.hadley.nz/)** — the `r4ds-1`
-  … `r4ds-5` tutorials.
+- **[R for Data Science (2e)](https://r4ds.hadley.nz/)** — the **R4DS
+  family**, ten tutorials: `r4ds-1` … `r4ds-5` and the five topic-named
+  tutorials split out of them (`music`, `nba-recruits`, `time-use`,
+  `prediction-markets`, `imdb-rankings`).
 - **[Analyzing US Census Data](https://walker-data.com/census-r/)** by
   Kyle Walker — the `census` tutorial.
+- **Topic tutorials** (`baseball`, `ducks`, `sharks`, `movies`) —
+  organized around a domain rather than a book. The first three are
+  *project-tier* (each builds a multi-page website); `movies` builds a
+  single page. See *Project tutorials* below.
 
-**The organizing theme is storage technology.** Each tutorial sources
-its data from a different sort of storage — delimited files,
-spreadsheets, databases, Arrow files, spatial formats, and web APIs —
-and then works with that data using the
+**The organizing theme is storage technology.** Each R4DS-family
+tutorial sources its data from a different sort of storage — delimited
+files, spreadsheets, databases, Arrow files, spatial formats, scraped
+HTML, and web APIs — and then works with that data using the
 **[tidyverse](https://www.tidyverse.org/)**. The storage technology is
-the spine of each tutorial; the subject-area domain (music,
-births/basketball, baby names/flights, crypto, wildfires/film rankings,
-census demographics) is chosen to suit it.
+the spine of each tutorial; the subject-area domain (Billboard, births,
+pop music, basketball recruits, school districts, time use, crypto,
+prediction markets, wildfires, film rankings, census demographics) is
+chosen to suit it.
 
-The division of the R for Data Science material into five tutorials
-(`r4ds-1` … `r4ds-5`) is reasonable but **arbitrary** — the same
-material could be split into more or fewer. Treat the count as a
-convenience, not a fixed boundary, when deciding whether to split a long
-tutorial or merge two short ones. This has already happened once: in
-August 2026 `r4ds-4` had grown to 51 exercises, and its
-prediction-market half was split out as the `prediction-markets`
-tutorial, leaving 32 and 25. Note what the split did to the numbering —
-`prediction-markets` is a peer of `r4ds-4`, not a successor to `r4ds-5`,
-so it took a topic name rather than an `r4ds-6` slot. Prefer a topic
-name for any future split, since a tutorial’s id becomes the name of
-every student’s repo and renumbering the sequence would break repos that
-already exist.
+The division of the R for Data Science material into tutorials is
+reasonable but **arbitrary** — the same material could be split into
+more or fewer. Treat the count as a convenience, not a fixed boundary.
+It has moved twice. In August 2026 `r4ds-4` had grown to 51 exercises
+and its prediction-market half became `prediction-markets`. In October
+2026 the remaining two-topic tutorials (36–42 exercises each, about 90
+minutes measured against a 45-minute target) were each split in two:
+`r4ds-1` kept Billboard and spun out `music`; `r4ds-2` kept births and
+spun out `nba-recruits`; `r4ds-3` kept the school-district database and
+spun out `time-use`; `r4ds-5` kept wildfires and spun out
+`imdb-rankings`. Every tutorial in the family now runs 18–25 exercises.
+Note what the splits did to the naming — a spin-out is a peer of its
+parent, not a successor to `r4ds-5`, so it takes a topic name rather
+than an `r4ds-6` slot. Prefer a topic name for any future split, since a
+tutorial’s id becomes the name of every student’s repo and renumbering
+the sequence would break repos that already exist. (`spiderman`, a short
+topic tutorial on the same Rotten Tomatoes data as `movies`, was retired
+in the same pass and folded into `movies` as its closing *Spider-Man*
+topic.)
 
-## The r4ds sequence — place in the class and pacing
+## The R4DS family — place in the class and pacing
 
 The class workflow: students complete the **first four
-`vscode.tutorials` infrastructure tutorials** — Workspace, Workflow,
-Code, and Quarto — and then do `r4ds-1` through `r4ds-5` as their first
+`vscode.tutorials` infrastructure tutorials** — Orientation, Workflow,
+Code, and Quarto — and then do the R4DS family, `r4ds-1` through
+`imdb-rankings` in list order (orderings 1–10), as their first
 data-science practice. Two standing consequences:
 
-- **Prerequisite contract.** The r4ds tutorials may assume exactly what
-  those four tutorials teach (the base guide’s *Assumed skills*
-  boundary) and nothing more. A skill the sequence needs but the four do
-  not teach — driving an AI agent, whatever else — is a gap: fix it in
-  `vscode.tutorials`, or scaffold it explicitly in `r4ds-1`/`r4ds-2`;
-  never assume it silently. (R packages are not part of this contract:
-  the student environment guarantees every package the tutorials need is
-  preinstalled, so tutorials never include install exercises.)
+- **Prerequisite contract.** The R4DS-family tutorials may assume
+  exactly what those four tutorials teach (the base guide’s *Assumed
+  skills* boundary) and nothing more. A skill the sequence needs but the
+  four do not teach — driving an AI agent, whatever else — is a gap: fix
+  it in `vscode.tutorials`, or scaffold it explicitly in
+  `r4ds-1`/`r4ds-2`; never assume it silently. (R packages are not part
+  of this contract: the student environment guarantees every package the
+  tutorials need is preinstalled, so tutorials never include install
+  exercises.)
 - **Pacing gradient.** `r4ds-1` is the student’s first
   post-infrastructure tutorial and goes slowest: more explanation,
   smaller setup steps, explicit commands where later tutorials just
-  state goals. `r4ds-2` is slightly faster. `r4ds-3`–`r4ds-5` may assume
-  `r4ds-1` and `r4ds-2` are complete and move at full speed. The
-  explicit `data/` scaffold override (above) is one instance of this
-  gradient.
+  state goals. `r4ds-2` is slightly faster. Everything from `music`
+  (ordering 3) onward may assume `r4ds-1` and `r4ds-2` are complete and
+  moves at full speed. The explicit `data/` scaffold override (above) is
+  one instance of this gradient; the download-instruction style (see
+  *Data handling*) is another.
 
 ## Per-tutorial map
 
-| Tutorial | Storage technology | Key packages | Data |
-|----|----|----|----|
-| `r4ds-1` | Delimited files (CSV) | readr, maps | `music.csv` |
-| `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx`, `nba_recruits.xlsx` |
-| `r4ds-3` | Databases | DBI, dbplyr, duckdb | `*.duckdb` |
-| `r4ds-4` | Arrow / Parquet | arrow | `daily_prices.parquet`, `coin_metadata.parquet`, `categories.parquet` |
-| `r4ds-5` | Spatial / web | jsonlite, leaflet, purrr, httr2, rvest | `wildfires.geojson`, `imdb_snapshots.rds` |
-| `census` | Web API | tidycensus, sf | `*.rds` |
-| `baseball` | R data package (Lahman) | Lahman, tidyverse | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) |
-| `ducks` | Delimited files (CSV) | sf, maps, ggridges | `mallards.csv` |
-| `sharks` | Delimited files (CSV) | maps | `attacks.csv`, `attacks.rds`, `attacks_clean.csv` |
-| `spiderman` | Delimited files (CSV) | tidyverse | `films.rds`, `spiderman_rt_clean.csv` |
-| `movies` | Delimited files (CSV) | tidyverse | `movies.csv` |
-| `prediction-markets` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` |
+Rows are in list order (`ordering`). The last column lists the *R for
+Data Science (2e)* chapters each R4DS-family tutorial names in the first
+sentence of its Introduction (and, in the past tense, in its Summary).
 
-`ducks`, `sharks` and `spiderman` are **project-tier** tutorials (see
-the next section); `movies` and `prediction-markets` each build a single
-page. Note that `ducks`, `sharks`, `spiderman` and `movies` all read
-plain CSV: per the project tier’s *topic-driven, not a new storage
-technology* override, they are organized around a domain rather than
-around a storage technology they introduce. `prediction-markets` is the
-one topic-named tutorial that does share a storage technology with an
-`r4ds-*` tutorial, because it was split out of `r4ds-4` rather than
-written fresh.
+| \# | Tutorial | Storage technology | Key packages | Data | R4DS chapters |
+|----|----|----|----|----|----|
+| 1 | `r4ds-1` | Delimited files (CSV) | readr, tidyr | `billboard.csv` | 7 Data import; 5 Data tidying; 9 Layers |
+| 2 | `r4ds-2` | Spreadsheets | readxl | `us_births_1994_2014.xlsx` | 20 Spreadsheets; 9 Layers; 10 EDA; 11 Communication |
+| 3 | `music` | Delimited files (CSV) | readr, maps | `music.csv` | 7 Data import; 18 Missing values; 10 EDA |
+| 4 | `nba-recruits` | Spreadsheets | readxl | `nba_recruits.xlsx` | 20 Spreadsheets; 16 Factors; 10 EDA |
+| 5 | `r4ds-3` | Databases | DBI, dbplyr, duckdb | `seda_2025.duckdb` | 21 Databases; 12 Logical vectors; 13 Numbers |
+| 6 | `time-use` | Databases | DBI, dbplyr, duckdb | `atus.duckdb` | 21 Databases; 17 Dates and times; 16 Factors |
+| 7 | `r4ds-4` | Arrow / Parquet | arrow | `daily_prices.parquet`, `coin_metadata.parquet`, `categories.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
+| 8 | `prediction-markets` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
+| 9 | `r4ds-5` | Spatial JSON | jsonlite, leaflet, purrr | `wildfires.geojson` | 23 Hierarchical data; 9 Layers |
+| 10 | `imdb-rankings` | Scraped HTML (Wayback Machine) | rvest, httr2, purrr | `imdb_snapshots.rds` | 24 Web scraping; 25 Functions; 26 Iteration |
+| 11 | `census` | Web API | tidycensus, sf | `income_tx.rds`, `edu_state.rds`, `age_ca.rds` | — |
+| 12 | `baseball` | R data package (Lahman) | Lahman | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) | — |
+| 13 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
+| 14 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
+| 15 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
+
+`baseball`, `ducks` and `sharks` are **project-tier** tutorials that
+build a multi-page website (see the next section); every other tutorial
+builds a single published `analysis.qmd` page. The four topic tutorials
+(`baseball`, `ducks`, `sharks`, `movies`) are organized around a domain
+rather than a storage technology they introduce, per the project tier’s
+*topic-driven, not a new storage technology* override. A spin-out shares
+its storage technology with the parent it was split from (`music` with
+`r4ds-1`, `nba-recruits` with `r4ds-2`, `time-use` with `r4ds-3`,
+`prediction-markets` with `r4ds-4`); `imdb-rankings` is the one spin-out
+that took a storage technology (scraped HTML) with it, leaving `r4ds-5`
+purely spatial.
 
 **List order.** Each tutorial’s YAML header sets `learnr2:` /
 `ordering: <n>`, which fixes its place in the VS Code tutorial list
-(lowest first; tutorials without it sort after, by folder name). Current
-order: `r4ds-1`–`r4ds-4` (1–4), `prediction-markets` (5, beside the
-`r4ds-4` it was split from), `r4ds-5` (6), `census` (7), then
-`baseball`, `ducks`, `sharks`, `spiderman`, `movies` (8–12). A new
-tutorial must set an `ordering`. Because `ordering` now controls the
-sequence, folder names carry no numeric prefix (the r4ds folders were
-renamed from `01-r4ds-1` … `05-r4ds-5` to `r4ds-1` … `r4ds-5` in October
-2026).
-
-`movies` and `spiderman` both draw on Rotten Tomatoes data, which is
-worth revisiting — two tutorials on the same source is thin
-justification for two tutorials.
+(lowest first; tutorials without it sort after, by folder name). The
+current order is the `#` column above: the R4DS family occupies 1–10,
+each spin-out directly after its parent, then `census` (11) and the
+topic tutorials (12–15). A new tutorial must set an `ordering`. Because
+`ordering` controls the sequence, folder names carry no numeric prefix
+(the r4ds folders were renamed from `01-r4ds-1` … `05-r4ds-5` to
+`r4ds-1` … `r4ds-5` in October 2026).
 
 ## Project tutorials (`baseball` and later)
 
@@ -244,10 +266,15 @@ type; the fourth is specific to the website form `baseball` uses):
   `<page>_cache/` directory — same caching arc as the base guide, on a
   per-page chunk. The Summary publishes the **whole project** with
   `quarto publish gh-pages` (no filename) and its final evidence is
-  `show_file("index.qmd")`. Other project types will have their own
-  analogous specifics (a dashboard’s `_quarto.yml` `format: dashboard`,
-  a Shiny app’s `app.R`/`shinyapps.io` deploy); record them here as they
-  are built.
+  `show_file("index.qmd")`. This is the only project form built so far:
+  `ducks` and `sharks` follow it exactly, with one addition for a second
+  page that needs the first page’s cleaned data — the cached data chunk
+  on the first page ends with `write_rds(x, "data/x.rds")`, the second
+  page reads it with `read_rds("data/x.rds")`, and `.gitignore` lists
+  `data/x.rds` alongside `/*_cache/`. Other project types will have
+  their own analogous specifics (a dashboard’s `_quarto.yml`
+  `format: dashboard`, a Shiny app’s `app.R`/`shinyapps.io` deploy);
+  record them here as they are built.
 
 ## Choosing topics
 
@@ -318,14 +345,19 @@ machinery are **gone**. This section records the
   from the build while the data files themselves still ship.
 - **Download-instruction style depends on the tutorial’s place in the
   sequence** (per the base guide’s *Match the download instruction*
-  rule). The five `r4ds-*` tutorials are a student’s first data-science
-  tutorials, so they may hand students an explicit, working
-  `download.file("<url>", "data/<file>")` command. The project-tier
-  tutorials (`baseball`, `ducks`, `movies`, …) and `census` come later,
-  so they just point students at the stable URL and let them choose how
-  to fetch it
+  rule). `r4ds-1` and `r4ds-2` are a student’s first data-science
+  tutorials, so they hand students an explicit, working
+  `download.file("<url>", "data/<file>")` command. Every later tutorial
+  (`music` and `nba-recruits` onward, `census`, the topic tutorials)
+  just points students at the stable URL and lets them choose how to
+  fetch it
   ([`download.file()`](https://rdrr.io/r/utils/download.file.html) or
   AI).
+- **Large data files are gitignored, not committed.** `r4ds-3` and
+  `time-use` have the student add `data/*.duckdb` to `.gitignore` right
+  after the download (27 MB and 47 MB; GitHub warns at 50 MB and refuses
+  100 MB). Any future tutorial whose data file runs to tens of MB should
+  do the same.
 
 New work should add data under `inst/tutorials/<name>/data/`, reference
 it as `data/<file>`, point the student download URL at
@@ -357,22 +389,21 @@ package) and is the default for the project tier where it applies.
 
 ## CRAN / build size
 
-The tutorial data files are large. As of August 2026 `inst/` alone is
-**118 MB** and the working tree is about **207 MB** — and one tutorial
-dominates: `r4ds-3` is **72 MB**, almost all of it `atus.duckdb` (47 MB)
-and `seda_2025.duckdb` (27 MB), with `r4ds-5` (19 MB, mostly
-`wildfires.geojson`) and `ducks` (10 MB) next. This is no longer just a
-`devtools::check()` size NOTE; it is a real install cost every student
-pays at the start of the course. When adding or replacing data, prefer
-the smallest file that still supports the analysis, and treat a
-multi-tens-of-MB addition as a decision needing justification rather
-than a default. Subsetting `atus.duckdb` is the single biggest available
-win. Under the `data/`-in-tutorial convention the package **ships its
-data and is not CRAN-distributable** (see *Data handling* above) — a
-trade-off we accept in exchange for the package’s code matching the
-student’s code. The old CRAN-stripping machinery (the `.Rbuildignore`
-`extdata` rule and the `R/zzz.R` re-download hook) has been removed
-entirely.
+The tutorial data files are large. As of October 2026 `inst/` alone is
+**103 MB**, and two files dominate: `time-use` is **46 MB**
+(`atus.duckdb`) and `r4ds-3` is **27 MB** (`seda_2025.duckdb`), with
+`ducks` (11 MB) and `r4ds-5` (9 MB, mostly `wildfires.geojson`) next.
+This is no longer just a `devtools::check()` size NOTE; it is a real
+install cost every student pays at the start of the course. When adding
+or replacing data, prefer the smallest file that still supports the
+analysis, and treat a multi-tens-of-MB addition as a decision needing
+justification rather than a default. Subsetting `atus.duckdb` is the
+single biggest available win. Under the `data/`-in-tutorial convention
+the package **ships its data and is not CRAN-distributable** (see *Data
+handling* above) — a trade-off we accept in exchange for the package’s
+code matching the student’s code. The old CRAN-stripping machinery (the
+`.Rbuildignore` `extdata` rule and the `R/zzz.R` re-download hook) has
+been removed entirely.
 
 The test chunks that depend on data files `skip_on_cran()` (see
 `tests/testthat/test-tutorials.R`); that stays regardless, since the

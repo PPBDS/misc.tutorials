@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,7 +55,7 @@
 <div class="section level2">
 <h2 id="about-this-package">About this package<a class="anchor" aria-label="anchor" href="#about-this-package"></a>
 </h2>
-<p><strong>misc.tutorials</strong> is a collection of interactive tutorials covering <em>R for Data Science</em> essentials and US Census data analysis. Tutorials are built with the <strong><a href="https://ppbds.github.io/learnr2/" class="external-link">learnr2</a></strong> package and run in the browser via Quarto and WebR.</p>
+<p><strong>misc.tutorials</strong> is a collection of interactive tutorials covering <em>R for Data Science</em> essentials, US Census data analysis, and a set of topic tutorials (baseball, ducks, sharks, movies). Tutorials are built with the <strong><a href="https://ppbds.github.io/learnr2/" class="external-link">learnr2</a></strong> package and run in the browser via Quarto and WebR.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -74,38 +74,81 @@
 <div class="section level3">
 <h3 id="r-for-data-science">R for Data Science<a class="anchor" aria-label="anchor" href="#r-for-data-science"></a>
 </h3>
-<p>These tutorials cover material from <a href="https://r4ds.hadley.nz/" class="external-link"><em>R for Data Science (2e)</em></a> (R4DS) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. There are five related tutorials in the package: <code>r4ds-1</code>, <code>r4ds-2</code>, <code>r4ds-3</code>, <code>r4ds-4</code>, and <code>r4ds-5</code>. Different tutorials cover different chapters from the book as follows.</p>
-<div class="section level4">
-<h4 id="r4ds-1">r4ds-1<a class="anchor" aria-label="anchor" href="#r4ds-1"></a>
-</h4>
-<p>Data import Data visualization Data transformations Data tidying</p>
-</div>
-<div class="section level4">
-<h4 id="r4ds-2">r4ds-2<a class="anchor" aria-label="anchor" href="#r4ds-2"></a>
-</h4>
-<p>Spreadsheets Layers Exploratory data analysis Communication</p>
-</div>
-<div class="section level4">
-<h4 id="r4ds-3">r4ds-3<a class="anchor" aria-label="anchor" href="#r4ds-3"></a>
-</h4>
-<p>Databases Logical vectors Numbers Strings Regular expressions</p>
-</div>
-<div class="section level4">
-<h4 id="r4ds-4">r4ds-4<a class="anchor" aria-label="anchor" href="#r4ds-4"></a>
-</h4>
-<p>Arrow Factors Dates and times Missing values Joins</p>
-</div>
-<div class="section level4">
-<h4 id="r4ds-5">r4ds-5<a class="anchor" aria-label="anchor" href="#r4ds-5"></a>
-</h4>
-<p>Hierarchical-data Web scraping Functions Iterations</p>
-<p>The organization of the tutorials is not the same as the organization of R4DS. Instead, each tutorial begins by sourcing data from a different sort of storage technology and then working with that data.</p>
-</div>
+<p>These tutorials cover material from <a href="https://r4ds.hadley.nz/" class="external-link"><em>R for Data Science (2e)</em></a> (R4DS) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. There are ten related tutorials, listed here in the order the R Tutorials extension shows them. Each begins by sourcing data from a different sort of storage technology and then works with that data, so the organization of the tutorials is not the same as the organization of R4DS. The chapters each tutorial draws on are listed below.</p>
+<table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
+<thead><tr>
+<th>Tutorial</th>
+<th>Data</th>
+<th>R4DS chapters</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><code>r4ds-1</code></td>
+<td>Billboard Hot 100 (CSV)</td>
+<td>Data import; Data tidying; Layers</td>
+</tr>
+<tr>
+<td><code>r4ds-2</code></td>
+<td>US births (spreadsheet)</td>
+<td>Spreadsheets; Layers; Exploratory data analysis; Communication</td>
+</tr>
+<tr>
+<td><code>music</code></td>
+<td>Million Song Dataset sample (CSV)</td>
+<td>Data import; Missing values; Exploratory data analysis</td>
+</tr>
+<tr>
+<td><code>nba-recruits</code></td>
+<td>NBA recruits (spreadsheet)</td>
+<td>Spreadsheets; Factors; Exploratory data analysis</td>
+</tr>
+<tr>
+<td><code>r4ds-3</code></td>
+<td>School district test scores (DuckDB database)</td>
+<td>Databases; Logical vectors; Numbers</td>
+</tr>
+<tr>
+<td><code>time-use</code></td>
+<td>American Time Use Survey (DuckDB database)</td>
+<td>Databases; Dates and times; Factors</td>
+</tr>
+<tr>
+<td><code>r4ds-4</code></td>
+<td>Cryptocurrency prices (Parquet)</td>
+<td>Arrow; Joins; Dates and times</td>
+</tr>
+<tr>
+<td><code>prediction-markets</code></td>
+<td>Manifold prediction markets (Parquet)</td>
+<td>Arrow; Joins; Dates and times</td>
+</tr>
+<tr>
+<td><code>r4ds-5</code></td>
+<td>Wildfire perimeters (GeoJSON)</td>
+<td>Hierarchical data; Layers</td>
+</tr>
+<tr>
+<td><code>imdb-rankings</code></td>
+<td>IMDb Top 250 snapshots (scraped HTML)</td>
+<td>Web scraping; Functions; Iteration</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="section level3">
 <h3 id="analyzing-us-census-data">Analyzing US Census Data<a class="anchor" aria-label="anchor" href="#analyzing-us-census-data"></a>
 </h3>
 <p>We have one tutorial, <code>census</code>, covering material from <a href="https://walker-data.com/census-r/index.html" class="external-link"><em>Analyzing US Census Data: Methods, Maps, and Models in R</em></a> by Kyle Walker.</p>
+</div>
+<div class="section level3">
+<h3 id="topic-tutorials">Topic tutorials<a class="anchor" aria-label="anchor" href="#topic-tutorials"></a>
+</h3>
+<p>Four tutorials are organized around a subject rather than a book: <code>baseball</code> (the Lahman database), <code>ducks</code> (GPS-tracked mallards), <code>sharks</code> (the Global Shark Attack File), and <code>movies</code> (Rotten Tomatoes scores). <code>baseball</code>, <code>ducks</code>, and <code>sharks</code> each build and publish a small multi-page Quarto website; <code>movies</code> builds a single page.</p>
 </div>
 </div>
 </div>

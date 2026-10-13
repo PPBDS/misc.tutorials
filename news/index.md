@@ -2,6 +2,38 @@
 
 ## misc.tutorials (development version)
 
+- The R for Data Science material is now ten tutorials instead of five.
+  Each two-topic tutorial was split in two, keeping its first topic and
+  spinning the second out under a topic name: `r4ds-1` (Billboard) and
+  `music`, `r4ds-2` (US births) and `nba-recruits`, `r4ds-3` (school
+  districts) and `time-use`, `r4ds-5` (wildfires) and `imdb-rankings`.
+  With `prediction-markets` (split from `r4ds-4` in August) the family
+  runs 18–25 exercises per tutorial, and the VS Code list shows each
+  spin-out directly after its parent (`ordering` 1–10), followed by
+  `census`, `baseball`, `ducks`, `sharks`, and `movies`.
+
+- `spiderman` is retired; its Spider-Man comparison is now the closing
+  topic of `movies`.
+
+- `ducks` and `sharks` are rebuilt on the multi-page website form that
+  `baseball` introduced, and every tutorial now follows the
+  three-exercise caching arc exactly once. `census` and `baseball` were
+  shortened as well; every tutorial now runs 18–28 exercises.
+
+- Package-wide clean-up: every question carries a complete plain-text
+  copy of its prompt; faked listings include the `AGENTS.md` that every
+  fresh repo contains; faked `git log` and `quarto publish` transcripts
+  match their real shape; knowledge drops are trimmed to two sentences
+  about the data or the output; retired AI-tool recommendations are
+  replaced by “Use AI however you like.”; stale `quarto preview`
+  instructions and maintainer comments are gone.
+
+- `r4ds-1` ships `billboard.csv` (a copy of
+  [`tidyr::billboard`](https://tidyr.tidyverse.org/reference/billboard.html))
+  instead of loading the data from a package; `r4ds-3` and `time-use`
+  have students gitignore their `.duckdb` files; `sharks` no longer
+  ships `attacks.csv` or `attacks.rds`.
+
 - Rebuilt every tutorial on **learnr2**, which renders each one to a
   static Quarto page whose code runs in the browser via WebR.
   **learnr2** is the package’s only tutorial dependency (it also

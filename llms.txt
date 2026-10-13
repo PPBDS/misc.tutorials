@@ -5,9 +5,10 @@ Package website: <https://ppbds.github.io/misc.tutorials/>
 ## About this package
 
 **misc.tutorials** is a collection of interactive tutorials covering *R
-for Data Science* essentials and US Census data analysis. Tutorials are
-built with the **[learnr2](https://ppbds.github.io/learnr2/)** package
-and run in the browser via Quarto and WebR.
+for Data Science* essentials, US Census data analysis, and a set of
+topic tutorials (baseball, ducks, sharks, movies). Tutorials are built
+with the **[learnr2](https://ppbds.github.io/learnr2/)** package and run
+in the browser via Quarto and WebR.
 
 ## Installation
 
@@ -38,40 +39,39 @@ learnr2::run_tutorial(name = "r4ds-1",
 
 These tutorials cover material from [*R for Data Science
 (2e)*](https://r4ds.hadley.nz/) (R4DS) by Hadley Wickham, Mine
-Çetinkaya-Rundel, and Garrett Grolemund. There are five related
-tutorials in the package: `r4ds-1`, `r4ds-2`, `r4ds-3`, `r4ds-4`, and
-`r4ds-5`. Different tutorials cover different chapters from the book as
-follows.
+Çetinkaya-Rundel, and Garrett Grolemund. There are ten related
+tutorials, listed here in the order the R Tutorials extension shows
+them. Each begins by sourcing data from a different sort of storage
+technology and then works with that data, so the organization of the
+tutorials is not the same as the organization of R4DS. The chapters each
+tutorial draws on are listed below.
 
-#### r4ds-1
-
-Data import Data visualization Data transformations Data tidying
-
-#### r4ds-2
-
-Spreadsheets Layers Exploratory data analysis Communication
-
-#### r4ds-3
-
-Databases Logical vectors Numbers Strings Regular expressions
-
-#### r4ds-4
-
-Arrow Factors Dates and times Missing values Joins
-
-#### r4ds-5
-
-Hierarchical-data Web scraping Functions Iterations
-
-The organization of the tutorials is not the same as the organization of
-R4DS. Instead, each tutorial begins by sourcing data from a different
-sort of storage technology and then working with that data.
+| Tutorial | Data | R4DS chapters |
+|----|----|----|
+| `r4ds-1` | Billboard Hot 100 (CSV) | Data import; Data tidying; Layers |
+| `r4ds-2` | US births (spreadsheet) | Spreadsheets; Layers; Exploratory data analysis; Communication |
+| `music` | Million Song Dataset sample (CSV) | Data import; Missing values; Exploratory data analysis |
+| `nba-recruits` | NBA recruits (spreadsheet) | Spreadsheets; Factors; Exploratory data analysis |
+| `r4ds-3` | School district test scores (DuckDB database) | Databases; Logical vectors; Numbers |
+| `time-use` | American Time Use Survey (DuckDB database) | Databases; Dates and times; Factors |
+| `r4ds-4` | Cryptocurrency prices (Parquet) | Arrow; Joins; Dates and times |
+| `prediction-markets` | Manifold prediction markets (Parquet) | Arrow; Joins; Dates and times |
+| `r4ds-5` | Wildfire perimeters (GeoJSON) | Hierarchical data; Layers |
+| `imdb-rankings` | IMDb Top 250 snapshots (scraped HTML) | Web scraping; Functions; Iteration |
 
 ### Analyzing US Census Data
 
 We have one tutorial, `census`, covering material from [*Analyzing US
 Census Data: Methods, Maps, and Models in
 R*](https://walker-data.com/census-r/index.html) by Kyle Walker.
+
+### Topic tutorials
+
+Four tutorials are organized around a subject rather than a book:
+`baseball` (the Lahman database), `ducks` (GPS-tracked mallards),
+`sharks` (the Global Shark Attack File), and `movies` (Rotten Tomatoes
+scores). `baseball`, `ducks`, and `sharks` each build and publish a
+small multi-page Quarto website; `movies` builds a single page.
 
 # 
 
