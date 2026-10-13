@@ -1,0 +1,866 @@
+---
+title: Music
+author: David Kane
+description: 'Explores a 10,000-song sample of the Million Song Dataset from CORGIS. Students download the CSV, cache the parse, discover that the file uses 0 to mean "missing" in text columns, release years, and coordinates, map the artists and watch the unknown ones pile up at Null Island, then filter them out for an honest map of where the data actually comes from.'
+format: live-html
+engine: knitr
+toc: true
+learnr2:
+  ordering: 3
+---
+
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(maps)
+
+music <- read_csv("data/music.csv", show_col_types = FALSE)
+```
+
+## Information
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
+```
+
+## Introduction
+
+This tutorial covers key concepts from [Chapter 7: Data Import](https://r4ds.hadley.nz/data-import.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), and [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/EDA.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+You will use AI to explore a sample of the Million Song Dataset: a plain CSV that looks complete at first glance and turns out to be missing most of what it claims to hold. Your job is to steer the analysis, render often, inspect the output, and decide what the data can honestly show.
+
+Use AI however you like.
+
+### Exercise 1
+
+You should be doing this tutorial in a repo named `music`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+
+Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
+
+CP/CR.
+
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "You should be doing this tutorial in a repo named music. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+analysis_files
+```
+
+###
+
+A CSV is the plainest possible table: one line per row, values separated by commas, and a first line naming the columns.
+
+```
+"artist.name","artist.familiarity","song.year"
+"Casual",0.581793766,0
+"The Box Tops",0.630630038,1969
+```
+
+No types, no formulas, no formatting — which is exactly why every programming language, database, and spreadsheet program can read one.
+
+### Exercise 2
+
+In your QMD, put `library(tidyverse)` and `library(maps)` in a new code chunk. Add `#| message: false` to the chunk so package startup messages do not appear in the rendered HTML.
+
+Also add this to the YAML header to hide code in the HTML:
+
+```
+execute:
+  echo: false
+```
+
+Render again. Check the rendered HTML. Only the title and author should appear in the HTML.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "In your QMD, put library(tidyverse) and library(maps) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+#| message: false
+library(tidyverse)
+library(maps)
+```
+
+###
+
+`read_csv()`, from **[readr](https://readr.tidyverse.org/)**, does much more than split lines on commas. It scans the first several thousand values in each column, guesses a type — integer, double, character, date — and then prints the specification it settled on.
+
+### Exercise 3
+
+Create a `data` directory at the top level of the `music` repo. In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the music repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
+```
+
+###
+
+The file you will put in `data/` is a 10,000-song teaching sample of the [Million Song Dataset](http://millionsongdataset.com/), a 280 GB research collection of audio features and metadata for a million contemporary tracks. The teaching version flattens the handful of fields students care about into a single comma-separated table.
+
+## Million Song Dataset
+
+The **music** CSV file comes from a teaching version of the [Million Song Dataset](https://corgis-edu.github.io/corgis/csv/music/) published by CORGIS. It includes 10,000 rows and 35 columns about artists, songs, and audio features — more than you can scan at a glance — so the first step is understanding what is in it.
+
+### Exercise 1
+
+Download `music.csv` from this URL and save it in your `data/` directory:
+
+```
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/music/data/music.csv
+```
+
+In the bash Terminal, run `ls data`.
+
+CP/CR.
+
+```{r}
+#| label: million-song-dataset-1
+#| echo: false
+learnr2::question(
+  "Download music.csv from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/music/data/music.csv In the bash Terminal, run ls data. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+music.csv
+```
+
+###
+
+`music.csv` is about 3 MB: 10,000 rows, one per song, and 35 columns describing the artist, the album, and the track.
+
+### Exercise 2
+
+Add a new chunk that reads `data/music.csv` into an object named `music` and then prints it. Suppress the column specification that **readr** prints while parsing.
+
+Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-2
+#| echo: false
+learnr2::question(
+  "Add a new chunk that reads data/music.csv into an object named music and then prints it. Suppress the column specification that readr prints while parsing. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-2-answer
+#| echo: true
+music <- read_csv("data/music.csv", show_col_types = FALSE)
+music
+```
+
+###
+
+This file has 10,000 rows and 35 columns. A tibble auto-truncates to 10 rows and summarises extra columns on one line — the printed output only hints at what the data contains.
+
+### Exercise 3
+
+That chunk does two jobs: it defines `music` and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into `music`.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-3
+#| echo: false
+learnr2::question(
+  "That chunk does two jobs: it defines music and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into music. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+music <- read_csv("data/music.csv", show_col_types = FALSE)
+```
+
+###
+
+`read_csv()` guessed a type for each of those 35 columns and converted 350,000 values, and its guesses are worth checking. This file uses the number `0` for "we don't know", even in columns that ought to hold text, so `artist.location` and `song.title` come back as `<dbl>` rather than `<chr>`.
+
+### Exercise 4
+
+Add `#| cache: true` as the first line inside that chunk, then render. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which stores the parsed data so later renders reload it instead of reading the file again.
+
+In the bash Terminal, run `ls` to confirm the directory is there.
+
+CP/CR.
+
+```{r}
+#| label: million-song-dataset-4
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the first line inside that chunk, then render. Rendering with caching turned on creates an analysis_cache/ directory next to your analysis.qmd, which stores the parsed data so later renders reload it instead of reading the file again. In the bash Terminal, run ls to confirm the directory is there. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
+```
+
+###
+
+A 10,000-row CSV parses in a fraction of a second, so the saving here is small. The full Million Song Dataset ships as 280 GB of HDF5 files, and at that size reading and cleaning the raw data is by far the slowest step in an analysis — the one step you want to pay for once rather than on every render.
+
+### Exercise 5
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub — they're machine-specific and regenerated on every render.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-5
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+analysis_files
+analysis_cache
+```
+
+###
+
+With both generated directories ignored, the only changes git now sees are `analysis.qmd`, `.gitignore`, and the new `data/music.csv` — the files someone else would need to rebuild your page.
+
+### Exercise 6
+
+Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the `music` data.
+
+Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-6
+#| echo: false
+learnr2::question(
+  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the music data. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-6-answer
+#| echo: true
+names(music)
+```
+
+###
+
+The dotted naming convention groups variables by entity: `artist.*` columns describe the performer, `release.*` columns describe the album, and `song.*` columns describe the track. When asking AI to work with a specific column, using its exact name — `artist.hotttnesss`, not just `hotness` — prevents AI from guessing the wrong column.
+
+### Exercise 7
+
+Show the structure of just the artist columns of `music` — the type of each column with a few example values. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-7
+#| echo: false
+learnr2::question(
+  "Show the structure of just the artist columns of music — the type of each column with a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-7-answer
+#| echo: true
+music |>
+  select(starts_with("artist")) |>
+  glimpse()
+```
+
+###
+
+This compact view shows one line per column, which works here because the artist group has only 10 columns. Two things stand out: `artist.latitude` and `artist.longitude` are mostly `0`, and `artist.terms` holds a whole string of genre tags rather than a single category.
+
+### Exercise 8
+
+Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-8
+#| echo: false
+learnr2::question(
+  "Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-8-answer
+#| echo: true
+music |>
+  select(
+    artist.name,
+    artist.location,
+    artist.latitude,
+    artist.longitude,
+    artist.terms,
+    artist.familiarity,
+    artist.hotttnesss,
+    song.title,
+    song.year
+  ) |>
+  slice_head(n = 8)
+```
+
+###
+
+Look at the values, not just the names: `artist.name` and `artist.terms` are populated, but `artist.location`, `song.title`, and half the `song.year` values are `0`. A column that exists is not the same as a column you can use.
+
+### Exercise 9
+
+Find out what `artist.familiarity` and `artist.hotttnesss` measure — the [dataset documentation](https://corgis-edu.github.io/corgis/csv/music/) is one good source.
+
+Describe what each one measures below.
+
+```{r}
+#| label: million-song-dataset-9
+#| echo: false
+learnr2::question(
+  "Find out what artist.familiarity and artist.hotttnesss measure — the dataset documentation at https://corgis-edu.github.io/corgis/csv/music/ is one good source. Describe what each one measures below.",
+  learnr2::answer("`artist.familiarity` estimates how well known an artist is. `artist.hotttnesss` estimates how much buzz or current popularity an artist has.", correct = TRUE),
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+Both variables run from 0 to 1, where higher values mean more familiarity or more hotness. They are related but not identical: an artist can be widely known without being especially hot at that moment, or newly hot without being familiar to everyone. Nonpositive values should be treated as missing rather than as real zeros.
+
+### Exercise 10
+
+Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-10
+#| echo: false
+learnr2::question(
+  "Get summary statistics — minimum, maximum, median, and quartiles — for artist.familiarity, artist.hotttnesss, song.year, and song.tempo. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-10-answer
+#| echo: true
+music |>
+  select(artist.familiarity, artist.hotttnesss, song.year, song.tempo) |>
+  summary()
+```
+
+###
+
+Notice the minimums: `song.year` has a minimum of 0, which is not a real release year, and `artist.familiarity` and `artist.hotttnesss` have values at or near 0 that represent missing or unusable data rather than genuinely zero-familiarity artists. Scanning the minimum and maximum of each numeric column is a fast way to spot placeholder values and understand the scale before plotting.
+
+### Exercise 11
+
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: million-song-dataset-11
+#| echo: false
+learnr2::question(
+  "The summary didn't give a clear picture of the distribution of song years. Plot the distribution of song.year, filtering out rows where song.year is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-11-answer
+#| echo: true
+music |>
+  filter(song.year > 0) |>
+  ggplot(aes(x = song.year)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "white") +
+  labs(
+    title = "Distribution of songs by release year",
+    subtitle = "n = 4,680 songs with a recorded release year",
+    x = "Release year",
+    y = "Number of songs",
+    caption = "Source: Million Song Dataset (teaching sample)"
+  )
+```
+
+###
+
+The dataset skews heavily toward recent music: over half the songs are from the 2000s, with a long tail of older recordings going back to the 1920s. The n = 4,680 in the subtitle is much smaller than the 10,000 rows in the file, because 53% of the songs carry a placeholder year of 0.
+
+### Exercise 12
+
+We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-12
+#| echo: false
+learnr2::question(
+  "We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-12-answer
+#| echo: true
+music |>
+  summarise(
+    rows = n(),
+    artist_location_zero = sum(artist.location == "0" | is.na(artist.location)),
+    release_name_zero = sum(release.name == "0" | is.na(release.name)),
+    song_title_zero = sum(song.title == "0" | is.na(song.title)),
+    song_year_zero = sum(song.year == 0 | is.na(song.year)),
+    familiarity_zero = sum(artist.familiarity <= 0, na.rm = TRUE),
+    hotttnesss_zero = sum(artist.hotttnesss <= 0, na.rm = TRUE)
+  )
+```
+
+###
+
+Missingness in this file is wildly uneven: `artist.location` (9,999), `song.title` (9,992), and `release.name` (9,989) are placeholders in nearly every one of the 10,000 rows, so those columns are useless no matter what you ask of them. `artist.familiarity` has only 24 zero values (less than 1%) while `artist.hotttnesss` has 496 (nearly 5%).
+
+### Exercise 13
+
+Artist locations are also stored as latitude and longitude. Make a world map showing every artist's location, exactly as the file records it, using the **[maps](https://cran.r-project.org/package=maps)** package for the world background.
+
+Take a screenshot of the map in your rendered page and paste it below.
+
+```{r}
+#| label: million-song-dataset-18
+#| echo: false
+learnr2::question(
+  "Artist locations are also stored as latitude and longitude. Make a world map showing every artist's location, exactly as the file records it, using the maps package for the world background. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-18-answer
+#| echo: true
+world <- map_data("world")
+
+music |>
+  ggplot() +
+  geom_map(
+    data = world, map = world,
+    aes(map_id = region),
+    fill = "gray90", color = "gray70", linewidth = 0.2
+  ) +
+  geom_point(
+    aes(x = artist.longitude, y = artist.latitude),
+    alpha = 0.3, color = "steelblue", size = 0.6
+  ) +
+  expand_limits(x = world$long, y = world$lat) +
+  labs(
+    title = "Artist locations in the Million Song Dataset",
+    subtitle = "One point per song, plotted exactly as the file records it",
+    x = NULL,
+    y = NULL,
+    caption = "Source: Million Song Dataset teaching CSV"
+  ) +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.ticks = element_blank())
+```
+
+###
+
+Most of the points sit in a single blob in the Gulf of Guinea, off the west coast of Africa, where the equator crosses the prime meridian — latitude 0, longitude 0, a spot sometimes called Null Island. No artist lives there; that is where every unknown location landed.
+
+### Exercise 14
+
+Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: million-song-dataset-13
+#| echo: false
+learnr2::question(
+  "Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-13-answer
+#| echo: true
+music |>
+  summarise(
+    total = n(),
+    placeholder_coords = sum(artist.latitude == 0 & artist.longitude == 0),
+    usable_coords = sum(!(artist.latitude == 0 & artist.longitude == 0))
+  )
+```
+
+###
+
+6,258 of the 10,000 rows (63%) sit at (0, 0), so the blob held most of the data and the rest of the map was drawn from the other 3,742. Storing "unknown" as 0 rather than `NA` is a classic data-quality trap, because 0 is a perfectly valid coordinate and nothing in the file marks those rows as missing.
+
+### Exercise 15
+
+Iterate the map. Filter out artists where both latitude and longitude equal 0, and add a title and subtitle that note the coverage limitation.
+
+Take a screenshot of the map in your rendered page and paste it below.
+
+```{r}
+#| label: million-song-dataset-14
+#| echo: false
+learnr2::question(
+  "Iterate the map. Filter out artists where both latitude and longitude equal 0, and add a title and subtitle that note the coverage limitation. Take a screenshot of the map in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: million-song-dataset-14-answer
+#| echo: true
+world <- map_data("world")
+
+music |>
+  filter(!(artist.latitude == 0 & artist.longitude == 0)) |>
+  ggplot() +
+  geom_map(
+    data = world, map = world,
+    aes(map_id = region),
+    fill = "gray90", color = "gray70", linewidth = 0.2
+  ) +
+  geom_point(
+    aes(x = artist.longitude, y = artist.latitude),
+    alpha = 0.3, color = "steelblue", size = 0.6
+  ) +
+  expand_limits(x = world$long, y = world$lat) +
+  labs(
+    title = "Artist locations in the Million Song Dataset",
+    subtitle = "Only 37% of artists have usable coordinates; US and Western Europe dominate",
+    x = NULL,
+    y = NULL,
+    caption = "Source: Million Song Dataset teaching CSV"
+  ) +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.ticks = element_blank())
+```
+
+###
+
+The map reveals a strong geographic bias: most artists with usable coordinates are from the United States and Western Europe. Maps built on incomplete location data are still useful — they show where the data is and is not, which is itself an analytical finding.
+
+### Exercise 16
+
+Commit and push the Million Song work. Use the commit message:
+
+```
+Add Million Song analysis
+```
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r}
+#| label: million-song-dataset-19
+#| echo: false
+learnr2::question(
+  "Commit and push the Million Song work. Use the commit message: Add Million Song analysis. In the bash Terminal, run git log --oneline -3. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+a1b2c3d (HEAD -> main, origin/main) Add Million Song analysis
+e4f5a6b Add analysis.qmd and .gitignore
+```
+
+###
+
+The Echo Nest, the company whose API produced these familiarity and hotness scores, was bought by Spotify in 2014 and its public API shut down two years later. `artist.hotttnesss` is therefore a snapshot of buzz from before the dataset's 2011 release, and it can never be refreshed.
+
+## Summary
+
+This tutorial used AI to explore a sample of the Million Song Dataset, drawing on [Chapter 7: Data Import](https://r4ds.hadley.nz/data-import.html), [Chapter 18: Missing Values](https://r4ds.hadley.nz/missing-values.html), and [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/EDA.html) of *R for Data Science (2e)*. You downloaded and parsed a CSV file, cached the parse so it runs once per change, looked up what the familiarity and hotness scores measure, discovered that the file uses 0 for "unknown" in text columns, release years, and coordinates, mapped the artists and watched the unknown ones pile up at Null Island, then filtered them out for an honest map of where the data comes from.
+
+### Exercise 1
+
+Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+````{verbatim}
+---
+title: "Million Song Dataset"
+author: <your name>
+execute:
+  echo: false
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(maps)
+```
+
+```{r}
+#| cache: true
+music <- read_csv("data/music.csv", show_col_types = FALSE)
+```
+
+```{r}
+world <- map_data("world")
+
+music |>
+  filter(!(artist.latitude == 0 & artist.longitude == 0)) |>
+  ggplot() +
+  geom_map(
+    data = world, map = world,
+    aes(map_id = region),
+    fill = "gray90", color = "gray70", linewidth = 0.2
+  ) +
+  geom_point(
+    aes(x = artist.longitude, y = artist.latitude),
+    alpha = 0.3, color = "steelblue", size = 0.6
+  ) +
+  expand_limits(x = world$long, y = world$lat) +
+  labs(
+    title = "Artist locations in the Million Song Dataset",
+    subtitle = "Only 37% of artists have usable coordinates; US and Western Europe dominate",
+    x = NULL,
+    y = NULL,
+    caption = "Source: Million Song Dataset teaching CSV"
+  ) +
+  theme_minimal() +
+  theme(axis.text = element_blank(), axis.ticks = element_blank())
+```
+````
+
+###
+
+Your page now tells one story: where the artists behind the Million Song sample are located, and how little of the sample that map can honestly include.
+
+### Exercise 2
+
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
+
+```
+quarto publish gh-pages analysis.qmd
+```
+
+Copy/paste the resulting URL below.
+
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run quarto publish gh-pages analysis.qmd. Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+? Publish site to https://your-username.github.io/music/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
+...
+Output created: analysis.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/music.git
+...
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/music/
+```
+
+The URL on the last line is your answer:
+
+```
+https://your-username.github.io/music/
+```
+
+###
+
+The published map shows only the 3,742 songs with usable coordinates — fewer than four in ten of the 10,000 rows in `music.csv`.
+
+### Exercise 3
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+https://github.com/your-username/music
+```
+
+###
+
+The published page shows the result; the repo shows how it was made. Note that `data/music.csv` belongs in the repo but `analysis_cache/` does not: the CSV is the input someone else needs, the cache is something their own render rebuilds.
+
+###
+
+The ideas you used today are covered in depth in [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. The chapters on [data import](https://r4ds.hadley.nz/data-import.html), [missing values](https://r4ds.hadley.nz/missing-values.html), and [exploratory data analysis](https://r4ds.hadley.nz/EDA.html) are worth reading to deepen your understanding of the analysis behind your work.
+
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "music")
+```

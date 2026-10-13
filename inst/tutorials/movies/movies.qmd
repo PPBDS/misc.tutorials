@@ -1,12 +1,12 @@
 ---
 title: Movies
 author: Harshil Kurapati
-description: "Explore Rotten Tomatoes movie data stored as a CSV file and discover how critic and audience scores diverge across genres."
+description: "Explore roughly 30,000 Rotten Tomatoes films stored as a CSV: find the zero scores that stand in for missing reviews, measure how critic and audience scores diverge by genre, and settle which Spider-Man critics and audiences liked best."
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 12
+  ordering: 15
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -26,12 +26,25 @@ movies_clean <- movies |>
 movies_gap <- movies_clean |>
   mutate(gap = tomatoMeter - audienceScore)
 
-movies_summary <- movies_gap |>
-  summarize(mean_gap = mean(gap, na.rm = TRUE),
+movies_summary <- movies_clean |>
+  filter(tomatoMeter > 0, audienceScore > 0) |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  summarize(mean_gap = mean(gap),
             n = n(),
             .by = genre) |>
   filter(n >= 100) |>
   arrange(mean_gap)
+
+spiderman <- movies |>
+  filter(title %in% c("Spider-Man", "Spider-Man 2", "Spider-Man 3",
+                      "The Amazing Spider-Man", "The Amazing Spider-Man 2",
+                      "Spider-Man: Homecoming", "Spider-Man: Far From Home",
+                      "Spider-Man: No Way Home")) |>
+  mutate(actor = case_when(
+    str_starts(title, "The Amazing") ~ "Andrew Garfield",
+    str_detect(title, ":") ~ "Tom Holland",
+    .default = "Tobey Maguire")) |>
+  arrange(releaseDateTheaters)
 ```
 
 ## Information
@@ -44,13 +57,13 @@ learnr2::student_info()
 
 ## Introduction
 
-You will use AI to analyze a dataset of roughly 30,000 films from Rotten Tomatoes. Your job is to read the CSV, inspect and clean the data, build two plots, and publish a reproducible analysis page.
+You will use AI to analyze roughly 30,000 films from Rotten Tomatoes, stored as a CSV. You will read the file, find the scores that are really missing values in disguise, measure how critics and audiences diverge by genre, and finish with the eight live-action Spider-Man films. Use AI however you like.
 
 ### Exercise 1
 
 You should be doing this tutorial in a repo named `movies`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
-Create a new file, `analysis.qmd`, with the title `"Movie Analysis"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Movie Analysis"` and your name as the author. In the bash Terminal, render it:
 
 ```
 quarto render analysis.qmd
@@ -74,7 +87,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "Create a new file, analysis.qmd, with the title \"Movie Analysis\" and your name as the author. In the bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -104,7 +117,7 @@ In the bash Terminal, run `ls data`. CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In the bash Terminal, run ls data. CP/CR.",
+  "Create a data directory at the top level of your project, then download movies.csv into it from this URL: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movies/data/movies.csv In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -118,11 +131,11 @@ movies.csv
 
 ###
 
-The dataset covers roughly 30,000 films spanning 1914 to 2023. It was compiled from Rotten Tomatoes' public data and includes both the `tomatoMeter` (critic score) and `audienceScore` (audience score) for each film, along with genre, director, runtime, release date, and box office revenue.
+The dataset covers roughly 30,000 films spanning 1902 to 2023 (essentially 1914 onward; the 1902 film is the only one before 1914). It was compiled from Rotten Tomatoes' public data and includes both the `tomatoMeter` (critic score) and `audienceScore` (audience score) for each film, along with genre, director, runtime, release date, and box office revenue.
 
 ### Exercise 3
 
-In your QMD, add a setup chunk that loads the tidyverse and reads `data/movies.csv` into a tibble named `movies`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
+In your QMD, add a chunk that loads the tidyverse, reads `data/movies.csv` into a tibble named `movies`, and prints `movies`. Add `#| message: false` so package startup messages stay out of the rendered page, and add `execute: echo: false` to the YAML header to hide code.
 
 Render. In the R Terminal, run:
 
@@ -136,7 +149,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In your QMD, add a chunk that loads the tidyverse, reads data/movies.csv into a tibble named movies, and prints movies. Add #| message: false so package startup messages stay out of the rendered page, and add execute: echo: false to the YAML header to hide code. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -149,22 +162,35 @@ learnr2::question(
 library(tidyverse)
 
 movies <- read_csv("data/movies.csv", show_col_types = FALSE)
+
+movies
+```
+
+```{r}
+#| label: introduction-3-answer
+#| echo: false
+movies
 ```
 
 ###
 
-The `tomatoMeter` is the percentage of approved critics who gave the film a positive review — 60 or above earns the "Fresh" label, 75 or above with enough reviews earns "Certified Fresh". The `audienceScore` is the percentage of verified Fandango ticket-buyers who rated the film 3.5 stars or above out of 5.
+`movies` has 29,783 rows and 8 columns, one row per film. The `tomatoMeter` is the percentage of approved critics who gave the film a positive review, and the `audienceScore` is the percentage of verified Fandango ticket-buyers who rated it 3.5 stars or above out of 5.
 
 ### Exercise 4
 
-Commit and push your work with a message like "Initial project setup with movies data". Copy-paste the output of `git log --oneline -3` into the answer box.
+Commit and push with a message like "Initial project setup with movies data". In the bash Terminal, run:
 
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r}
 #| label: introduction-4
 #| echo: false
 learnr2::question(
-  "Commit and push your work with a message like \"Initial project setup with movies data\". Copy-paste the output of git log --oneline -3 into the answer box.",
+  "Commit and push with a message like \"Initial project setup with movies data\". In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -172,89 +198,22 @@ learnr2::question(
 
 ###
 
-A successful submission can be a terminal paste showing `git push`, or a short note saying which method you used.
-
-<!-- Instead of writing a short note describing how you committed and pushed, just say "Commit and push the files you have so far. And CP/CR." -->
+```
+3f7a2c1 (HEAD -> main, origin/main) Initial project setup with movies data
+b81e94d Add analysis.qmd and .gitignore
+```
 
 ###
 
-Committing before any real analysis creates a clean baseline. If something later goes wrong — a chunk breaks, an accidental deletion — you can always return to this point.
+Every one of the 29,783 films has both a `tomatoMeter` and an `audienceScore`, but more than a third have no theatrical release date and more than half have no box office figure.
 
-## Exploring the Data
+## Exploring the data
 
-The `movies.csv` file has 8 columns covering roughly 30,000 films. Two matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). A third column, `genre`, will need cleaning before it is useful.
+The `movies.csv` file has 8 columns covering 29,783 films. Two matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). A third column, `genre`, will need cleaning before it is useful.
 
 ### Exercise 1
 
-In a new code chunk, read `data/movies.csv` into a tibble named `movies`. Print `movies` and Render.
-
-<!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. -->
-
-In the R Terminal, run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r}
-#| label: explore-1
-#| echo: false
-learnr2::question(
-  "<!-- VK: In this part of the tutorial, students are asked to print movies but never told to remove the print. It ends up showing the tibble in the HTML throughout the next exercises. Should tell students to remove the print in the next exercise or not print at all. --> In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: explore-1-answer
-#| echo: true
-glimpse(movies)
-```
-
-###
-
-The dataset spans films from 1914 to 2023 — Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-era films, not just recent releases. The two scores, `tomatoMeter` and `audienceScore`, are stored as numeric values from 0 to 100 and will be the focus of the analysis.
-
-### Exercise 2
-
-Inside the same chunk, add a call to `names(movies)` below `glimpse(movies)`. Render, then run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r}
-#| label: explore-2
-#| echo: false
-learnr2::question(
-  "Inside the same chunk, add a call to names(movies) below glimpse(movies). Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: explore-2-answer
-#| echo: true
-names(movies)
-```
-
-###
-
-The eight columns are `title`, `audienceScore`, `tomatoMeter`, `genre`, `releaseDateTheaters`, `runtimeMinutes`, `director`, and `boxOffice`. The `genre` column often stores multiple genres in one cell separated by `", "` — for example, `"Comedy, Romance"` — which requires cleaning before you can summarize by genre accurately.
-
-### Exercise 3
-
-Add a new chunk that counts how many values are missing in each column. Render, then run:
+Delete the line that prints `movies` from your first chunk, so it ends with the `read_csv()` assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -266,7 +225,7 @@ CP/CR.
 #| label: explore-3
 #| echo: false
 learnr2::question(
-  "Add a new chunk that counts how many values are missing in each column. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Delete the line that prints movies from your first chunk, so it ends with the read_csv() assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -278,58 +237,16 @@ learnr2::question(
 #| label: explore-3-answer
 #| echo: true
 movies |>
-  summarize(across(everything(), ~sum(is.na(.))))
+  summarize(across(everything(), \(x) sum(is.na(x))))
 ```
 
 ###
 
-`audienceScore` and `tomatoMeter` have zero missing values — every film in the dataset has been scored on both measures. `boxOffice` has 16,753 missing values, more than half the dataset. Films that never reported box office figures are excluded, which likely skews the column toward major theatrical releases and away from smaller or older films.
+`audienceScore` and `tomatoMeter` have zero missing values, while `boxOffice` is missing for 16,753 films, more than half the dataset. Where `boxOffice` is present it is a string like `"$146.3M"`, not a number, so it cannot be averaged without parsing.
 
-### Exercise 4
+### Exercise 2
 
-Add a new chunk that shows the `title` and `boxOffice` for the first 10 films that have a non-missing box office value. Render, then run:
-
-```
-show_file("analysis.qmd", chunk = "Last")
-```
-
-CP/CR.
-
-```{r}
-#| label: explore-4
-#| echo: false
-learnr2::question(
-  "Add a new chunk that shows the title and boxOffice for the first 10 films that have a non-missing box office value. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: explore-4-answer
-#| echo: true
-movies |>
-  filter(!is.na(boxOffice)) |>
-  select(title, boxOffice) |>
-  slice_head(n = 10)
-```
-
-###
-
-The `boxOffice` column is stored as a character string — values look like `"$146.3M"` rather than the number 146300000. To do arithmetic with it you would need to strip the `$`, convert `M` to a scale factor, and parse the result. This tutorial focuses on the two clean numeric columns and leaves `boxOffice` as a reminder that real datasets often mix numeric values with formatting characters.
-
-### Exercise 5
-
-Add a new chunk that splits the `genre` column so each row has exactly one genre, and stores the result as `movies_clean`. Add `#| cache: true` to this chunk. Also add these two lines to your `.gitignore`:
-
-```
-*_cache/
-/.quarto/
-```
-
-Render, then run:
+Replace the working chunk's code with code that splits the `genre` column so each row has exactly one genre, and stores the result as `movies_clean`. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -341,7 +258,7 @@ CP/CR.
 #| label: explore-5
 #| echo: false
 learnr2::question(
-  "*_cache/ /.quarto/ Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the working chunk's code with code that splits the genre column so each row has exactly one genre, and stores the result as movies_clean. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -354,17 +271,80 @@ learnr2::question(
 #| echo: true
 movies_clean <- movies |>
   separate_longer_delim(genre, delim = ", ")
-
-movies_clean
 ```
 
 ###
 
-`separate_longer_delim()` turns a cell like `"Comedy, Romance"` into two rows — one labeled `"Comedy"` and one labeled `"Romance"` — duplicating all other column values. The result has around 51,000 rows because many films carry two or three genre tags.
+A cell like `"Comedy, Romance"` becomes two rows, one labeled `"Comedy"` and one `"Romance"`, with every other column duplicated. `movies_clean` has 51,007 rows against the 29,783 films, because many films carry two or three genre tags.
 
-### Exercise 6
+### Exercise 3
 
-Add a new chunk that counts how many rows there are per genre after splitting, sorted from most to least common. Render, then run:
+Add `#| cache: true` to that chunk and render. The first render with caching takes a moment; later renders load `movies_clean` from disk.
+
+In the bash Terminal, run:
+
+```
+ls
+```
+
+CP/CR.
+
+```{r}
+#| label: explore-10
+#| echo: false
+learnr2::question(
+  "Add #| cache: true to that chunk and render. The first render with caching takes a moment; later renders load movies_clean from disk. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
+```
+
+###
+
+The genre labels are Rotten Tomatoes' own: 34 distinct tags after splitting, from Drama down to one-off tags like `News` and `Other` that appear on a single film.
+
+### Exercise 4
+
+Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+CP/CR.
+
+```{r}
+#| label: explore-11
+#| echo: false
+learnr2::question(
+  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to .gitignore drops it back. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+analysis_files
+analysis_cache
+```
+
+###
+
+Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-era films, not just recent releases, which is why the dataset reaches back to 1902. That single 1902 film aside, coverage runs continuously from 1914 to 2023.
+
+### Exercise 5
+
+Start a new working chunk that counts how many rows there are per genre in `movies_clean`, sorted from most to least common. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -376,7 +356,7 @@ CP/CR.
 #| label: explore-6
 #| echo: false
 learnr2::question(
-  "Add a new chunk that counts how many rows there are per genre after splitting, sorted from most to least common. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Start a new working chunk that counts how many rows there are per genre in movies_clean, sorted from most to least common. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -393,11 +373,11 @@ movies_clean |>
 
 ###
 
-Drama dominates with over 13,000 entries — nearly one in four genre tags after splitting. Action, Romance, and Adventure each have over 1,900 entries. Genres like Anime (136 entries) and Holiday (282 entries) are rare enough that summary statistics for them will be unreliable without filtering.
+Drama dominates with 13,273 rows — more than one in four genre tags after splitting. Genres like Anime (136 rows) and Holiday (282) are rare enough that their summary statistics will be unreliable without a minimum-count filter.
 
-### Exercise 7
+### Exercise 6
 
-Add a new chunk that computes the mean `audienceScore` and mean `tomatoMeter` across all films in `movies`. Render, then run:
+Replace the working chunk's code with code that computes the mean `audienceScore` and mean `tomatoMeter` across all films in `movies`. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -409,7 +389,7 @@ CP/CR.
 #| label: explore-7
 #| echo: false
 learnr2::question(
-  "Add a new chunk that computes the mean audienceScore and mean tomatoMeter across all films in movies. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the working chunk's code with code that computes the mean audienceScore and mean tomatoMeter across all films in movies. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -427,17 +407,17 @@ movies |>
 
 ###
 
-Critics score films slightly higher on average than audiences — 64.4 versus 62.3. This is a small overall difference, but it sets up the more interesting question of whether that gap is consistent across genres or whether it hides much larger disagreements once you break the data apart, which the next section explores.
+Critics score films slightly higher on average than audiences — 64.4 versus 62.3. Both averages sit above 60, the cutoff Rotten Tomatoes uses to call a film "Fresh."
 
-### Exercise 8
+### Exercise 7
 
-Add a new chunk that plots the distribution of `tomatoMeter` as a histogram. Label the x-axis "Tomatometer Score", the y-axis "Count", and give the plot a title. Render, then take a screenshot of the plot in your rendered page and paste it below.
+Replace the working chunk's code with a histogram of `tomatoMeter`. Label the x-axis "Tomatometer Score" and the y-axis "Count", give the plot a title, and put the number of films in the subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: explore-8
 #| echo: false
 learnr2::question(
-  "Add a new chunk that plots the distribution of tomatoMeter as a histogram. Label the x-axis \"Tomatometer Score\", the y-axis \"Count\", and give the plot a title. Render, then take a screenshot of the plot in your rendered page and paste it below.",
+  "Replace the working chunk's code with a histogram of tomatoMeter. Label the x-axis \"Tomatometer Score\" and the y-axis \"Count\", give the plot a title, and put the number of films in the subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -453,23 +433,30 @@ movies |>
   ggplot(aes(x = tomatoMeter)) +
   geom_histogram(binwidth = 5) +
   labs(title = "Distribution of Rotten Tomatoes Critic Scores",
+       subtitle = "29,783 films",
        x = "Tomatometer Score",
        y = "Count")
 ```
 
 ###
 
-Critic scores skew heavily toward the high end — counts rise steadily from low scores up through the 90s, with the highest concentration of films landing between 85 and 100. Films with a `tomatoMeter` of 60 or above earn a "Fresh" label on the site; those at 75 or above from a large enough critical consensus earn "Certified Fresh".
+Critic scores pile up at the high end, with the tallest bars between 80 and 100. But look at the far left: the bar at 0 holds 645 films, more than twice the bar beside it, which is not how a smooth distribution behaves.
 
-### Exercise 9
+### Exercise 8
 
-Commit your work with a message like "Add data exploration and tomatoMeter histogram". Copy-paste the output of `git log --oneline -3` into the answer box.
+Commit and push with a message like "Add data exploration and tomatoMeter histogram". In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
 
 ```{r}
 #| label: explore-9
 #| echo: false
 learnr2::question(
-  "Commit your work with a message like \"Add data exploration and tomatoMeter histogram\". Copy-paste the output of git log --oneline -3 into the answer box.",
+  "Commit and push with a message like \"Add data exploration and tomatoMeter histogram\". In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -477,15 +464,23 @@ learnr2::question(
 
 ###
 
-The skewed histogram is worth keeping in the rendered document — it shows that critics rate most films favorably overall, before you look at how that pattern reverses for specific genres.
+```
+9f3e2d1 Add data exploration and tomatoMeter histogram
+3f7a2c1 Initial project setup with movies data
+b81e94d Add analysis.qmd and .gitignore
+```
 
-## Critic vs. Audience Gap
+###
+
+About 63% of the films in the histogram — 18,654 of them — score 60 or above, so by Rotten Tomatoes' own label the typical film in this dataset is "Fresh."
+
+## Critic vs. audience gap
 
 The gap is `tomatoMeter - audienceScore`. A positive value means critics rated the movie higher than audiences; a negative value means audiences rated it higher.
 
 ### Exercise 1
 
-Add a new chunk to `analysis.qmd` that creates a `gap` column equal to `tomatoMeter - audienceScore` and stores the result as `movies_gap`. Make sure the `gap` column is visible in the output. Render, then run:
+Start a new working chunk that adds a `gap` column equal to `tomatoMeter - audienceScore` to `movies_clean` and stores the result as `movies_gap`. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -497,7 +492,7 @@ CP/CR.
 #| label: gap-1
 #| echo: false
 learnr2::question(
-  "Add a new chunk to analysis.qmd that creates a gap column equal to tomatoMeter - audienceScore and stores the result as movies_gap. Make sure the gap column is visible in the output. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Start a new working chunk that adds a gap column equal to tomatoMeter - audienceScore to movies_clean and stores the result as movies_gap. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -518,11 +513,11 @@ movies_gap |>
 
 ###
 
-The `gap` column measures the systematic difference between professional critics and general audiences for each film. A large positive gap suggests a film rewards the formal craftsmanship and thematic ambition that critics prize. A large negative gap suggests a film delivers genre entertainment that audiences value but critics tend to dismiss. Note that films appear more than once in this tibble because `movies_clean` has one row per genre — a film with three genres will appear three times with the same `gap` value.
+The `gap` column measures the difference between professional critics and general audiences for each film. Films appear more than once in this tibble because `movies_clean` has one row per genre — a film with three genres will appear three times with the same `gap` value.
 
 ### Exercise 2
 
-Add a new chunk that shows the 8 films with the largest positive gaps — the films critics love most relative to audiences. Note that because `movies_clean` has one row per genre, some films appear more than once — make sure each film only appears once in your results. Render, then run:
+Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because `movies_clean` has one row per genre, make sure each film appears only once. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -534,7 +529,7 @@ CP/CR.
 #| label: gap-2
 #| echo: false
 learnr2::question(
-  "Add a new chunk that shows the 8 films with the largest positive gaps — the films critics love most relative to audiences. Note that because movies_clean has one row per genre, some films appear more than once — make sure each film only appears once in your results. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because movies_clean has one row per genre, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -554,15 +549,11 @@ movies_gap |>
 
 ###
 
-The top critic-favored films tend to be obscure documentaries and foreign-language art films with near-perfect critic scores but virtually no audience engagement — many have an `audienceScore` of 0, meaning no verified ticket-buyers rated them at all on Fandango.
+The top critic-favored films are obscure documentaries and foreign-language art films with near-perfect critic scores but virtually no audience engagement. Four of the eight have an `audienceScore` of exactly 0 — the same 0 that made the leftmost bar of the histogram stand out.
 
 ### Exercise 3
 
-Update your working chunk to compute the average gap for each genre. Split the `genre` column so each row has one genre, group by `genre`, and compute the mean gap and movie count. Keep only genres with at least 50 movies and sort from most audience-favored to most critic-favored. Assign the result to `gap_by_genre` and print it. Render.
-
-<!-- VK: gap_by_genre should be defined before the plot chunk but the tutorial uses one evolving chunk. Got an "object not found" error. Can instead split into two chunks. -->
-
-In the R Terminal, run:
+Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -574,7 +565,7 @@ CP/CR.
 #| label: gap-3
 #| echo: false
 learnr2::question(
-  "<!-- VK: gap_by_genre should be defined before the plot chunk but the tutorial uses one evolving chunk. Got an \"object not found\" error. Can instead split into two chunks. --> In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -594,11 +585,11 @@ movies_gap |>
 
 ###
 
-The most audience-favored films score 0 on `tomatoMeter` while earning 97–100 on `audienceScore` — a gap of nearly 100 points. These tend to be niche films with passionate fan bases but little critical attention, or faith-based films that resonate deeply with their target audience while receiving no mainstream critical coverage.
+Every one of the most audience-favored films has a `tomatoMeter` of 0, so a gap of −100 says nothing about disagreement: it is a film no critic scored, set against an audience score of 92 or more. Both top-8 lists are built out of those zeros.
 
 ### Exercise 4
 
-Add a new chunk that summarizes the distribution of `gap` across all films — compute the mean, median, and standard deviation. Render, then run:
+Below the `movies_gap` assignment, replace the top-8 list with a count of how many films in `movies` have a `tomatoMeter` of exactly 0 and how many have an `audienceScore` of exactly 0. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -607,10 +598,10 @@ show_file("analysis.qmd", chunk = "Last")
 CP/CR.
 
 ```{r}
-#| label: gap-4
+#| label: gap-8
 #| echo: false
 learnr2::question(
-  "Add a new chunk that summarizes the distribution of gap across all films — compute the mean, median, and standard deviation. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Below the movies_gap assignment, replace the top-8 list with a count of how many films in movies have a tomatoMeter of exactly 0 and how many have an audienceScore of exactly 0. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -619,21 +610,20 @@ learnr2::question(
 ###
 
 ```{r}
-#| label: gap-4-answer
+#| label: gap-8-answer
 #| echo: true
-movies_gap |>
-  summarize(mean_gap   = mean(gap),
-            median_gap = median(gap),
-            sd_gap     = sd(gap))
+movies |>
+  summarize(critic_zero   = sum(tomatoMeter == 0),
+            audience_zero = sum(audienceScore == 0))
 ```
 
 ###
 
-The mean gap is 1.5 and the median is 3, meaning critics rate the typical film slightly higher than audiences overall. But the standard deviation is roughly 23 points — showing that the two groups diverge dramatically on many individual titles. The overall average masks the genre-level pattern that drives the real story.
+A 0 is not 628 films that every critic hated: Rotten Tomatoes publishes no score until a film has enough reviews, and this file records that absence as 0. The missingness check at the start found nothing because these missing values are disguised as numbers.
 
 ### Exercise 5
 
-Add a new chunk that groups `movies_gap` by genre and computes the mean gap for each genre, without any filter. Arrange by mean gap. Render, then run:
+Change the `movies_gap` definition so it drops every row whose `tomatoMeter` or `audienceScore` is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -645,7 +635,7 @@ CP/CR.
 #| label: gap-5
 #| echo: false
 learnr2::question(
-  "Add a new chunk that groups movies_gap by genre and computes the mean gap for each genre, without any filter. Arrange by mean gap. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Change the movies_gap definition so it drops every row whose tomatoMeter or audienceScore is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -656,8 +646,12 @@ learnr2::question(
 ```{r}
 #| label: gap-5-answer
 #| echo: true
+movies_gap <- movies_clean |>
+  filter(tomatoMeter > 0, audienceScore > 0) |>
+  mutate(gap = tomatoMeter - audienceScore)
+
 movies_gap |>
-summarize(mean_gap = mean(gap, na.rm = TRUE),
+  summarize(mean_gap = mean(gap),
             n = n(),
             .by = genre) |>
   arrange(mean_gap)
@@ -665,11 +659,11 @@ summarize(mean_gap = mean(gap, na.rm = TRUE),
 
 ###
 
-With no filter, the genres with the most extreme mean gaps are often rare categories with very few films. A genre represented by one or two films can produce a dramatic-looking mean driven entirely by those specific titles rather than any general pattern. Genres with fewer than 100 entries should be treated as unreliable before drawing conclusions.
+Dropping the zeros removes 661 films, and the gap across the remaining rows still has a standard deviation of about 22 points, so critics and audiences diverge sharply on many individual titles. The genres at both extremes of this table have only one or two rows each, far too few to trust.
 
 ### Exercise 6
 
-Update that same chunk to filter to genres with at least 100 films and store the result as `movies_summary`. Render, then run:
+Keep only genres with at least 100 rows and store the result as `movies_summary`. Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd", chunk = "Last")
@@ -681,7 +675,7 @@ CP/CR.
 #| label: gap-6
 #| echo: false
 learnr2::question(
-  "Update that same chunk to filter to genres with at least 100 films and store the result as movies_summary. Render, then run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Keep only genres with at least 100 rows and store the result as movies_summary. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -693,7 +687,7 @@ learnr2::question(
 #| label: gap-6-answer
 #| echo: true
 movies_summary <- movies_gap |>
-  summarize(mean_gap = mean(gap, na.rm = TRUE),
+  summarize(mean_gap = mean(gap),
             n = n(),
             .by = genre) |>
   filter(n >= 100) |>
@@ -704,17 +698,17 @@ movies_summary
 
 ###
 
-After filtering, 22 genres remain — enough to see a clear pattern. Action and Kids & family sit at the audience-favored end with mean gaps below -4, while Horror and Documentary sit at the critic-favored end with mean gaps above 7. The middle is occupied by Comedy, History, and Musical, where critics and audiences agree most closely.
+After filtering, 22 genres remain — enough to see a clear pattern. Action and Kids & family sit at the audience-favored end with mean gaps below −3.8, while Documentary and Horror sit at the critic-favored end with mean gaps above 8.
 
 ### Exercise 7
 
-Add a new chunk that plots `movies_summary` as a horizontal bar chart showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.
+Add a horizontal bar chart of `movies_summary` showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: gap-7
 #| echo: false
 learnr2::question(
-  "Add a new chunk that plots movies_summary as a horizontal bar chart showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
+  "Add a horizontal bar chart of movies_summary showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -739,15 +733,179 @@ movies_summary |>
 
 ###
 
-Horror and Documentary rank at the top — critics consistently value them above audience scores. Action and Kids & family rank at the bottom — audiences consistently rate them above critics. This critic-audience divergence by genre is a well-documented pattern: critics reward novelty and formal technique, while audiences reward entertainment value and genre execution.
+Horror and Documentary rank at the top — critics consistently value them above audiences — while Action and Kids & family rank at the bottom. Comedy, the second most common genre, sits almost exactly at zero (−0.04): on the genre with the most films after Drama, critics and audiences agree.
 
-## Summary
+## Spider-Man
 
-In this tutorial you used AI to analyze a Rotten Tomatoes dataset. You downloaded a CSV, cleaned the genre column, built a histogram of critic scores, computed the critic-audience gap by genre, and published a bar chart showing how that gap varies across genres.
+Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Garfield, and Tom Holland, across three different studios and eight films. Fans argue endlessly about who did it best — but "best" usually means one of two very different things: what critics thought, or what audiences thought. All eight films are in `movies`, so the gap you just measured by genre can settle whether critics and audiences agree on who the best Spider-Man is.
+
+<div style="display: flex; justify-content: center;">
+  <img src="images/spiderman.jpg" style="height: 300px; width: auto;"/>
+</div>
 
 ### Exercise 1
 
-In the R Terminal, run:
+Start a new working chunk that filters `movies` to the eight live-action Spider-Man films — *Spider-Man*, *Spider-Man 2*, *Spider-Man 3*, *The Amazing Spider-Man*, *The Amazing Spider-Man 2*, *Spider-Man: Homecoming*, *Spider-Man: Far From Home*, and *Spider-Man: No Way Home* — and adds an `actor` column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two *Amazing* films, and Tom Holland for the three with a colon in the title. Store the result as `spiderman`, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: spider-man-1
+#| echo: false
+learnr2::question(
+  "Start a new working chunk that filters movies to the eight live-action Spider-Man films — Spider-Man, Spider-Man 2, Spider-Man 3, The Amazing Spider-Man, The Amazing Spider-Man 2, Spider-Man: Homecoming, Spider-Man: Far From Home, and Spider-Man: No Way Home — and adds an actor column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two Amazing films, and Tom Holland for the three with a colon in the title. Store the result as spiderman, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: spider-man-1-answer
+#| echo: true
+spiderman <- movies |>
+  filter(title %in% c("Spider-Man", "Spider-Man 2", "Spider-Man 3",
+                      "The Amazing Spider-Man", "The Amazing Spider-Man 2",
+                      "Spider-Man: Homecoming", "Spider-Man: Far From Home",
+                      "Spider-Man: No Way Home")) |>
+  mutate(actor = case_when(
+    str_starts(title, "The Amazing") ~ "Andrew Garfield",
+    str_detect(title, ":") ~ "Tom Holland",
+    .default = "Tobey Maguire")) |>
+  arrange(releaseDateTheaters)
+
+spiderman |>
+  select(title, releaseDateTheaters, actor, tomatoMeter, audienceScore)
+```
+
+###
+
+Three films star Tobey Maguire (2002–2007, directed by Sam Raimi), two star Andrew Garfield (2012–2014, Marc Webb), and three star Tom Holland (2017–2021, Jon Watts, inside the Marvel Cinematic Universe). The animated *Spider-Man: Into the Spider-Verse* is also in `movies`, but it has no live-action lead, which is why it is left out.
+
+### Exercise 2
+
+Replace the table with one showing each film's gap — `tomatoMeter` minus `audienceScore` — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: spider-man-2
+#| echo: false
+learnr2::question(
+  "Replace the table with one showing each film's gap — tomatoMeter minus audienceScore — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: spider-man-2-answer
+#| echo: true
+spiderman |>
+  mutate(gap = tomatoMeter - audienceScore) |>
+  select(title, actor, gap) |>
+  arrange(desc(gap))
+```
+
+###
+
+The original 2002 *Spider-Man* has the largest gap of the eight: critics scored it 23 points higher than audiences did. All three Maguire films sit on the critic side of zero, both Garfield films on the audience side, and the Holland films come closest to agreement, never more than 5 points apart.
+
+### Exercise 3
+
+Replace the table with a line chart of `tomatoMeter` and `audienceScore` across the eight films in release order, both lines on one plot with a legend telling them apart and a title that states the finding. Render, then take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: spider-man-3
+#| echo: false
+learnr2::question(
+  "Replace the table with a line chart of tomatoMeter and audienceScore across the eight films in release order, both lines on one plot with a legend telling them apart and a title that states the finding. Render, then take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: spider-man-3-answer
+#| echo: true
+spiderman |>
+  mutate(title = fct_inorder(title)) |>
+  pivot_longer(cols = c(tomatoMeter, audienceScore),
+               names_to = "source", values_to = "score") |>
+  mutate(source = if_else(source == "tomatoMeter", "Critics", "Audiences")) |>
+  ggplot(aes(x = title, y = score, color = source, group = source)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = "Tom Holland's Spider-Man films score highest with critics and audiences alike",
+       subtitle = "Rotten Tomatoes scores for the eight live-action films, in release order",
+       x = NULL,
+       y = "Score",
+       color = NULL,
+       caption = "Source: Rotten Tomatoes") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
+```
+
+###
+
+Averaged by actor, Holland's films score highest with both critics (91.7) and audiences (93.3), while Maguire's average 82.0 with critics but only 66.7 with audiences — critics liked his films far more than audiences did. Both lines dip together at each franchise's weakest entry, *Spider-Man 3* and *The Amazing Spider-Man 2*, so the two groups agree on which films are worst even when they disagree on the scores.
+
+### Exercise 4
+
+Commit and push with the message "Add Spider-Man comparison". In the bash Terminal, run:
+
+```
+git log -1
+```
+
+CP/CR.
+
+```{r}
+#| label: spider-man-4
+#| echo: false
+learnr2::question(
+  "Commit and push with the message \"Add Spider-Man comparison\". In the bash Terminal, run git log -1. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+commit 4b7e2a9c1d3f58e0b6a27c94d1e8f3a5b0c7d2e6 (HEAD -> main, origin/main)
+Author: Your Name <your-username@users.noreply.github.com>
+Date:   Sat Aug 15 09:12:04 2026 +0000
+
+    Add Spider-Man comparison
+```
+
+###
+
+The eight films span May 2002 to December 2021, with a five-year gap between the Maguire and Garfield eras and a three-year gap between Garfield and Holland. *No Way Home* is also the biggest earner of the eight in `movies`, at $814.1M — more than double any other Spider-Man film.
+
+## Summary
+
+In this tutorial you used AI to analyze a Rotten Tomatoes dataset stored as a CSV. You read the file and split the genre column, found the 628 zero scores that stand in for missing reviews, measured the critic-audience gap by genre, compared the three Spider-Man actors, and published the result.
+
+### Exercise 1
+
+Render. In the R Terminal, run:
 
 ```
 show_file("analysis.qmd")
@@ -759,7 +917,7 @@ CP/CR.
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -779,6 +937,7 @@ execute:
 ---
 
 ```{r}
+#| message: false
 library(tidyverse)
 
 movies <- read_csv("data/movies.csv", show_col_types = FALSE)
@@ -791,24 +950,25 @@ movies_clean <- movies |>
 ```
 
 ```{r}
-movies_gap <- movies_clean |>
-  mutate(gap = tomatoMeter - audienceScore)
-
-movies_summary <- movies_gap |>
-  summarize(mean_gap = mean(gap, na.rm = TRUE), n = n(), .by = genre) |>
-  filter(n >= 100) |>
-  arrange(mean_gap)
-```
-
-```{r}
 movies |>
   ggplot(aes(x = tomatoMeter)) +
   geom_histogram(binwidth = 5) +
   labs(title = "Distribution of Rotten Tomatoes Critic Scores",
-       x = "Tomatometer Score", y = "Count")
+       subtitle = "29,783 films",
+       x = "Tomatometer Score",
+       y = "Count")
 ```
 
 ```{r}
+movies_gap <- movies_clean |>
+  filter(tomatoMeter > 0, audienceScore > 0) |>
+  mutate(gap = tomatoMeter - audienceScore)
+
+movies_summary <- movies_gap |>
+  summarize(mean_gap = mean(gap), n = n(), .by = genre) |>
+  filter(n >= 100) |>
+  arrange(mean_gap)
+
 movies_summary |>
   ggplot(aes(x = mean_gap, y = fct_reorder(genre, mean_gap))) +
   geom_col() +
@@ -817,11 +977,44 @@ movies_summary |>
        subtitle = "Positive = critics rate higher; Negative = audiences rate higher",
        x = "Mean Gap (Tomatometer - Audience Score)", y = "Genre")
 ```
+
+```{r}
+spiderman <- movies |>
+  filter(title %in% c("Spider-Man", "Spider-Man 2", "Spider-Man 3",
+                      "The Amazing Spider-Man", "The Amazing Spider-Man 2",
+                      "Spider-Man: Homecoming", "Spider-Man: Far From Home",
+                      "Spider-Man: No Way Home")) |>
+  mutate(actor = case_when(
+    str_starts(title, "The Amazing") ~ "Andrew Garfield",
+    str_detect(title, ":") ~ "Tom Holland",
+    .default = "Tobey Maguire")) |>
+  arrange(releaseDateTheaters)
+
+spiderman |>
+  mutate(title = fct_inorder(title)) |>
+  pivot_longer(cols = c(tomatoMeter, audienceScore),
+               names_to = "source", values_to = "score") |>
+  mutate(source = if_else(source == "tomatoMeter", "Critics", "Audiences")) |>
+  ggplot(aes(x = title, y = score, color = source, group = source)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  labs(title = "Tom Holland's Spider-Man films score highest with critics and audiences alike",
+       subtitle = "Rotten Tomatoes scores for the eight live-action films, in release order",
+       x = NULL, y = "Score", color = NULL,
+       caption = "Source: Rotten Tomatoes") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = "bottom")
+```
 ````
+
+###
+
+Every chunk on the page draws on the same 29,783 films: the histogram uses all of them, the genre chart the 29,122 that have a real score on both measures, and the Spider-Man chart just eight.
 
 ### Exercise 2
 
-Publish your analysis to GitHub Pages. In a bash Terminal, run:
+Publish your analysis to GitHub Pages. In the bash Terminal, run:
 
 ```
 quarto publish gh-pages analysis.qmd
@@ -833,7 +1026,7 @@ Copy/paste the resulting URL below.
 #| label: summary-2
 #| echo: false
 learnr2::question(
-  "Copy/paste the resulting URL below.",
+  "Publish your analysis to GitHub Pages. In the bash Terminal, run quarto publish gh-pages analysis.qmd. Copy/paste the resulting URL below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -841,17 +1034,40 @@ learnr2::question(
 
 ###
 
-Your answer should be the public `https://...` URL created by `quarto publish gh-pages`.
+```
+? Publish site to https://your-username.github.io/movies/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
+...
+Output created: analysis.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/movies.git
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/movies/
+```
+
+Your answer is the last line's URL:
+
+```
+https://your-username.github.io/movies/
+```
+
+###
+
+Of the 22 genres in your published bar chart, 13 have a positive mean gap (critics rate them higher) and 9 a negative one (audiences rate them higher), and the critic-favored side stretches further — Horror's 9.7 against Action's −4.1.
 
 ### Exercise 3
 
-Commit and push your final work. Copy/paste the URL to your GitHub repo.
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
 ```{r}
 #| label: summary-3
 #| echo: false
 learnr2::question(
-  "Commit and push your final work. Copy/paste the URL to your GitHub repo.",
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
   type = "reflection",
   show_text = FALSE
 )
@@ -859,7 +1075,13 @@ learnr2::question(
 
 ###
 
-Your repo holds the source that reproduces the published page. The published URL shows the result; the repo shows how it was made.
+```
+https://github.com/your-username/movies
+```
+
+###
+
+Your published page holds three charts built from one CSV: a histogram of every critic score, the mean critic-audience gap for the 22 genres with at least 100 rows, and the critic and audience lines for the eight Spider-Man films.
 
 ## Download answers
 

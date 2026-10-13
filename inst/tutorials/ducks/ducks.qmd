@@ -2,14 +2,14 @@
 title: Ducks
 author: Var Kurapati
 description: 'Students use GPS tracking data from 52 Mallard ducks fitted with GPS
-  collars at Lake Constance, Germany to explore movement patterns, seasonal activity,
-  and individual variation. Final artifact is a multi-page Quarto website with a
-  map, seasonal analysis, and written interpretation.'
+  collars at Lake Constance, Germany to build a multi-page Quarto website: a map of
+  where the ducks go, a seasonal analysis of when they move, and a home page that
+  introduces both.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 9
+  ordering: 13
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -19,9 +19,8 @@ learnr2:
 #| include: false
 library(tidyverse)
 library(sf)
-library(maps)
+library(rnaturalearth)
 library(ggridges)
-
 
 mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
@@ -50,7 +49,7 @@ learnr2::student_info()
 
 ## Introduction
 
-Mallards (*Anas platyrhynchos*) are the most familiar duck in the world — the green-headed bird you've seen in every park pond. But most people don't know how far they actually travel, or how differently individual ducks behave. This tutorial uses GPS tracking data from 52 Mallards fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, to explore where they go, when they move most, and how much individuals differ.
+In this tutorial you will build a small **website** about the movements of Mallard ducks. You will use AI to do the analysis and GPS tracking data from 52 Mallards (*Anas platyrhynchos*) fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, as your data source. Your job is to steer the analysis, render often, inspect the output, and write the words that turn a map and a chart into a site worth reading.
 
 <div style="display: flex; justify-content: center; gap: 20px; align-items: flex-start;">
   <img src="images/mallard.jpg" style="height: 300px; width: auto;"/>
@@ -61,31 +60,37 @@ Pictured above: a male and female Mallard (left) and Lake Constance (Bodensee), 
 
 The data comes from a published study by Korner, Sauter, Fiedler, and Jenni (2016) — ["Variable allocation of activity to daylight and night in the mallard"](https://doi.org/10.1016/j.anbehav.2016.02.026) — and is freely available through [Movebank](https://movebank.org/), the world's largest archive of animal tracking data. The dataset is licensed under Creative Commons Attribution (CC BY).
 
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind. You may also use a chat-based AI, but you will need to copy/paste code and data context manually.
+###
+
+Use AI however you like.
 
 ### Exercise 1
 
 You should be doing this tutorial in a repo named `ducks`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
-Create a new file, `analysis.qmd`, with the title `"Mallard Duck Movement"` and your name as the author. In a bash Terminal, render it:
+In this repo, create a new Quarto **website** project, as you did in the Websites tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Mallard Duck Movement"`. Quarto also creates an `about.qmd` page and a `styles.css` file: delete both, and remove the lines that mention them from `_quarto.yml`, so the site starts with just the home page.
+
+In a bash Terminal, render the whole site:
 
 ```
-quarto render analysis.qmd
+quarto render
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+Quarto builds the site into a `_site` directory. Open `_site/index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes every time you render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-This tutorial builds a website, so Quarto will generate a lot of files you do not want in your repo: the built HTML pages, their supporting `_files` folders, the `_site` output directory, Quarto's `.quarto` working directory, and (later) render caches. Create a `.gitignore` that ignores all of them:
+Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+/_site/
+/.quarto/
+/*_files/
 ```
 
-Commit and push.
+Commit and push. Use the commit message:
+
+```
+Create ducks website
+```
 
 In the R Terminal, run:
 
@@ -101,7 +106,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named ducks. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Mallard Duck Movement\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create ducks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -110,20 +115,19 @@ learnr2::question(
 ###
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+/.quarto/
+**/*.quarto_ipynb
+/_site/
+/*_files/
 ```
 
 ###
 
-This tutorial builds a website rather than a single page. The final product will have three pages: an introduction page (`analysis.qmd`), a map page (`map.qmd`), and a seasonal analysis page (`seasons.qmd`). A `_quarto.yml` file will tie them together into a navigable site. You will create these files one at a time as the tutorial progresses.
+The site so far is one page, `index.qmd`, built into `_site/`. A map page and a seasons page will join it, and because a Quarto website's navigation lives in `_quarto.yml` rather than in the pages, adding each one means editing two files.
 
 ### Exercise 2
 
-In your `analysis.qmd`, add a new code chunk with `library(tidyverse)` and `library(sf)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
+Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
 
 ```
 execute:
@@ -133,7 +137,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```
-show_file("analysis.qmd", chunk = "Last")
+show_file("_quarto.yml")
 ```
 
 CP/CR.
@@ -142,7 +146,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Tell Quarto to hide code across the whole site. In _quarto.yml, add execute: echo: false. Render. In the R Terminal, run show_file(\"_quarto.yml\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -151,18 +155,30 @@ learnr2::question(
 ###
 
 ```
-#| message: false
-library(tidyverse)
-library(sf)
+project:
+  type: website
+
+website:
+  title: "Mallard Duck Movement"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    toc: true
+
+execute:
+  echo: false
 ```
 
 ###
 
-There are five main approaches to making maps in R: the **[maps](https://cran.r-project.org/package=maps)** package (simple outlines, limited features), **[ggmap](https://github.com/dkahle/ggmap)** (Google/Stamen tile backgrounds), **[leaflet](https://rstudio.github.io/leaflet/)** (interactive web maps), **[tmap](https://r-tmap.github.io/tmap/)** (thematic maps with a grammar similar to ggplot2), and **[sf](https://r-spatial.github.io/sf/)** (the modern standard for spatial data in R). We use **sf** because it integrates seamlessly with the **tidyverse** — you can pipe sf objects into `ggplot2` using `geom_sf()`, filter and mutate them with **dplyr**, and read standard GIS formats like shapefiles and GeoJSON. It is the package most professional spatial analysts use today.
-
-###
-
-`lubridate` is already loaded as part of `library(tidyverse)` so there is no need to load it separately. Any time you call `library(tidyverse)`, you get `lubridate`, `ggplot2`, `dplyr`, `tidyr`, `readr`, and several other packages all at once.
+Setting `echo: false` once in `_quarto.yml` applies it to every page of the site, so you never repeat it in a page's own header.
 
 ### Exercise 3
 
@@ -183,8 +199,12 @@ learnr2::question(
 ###
 
 ```
-data  analysis.html  analysis.qmd  *_files
+AGENTS.md  data  index.qmd  _quarto.yml  _site
 ```
+
+###
+
+The one file that will go in `data` holds 83,279 GPS fixes from 52 ducks tracked between 2007 and 2017, every one of them tagged at Lake Constance.
 
 ## Where do they go?
 
@@ -210,7 +230,7 @@ CP/CR.
 #| label: where-do-they-go-1
 #| echo: false
 learnr2::question(
-  "In the bash Terminal, run: ls data CP/CR.",
+  "Download the mallard tracking data from https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/ducks/data/mallards.csv and save it in your data/ directory. In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -228,15 +248,19 @@ The original Movebank download contained 748,082 rows mixing GPS fixes and accel
 
 ### Exercise 2
 
-Create a new code chunk in `analysis.qmd` that reads `data/mallards.csv` and prints the first 10 rows. Render.
+Create a new page in your website named `map.qmd`, giving it the title `"Map"`, and add it to the site navigation in `_quarto.yml` so it appears in the navbar with the same label.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+At the top of `map.qmd`, add a code chunk that loads `library(tidyverse)`, `library(sf)`, and `library(rnaturalearth)`, with `#| message: false` so startup messages stay out of the page. Keep the `library()` lines in a chunk of their own, and add a second chunk below it that reads `data/mallards.csv` and prints the first 10 rows.
+
+Render. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
 #| label: where-do-they-go-2
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse), library(sf), and library(rnaturalearth), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/mallards.csv and prints the first 10 rows. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -251,25 +275,21 @@ read_csv("data/mallards.csv", show_col_types = FALSE) |>
   head(10)
 ```
 
-
-###
-Your code may look different from ours — what matters is that the first 10 rows of the output match.
-
 ###
 
-Each row is one **GPS fix** — a single location recorded by one duck at one moment in time. GPS collars record a fix every few hours: the collar computes its position by triangulating signals from satellites overhead, then stores the latitude, longitude, timestamp, and movement metrics. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
+Each row is one **GPS fix** — a single location recorded by one duck at one moment in time. The `duck_id` column uses the tag identifier from the original study, combining a numeric code with the tagging location.
 
 ### Exercise 3
 
 Count GPS fixes per duck, sorted from most to least. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-3
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count GPS fixes per duck, sorted from most to least. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -286,19 +306,19 @@ read_csv("data/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-Duck `2351` has over 20,000 fixes — the most of any individual, tracked continuously for several years. Several ducks have fewer than 100 records, suggesting their collars failed early or the birds died. Uneven record counts across individuals are typical of wildlife tracking studies: not every collar lasts the full study period, and ducks with more fixes will show more complete movement pictures than those with few.
+Duck `2351` has over 20,000 fixes — the most of any individual, tracked continuously for several years. Fourteen ducks have fewer than 100 fixes, suggesting their collars failed early or the birds died.
 
 ### Exercise 4
 
 Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-4
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -320,7 +340,7 @@ read_csv("data/mallards.csv", show_col_types = FALSE) |>
 
 ###
 
-Latitudes range from 47.3°N to 53.9°N — roughly from Lake Constance in southern Germany up to the Netherlands or northern Germany. Longitudes span from 7.8°E to 23.6°E, reaching as far east as Poland or Hungary. These are large movements for a bird most people associate with park ponds. Lake Constance sits at the southwestern corner of this range, so some ducks are traveling 500 km or more from their starting point.
+Latitudes range from 47.3°N to 53.9°N and longitudes from 7.8°E to 23.6°E — roughly from Lake Constance in southern Germany up to northern Germany, and as far east as Poland or Hungary. Lake Constance sits at the southwestern corner of this range, so some ducks are traveling 500 km or more from their starting point.
 
 Below: the full region the ducks travel through (left) and a detailed view of Lake Constance itself, where all 52 ducks in this study were originally tagged (right).
 
@@ -331,17 +351,15 @@ Below: the full region the ducks travel through (left) and a detailed view of La
 
 ### Exercise 5
 
-Read `data/mallards.csv`, parse the timestamp, and add `month`, `month_num`, `year`, and `season` columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make `season` an ordered factor. Assign the result to `mallards` and print it. Render.
+Read `data/mallards.csv`, parse the timestamp, and add `month`, `month_num`, `year`, and `season` columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make `season` a factor whose levels run in calendar order. Assign the result to `mallards` and print it. Render.
 
-Feel free to copy and paste our code below directly into your QMD as a starting point.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-5
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Read data/mallards.csv, parse the timestamp, and add month, month_num, year, and season columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make season a factor whose levels run in calendar order. Assign the result to mallards and print it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -372,17 +390,19 @@ mallards
 
 ###
 
-The `season` column is an ordered factor so plots display seasons in natural calendar order rather than alphabetically. Without the explicit `levels` argument, R would sort them as Autumn, Spring, Summer, Winter — meaningless for a seasonal analysis. The dataset has `r nrow(mallards)` GPS fixes across 52 individual ducks tracked from 2007 to 2017.
+The `season` column is a factor so plots display seasons in calendar order rather than alphabetically. The dataset has `r nrow(mallards)` GPS fixes across 52 individual ducks tracked from 2007 to 2017.
 
 ### Exercise 6
 
-Now that `mallards` is built, save it to disk so that `map.qmd` and `seasons.qmd` can read it without duplicating the data pipeline. Create a new R script called `mallards.R` in your repo. In it, write the pipeline from Exercise 5 and save the result with `saveRDS(mallards, "data/mallards.rds")`. Run the script in a bash Terminal with `Rscript mallards.R`. In the R Terminal, run `show_file("mallards.R")`. CP/CR.
+Before caching anything, clean up the chunk. Delete the line that prints `mallards`, so the chunk holds only the pipeline, and add one line at the end that saves `mallards` to `data/mallards.rds` — the seasons page will read that file instead of repeating the pipeline. Render.
+
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
 
 ```{r}
-#| label: where-do-they-go-6
+#| label: where-do-they-go-12
 #| echo: false
 learnr2::question(
-  "Now that mallards is built, save it to disk so that map.qmd and seasons.qmd can read it without duplicating the data pipeline. Create a new R script called mallards.R in your repo. In it, write the pipeline from Exercise 5 and save the result with saveRDS(mallards, \"data/mallards.rds\"). Run the script in a bash Terminal with Rscript mallards.R. In the R Terminal, run show_file(\"mallards.R\"). CP/CR.",
+  "Before caching anything, clean up the chunk. Delete the line that prints mallards, so the chunk holds only the pipeline, and add one line at the end that saves mallards to data/mallards.rds. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -391,9 +411,8 @@ learnr2::question(
 ###
 
 ```
-library(tidyverse)
-
-mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
+mallards <- read_csv("data/mallards.csv",
+                     show_col_types = FALSE) |>
   mutate(
     timestamp = ymd_hms(timestamp),
     month     = month(timestamp, label = TRUE, abbr = TRUE),
@@ -408,22 +427,26 @@ mallards <- read_csv("data/mallards.csv", show_col_types = FALSE) |>
     season = factor(season, levels = c("Spring", "Summer", "Autumn", "Winter"))
   )
 
-saveRDS(mallards, "data/mallards.rds")
+write_rds(mallards, "data/mallards.rds")
 ```
 
 ###
 
-**RDS** is R's native binary format for saving any R object to disk and reloading it exactly — the same data type, factor levels, and column types come back without any re-parsing. Every `.qmd` page in your website can call `readRDS("data/mallards.rds")` to get the cleaned tibble in one line, rather than each page re-running the full CSV pipeline. This is a standard pattern for Quarto websites: one script prepares the data once, and the pages consume the result.
+**RDS** is R's native format for saving one R object exactly as it is, so `mallards` comes back with its parsed timestamps and its season factor intact; the CSV would have to be re-parsed and re-cleaned every time.
 
 ### Exercise 7
 
-Add `data/mallards.rds` to your `.gitignore` — generated files that can be rebuilt from source should not go to GitHub. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `mallards` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `map_cache/` directory next to `map.qmd`.
+
+To confirm the directory is there, in the bash Terminal, run `ls`.
+
+CP/CR.
 
 ```{r}
-#| label: where-do-they-go-7
+#| label: where-do-they-go-13
 #| echo: false
 learnr2::question(
-  "Add data/mallards.rds to your .gitignore — generated files that can be rebuilt from source should not go to GitHub. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  "Now cache the data chunk. Add #| cache: true as the first line inside the mallards chunk. Render. To confirm the map_cache/ directory is there, in the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -432,72 +455,56 @@ learnr2::question(
 ###
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+AGENTS.md  data  index.qmd  map_cache  map_files  map.qmd  _quarto.yml  _site
+```
+
+###
+
+`ls data` would now show `mallards.rds` beside `mallards.csv`: the first cached render wrote it, and it holds the same 83,279 fixes with the timestamp already parsed and the season column already built.
+
+### Exercise 8
+
+The Source Control change count just jumped, because `map_cache/` and `data/mallards.rds` now look like untracked work to git. Both are regenerated by a render, so neither belongs on GitHub.
+
+Add two lines to your `.gitignore`:
+
+```
+/*_cache/
+data/mallards.rds
+```
+
+In the R Terminal, run `show_file(".gitignore")`.
+
+CP/CR.
+
+```{r}
+#| label: where-do-they-go-14
+#| echo: false
+learnr2::question(
+  "Add two lines to your .gitignore: /*_cache/ and data/mallards.rds. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+/.quarto/
+**/*.quarto_ipynb
+/_site/
+/*_files/
+/*_cache/
 data/mallards.rds
 ```
 
 ###
 
-The `.rds` file is regenerated by running `mallards.R`, so committing it to GitHub would just add binary noise that changes every time the script runs. The source that matters — `mallards.R` and `mallards.csv` — is already tracked. Anyone who clones the repo can recreate `mallards.rds` by running the script themselves.
-
-### Exercise 8
-
-In `analysis.qmd`, update the `mallards` chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: `mallards <- readRDS("data/mallards.rds")`. Add `#| cache: true`. Render. In the bash Terminal, run `ls data`.
-
-CP/CR.
-
-```{r}
-#| label: where-do-they-go-8
-#| echo: false
-learnr2::question(
-  "In analysis.qmd, update the mallards chunk to load the RDS file instead of re-running the pipeline. Replace the current chunk contents with a single line: mallards <- readRDS(\"data/mallards.rds\"). Add #| cache: true. Render. In the bash Terminal, run ls data. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```
-mallards.csv  mallards.rds
-```
-
-###
-
-`readRDS()` loads the binary file in milliseconds — far faster than re-parsing a CSV and re-running `mutate()` calls. Caching it goes one step further: on the second and subsequent renders, even the `readRDS()` call is skipped and the tibble is loaded directly from the render cache.
+`data/mallards.csv` stays unignored: it is the source the whole site rebuilds from, and the next commit puts it on GitHub.
 
 ### Exercise 9
 
-Create a new file `map.qmd` in your repo. Add the same YAML header and library chunk as `analysis.qmd`. Add a data chunk that reads `mallards <- readRDS("data/mallards.rds")` with `#| cache: true`. Render `map.qmd`. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
-
-```{r}
-#| label: where-do-they-go-9
-#| echo: false
-learnr2::question(
-  "Create a new file map.qmd in your repo. Add the same YAML header and library chunk as analysis.qmd. Add a data chunk that reads mallards <- readRDS(\"data/mallards.rds\") with #| cache: true. Render map.qmd. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```
-#| cache: true
-mallards <- readRDS("data/mallards.rds")
-```
-
-###
-
-Each page of a Quarto website is an independent document with its own R session — `mallards` defined in `analysis.qmd` is not available in `map.qmd`. The RDS approach keeps all three pages in sync: if you update `mallards.R` and re-run it, every page that calls `readRDS("data/mallards.rds")` gets the updated data on the next render, with no copy-pasting.
-
-### Exercise 10
-
-In `map.qmd`, add a new working chunk that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 46–55°N, longitudes 7–25°E). Use `geom_sf()` with a world boundary layer from `rnaturalearth`. Render `map.qmd`.
+Start a new working chunk in `map.qmd` that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 47–55°N, longitudes 8–25°E) and drawn over country outlines from **[rnaturalearth](https://docs.ropensci.org/rnaturalearth/)**. Render.
 
 Take a screenshot of the map in your rendered page and paste it below.
 
@@ -505,7 +512,7 @@ Take a screenshot of the map in your rendered page and paste it below.
 #| label: where-do-they-go-10
 #| echo: false
 learnr2::question(
-  "Take a screenshot of the map in your rendered page and paste it below.",
+  "Start a new working chunk in map.qmd that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 47–55°N, longitudes 8–25°E) and drawn over country outlines from rnaturalearth. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -517,21 +524,21 @@ learnr2::question(
 ```{r}
 #| label: where-do-they-go-10-answer
 #| echo: true
-world <- rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+world <- ne_countries(scale = "medium", returnclass = "sf")
 
-mallards_sf <- mallards |>
+mallards_box <- mallards |>
   filter(lat >= 47, lat <= 55, long >= 8, long <= 25) |>
   arrange(duck_id, timestamp)
 
 ggplot() +
   geom_sf(data = world, fill = "#e8f4f8", color = "gray70", linewidth = 0.2) +
   geom_path(
-    data = mallards_sf,
+    data = mallards_box,
     aes(x = long, y = lat, group = duck_id, color = duck_id),
     alpha = 0.4, linewidth = 0.3
   ) +
   geom_point(
-    data = mallards_sf,
+    data = mallards_box,
     aes(x = long, y = lat, color = duck_id),
     alpha = 0.6, size = 0.8
   ) +
@@ -555,14 +562,20 @@ ggplot() +
 
 ###
 
-Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map — the ducks' home base. A scatter of points extends northeast toward Poland and Hungary, showing that some individuals made substantial long-distance movements of several hundred kilometers. Mallards are a  **partially migratory species**: some populations are fully resident year-round, others travel long distances, and many fall somewhere between. Lake Constance is a mild wintering site that also attracts birds from colder regions further north, so some of the northeastern points may represent birds returning to breeding grounds in spring rather than local residents exploring. `st_as_sf()` converts the latitude/longitude columns into a proper sf geometry column, and `coord_sf()` clips the map to the region of interest — both are standard steps whenever you bring tabular GPS data into a spatial plot.
+Most GPS fixes cluster tightly around Lake Constance in the southwest corner of the map, while a scatter of points extends several hundred kilometers northeast toward Poland and Hungary. Mallards are a **partially migratory species**: some populations are fully resident year-round, others travel long distances, and many fall somewhere between.
 
-### Exercise 11
+### Exercise 10
 
-Commit `analysis.qmd`, `map.qmd`, and `mallards.R` with the message `"Add duck map"` and push to GitHub. In the bash Terminal, run:
+Commit and push the map page. Use the commit message:
 
 ```
-git log -1
+Add duck map
+```
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
 ```
 
 CP/CR.
@@ -571,7 +584,7 @@ CP/CR.
 #| label: where-do-they-go-11
 #| echo: false
 learnr2::question(
-  "Commit analysis.qmd, map.qmd, and mallards.R with the message \"Add duck map\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  "Commit and push the map page, using the commit message Add duck map. In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -580,16 +593,13 @@ learnr2::question(
 ###
 
 ```
-commit 3f8a2c1
-Author: Var Kurapati <vkurapat@example.com>
-Date:   Wed July 08 10:23:41 2026 -0700
-
-    Add duck map
+3f8a2c1 (HEAD -> main, origin/main) Add duck map
+9c4e1b7 Create ducks website
 ```
 
 ###
 
-The map shows where ducks go. The next section asks when — how does duck movement vary across seasons and months?
+This commit puts `data/mallards.csv` on GitHub too: the trimmed, GPS-only version of the Movebank export, with `r nrow(mallards)` rows and seven columns.
 
 ## When do they move?
 
@@ -597,7 +607,9 @@ GPS speed tells us not just where a duck was, but how actively it was moving at 
 
 ### Exercise 1
 
-Create a new file `seasons.qmd` in your repo with the same YAML, libraries, and `readRDS` data chunk as the other pages. Then add a working chunk that counts GPS fixes per month. Render `seasons.qmd`.
+Create a new page named `seasons.qmd`, giving it the title `"Seasons"`, and add it to the navbar in `_quarto.yml` with the same label.
+
+At the top of the page, add a code chunk that loads `library(tidyverse)` and `library(ggridges)` with `#| message: false`, then a second chunk that reads `data/mallards.rds` into `mallards` — the cleaned table the map page saved. Then add a working chunk that counts GPS fixes per month. Render.
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
@@ -605,7 +617,7 @@ In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 #| label: when-do-they-move-1
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page named seasons.qmd, giving it the title \"Seasons\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) and library(ggridges) with #| message: false, then a second chunk that reads data/mallards.rds into mallards. Then add a working chunk that counts GPS fixes per month. Render. In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -622,11 +634,11 @@ mallards |>
 
 ###
 
-September dominates with roughly 21,000 fixes — more than double any other month. This reflects when the collars were most active, not duck behavior: most collars were deployed in August or September, so the early weeks of tracking accumulate many fixes before some collars fail or ducks leave the study area. Always check the raw record count before interpreting patterns as biological — an uneven sampling distribution can look like a behavioral signal.
+September dominates with roughly 21,000 fixes — more than double any other month. This reflects when the collars were most active, not duck behavior: most collars were deployed in August or September, so the early weeks of tracking accumulate many fixes before some collars fail or ducks leave the study area.
 
 ### Exercise 2
 
-Get summary statistics for `speed`. Render `seasons.qmd`.
+Get summary statistics for `speed`. Render.
 
 In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 
@@ -634,7 +646,7 @@ In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
 #| label: when-do-they-move-2
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  "Get summary statistics for speed. Render. In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -656,49 +668,19 @@ mallards |>
 
 ###
 
-The median speed is 0.22 m/s — most fixes catch a duck that is barely moving, resting or feeding at the water's edge. The maximum is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS positioning error — a common artifact in collar data when satellite geometry is poor or the collar briefly loses signal. These outliers should always be filtered before speed-based analysis.
+The median speed is 0.22 m/s — most fixes catch a duck that is barely moving, resting or feeding at the water's edge. The maximum, 127 m/s, is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS error; only 22 fixes exceed 30 m/s, and they should be dropped before any speed-based analysis.
 
 ### Exercise 3
 
-Filter `mallards` to `speed <= 30` to remove GPS errors, then compute mean speed by season and month. Render `seasons.qmd`.
+Drop the fixes with speeds above 30 m/s, then make a ridge plot of the speed distributions by month, one ridge per month in calendar order. Render.
 
-In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
-
-```{r}
-#| label: when-do-they-move-3
-#| echo: false
-learnr2::question(
-  "In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: when-do-they-move-3-answer
-#| echo: true
-mallards |>
-  filter(speed <= 30) |>
-  summarise(mean_speed = mean(speed, na.rm = TRUE),
-            .by = c(season, month, month_num)) |>
-  arrange(month_num)
-```
-
-###
-
-Mean speed peaks in August–September and again in March, when ducks are most actively dispersing or returning. Even at the seasonal peak the average stays well under 1 m/s because most GPS fixes catch a resting bird.
-### Exercise 4
-
-Make a ridge plot of speed distributions by month, with GPS errors removed. Use `ggridges`. Render `seasons.qmd`.
 Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: when-do-they-move-4
 #| echo: false
 learnr2::question(
-  "Make a ridge plot of speed distributions by month, with GPS errors removed. Use ggridges. Render seasons.qmd. Take a screenshot of the plot in your rendered page and paste it below.",
+  "Drop the fixes with speeds above 30 m/s, then make a ridge plot of the speed distributions by month, one ridge per month in calendar order. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -710,8 +692,6 @@ learnr2::question(
 ```{r}
 #| label: when-do-they-move-4-answer
 #| echo: true
-library(ggridges)
-
 mallards |>
   filter(speed <= 30) |>
   mutate(month = fct_reorder(month, month_num)) |>
@@ -719,7 +699,7 @@ mallards |>
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
   scale_fill_viridis_c(option = "turbo") +
   labs(
-    title    = "Most ducks are barely moving — but autumn has the most active fliers",
+    title    = "Most ducks are barely moving — but summer has the most active fliers",
     subtitle = "Distribution of GPS-recorded ground speeds by month (speed ≤ 30 m/s)",
     x        = "Ground speed (m/s)",
     y        = NULL,
@@ -731,14 +711,20 @@ mallards |>
 
 ###
 
-The autumn peak aligns with the post-breeding season when young ducks from this year's broods begin exploring beyond their natal area and adult ducks resume longer-range movements after the summer moult. The published study found that Mallards shift activity flexibly between day and night across the year — more active at night in summer, more active during the day in winter — but the GPS dataset only records where they were, not what they were doing at each fix.
+With the GPS errors removed, mean speed peaks in July (0.48 m/s) and stays high through August (0.47) and September (0.44) before falling off in October (0.40). The summer peak aligns with the post-breeding season, when young ducks from this year's broods begin exploring beyond their natal area and adults resume longer-range movements after the moult.
 
-### Exercise 5
+### Exercise 4
 
-Commit `seasons.qmd` with the message `"Add seasonal movement analysis"` and push to GitHub. In the bash Terminal, run:
+Commit and push the seasons page. Use the commit message:
 
 ```
-git log -1
+Add seasonal movement analysis
+```
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
 ```
 
 CP/CR.
@@ -747,7 +733,7 @@ CP/CR.
 #| label: when-do-they-move-5
 #| echo: false
 learnr2::question(
-  "Commit seasons.qmd with the message \"Add seasonal movement analysis\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  "Commit and push the seasons page, using the commit message Add seasonal movement analysis. In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -756,76 +742,36 @@ learnr2::question(
 ###
 
 ```
-commit abc1234
-Author: Your Name <your@email.com>
-Date:   Mon Jan 1 00:00:00 2026
-
-    Add seasonal movement analysis
+7b2e9d4 (HEAD -> main, origin/main) Add seasonal movement analysis
+3f8a2c1 Add duck map
+9c4e1b7 Create ducks website
 ```
 
 ###
 
-The map and the seasonal chart answer different questions: the map shows the geographic range of duck movements, and the seasonal chart shows when ducks are most and least active. The final section ties these together into a published website.
-
+The map and the seasonal chart answer different questions: the map shows the geographic range of duck movements, and the seasonal chart shows when ducks are most and least active.
 
 ## Summary
 
-
-You have built three pages of analysis. Now you will wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
+This tutorial used AI to build a multi-page website about the movements of 52 Mallard ducks tracked by GPS at Lake Constance. You mapped where the ducks go — most stay close to the lake while a few travel several hundred kilometers northeast — and showed when they move, with activity peaking in July and August after the breeding season.
 
 ### Exercise 1
 
-Create a `_quarto.yml` file at the top level of your repo with the following contents:
+Turn the home page into a real introduction to the finished site. In `index.qmd`, replace the placeholder content with a short paragraph or two that tells a visitor what the site found — where the ducks go and when they move — says where Lake Constance is and where the data comes from, and points to the Map and Seasons pages in the navbar. Draft it with AI and keep what reads well.
+
+Render. In the R Terminal, run:
 
 ```
-project:
-  type: website
-
-website:
-  title: "Mallard Duck Movement"
-  navbar:
-    left:
-      - href: analysis.qmd
-        text: Home
-      - href: map.qmd
-        text: Map
-      - href: seasons.qmd
-        text: Seasons
-
-format:
-  html:
-    theme: cosmo
+show_file("index.qmd")
 ```
 
-In the bash Terminal, run:
-
-```
-quarto render
-ls
-```
-
-In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
-
-### Exercise 2
-
-Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs introducing the study: what Mallard ducks are, where Lake Constance is, and what the GPS tracking data reveals. Render.
-
-
-```
-<div style="display: flex; justify-content: center;">
-  <img src="images/mallard.jpg" style="height: 300px; width: auto;"/>
-</div>
-```
-
-Place the image after your introductory paragraphs. Render and confirm it appears in the HTML.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+CP/CR.
 
 ```{r}
 #| label: summary-2
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Turn the home page into a real introduction to the finished site. In index.qmd, replace the placeholder content with a short paragraph or two that tells a visitor what the site found (where the ducks go and when they move), says where Lake Constance is and where the data comes from, and points to the Map and Seasons pages in the navbar. Draft it with AI and keep what reads well. Render. In the R Terminal, run show_file(\"index.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -833,15 +779,32 @@ learnr2::question(
 
 ###
 
-Your `analysis.qmd` should have a YAML header, a libraries chunk, a data chunk, and 2–3 paragraphs of introductory prose before the plots.
+```
+---
+title: "Mallard Duck Movement"
+---
+
+## Welcome
+
+Mallards (*Anas platyrhynchos*) are the most familiar duck in the world, the
+green-headed bird found on park ponds across the Northern Hemisphere. Between
+2007 and 2017, researchers fitted 52 of them with GPS collars at Lake
+Constance, one of the largest freshwater lakes in Central Europe, on the
+border of Germany, Switzerland, and Austria. The data is archived on Movebank.
+
+The **Map** page shows where the ducks went: most fixes cluster around the
+lake, but a few birds traveled several hundred kilometers to the northeast.
+The **Seasons** page shows when they moved: most fixes catch a resting bird,
+and activity peaks in July and August, after the breeding season.
+```
 
 ###
 
-The home page should give a reader who knows nothing about the study enough context to understand the map and seasonal analysis pages. Good introductory text names the species, explains the study location, describes what GPS tracking data is, and previews the main findings — all in plain language without jargon.
+The home page should give a reader who knows nothing about the study enough context to understand the map and the seasonal chart. Stating the findings up front — and pointing to the pages that back them up — is what makes two charts feel like one coherent project.
 
-### Exercise 3
+### Exercise 2
 
-Publish the website to GitHub Pages. In the bash Terminal, run:
+Publish the site to GitHub Pages. In a bash Terminal, run:
 
 ```
 quarto publish gh-pages
@@ -853,7 +816,7 @@ Copy/paste the resulting URL below.
 #| label: summary-3
 #| echo: false
 learnr2::question(
-  "Copy/paste the resulting URL below.",
+  "Publish the site to GitHub Pages. In a bash Terminal, run quarto publish gh-pages. Copy/paste the resulting URL below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -861,9 +824,32 @@ learnr2::question(
 
 ###
 
-`quarto publish gh-pages` without a filename publishes the whole website, not just a single page. The resulting URL gives access to all three pages via the navbar. Because your `.gitignore` already excludes `_site/`, `.quarto/`, the `_files/` folders, caches, and the built HTML, the only things you commit are your source `.qmd` files, `_quarto.yml`, and the data script.
+```
+? Publish site to https://your-username.github.io/ducks/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
 
-### Exercise 4
+[1/3] index.qmd
+[2/3] map.qmd
+[3/3] seasons.qmd
+
+Output created: _site/index.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/ducks.git
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/ducks/
+```
+
+Your answer is the URL on the last line: `https://your-username.github.io/ducks/`.
+
+###
+
+The site is served from the `gh-pages` branch, so only the rendered HTML — home page, map, seasons, and the navbar that links them — is published; your `.qmd` source, `data/mallards.csv`, and the cache stay on `main` or on your machine.
+
+### Exercise 3
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
@@ -879,7 +865,13 @@ learnr2::question(
 
 ###
 
-Movebank hosts thousands of published animal tracking studies under open licenses. The same workflow used here — download a CSV, clean timestamps and coordinates, save an RDS, map locations, analyze movement patterns, build a website — applies to any species in the archive, from monarch butterflies to great white sharks. The **[move2](https://cran.r-project.org/package=move2)** R package connects directly to Movebank's API, so for a more advanced project you could pull any tracking dataset straight into R without a manual download.
+```
+https://github.com/your-username/ducks
+```
+
+###
+
+Movebank hosts thousands of published animal tracking studies under open licenses. The **[move2](https://cran.r-project.org/package=move2)** R package connects directly to Movebank's API, so for a more advanced project you could pull any tracking dataset straight into R without a manual download.
 
 ## Download answers
 
@@ -901,6 +893,3 @@ learnr2::question(
 #| echo: false
 learnr2::download_answers_button(filename_prefix = "ducks")
 ```
-
-
-

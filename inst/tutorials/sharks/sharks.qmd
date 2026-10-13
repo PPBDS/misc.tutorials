@@ -2,14 +2,15 @@
 title: Sharks
 author: Var Kurapati
 description: 'Students use the Global Shark Attack File to investigate whether fear
-  of sharks is justified. They clean and explore over a century of attack data, map
-  incidents by country, analyze trends over time and by activity type, and publish
-  a multi-page Quarto website.'
+  of sharks is justified. They build a three-page Quarto website: a map page that
+  cleans over a century of incident data and colors each country by its attacks, a
+  trends page that charts incidents over time and by activity, and a home page that
+  introduces both. They publish the site to GitHub Pages.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 10
+  ordering: 14
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -20,8 +21,15 @@ learnr2:
 library(tidyverse)
 library(maps)
 
-
-attacks <- readRDS("data/attacks.rds")
+attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
+  mutate(
+    Country_lower = str_to_lower(str_trim(Country)),
+    Fatal_clean = case_when(
+      Fatal == "Y" ~ "Fatal",
+      Fatal == "N" ~ "Non-fatal",
+      TRUE ~ "Unknown"
+    )
+  )
 ```
 
 ## Information
@@ -34,37 +42,43 @@ learnr2::student_info()
 
 ## Introduction
 
-Sharks have patrolled the world's oceans for over 400 million years — long before dinosaurs existed. Yet most people fear them far more than the numbers suggest. This tutorial uses the **Global Shark Attack File (GSAF)**, a database maintained by the Shark Research Institute that records over a century of shark incidents worldwide, to ask: **are sharks actually as dangerous as we think?**
-
-We recommend using an agentic coding tool such as [Gemini CLI](https://github.com/google-gemini/gemini-cli) or [Claude Code](https://claude.ai/code), which can read and edit your files directly. Our instructions are written with these tools in mind.
+Sharks have patrolled the world's oceans for over 400 million years — long before dinosaurs existed. Yet most people fear them far more than the numbers suggest. In this tutorial you will build a small **website** that uses the **Global Shark Attack File (GSAF)**, a database maintained by the Shark Research Institute that records over a century of shark incidents worldwide, to ask: **are sharks actually as dangerous as we think?** Your job is to steer the analysis, render often, inspect the output, and write the words that turn a map and a few charts into a site worth reading.
 
 <div style="display: flex; justify-content: center;">
   <img src="images/shark.jpg" style="height: 300px; width: auto;"/>
 </div>
 
+###
+
+Use AI however you like.
+
 ### Exercise 1
 
 You should be doing this tutorial in a repo named `sharks`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
 
-Create a new file, `analysis.qmd`, with the title `"Shark Attacks"` and your name as the author. In a bash Terminal, render it:
+In this repo, create a new Quarto **website** project, as you did in the Websites tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Shark Attacks"`. Quarto also creates an `about.qmd` page and a `styles.css` file: delete both, and remove the lines that mention them from `_quarto.yml`, so the site starts with just the home page.
+
+In a bash Terminal, render the whole site:
 
 ```
-quarto render analysis.qmd
+quarto render
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+Quarto builds the site into a `_site` directory. Open `_site/index.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes every time you render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-This tutorial builds a website. Create a `.gitignore` that ignores generated files:
+Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+/_site/
+/.quarto/
+/*_files/
 ```
 
-Commit and push.
+Commit and push. Use the commit message:
+
+```
+Create sharks website
+```
 
 In the R Terminal, run:
 
@@ -72,13 +86,15 @@ In the R Terminal, run:
 show_file(".gitignore")
 ```
 
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
+
 CP/CR.
 
 ```{r}
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  "You should be doing this tutorial in a repo named sharks. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Shark Attacks\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create sharks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -87,20 +103,19 @@ learnr2::question(
 ###
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+/.quarto/
+**/*.quarto_ipynb
+/_site/
+/*_files/
 ```
 
 ###
 
-This tutorial builds a website rather than a single page. The final product will have three pages: an introduction page (`analysis.qmd`), a map page (`map.qmd`), and a trends page (`trends.qmd`). A `_quarto.yml` file will tie them together into a navigable site.
+The GSAF classifies each incident: 3,762 of the 5,094 in our data are unprovoked and 507 provoked, and the rest are boat incidents, sea disasters, or cases the investigators marked invalid or questionable.
 
 ### Exercise 2
 
-In your `analysis.qmd`, add a new code chunk with `library(tidyverse)` and `library(maps)`. Add `#| message: false` to suppress messages. Add the following to the YAML header to hide code:
+Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
 
 ```
 execute:
@@ -110,7 +125,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```
-show_file("analysis.qmd", chunk = "Last")
+show_file("_quarto.yml")
 ```
 
 CP/CR.
@@ -119,7 +134,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Tell Quarto to hide code across the whole site. In _quarto.yml, add execute: echo: false. Render. In the R Terminal, run show_file(\"_quarto.yml\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -128,14 +143,30 @@ learnr2::question(
 ###
 
 ```
-#| message: false
-library(tidyverse)
-library(maps)
+project:
+  type: website
+
+website:
+  title: "Shark Attacks"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    toc: true
+
+execute:
+  echo: false
 ```
 
 ###
 
-The **maps** package provides world boundary data that we can use with `ggplot2` to draw country outlines. It integrates seamlessly with **tidyverse** — you can pass map data directly to `geom_polygon()` or `geom_map()`.
+Each row of the GSAF is one reported incident, not one shark: the file records who was in the water, what they were doing, and how it ended, and names a species in only 3,073 of the 5,094 cases.
 
 ### Exercise 3
 
@@ -156,12 +187,12 @@ learnr2::question(
 ###
 
 ```
-analysis.qmd  data
+AGENTS.md  data  index.qmd  _quarto.yml  _site
 ```
 
 ###
 
-Keeping data files in a `data/` subdirectory separates raw inputs from analysis outputs. When a project grows, this makes it easy to find the source data.
+`ls` shows the `_site` directory that the render built beside the new, still empty, `data` directory.
 
 ## Where do attacks happen?
 
@@ -187,7 +218,7 @@ CP/CR.
 #| label: where-1
 #| echo: false
 learnr2::question(
-  "In the bash Terminal, run: ls data CP/CR.",
+  "Download the shark attack data from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/sharks/data/attacks_clean.csv. In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -205,15 +236,19 @@ The original Global Shark Attack File contains over 25,000 rows going back centu
 
 ### Exercise 2
 
-In a new code chunk in `analysis.qmd`, read `data/attacks_clean.csv` and print the first 10 rows. Render.
+Create a new page in your website named `map.qmd`, giving it the title `"Map"`, and add it to the site navigation in `_quarto.yml` so it appears in the navbar with the same label.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+At the top of `map.qmd`, add a code chunk that loads `library(tidyverse)` and `library(maps)`, with `#| message: false` so startup messages stay out of the page. Keep the `library()` lines in a chunk of their own, and add a second chunk below it that reads `data/attacks_clean.csv` and prints it.
+
+Render. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
 #| label: where-2
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse) and library(maps), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/attacks_clean.csv and prints it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -224,55 +259,26 @@ learnr2::question(
 ```{r}
 #| label: where-2-answer
 #| echo: true
-read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
-  head(10)
+read_csv("data/attacks_clean.csv", show_col_types = FALSE)
 ```
 
 ###
 
-Each row is one shark incident. The `Activity` column records what the person was doing — surfing, swimming, fishing, and so on. `Fatal` records whether the attack was fatal (Y) or not (N).
+Each row is one shark incident. The `Activity` column records what the person was doing — surfing, swimming, fishing, and so on — and `Fatal` records whether the attack was fatal (Y) or not (N).
 
 ### Exercise 3
 
-Count incidents per country, sorted from most to least. Render.
-
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
-
-```{r}
-#| label: where-3
-#| echo: false
-learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: where-3-answer
-#| echo: true
-read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
-  count(Country, sort = TRUE) |>
-  head(10)
-```
-
-###
-
-The USA leads with 1,958 incidents, followed by Australia (1,077) and South Africa (506). These three countries account for nearly 70% of all recorded attacks — driven by long coastlines, warm water, and active beach cultures.
-
-### Exercise 4
-
 Count fatal vs non-fatal attacks. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
 #| label: where-4
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count fatal vs non-fatal attacks. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -289,17 +295,21 @@ read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
 
 ###
 
-Only 943 of the 5,094 incidents were fatal — about 18.5%. The vast majority of shark encounters do not result in death. Most attacks are single bites followed by the shark releasing the person, suggesting mistaken identity rather than predatory intent.
+Only 943 of the 5,094 incidents were fatal — about 18.5% — but the column is messy: 359 rows are NA, 27 say UNKNOWN, and one row each says 2017 and M. `Country` needs work too, since the GSAF writes it in capitals, so the next exercise cleans both columns at once.
 
-### Exercise 5
+### Exercise 4
 
-Read `data/attacks_clean.csv`, clean the `Country` column to lowercase for map matching, and assign the result to `attacks`. Save it with `saveRDS(attacks, "data/attacks.rds")`. Create a new R script called `sharks.R` in your repo. In it, write this pipeline and run it in a bash Terminal with `Rscript sharks.R`. In the R Terminal, run `show_file("sharks.R")`. CP/CR.
+Replace the contents of your working chunk with a cleaning pipeline. Read `data/attacks_clean.csv`, add a `Country_lower` column holding the trimmed, lowercase country name, add a `Fatal_clean` column that labels `Y` as "Fatal", `N` as "Non-fatal", and everything else as "Unknown", assign the result to `attacks`, and print it. Render.
+
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
-#| label: where-5
+#| label: where-11
 #| echo: false
 learnr2::question(
-  "Read data/attacks_clean.csv, clean the Country column to lowercase for map matching, and assign the result to attacks. Save it with saveRDS(attacks, \"data/attacks.rds\"). Create a new R script called sharks.R in your repo. In it, write this pipeline and run it in a bash Terminal with Rscript sharks.R. In the R Terminal, run show_file(\"sharks.R\"). CP/CR.",
+  "Replace the contents of your working chunk with a cleaning pipeline. Read data/attacks_clean.csv, add a Country_lower column holding the trimmed, lowercase country name, add a Fatal_clean column that labels Y as \"Fatal\", N as \"Non-fatal\", and everything else as \"Unknown\", assign the result to attacks, and print it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -307,35 +317,39 @@ learnr2::question(
 
 ###
 
-```
-library(tidyverse)
-
+```{r}
+#| label: where-11-answer
+#| echo: true
 attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   mutate(
     Country_lower = str_to_lower(str_trim(Country)),
-    Fatal_clean   = case_when(
+    Fatal_clean = case_when(
       Fatal == "Y" ~ "Fatal",
       Fatal == "N" ~ "Non-fatal",
-      TRUE         ~ "Unknown"
+      TRUE ~ "Unknown"
     )
   )
 
-saveRDS(attacks, "data/attacks.rds")
+attacks
 ```
 
 ###
 
-`str_to_lower()` converts country names to lowercase so they match the `maps` package's world map data, which uses lowercase country names. `str_trim()` removes any leading or trailing whitespace that could cause mismatches.
+`attacks` has 17 columns: the 15 from the CSV plus the two you added. `Fatal_clean` sorts the 5,094 incidents into 943 Fatal, 3,763 Non-fatal, and 388 Unknown — the 359 blanks, the 27 UNKNOWNs, and the two typos.
 
-### Exercise 6
+### Exercise 5
 
-Add `data/attacks.rds` to your `.gitignore`. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+Before caching anything, tidy the chunk. Delete the line that prints `attacks`, and add a last line that saves the cleaned table with `write_rds(attacks, "data/attacks.rds")`, so the trends page you build later can read it instead of repeating the cleaning. Render.
+
+In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
-#| label: where-6
+#| label: where-12
 #| echo: false
 learnr2::question(
-  "Add data/attacks.rds to your .gitignore. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  "Before caching anything, tidy the chunk. Delete the line that prints attacks, and add a last line that saves the cleaned table with write_rds(attacks, \"data/attacks.rds\"), so the trends page you build later can read it instead of repeating the cleaning. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -344,74 +358,94 @@ learnr2::question(
 ###
 
 ```
-_site/
-.quarto/
-*_files
-*_cache
-*.html
+attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
+  mutate(
+    Country_lower = str_to_lower(str_trim(Country)),
+    Fatal_clean = case_when(
+      Fatal == "Y" ~ "Fatal",
+      Fatal == "N" ~ "Non-fatal",
+      TRUE ~ "Unknown"
+    )
+  )
+
+write_rds(attacks, "data/attacks.rds")
+```
+
+###
+
+`Country_lower` exists for the map: the **[maps](https://cran.r-project.org/package=maps)** package spells its regions `Australia` and the GSAF writes `AUSTRALIA`, and lowercasing both sides is the simplest way to make them match. Of the 388 Unknown outcomes, 359 were simply blank in the export; they stay in `attacks`, but every fatality figure below leaves them out.
+
+### Exercise 6
+
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `attacks` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `map_cache/` directory next to `map.qmd`.
+
+To confirm the directory is there, in the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: where-13
+#| echo: false
+learnr2::question(
+  "Now cache the data chunk. Add #| cache: true as the first line inside the attacks chunk. Render. To confirm the map_cache/ directory is there, in the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  data  index.qmd  map_cache  map.qmd  _quarto.yml  _site
+```
+
+###
+
+The cleaned table is small — 5,094 rows — so this cache saves little time, but the habit matters: the full GSAF export is five times larger, 25,723 rows, and grows with every reported incident.
+
+### Exercise 7
+
+The Source Control change count just jumped, because `map_cache/` and `data/attacks.rds` now look like untracked work to git. Both are rebuilt from `attacks_clean.csv` whenever the data chunk runs, so neither should go to GitHub.
+
+Add two lines to your `.gitignore`, one that ignores the cache directories and one that ignores the saved table:
+
+```
+/*_cache/
+data/attacks.rds
+```
+
+In the R Terminal, run `show_file(".gitignore")`.
+
+CP/CR.
+
+```{r}
+#| label: where-14
+#| echo: false
+learnr2::question(
+  "Add two lines to your .gitignore, one that ignores the cache directories and one that ignores the saved table: /*_cache/ and data/attacks.rds. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+/.quarto/
+**/*.quarto_ipynb
+/_site/
+/*_files/
+/*_cache/
 data/attacks.rds
 ```
 
 ###
 
-The `.rds` file is regenerated by running `sharks.R`, so it does not need to be committed. Anyone who clones the repo can recreate it by running the script.
-
-### Exercise 7
-
-In `analysis.qmd`, update the data chunk to load the RDS file instead of re-reading the CSV. Replace its contents with `attacks <- readRDS("data/attacks.rds")`. Add `#| cache: true`. Render.
-
-In the bash Terminal, run `ls data`. CP/CR.
-
-```{r}
-#| label: where-7
-#| echo: false
-learnr2::question(
-  "In the bash Terminal, run ls data. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```
-attacks.rds  attacks_clean.csv
-```
-
-###
-
-`readRDS()` loads the binary file in milliseconds — far faster than re-parsing a CSV. Caching it goes one step further: on subsequent renders, even the `readRDS()` call is skipped.
+`attacks_clean.csv` is now the only data file your repo carries: a reader who clones it gets the same 5,094 incidents and rebuilds `attacks.rds` with one render.
 
 ### Exercise 8
 
-Create a new file `map.qmd` with the same YAML header and library chunk as `analysis.qmd`. Add a data chunk that reads `attacks <- readRDS("data/attacks.rds")` with `#| cache: true`. Render `map.qmd`.
-
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
-
-```{r}
-#| label: where-8
-#| echo: false
-learnr2::question(
-  "In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```
-#| cache: true
-attacks <- readRDS("data/attacks.rds")
-```
-
-###
-
-Each page of a Quarto website runs in its own R session — objects defined in `analysis.qmd` are not available in `map.qmd`. The RDS approach keeps all pages in sync.
-
-### Exercise 9
-
-In `map.qmd`, add a new code chunk that makes a world map showing the number of shark attacks per country, colored by attack count. Use `map_data("world")` for the base map. Render `map.qmd`.
+Start a new working chunk below the data chunk that draws a world map in which each country is colored by its number of shark attacks. Render.
 
 Take a screenshot of the map in your rendered page and paste it below.
 
@@ -419,7 +453,7 @@ Take a screenshot of the map in your rendered page and paste it below.
 #| label: where-9
 #| echo: false
 learnr2::question(
-  "Take a screenshot of the map in your rendered page and paste it below.",
+  "Start a new working chunk below the data chunk that draws a world map in which each country is colored by its number of shark attacks. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -461,14 +495,20 @@ ggplot(map_with_attacks, aes(x = long, y = lat, group = group)) +
 
 ###
 
-The USA, Australia, and South Africa dominate — shown in the darkest shades. A log scale is used because the USA has nearly twice as many attacks as Australia, which would make all other countries invisible on a linear scale. Most of the world's coastline has never recorded a single attack in this dataset.
+The USA (1,958 incidents), Australia (1,077), and South Africa (506) account for nearly 70% of all recorded attacks and get the darkest shades. Gray does not always mean no attacks: the join matches lowercase country names, and 187 incidents — Hong Kong (21), England (12), and the United Kingdom (11) among them — have no matching region in the map data.
 
-### Exercise 10
+### Exercise 9
 
-Commit `analysis.qmd`, `map.qmd`, and `sharks.R` with the message `"Add shark attack map"` and push to GitHub. In the bash Terminal, run:
+Commit and push the map page. Use the commit message:
 
 ```
-git log -1
+Add shark attack map
+```
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
 ```
 
 CP/CR.
@@ -477,7 +517,7 @@ CP/CR.
 #| label: where-10
 #| echo: false
 learnr2::question(
-  "Commit analysis.qmd, map.qmd, and sharks.R with the message \"Add shark attack map\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  "Commit and push the map page, using the commit message Add shark attack map. In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -486,36 +526,33 @@ learnr2::question(
 ###
 
 ```
-commit 3f8a2c1
-Author: Var Kurapati <vkurapat@example.com>
-Date:   Mon Jul 14 10:23:41 2025 -0700
-
-    Add shark attack map
+9b1c3e7 (HEAD -> main, origin/main) Add shark attack map
+3a8f2d1 Create sharks website
 ```
 
 ###
 
-The map shows where attacks happen. The next section asks when and why — how do attacks vary by year and by what people were doing?
+Papua New Guinea (108) and Brazil (100) are the only countries outside the top three with 100 or more incidents; the Bahamas (96) and New Zealand (94) come next.
 
 ## When and why?
 
 Shark attacks are not random — they cluster around certain activities, certain seasons, and certain decades. Understanding these patterns helps reframe the risk. If most attacks happen to surfers, the question becomes not "are sharks dangerous?" but "what is the risk per surfing session?" — a very different number.
 
-<div style="display: flex; justify-content: center;">
-  <img src="images/surfer.jpg" style="height: 300px; width: auto;"/>
-</div>
-
 ### Exercise 1
 
-Create a new file `trends.qmd` with the same YAML, libraries, and data chunk as the other pages. Add a working chunk that counts attacks per year. Render `trends.qmd`.
+Create a new page named `trends.qmd`, giving it the title `"Trends"`, and add it to the navbar in `_quarto.yml` with the same label.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+At the top of the page, add a code chunk that loads `library(tidyverse)` with `#| message: false`. Below it, add a data chunk that reads `data/attacks.rds` into `attacks`, and below that a working chunk that counts attacks per year. Render.
+
+In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
 #| label: when-1
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page named trends.qmd, giving it the title \"Trends\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) with #| message: false. Below it, add a data chunk that reads data/attacks.rds into attacks, and below that a working chunk that counts attacks per year. Render. In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -536,7 +573,7 @@ Attacks were rare before 1950 — not because sharks were less common, but becau
 
 ### Exercise 2
 
-Update your chunk to show a line chart of attacks per year. Render.
+Update your chunk to show a line chart of attacks per year. 2018 is a partial year, so drop it. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
@@ -544,7 +581,7 @@ Take a screenshot of the plot in your rendered page and paste it below.
 #| label: when-2
 #| echo: false
 learnr2::question(
-  "Take a screenshot of the plot in your rendered page and paste it below.",
+  "Update your chunk to show a line chart of attacks per year. 2018 is a partial year, so drop it. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -556,6 +593,7 @@ learnr2::question(
 ```{r}
 #| label: when-2-answer
 #| echo: true
+#| message: false
 attacks |>
   count(Year) |>
   filter(Year < 2018) |>
@@ -574,19 +612,21 @@ attacks |>
 
 ###
 
-The upward trend in attacks mirrors the growth in beach tourism and water sports — more people in the water means more encounters. Without knowing how many hours people spent swimming or surfing each year, we cannot say whether the *rate* of attacks has changed.
+The line jumps to 81, 84, 72, and 77 incidents in 1959–1962 — roughly double the 40 or so a year on either side — before falling back, a bump the smooth curve hides. Without knowing how many hours people spent swimming or surfing each year, we cannot say whether the *rate* of attacks has changed.
 
 ### Exercise 3
 
 Update your chunk to count attacks by activity, keeping only activities with at least 50 incidents. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`.
+
+CP/CR.
 
 ```{r}
 #| label: when-3
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  "Update your chunk to count attacks by activity, keeping only activities with at least 50 incidents. Render. In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -604,52 +644,11 @@ attacks |>
 
 ###
 
-Surfing leads with 972 incidents — well ahead of swimming (791) despite far fewer people surfing than swimming. Surfers spend more time in deeper water, make more noise and splashing, and wear wetsuits that can resemble prey. These factors combine to make surfing the highest-risk water activity for shark encounters.
+Surfing leads with 972 incidents — well ahead of swimming (791) despite far fewer people surfing than swimming. Surfers spend more time in deeper water, make more noise and splashing, and wear wetsuits that can resemble prey.
 
 ### Exercise 4
 
-Update your chunk to show a bar chart of attacks by activity, filtered to activities with at least 50 incidents. Render.
-
-Take a screenshot of the plot in your rendered page and paste it below.
-
-```{r}
-#| label: when-4
-#| echo: false
-learnr2::question(
-  "Take a screenshot of the plot in your rendered page and paste it below.",
-  type = "reflection",
-  allow_image = TRUE,
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: when-4-answer
-#| echo: true
-attacks |>
-  count(Activity, sort = TRUE) |>
-  filter(n >= 50) |>
-  ggplot(aes(x = n, y = fct_reorder(Activity, n))) +
-  geom_col(fill = "steelblue") +
-  labs(
-    title   = "Surfing accounts for the most shark attacks",
-    subtitle = "Activities with 50 or more recorded incidents, 1901–2018",
-    x       = "Number of attacks",
-    y       = NULL,
-    caption = "Source: Global Shark Attack File (GSAF)"
-  ) +
-  theme_minimal()
-```
-
-###
-
-The pattern reflects who spends time in the ocean, not how aggressive sharks are. Sharks do not preferentially hunt surfers — they are simply more likely to encounter them because surfers occupy the same habitat (the surf zone) more frequently than other water users.
-
-### Exercise 5
-
-Update your chunk to show fatal vs non-fatal attacks by activity, for activities with at least 50 incidents. Render.
+Update your chunk to show fatal vs non-fatal attacks by activity, for activities with at least 50 incidents, leaving out incidents whose outcome is unknown. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
@@ -657,7 +656,7 @@ Take a screenshot of the plot in your rendered page and paste it below.
 #| label: when-5
 #| echo: false
 learnr2::question(
-  "Take a screenshot of the plot in your rendered page and paste it below.",
+  "Update your chunk to show fatal vs non-fatal attacks by activity, for activities with at least 50 incidents, leaving out incidents whose outcome is unknown. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   show_text = FALSE
@@ -691,14 +690,20 @@ attacks |>
 
 ###
 
-Non-fatal attacks outnumber fatal ones in every activity category. Fishing and spearfishing have a higher proportion of fatal outcomes than surfing — likely because these activities involve fish blood and bait in the water, which can escalate an encounter. Even so, the majority of all interactions end without a fatality.
+Non-fatal attacks outnumber fatal ones in every activity category. The fatal share is highest for bathing (47%) and swimming (35%) and lowest for surfing (5%).
 
-### Exercise 6
+### Exercise 5
 
-Commit `trends.qmd` with the message `"Add trends analysis"` and push to GitHub. In the bash Terminal, run:
+Commit and push the trends page. Use the commit message:
 
 ```
-git log -1
+Add trends analysis
+```
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
 ```
 
 CP/CR.
@@ -707,7 +712,7 @@ CP/CR.
 #| label: when-6
 #| echo: false
 learnr2::question(
-  "Commit trends.qmd with the message \"Add trends analysis\" and push to GitHub. In the bash Terminal, run: git log -1 CP/CR.",
+  "Commit and push the trends page, using the commit message Add trends analysis. In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -716,101 +721,36 @@ learnr2::question(
 ###
 
 ```
-commit 7d4e9b2
-Author: Var Kurapati <vkurapat@example.com>
-Date:   Mon Jul 14 14:51:03 2025 -0700
-
-    Add trends analysis
+4e7a1d9 (HEAD -> main, origin/main) Add trends analysis
+9b1c3e7 Add shark attack map
+3a8f2d1 Create sharks website
 ```
 
 ###
 
-The trends page and the map page together answer the two central questions: where do attacks happen, and when and why? The final section ties these together into a published website.
+The last full year in the data, 2017, has 129 incidents; 2018 has only 52 because the export was taken partway through the year.
 
 ## Summary
 
-You have built three pages of analysis. Now wire them together into a navigable Quarto website, add introductory text to the home page, and publish the result.
+This tutorial used AI to build a three-page website from the **Global Shark Attack File**. You found that the export's `Fatal` column needed cleaning before it could be trusted, mapped a century of incidents by country, and charted them by year and by activity — showing that most attacks are not fatal and that the rise over time tracks beach tourism rather than more dangerous water. Now add introductory text to the home page and publish the site.
 
 ### Exercise 1
 
-Create a `_quarto.yml` file at the top level of your repo with the following contents:
+Turn the home page into a real introduction to the finished site. In `index.qmd`, replace the placeholder content with two or three short paragraphs: what the Global Shark Attack File is, why fear of sharks is out of proportion to the risk, and what the Map and Trends pages in the navbar show. Draft the prose with AI and keep what reads well.
+
+Render. In the R Terminal, run:
 
 ```
-project:
-  type: website
-
-website:
-  title: "Shark Attacks"
-  navbar:
-    left:
-      - href: analysis.qmd
-        text: Home
-      - href: map.qmd
-        text: Map
-      - href: trends.qmd
-        text: Trends
-
-format:
-  html:
-    theme: cosmo
+show_file("index.qmd")
 ```
 
-In the bash Terminal, run:
-
-```
-quarto render
-ls
-```
-
-In the R Terminal, run `show_file("_quarto.yml")`. CP/CR.
-
-```{r}
-#| label: summary-1
-#| echo: false
-learnr2::question(
-  "In the R Terminal, run show_file(\"_quarto.yml\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```
-project:
-  type: website
-
-website:
-  title: "Shark Attacks"
-  navbar:
-    left:
-      - href: analysis.qmd
-        text: Home
-      - href: map.qmd
-        text: Map
-      - href: trends.qmd
-        text: Trends
-
-format:
-  html:
-    theme: cosmo
-```
-
-###
-
-`_quarto.yml` turns a folder of `.qmd` files into a navigable website. Without it, each file renders independently with no connection between pages.
-
-### Exercise 2
-
-Add introductory text to `analysis.qmd`. Ask AI to write 2–3 short paragraphs introducing the topic: what the Global Shark Attack File is, why shark fear is often disproportionate to actual risk, and what this analysis investigates. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+CP/CR.
 
 ```{r}
 #| label: summary-2
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Turn the home page into a real introduction to the finished site. In index.qmd, replace the placeholder content with two or three short paragraphs: what the Global Shark Attack File is, why fear of sharks is out of proportion to the risk, and what the Map and Trends pages in the navbar show. Draft the prose with AI and keep what reads well. Render. In the R Terminal, run show_file(\"index.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -818,13 +758,31 @@ learnr2::question(
 
 ###
 
-Your `analysis.qmd` should have a YAML header, a libraries chunk, a data chunk, and 2–3 paragraphs of introductory prose.
+```
+---
+title: "Shark Attacks"
+---
+
+The Global Shark Attack File (GSAF), maintained by the Shark Research
+Institute, records shark incidents reported anywhere in the world. This
+site uses an export of 5,094 incidents from 1901 to 2018, each with a
+known year, country, and activity.
+
+Sharks are feared far out of proportion to the harm they do. Fewer than
+one in five of the recorded incidents was fatal, and the yearly count has
+risen mostly because far more people now surf and swim, not because the
+ocean has become more dangerous.
+
+The **Map** page shows where incidents cluster, and the **Trends** page
+shows how they have changed over time and which activities carry the
+most risk.
+```
 
 ###
 
 The home page should give a reader who knows nothing about the dataset enough context to understand the map and trends pages. Good introductory text names the data source, frames the central question, and previews the main findings.
 
-### Exercise 3
+### Exercise 2
 
 Publish the website to GitHub Pages. In the bash Terminal, run:
 
@@ -838,7 +796,7 @@ Copy/paste the resulting URL below.
 #| label: summary-3
 #| echo: false
 learnr2::question(
-  "Copy/paste the resulting URL below.",
+  "Publish the website to GitHub Pages. In the bash Terminal, run quarto publish gh-pages. Copy/paste the resulting URL below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -846,9 +804,32 @@ learnr2::question(
 
 ###
 
-`quarto publish gh-pages` without a filename publishes the whole website. All three pages are now live via the navbar.
+```
+? Publish site to https://your-username.github.io/sharks/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
 
-### Exercise 4
+[1/3] index.qmd
+[2/3] map.qmd
+[3/3] trends.qmd
+
+Output created: _site/index.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/sharks.git
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/sharks/
+```
+
+Your answer is the URL on the last line: `https://your-username.github.io/sharks/`.
+
+###
+
+The `[1/3]` to `[3/3]` lines show all three pages being rendered before the site is pushed, and the last line is the public address of your site, with the navbar linking its three pages.
+
+### Exercise 3
 
 Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
 
@@ -864,7 +845,13 @@ learnr2::question(
 
 ###
 
-The Global Shark Attack File is updated regularly and is freely available at [sharkattackfile.net](https://www.sharkattackfile.net/). The same workflow used here — download a CSV, clean it, save an RDS, map locations, analyze patterns, build a website — applies to any incident database. The tools are the same; only the question changes.
+```
+https://github.com/your-username/sharks
+```
+
+###
+
+The Global Shark Attack File is updated regularly and is freely available at [sharkattackfile.net](https://www.sharkattackfile.net/). The same workflow used here — download a CSV, clean it, map locations, chart patterns, build a website — applies to any incident database.
 
 ## Download answers
 

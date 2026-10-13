@@ -1,0 +1,1090 @@
+---
+title: IMDb Rankings
+author: David Kane
+description: 'Scraping five Wayback Machine snapshots of the IMDb Top 250 with httr2 and rvest, wrapping the scrape in a function and iterating it across years with purrr, and charting which decades of film rose or fell between 2015 and 2022.'
+format: live-html
+engine: knitr
+toc: true
+learnr2:
+  ordering: 10
+---
+
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+
+imdb_snapshots <- readRDS("data/imdb_snapshots.rds")
+```
+
+## Information
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
+```
+
+## Introduction
+
+This section covers key concepts from [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping.html), [Chapter 25: Functions](https://r4ds.hadley.nz/functions.html), and [Chapter 26: Iteration](https://r4ds.hadley.nz/iteration.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+Using core packages such as **[httr2](https://httr2.r-lib.org/)**, **[rvest](https://rvest.tidyverse.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[stringr](https://stringr.tidyverse.org/)**, you will scrape an HTML table from an archived web page, pull attributes off HTML nodes, split a compound text column with regex patterns, wrap the whole scrape in a function, and run that function across five snapshot years. The data is five archived snapshots of the IMDb Top 250 from the Wayback Machine.
+
+Use AI however you like.
+
+### Exercise 1
+
+You should be doing this tutorial in a repo named `imdb-rankings`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+
+Create a new file, `analysis.qmd`, with the title `"IMDb Rankings"` and your name as the author. In a bash Terminal, render it:
+
+```
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In the R Terminal, run:
+
+```
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
+
+CP/CR.
+
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "You should be doing this tutorial in a repo named imdb-rankings. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+analysis_files
+```
+
+###
+
+This tutorial works with five archived snapshots of the IMDb Top 250, captured by the Wayback Machine in January 2015, 2017, 2019, and 2021 and in February 2022 — 1,250 rows in all, one per film per snapshot. The live chart changes every day; the archive is the only place the chart of a given past date still exists.
+
+### Exercise 2
+
+In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
+
+```
+library(tidyverse)
+library(rvest)
+library(httr2)
+library(purrr)
+```
+
+Also add the following to the YAML header to remove all code from the HTML output:
+
+```
+execute:
+  echo: false
+```
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(rvest), library(httr2), library(purrr). Also add execute: echo: false to the YAML header to remove all code from the HTML output. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+#| message: false
+library(tidyverse)
+library(rvest)
+library(httr2)
+library(purrr)
+```
+
+###
+
+An HTML page is a tree of **elements**, each a start tag, optional attributes, some contents, and an end tag — this is one cell of the table you will scrape:
+
+```html
+<td class="ratingColumn imdbRating">
+  <strong title="9.2 based on 1,354,030 user ratings">9.2</strong>
+</td>
+```
+
+The rating is the element's text; the vote count hides in its `title` attribute.
+
+### Exercise 3
+
+Create a `data` directory at the top level of the `imdb-rankings` repo. In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "Create a data directory at the top level of the imdb-rankings repo. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
+```
+
+###
+
+The dataset's `number` column is the raw vote count, not the displayed rating: in the February 2022 capture, The Shawshank Redemption had 2,536,415 ratings, nearly twice its 1,354,030 in January 2015. Every film's count only ever grows, so a film whose rank holds steady is one gathering votes at least as fast as the chart as a whole.
+
+## Movie rankings
+
+This section covers web scraping with **httr2**, which fetches pages, and **rvest**, which
+parses them. You will write a scraping function that fetches one Wayback Machine snapshot
+of the IMDb Top 250, then apply it across five snapshot years and combine the results.
+Key concepts include selecting elements from an HTML page, reading an HTML table into a
+data frame, pulling attributes off HTML nodes, and parsing a messy text column with regex
+patterns.
+
+We use five archived snapshots of the **IMDb Top 250** from January 2015, January 2017,
+January 2019, January 2021, and February 2022 — accessed via the
+[Wayback Machine](https://web.archive.org/), a digital archive that preserves frozen
+copies of web pages as they appeared on specific dates. Combined, the five snapshots form
+a 1,250-row panel dataset tracking how film rankings shifted over seven years.
+
+Here is the plot you will build:
+
+```{r}
+#| label: movie-rankings-graphic
+#| echo: false
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
+  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linewidth = 0.8) +
+  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
+  labs(
+    title = "Classic Films Slide, 1990s Films Hold Steady",
+    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
+    x = "Average rank change (positive = rose)",
+    y = "Film release decade",
+    fill = NULL,
+    caption = "Films appearing in both 2015 and 2022 snapshots. n = 190 films."
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### Exercise 1
+
+Download the dataset into your `data/` directory. The file is `imdb_snapshots.rds` and
+the URL is:
+
+```
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds
+```
+
+Then, in a new chunk, read `data/imdb_snapshots.rds` into a tibble called `imdb_snapshots`. Print it, then print a count of rows per snapshot year.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-1
+#| echo: false
+learnr2::question(
+  "Download the dataset into your data/ directory. The file is imdb_snapshots.rds and the URL is: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds Then, in a new chunk, read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: movie-rankings-1-answer
+#| echo: true
+imdb_snapshots <- readRDS("data/imdb_snapshots.rds")
+imdb_snapshots
+imdb_snapshots |>
+  count(snap_year)
+```
+
+###
+
+1,250 rows = 5 snapshots × 250 films: the `snap_year` column is what converts a
+single-year scrape into a **panel dataset**, with each film appearing up to 5 times, once
+per snapshot year, with its rank at that point in time. The IMDb Top 250 used static HTML
+until around 2022, which makes these five snapshots parseable with the same **rvest**
+pipeline — the one you will rebuild later in this section.
+
+### Exercise 2
+
+Using `imdb_snapshots`, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-3
+#| echo: false
+learnr2::question(
+  "Using imdb_snapshots, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: movie-rankings-3-answer
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(rank_change = rank_2015 - rank_2022) |>
+  arrange(desc(abs(rank_change))) |>
+  head(10)
+```
+
+###
+
+"It Happened One Night" (Frank Capra, 1934) fell from rank 149 to 243 — a drop of 94
+spots in seven years. Nine of these ten biggest movers are fallers (the one riser is
+Jurassic Park, up 70), even though 56 of the 190 films present in both snapshots gained
+ground; that asymmetry at the extremes is a clue that something is systematically pushing
+particular films down, not just shuffling the deck at random.
+
+### Exercise 3
+
+Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-4
+#| echo: false
+learnr2::question(
+  "Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: movie-rankings-4-answer
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = round(mean(rank_change), 1), n = n(), .groups = "drop") |>
+  arrange(decade)
+```
+
+###
+
+Films from the 1930s fell an average of 38 spots while 1990s films were essentially flat
+(+0.4): 93 films entered the Top 250 after 2015, and the newcomers crowd older titles out
+at the bottom. The ranking is a Bayesian weighted average that leans on vote counts, so
+films with organized, active fanbases keep accumulating votes and hold their place — The
+Dark Knight sat at exactly rank 4 in all five snapshots.
+
+### Exercise 4
+
+Count how many of the five snapshots each film appears in, then show the distribution of
+that count.
+
+Render.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd", chunk = "Last")
+```
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-7
+#| echo: false
+learnr2::question(
+  "Count how many of the five snapshots each film appears in, then show the distribution of that count. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: movie-rankings-7-answer
+#| echo: true
+imdb_snapshots |>
+  count(title, name = "n_snapshots") |>
+  count(n_snapshots, name = "n_films")
+```
+
+###
+
+71 films appear in exactly one snapshot (31 of them only in 2015, 11 only in 2022) and 183
+appear in all five. Some of that is real churn — Boyhood sits at 93 in 2015 and never
+returns, while Spider-Man: No Way Home enters at 25 in the 2022 capture — but some of it
+is an artifact of matching films by their titles: IMDb relabelled "Star Wars" as "Star
+Wars: Episode IV - A New Hope", dropped the period from "Snatch.", and stripped the
+circumflex from "Rashômon", and each rename splits one film into two rows that no join
+will ever match. Whenever the key you match on is human-facing text rather than a stable
+identifier, check for drift before trusting any count of appearances.
+
+### Exercise 5
+
+The five snapshots come from these Wayback Machine captures:
+
+```
+2015  https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/
+2017  https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/
+2019  https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/
+2021  https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/
+2022  https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/
+```
+
+Now build the pipeline that assembled this data. In a new chunk, store those five
+addresses and their five years as two parallel vectors. Then fetch the 2015 page, read
+the one table it contains, and print just its rank-and-title column and its rating
+column, so you can see what a scrape actually hands you. Allow a generous timeout and a
+couple of retries — the archive is slow and occasionally drops a request. If the Wayback
+Machine refuses the request, keep the `readRDS()` chunk and continue; the rest of the
+tutorial works either way.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: movie-rankings-8
+#| echo: false
+learnr2::question(
+  "The five snapshots come from these Wayback Machine captures: 2015 https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/ 2017 https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/ 2019 https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/ 2021 https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/ 2022 https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/ Now build the pipeline that assembled this data. In a new chunk, store those five addresses and their five years as two parallel vectors. Then fetch the 2015 page, read the one table it contains, and print just its rank-and-title column and its rating column, so you can see what a scrape actually hands you. Allow a generous timeout and a couple of retries — the archive is slow and occasionally drops a request. If the Wayback Machine refuses the request, keep the readRDS() chunk and continue; the rest of the tutorial works either way. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+request(snap_urls[1]) |>
+  req_timeout(60) |>
+  req_retry(max_tries = 3, backoff = ~ 5) |>
+  req_perform() |>
+  resp_body_html() |>
+  html_element("table") |>
+  html_table() |>
+  select(`Rank & Title`, `IMDb Rating`)
+```
+
+###
+
+```
+# A tibble: 250 x 2
+   `Rank & Title`                                     `IMDb Rating`
+   <chr>                                                      <dbl>
+ 1 "\n      1.\n      The Shawshank Redemption\n   ...           9.2
+ 2 "\n      2.\n      The Godfather\n      (1972)\n...           9.2
+ 3 "\n      3.\n      The Godfather: Part II\n     ...           9
+ 4 "\n      4.\n      The Dark Knight\n      (2008)...           8.9
+ 5 "\n      5.\n      Pulp Fiction\n      (1994)\n ...           8.9
+# i 245 more rows
+```
+
+###
+
+**httr2** handles the conversation with the server — the request, the timeout, the
+retries — and **rvest** parses the HTML that comes back, which is not tidy: one cell
+carries rank, title, and release year glued together with the newlines of the original
+page layout, and the vote count is nowhere in the table at all. Scraping has rules: every
+site publishes a `robots.txt` at its root listing the paths automated clients are asked
+to leave alone, and its terms of service govern what you may do with whatever you do
+collect — the two are different documents and both matter.
+
+### Exercise 6
+
+Wrap that fetch in a function that takes one address and one snapshot year and returns a
+tidy 250-row tibble with the columns `snap_year`, `rank`, `title`, `year`, `rating`, and
+`number`. Two pieces of cleaning are needed. First, split the rank-and-title text into
+three separate columns. Second, the vote count lives in the tooltip attribute of each
+rating element rather than in the table — text of the form `9.2 based on 1,354,030
+votes` — so read that attribute off the page and pull the number out of it.
+
+Replace the exploratory fetch with the function, then call it on the 2015 snapshot and
+print the result.
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: movie-rankings-9
+#| echo: false
+learnr2::question(
+  "Wrap that fetch in a function that takes one address and one snapshot year and returns a tidy 250-row tibble with the columns snap_year, rank, title, year, rating, and number. Two pieces of cleaning are needed. First, split the rank-and-title text into three separate columns. Second, the vote count lives in the tooltip attribute of each rating element rather than in the table — text of the form 9.2 based on 1,354,030 votes — so read that attribute off the page and pull the number out of it. Replace the exploratory fetch with the function, then call it on the 2015 snapshot and print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+scrape_snapshot <- function(url, snap_year) {
+  page      <- request(url) |>
+    req_timeout(60) |>
+    req_retry(max_tries = 3, backoff = ~ 5) |>
+    req_perform() |>
+    resp_body_html()
+  tbl       <- page |> html_element("table") |> html_table()
+  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
+  tbl |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
+    mutate(
+      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
+      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
+        parse_number()
+    ) |>
+    separate_wider_regex(
+      rank_title_year,
+      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
+    ) |>
+    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
+    select(snap_year, rank, title, year, rating, number)
+}
+
+scrape_snapshot(snap_urls[1], snap_years[1])
+```
+
+###
+
+```{r}
+#| label: movie-rankings-9-answer
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year == 2015)
+```
+
+###
+
+The archive's own markup changed underneath these five captures: before 2022 the tooltip
+reads "9.2 based on 1,354,030 votes"; the 2022 capture reads "8.7 based on 2,432,861 user
+ratings". **[stringr](https://stringr.tidyverse.org/)** can match what precedes a value
+without capturing it, so a single pattern anchored on "based on " handles both wordings
+and the function needs no special case for the newer page. Scraped sources drift like
+this constantly, which is why the scraping logic belongs in one function you can fix in
+one place.
+
+### Exercise 7
+
+A function that handles one snapshot handles all five. Replace the single call with one
+that runs the function once for each address-and-year pair, then stack the five results
+into a single tibble named `imdb_snapshots`. Print it. Once the scrape works, delete the
+`readRDS()` chunk from earlier, so that `imdb_snapshots` is defined only once. (If the
+archive is still refusing you, keep the `readRDS()` chunk and put `#| eval: false` as the
+first line of the scrape chunk instead.)
+
+Render.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: movie-rankings-10
+#| echo: false
+learnr2::question(
+  "A function that handles one snapshot handles all five. Replace the single call with one that runs the function once for each address-and-year pair, then stack the five results into a single tibble named imdb_snapshots. Print it. Once the scrape works, delete the readRDS() chunk from earlier, so that imdb_snapshots is defined only once. (If the archive is still refusing you, keep the readRDS() chunk and put #| eval: false as the first line of the scrape chunk instead.) Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+scrape_snapshot <- function(url, snap_year) {
+  page      <- request(url) |>
+    req_timeout(60) |>
+    req_retry(max_tries = 3, backoff = ~ 5) |>
+    req_perform() |>
+    resp_body_html()
+  tbl       <- page |> html_element("table") |> html_table()
+  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
+  tbl |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
+    mutate(
+      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
+      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
+        parse_number()
+    ) |>
+    separate_wider_regex(
+      rank_title_year,
+      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
+    ) |>
+    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
+    select(snap_year, rank, title, year, rating, number)
+}
+
+imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
+  list_rbind()
+
+imdb_snapshots
+```
+
+###
+
+```{r}
+#| label: movie-rankings-10-answer
+#| echo: true
+imdb_snapshots
+```
+
+###
+
+If your `imdb_snapshots` does not match ours, replace your code with the pipeline above
+before continuing.
+
+**purrr**'s two-input iteration walks two parallel vectors together, applying a
+two-argument function to each corresponding pair — here each address-and-year pair yields
+one 250-row tibble, and the five stack into 1,250 rows in order. Your `imdb_snapshots`
+should now match the one you read from the `.rds` file, because that file was built by
+this same pipeline.
+
+### Exercise 8
+
+That chunk now makes five network round trips every time you render. Before turning on
+caching, strip the `imdb_snapshots` print line from the chunk, leaving only the addresses,
+the years, the function, and the assignment.
+
+In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+
+```{r}
+#| label: movie-rankings-11
+#| echo: false
+learnr2::question(
+  "That chunk now makes five network round trips every time you render. Before turning on caching, strip the imdb_snapshots print line from the chunk, leaving only the addresses, the years, the function, and the assignment. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+scrape_snapshot <- function(url, snap_year) {
+  page      <- request(url) |>
+    req_timeout(60) |>
+    req_retry(max_tries = 3, backoff = ~ 5) |>
+    req_perform() |>
+    resp_body_html()
+  tbl       <- page |> html_element("table") |> html_table()
+  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
+  tbl |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
+    mutate(
+      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
+      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
+        parse_number()
+    ) |>
+    separate_wider_regex(
+      rank_title_year,
+      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
+    ) |>
+    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
+    select(snap_year, rank, title, year, rating, number)
+}
+
+imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
+  list_rbind()
+```
+
+###
+
+A scrape is the clearest case for caching there is. Reading a local file again costs you
+time; fetching a remote page again costs someone else bandwidth, and a host that sees the
+same request every few minutes may start refusing them.
+
+### Exercise 9
+
+Add `#| cache: true` as the first line inside the `imdb_snapshots` chunk. Render.
+This render is the slow one — it makes all five requests. To confirm the cache directory
+is there, in the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-12
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the first line inside the imdb_snapshots chunk. Render. This render is the slow one — it makes all five requests. To confirm the cache directory is there, in the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
+```
+
+###
+
+`analysis_cache/` now holds the saved `imdb_snapshots` tibble, and every later render —
+including the one that publishes your page — loads it from disk without touching the
+network. The page you publish reports the archive as it stood when you first rendered, not
+as it stands today — for a fixed historical snapshot that is exactly right; for a source
+that updates, it is a decision to make deliberately rather than by accident.
+
+### Exercise 10
+
+The Source Control change count jumped because `analysis_cache/` now looks like untracked
+work to git. Cached files should never go to GitHub.
+
+Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+
+```{r}
+#| label: movie-rankings-16
+#| echo: false
+learnr2::question(
+  "The Source Control change count jumped because analysis_cache/ now looks like untracked work to git. Cached files should never go to GitHub. Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+analysis_files
+analysis_cache
+```
+
+###
+
+Not every archived address returns a usable page, so these five dates were chosen from the
+Wayback Machine's own CDX index at
+`web.archive.org/cdx/search/cdx?url=https://www.imdb.com/chart/top/&output=text`, which
+lists every capture held for an address. A short timestamp like `20150101` asks the
+archive for the capture nearest that date, so the page you get back may be from a day or
+two away.
+
+### Exercise 11
+
+In a new working chunk, make a bar chart of the average rank change from 2015 to 2022 by
+release decade, with decade on the y-axis and average rank change on the x-axis. Color the
+bars by direction — one color for decades where the average rank rose, another for decades
+where it fell. Add a vertical reference line at zero. Give the chart a proper title,
+subtitle, axis labels, a legend label, and a caption that mentions the sample size (190
+films appear in both the 2015 and 2022 snapshots).
+
+Render.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: movie-rankings-14
+#| echo: false
+learnr2::question(
+  "In a new working chunk, make a bar chart of the average rank change from 2015 to 2022 by release decade, with decade on the y-axis and average rank change on the x-axis. Color the bars by direction — one color for decades where the average rank rose, another for decades where it fell. Add a vertical reference line at zero. Give the chart a proper title, subtitle, axis labels, a legend label, and a caption that mentions the sample size (190 films appear in both the 2015 and 2022 snapshots). Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: movie-rankings-14-answer
+#| echo: true
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
+  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linewidth = 0.8) +
+  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
+  labs(
+    title = "Classic Films Slide, 1990s Films Hold Steady",
+    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
+    x = "Average rank change (positive = rose)",
+    y = "Film release decade",
+    fill = NULL,
+    caption = "Films appearing in both 2015 and 2022 snapshots. n = 190 films."
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+###
+
+Films from the 1990s are essentially flat (+0.4 average): these films are still being
+actively rated by the audience that grew up with them — viewers now in their 30s and 40s
+who first used IMDb in the early 2000s. The IMDb voter base did not exist in 1934; it
+emerged around 1998 and is now dominated by viewers who have no particular attachment to
+films from that era.
+
+### Exercise 12
+
+Commit `analysis.qmd` with the message `"Add movie rankings analysis"` and push to GitHub.
+
+In the bash Terminal, run:
+
+```
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r}
+#| label: movie-rankings-15
+#| echo: false
+learnr2::question(
+  "Commit analysis.qmd with the message \"Add movie rankings analysis\" and push to GitHub. In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+abc1234 Add movie rankings analysis
+...
+```
+
+###
+
+The **[ggplot2movies](https://cran.r-project.org/package=ggplot2movies)** package on CRAN includes IMDb data from a 2015 snapshot — a
+convenient alternative for offline analysis that also exposes budgets, genres, and
+MPAA ratings. **Letterboxd**, a social film platform, maintains its own community-rated
+lists; its rankings often differ substantially from IMDb's because its user base skews
+younger and more cinephile than IMDb's general audience.
+
+## Summary
+
+This section covered key concepts from [Chapter 24: Web Scraping](https://r4ds.hadley.nz/webscraping.html), [Chapter 25: Functions](https://r4ds.hadley.nz/functions.html), and [Chapter 26: Iteration](https://r4ds.hadley.nz/iteration.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+
+You learned about web scraping, functions, and iteration using core packages such as **httr2**, **rvest**, **purrr**, and **stringr**. Key concepts included reading an HTML table from an archived page, pulling a vote count out of an attribute, parsing a messy text column with regex, wrapping a scrape in a function, and running that function across five snapshot years to build a panel dataset.
+
+### Exercise 1
+
+Render. Check your Live Server tab.
+
+In the R Terminal, run:
+
+```
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render. Check your Live Server tab. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+````{verbatim}
+---
+title: "IMDb Rankings"
+author: Your Name
+execute:
+  echo: false
+---
+
+```{r}
+#| message: false
+library(tidyverse)
+library(rvest)
+library(httr2)
+library(purrr)
+```
+
+```{r}
+#| cache: true
+snap_urls <- c(
+  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
+  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
+)
+snap_years <- c(2015, 2017, 2019, 2021, 2022)
+
+scrape_snapshot <- function(url, snap_year) {
+  page      <- request(url) |>
+    req_timeout(60) |>
+    req_retry(max_tries = 3, backoff = ~ 5) |>
+    req_perform() |>
+    resp_body_html()
+  tbl       <- page |> html_element("table") |> html_table()
+  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
+  tbl |>
+    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
+    mutate(
+      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
+      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
+        parse_number()
+    ) |>
+    separate_wider_regex(
+      rank_title_year,
+      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
+    ) |>
+    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
+    select(snap_year, rank, title, year, rating, number)
+}
+
+imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
+  list_rbind()
+```
+
+```{r}
+imdb_snapshots |>
+  filter(snap_year %in% c(2015, 2022)) |>
+  select(snap_year, title, year, rank) |>
+  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
+  drop_na() |>
+  mutate(
+    rank_change = rank_2015 - rank_2022,
+    decade = paste0(floor(year / 10) * 10, "s")
+  ) |>
+  group_by(decade) |>
+  summarise(avg_change = mean(rank_change), .groups = "drop") |>
+  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
+  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
+  geom_col() +
+  geom_vline(xintercept = 0, linewidth = 0.8) +
+  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
+  labs(
+    title = "Classic Films Slide, 1990s Films Hold Steady",
+    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
+    x = "Average rank change (positive = rose)",
+    y = "Film release decade",
+    fill = NULL,
+    caption = "Films appearing in both 2015 and 2022 snapshots. n = 190 films."
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+````
+
+###
+
+One of the three chunks in that file is cached, so the five requests to a public archive happened once and every render since — including the one that publishes your page — has loaded `imdb_snapshots` from disk without touching the Wayback Machine. The whole scrape is about thirty lines, and all but five of them are cleaning what the page handed back.
+
+### Exercise 2
+
+Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
+
+```
+quarto publish gh-pages analysis.qmd
+```
+
+Copy/paste the resulting URL below.
+
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run: quarto publish gh-pages analysis.qmd Copy/paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+? Publish site to https://your-username.github.io/imdb-rankings/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
+...
+Output created: analysis.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/imdb-rankings.git
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/imdb-rankings/
+```
+
+Your answer is the URL on the last line: `https://your-username.github.io/imdb-rankings/`.
+
+###
+
+The five snapshots form panel data: the same films observed at multiple points in time. A single snapshot can only rank films; five let you ask which aged well, which fell off, and how taste shifted over seven years.
+
+### Exercise 3
+
+Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+
+```{r}
+#| label: summary-3
+#| echo: false
+learnr2::question(
+  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```
+https://github.com/your-username/imdb-rankings
+```
+
+###
+
+Scraping is the last resort, not the first: when a site offers an API or a bulk download — IMDb publishes its current ratings as TSV files at `datasets.imdbws.com` — use that instead. The chart as it stood on a past date, though, exists only in the archive, and for that the scrape was the only way in.
+
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "imdb-rankings")
+```

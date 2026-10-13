@@ -1,8 +1,8 @@
 movies tutorial data: Delimited files (CSV)
 
 movies.csv
-  Roughly 30,000 films from Rotten Tomatoes, spanning 1914-2023. Eight
-  columns: title, audienceScore, tomatoMeter, genre, releaseDateTheaters,
+  Roughly 30,000 films from Rotten Tomatoes, spanning 1902-2023 (essentially
+  1914 onward; one film is dated 1902). Eight columns: title, audienceScore, tomatoMeter, genre, releaseDateTheaters,
   runtimeMinutes, director, boxOffice. tomatoMeter is the percentage of
   approved critics giving a positive review; audienceScore is the percentage
   of verified ticket-buyers rating the film 3.5+ / 5. The genre column may
