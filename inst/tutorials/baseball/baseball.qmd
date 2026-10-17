@@ -201,7 +201,7 @@ Create a new page in your website named `home-runs.qmd`, giving it the title `"H
 
 At the top of `home-runs.qmd`, add a code chunk that loads `library(tidyverse)` and `library(Lahman)`, with `#| message: false` so startup messages stay out of the page. Keep the `library()` lines in a chunk of their own, and add a second chunk below it that prints the `Teams` table.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("home-runs.qmd")`.
 
 CP/CR.
 
@@ -209,7 +209,7 @@ CP/CR.
 #| label: home-runs-1
 #| echo: false
 learnr2::question(
-  "Create a new page in your website named home-runs.qmd, giving it the title \"Home runs\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of home-runs.qmd, add a code chunk that loads library(tidyverse) and library(Lahman), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that prints the Teams table. Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page in your website named home-runs.qmd, giving it the title \"Home runs\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of home-runs.qmd, add a code chunk that loads library(tidyverse) and library(Lahman), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that prints the Teams table. Render. In the R Terminal, run show_file(\"home-runs.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -231,7 +231,7 @@ Teams
 
 That table is too wide to read, and we need only three of its 48 columns: `yearID`, the season; `G`, games played (about 162 in a modern full season); and `HR`, that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("home-runs.qmd")`.
 
 CP/CR.
 
@@ -239,7 +239,7 @@ CP/CR.
 #| label: home-runs-3
 #| echo: false
 learnr2::question(
-  "That table is too wide to read, and we need only three of its 48 columns: yearID, the season; G, games played (about 162 in a modern full season); and HR, that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games. Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  "That table is too wide to read, and we need only three of its 48 columns: yearID, the season; G, games played (about 162 in a modern full season); and HR, that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games. Render. In the R Terminal, run show_file(\"home-runs.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -307,7 +307,7 @@ The long climb makes sense: more teams, more games, and a livelier game all push
 
 Investigate those collapses. Build a small table comparing a normal recent season (2019) with the three suspicious ones (1981, 1994, 2020), showing each season's total home runs, total team-games, and home runs per game.
 
-Render. In the R Terminal, run `show_file("home-runs.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("home-runs.qmd")`.
 
 CP/CR.
 
@@ -315,7 +315,7 @@ CP/CR.
 #| label: home-runs-5
 #| echo: false
 learnr2::question(
-  "Investigate those collapses. Build a small table comparing a normal recent season (2019) with the three suspicious ones (1981, 1994, 2020), showing each season's total home runs, total team-games, and home runs per game. Render. In the R Terminal, run show_file(\"home-runs.qmd\", chunk = \"Last\"). CP/CR.",
+  "Investigate those collapses. Build a small table comparing a normal recent season (2019) with the three suspicious ones (1981, 1994, 2020), showing each season's total home runs, total team-games, and home runs per game. Render. In the R Terminal, run show_file(\"home-runs.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -619,7 +619,7 @@ Create a new page named `sluggers.qmd`, giving it the title `"Sluggers"`, and ad
 
 At the top of the page, add a code chunk that loads `library(tidyverse)` and `library(Lahman)` with `#| message: false`. `Batting` has about 128,000 rows --- one per player per season per team, going back to 1871 --- so a player who batted for fifteen seasons contributes roughly fifteen rows. In a second chunk, add up each player's home runs across all of their seasons, and show the 15 players with the most career home runs.
 
-Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("sluggers.qmd")`.
 
 CP/CR.
 
@@ -627,7 +627,7 @@ CP/CR.
 #| label: sluggers-2
 #| echo: false
 learnr2::question(
-  "Create a new page named sluggers.qmd, giving it the title \"Sluggers\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) and library(Lahman) with #| message: false. Batting has about 128,000 rows (one per player per season per team, going back to 1871), so a player who batted for fifteen seasons contributes roughly fifteen rows. In a second chunk, add up each player's home runs across all of their seasons, and show the 15 players with the most career home runs. Render. In the R Terminal, run show_file(\"sluggers.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page named sluggers.qmd, giving it the title \"Sluggers\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) and library(Lahman) with #| message: false. Batting has about 128,000 rows (one per player per season per team, going back to 1871), so a player who batted for fifteen seasons contributes roughly fifteen rows. In a second chunk, add up each player's home runs across all of their seasons, and show the 15 players with the most career home runs. Render. In the R Terminal, run show_file(\"sluggers.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -652,7 +652,7 @@ The counts are right, but the players are unreadable: `bondsba01` is a `playerID
 
 Join the `People` table to attach each leader's name. Build a clean table showing the player's full name, their career home run total, and the span of seasons they played (first year to last year).
 
-Render. In the R Terminal, run `show_file("sluggers.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("sluggers.qmd")`.
 
 CP/CR.
 
@@ -660,7 +660,7 @@ CP/CR.
 #| label: sluggers-3
 #| echo: false
 learnr2::question(
-  "Join the People table to attach each leader's name. Build a clean table showing the player's full name, their career home run total, and the span of seasons they played (first year to last year). Render. In the R Terminal, run show_file(\"sluggers.qmd\", chunk = \"Last\"). CP/CR.",
+  "Join the People table to attach each leader's name. Build a clean table showing the player's full name, their career home run total, and the span of seasons they played (first year to last year). Render. In the R Terminal, run show_file(\"sluggers.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

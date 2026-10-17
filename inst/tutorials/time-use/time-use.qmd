@@ -142,7 +142,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -151,7 +151,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -273,13 +273,13 @@ GitHub warns about any file over 50 MB and refuses one over 100 MB, and Git keep
 
 Create a new working chunk in `analysis.qmd`. Connect to `data/atus.duckdb` and create lazy references to its three tables: `dbplyr_act` for `activities`, `dbplyr_resp` for `respondents`, and `dbplyr_codes` for `activity_codes`. Print `dbplyr_act`. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-2
 #| echo: false
 learnr2::question(
-  "Create a new working chunk in analysis.qmd. Connect to data/atus.duckdb and create lazy references to its three tables: dbplyr_act for activities, dbplyr_resp for respondents, and dbplyr_codes for activity_codes. Print dbplyr_act. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new working chunk in analysis.qmd. Connect to data/atus.duckdb and create lazy references to its three tables: dbplyr_act for activities, dbplyr_resp for respondents, and dbplyr_codes for activity_codes. Print dbplyr_act. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -304,13 +304,13 @@ Three tables: `activities` records every diary entry with its start time and dur
 
 Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-5
 #| echo: false
 learnr2::question(
-  "Collect the entire dbplyr_codes table and print it. Because activity_codes is only a few hundred rows, collect() is fine here; it is the large tables we defer. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Collect the entire dbplyr_codes table and print it. Because activity_codes is only a few hundred rows, collect() is fine here; it is the large tables we defer. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -333,13 +333,13 @@ dbplyr_codes |>
 
 Join the activity records to their major category names from `dbplyr_codes` and compute the average length of a single activity record in each major category, longest first. Collect and print. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-8
 #| echo: false
 learnr2::question(
-  "Join the activity records to their major category names from dbplyr_codes and compute the average length of a single activity record in each major category, longest first. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Join the activity records to their major category names from dbplyr_codes and compute the average length of a single activity record in each major category, longest first. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -367,13 +367,13 @@ Traveling comes last at 18.7 minutes per record even though it has more records 
 
 Count the number of respondents by `sex` and `employment_status`. Collect and print. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-9
 #| echo: false
 learnr2::question(
-  "Count the number of respondents by sex and employment_status. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count the number of respondents by sex and employment_status. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -398,13 +398,13 @@ dbplyr_resp |>
 
 For weekday respondents who are not in the labor force, compute how many minutes each person spent in each major activity category over their diary day. Collect and print the result. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-11
 #| echo: false
 learnr2::question(
-  "For weekday respondents who are not in the labor force, compute how many minutes each person spent in each major activity category over their diary day. Collect and print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "For weekday respondents who are not in the labor force, compute how many minutes each person spent in each major activity category over their diary day. Collect and print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -436,13 +436,13 @@ dbplyr_act |>
 
 Collapse those person-level totals one step further: average them across respondents, so you have the mean weekday minutes a non-employed person of each sex spends in each major category. Assign the result to `activity_avg` and print it. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-12
 #| echo: false
 learnr2::question(
-  "Collapse those person-level totals one step further: average them across respondents, so you have the mean weekday minutes a non-employed person of each sex spends in each major category. Assign the result to activity_avg and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Collapse those person-level totals one step further: average them across respondents, so you have the mean weekday minutes a non-employed person of each sex spends in each major category. Assign the result to activity_avg and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -483,13 +483,13 @@ Now clean up the working chunk — but split it in two rather than leaving it as
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-18
 #| echo: false
 learnr2::question(
-  "Now clean up the working chunk, but split it in two rather than leaving it as one. activity_avg is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the activity_avg computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of activity_avg. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Now clean up the working chunk, but split it in two rather than leaving it as one. activity_avg is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the activity_avg computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of activity_avg. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -573,13 +573,13 @@ The averages sitting in that cache rest on 42,490 diaries — the weekday respon
 
 Start a new code chunk. Build the dataset behind the final chart: for weekday non-employed respondents, the average minutes spent in activities *starting* in each hour of the day, broken out by sex and major category. Keep only the four categories named in Exercise 4, and only hours 6 through 23. Assign the result to `hourly_avg` and print it. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: time-use-13
 #| echo: false
 learnr2::question(
-  "Start a new code chunk. Build the dataset behind the final chart: for weekday non-employed respondents, the average minutes spent in activities starting in each hour of the day, broken out by sex and major category. Keep only the four categories named in Exercise 4, and only hours 6 through 23. Assign the result to hourly_avg and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Start a new code chunk. Build the dataset behind the final chart: for weekday non-employed respondents, the average minutes spent in activities starting in each hour of the day, broken out by sex and major category. Keep only the four categories named in Exercise 4, and only hours 6 through 23. Assign the result to hourly_avg and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

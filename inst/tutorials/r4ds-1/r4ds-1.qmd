@@ -133,7 +133,7 @@ Render again. Check the rendered HTML. Only the title and author should appear i
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
@@ -144,7 +144,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "In your QMD, put library(tidyverse) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -250,13 +250,13 @@ billboard.csv
 
 Add a new chunk that reads `data/billboard.csv` into an object named `billboard` and then prints it. Suppress the column specification that **readr** prints while parsing.
 
-Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-14
 #| echo: false
 learnr2::question(
-  "Add a new chunk that reads data/billboard.csv into an object named billboard and then prints it. Suppress the column specification that readr prints while parsing. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Add a new chunk that reads data/billboard.csv into an object named billboard and then prints it. Suppress the column specification that readr prints while parsing. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -279,13 +279,13 @@ billboard
 
 That chunk does two jobs: it defines `billboard` and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into `billboard`.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-15
 #| echo: false
 learnr2::question(
-  "That chunk does two jobs: it defines billboard and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into billboard. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "That chunk does two jobs: it defines billboard and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into billboard. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -358,13 +358,13 @@ With both generated directories ignored, the only changes git now sees are `anal
 
 ### Exercise 6
 
-Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-2
 #| echo: false
 learnr2::question(
-  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from billboard: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from billboard: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -386,13 +386,13 @@ The weekly columns are relative to when each song entered the chart. `wk4` means
 
 ### Exercise 7
 
-Summarize the `date.entered` column so you can see the time period covered by the dataset. Update your working chunk, render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Summarize the `date.entered` column so you can see the time period covered by the dataset. Update your working chunk, render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-3
 #| echo: false
 learnr2::question(
-  "Summarize the date.entered column so you can see the time period covered by the dataset. Update your working chunk, render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Summarize the date.entered column so you can see the time period covered by the dataset. Update your working chunk, render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -450,13 +450,13 @@ Rankings are reversed from many numeric measures: smaller numbers are better. A 
 
 ### Exercise 9
 
-Create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Create a small table showing how many rankings are missing and present for `wk1`, `wk4`, `wk10`, `wk20`, `wk40`, and `wk76`. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-6
 #| echo: false
 learnr2::question(
-  "Create a small table showing how many rankings are missing and present for wk1, wk4, wk10, wk20, wk40, and wk76. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a small table showing how many rankings are missing and present for wk1, wk4, wk10, wk20, wk40, and wk76. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -538,13 +538,13 @@ Notice that most lines stop at week 20. The chart holds 146 of these songs in we
 
 ### Exercise 11
 
-Count the songs whose last week on the chart is exactly week 20, and how many of those were ranked below 50 in that week. Update your working chunk, render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Count the songs whose last week on the chart is exactly week 20, and how many of those were ranked below 50 in that week. Update your working chunk, render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-18
 #| echo: false
 learnr2::question(
-  "Count the songs whose last week on the chart is exactly week 20, and how many of those were ranked below 50 in that week. Update your working chunk, render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count the songs whose last week on the chart is exactly week 20, and how many of those were ranked below 50 in that week. Update your working chunk, render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -581,13 +581,13 @@ Billboard has a *recurrent* rule: a song that has been on the Hot 100 for 20 wee
 
 The full trajectory plot is useful, but it is too dense to explain individual stories. Focus on songs that reached the top 10 and look for different kinds of hit trajectories.
 
-Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-10
 #| echo: false
 learnr2::question(
-  "Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a song-level summary with each song's first rank, best rank, first week at its best rank, and total weeks on the chart. Then identify three notable top-10 songs: the fastest song to reach number one, the slowest song to reach number one, and the top-10 song with the longest chart run. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

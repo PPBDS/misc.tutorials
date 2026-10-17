@@ -100,7 +100,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -109,7 +109,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -169,7 +169,7 @@ In a new code chunk, print the schema of `history.parquet` without loading it in
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -178,7 +178,7 @@ CP/CR.
 #| label: crowd-1
 #| echo: false
 learnr2::question(
-  "Get the two core prediction-market files, markets.parquet and history.parquet, into data/ so the analysis can run locally. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/markets.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/history.parquet. In a new code chunk, print the schema of history.parquet without loading it into memory. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Get the two core prediction-market files, markets.parquet and history.parquet, into data/ so the analysis can run locally. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/markets.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/history.parquet. In a new code chunk, print the schema of history.parquet without loading it into memory. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -203,7 +203,7 @@ Create the main forecasting table in that chunk. Read the market-level file into
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -212,7 +212,7 @@ CP/CR.
 #| label: crowd-2
 #| echo: false
 learnr2::question(
-  "Create the main forecasting table in that chunk. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an outcome_numeric field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as joined and print the row count as a join check. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Create the main forecasting table in that chunk. Read the market-level file into memory, attach the market outcome to each daily probability snapshot, and add an outcome_numeric field coded as 1 for YES and 0 for NO so errors can be calculated later. Save the result as joined and print the row count as a join check. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -249,7 +249,7 @@ Keep the code that defines `markets` and `joined`. Load the two topic files in t
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -258,7 +258,7 @@ CP/CR.
 #| label: crowd-3
 #| echo: false
 learnr2::question(
-  "Get the two topic-classification files, groups.parquet and market_groups.parquet, into data/. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/groups.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/market_groups.parquet. Keep the code that defines markets and joined. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to markets. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Get the two topic-classification files, groups.parquet and market_groups.parquet, into data/. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/groups.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/market_groups.parquet. Keep the code that defines markets and joined. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to markets. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -294,7 +294,7 @@ Every daily snapshot needs the core accuracy measure: how far the crowd's probab
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -303,7 +303,7 @@ CP/CR.
 #| label: crowd-4
 #| echo: false
 learnr2::question(
-  "Every daily snapshot needs the core accuracy measure: how far the crowd's probability sat from what actually happened. Extend the chunk that builds joined so each row carries that distance, then summarize its mean and median so you know the baseline before considering time to resolution. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Every daily snapshot needs the core accuracy measure: how far the crowd's probability sat from what actually happened. Extend the chunk that builds joined so each row carries that distance, then summarize its mean and median so you know the baseline before considering time to resolution. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -345,7 +345,7 @@ Add a second field to the same chunk: for every snapshot, the number of calendar
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -354,7 +354,7 @@ CP/CR.
 #| label: crowd-5
 #| echo: false
 learnr2::question(
-  "Add a second field to the same chunk: for every snapshot, the number of calendar days remaining until that market resolved. As a data check, count how many snapshots fall on the final day and how many are one to seven days out. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a second field to the same chunk: for every snapshot, the number of calendar days remaining until that market resolved. As a data check, count how many snapshots fall on the final day and how many are one to seven days out. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -397,7 +397,7 @@ The comparison to come is across time horizons, not individual days. In the same
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -406,7 +406,7 @@ CP/CR.
 #| label: crowd-6
 #| echo: false
 learnr2::question(
-  "The comparison to come is across time horizons, not individual days. In the same chunk, add a field that sorts each snapshot into one of five horizons — more than 90 days out, 30 to 90, 7 to 30, 1 to 7, and the final day — kept in chronological rather than alphabetical order. Count the rows in each to check the distribution. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "The comparison to come is across time horizons, not individual days. In the same chunk, add a field that sorts each snapshot into one of five horizons — more than 90 days out, 30 to 90, 7 to 30, 1 to 7, and the final day — kept in chronological rather than alphabetical order. Count the rows in each to check the distribution. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -456,7 +456,7 @@ That chunk now builds everything the rest of the section needs, so make it a pur
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -465,7 +465,7 @@ CP/CR.
 #| label: crowd-7
 #| echo: false
 learnr2::question(
-  "That chunk now builds everything the rest of the section needs, so make it a pure data chunk: delete the count by bucket at the end, leaving only the file loads and the definition of joined. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "That chunk now builds everything the rest of the section needs, so make it a pure data chunk: delete the count by bucket at the end, leaving only the file loads and the definition of joined. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -572,7 +572,7 @@ Start a new chunk and stress-test the topic join. Join `markets` to `market_grou
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -581,7 +581,7 @@ CP/CR.
 #| label: crowd-10
 #| echo: false
 learnr2::question(
-  "Start a new chunk and stress-test the topic join. Join markets to market_groups by market_id, print the resulting row count, and compare it to the original 800 market rows. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Start a new chunk and stress-test the topic join. Join markets to market_groups by market_id, print the resulting row count, and compare it to the original 800 market rows. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -608,7 +608,7 @@ The join check has done its job, so replace it. In that chunk, build a compact a
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -617,7 +617,7 @@ CP/CR.
 #| label: crowd-15
 #| echo: false
 learnr2::question(
-  "The join check has done its job, so replace it. In that chunk, build a compact accuracy summary for the final chart: compute mean prediction error for each time_bucket, include the number of snapshots in each bucket, save it as accuracy, and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "The join check has done its job, so replace it. In that chunk, build a compact accuracy summary for the final chart: compute mean prediction error for each time_bucket, include the number of snapshots in each bucket, save it as accuracy, and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -726,7 +726,7 @@ Build the calibration table from those final-day snapshots. Group the markets in
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -735,7 +735,7 @@ CP/CR.
 #| label: crowd-18
 #| echo: false
 learnr2::question(
-  "Build the calibration table from those final-day snapshots. Group the markets into probability bins ten percentage points wide, and for each bin compute the fraction that actually resolved YES (actual_rate) along with the number of markets (n). Save the result as calibration and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Build the calibration table from those final-day snapshots. Group the markets into probability bins ten percentage points wide, and for each bin compute the fraction that actually resolved YES (actual_rate) along with the number of markets (n). Save the result as calibration and print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

@@ -121,7 +121,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -130,7 +130,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -250,13 +250,13 @@ Git keeps every version of every file it has ever tracked, so a 27 MB database c
 
 Create a new working chunk in `analysis.qmd`. Connect to the database file and display the names of the tables it contains. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-2
 #| echo: false
 learnr2::question(
-  "Create a new working chunk in analysis.qmd. Connect to the database file and display the names of the tables it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new working chunk in analysis.qmd. Connect to the database file and display the names of the tables it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -278,13 +278,13 @@ The SEDA database has three tables: `district_scores` (one row per district per 
 
 In the current working chunk, create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-3
 #| echo: false
 learnr2::question(
-  "In the current working chunk, create a lazy reference to the district_scores table, assign it to dbplyr_dist, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In the current working chunk, create a lazy reference to the district_scores table, assign it to dbplyr_dist, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -307,13 +307,13 @@ The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the n
 
 Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-4
 #| echo: false
 learnr2::question(
-  "Count the number of district-year observations per year in dbplyr_dist. Collect and arrange by year. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count the number of district-year observations per year in dbplyr_dist. Collect and arrange by year. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -338,13 +338,13 @@ The 191,547 district-year rows span 2009–2019 and 2022–2025, with no observa
 
 Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-6
 #| echo: false
 learnr2::question(
-  "Compute the mean rla_score grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Compute the mean rla_score grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -371,13 +371,13 @@ Scores drift slightly above zero from 2012 through 2018, peaking at 0.064 in 201
 
 Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-7
 #| echo: false
 learnr2::question(
-  "Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -404,13 +404,13 @@ You never wrote SQL, but SQL is what ran. **dbplyr** turns the pipeline into a q
 
 For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to `score_change`. Then build `state_change` the same way from the `state_scores` table — the same structure, aggregated at the state level — and print it. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-8
 #| echo: false
 learnr2::question(
-  "For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to score_change. Then build state_change the same way from the state_scores table, the same structure, aggregated at the state level, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to score_change. Then build state_change the same way from the state_scores table, the same structure, aggregated at the state level, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -450,13 +450,13 @@ Now clean up the working chunk — but split it in two rather than leaving it as
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: us-education-10
 #| echo: false
 learnr2::question(
-  "Now clean up the working chunk, but split it in two rather than leaving it as one. score_change and state_change are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the dbplyr_dist reference in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the score_change and state_change computations. Delete everything exploratory from Exercises 4 through 7. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Now clean up the working chunk, but split it in two rather than leaving it as one. score_change and state_change are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the dbplyr_dist reference in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the score_change and state_change computations. Delete everything exploratory from Exercises 4 through 7. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

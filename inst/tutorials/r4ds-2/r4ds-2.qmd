@@ -101,7 +101,7 @@ execute:
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
@@ -112,7 +112,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse) and library(readxl) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "In your QMD, put library(tidyverse) and library(readxl) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -223,13 +223,13 @@ FiveThirtyEight published this data under a CC-BY license alongside their 2016 a
 
 Display the structure of `data/us_births_1994_2014.xlsx` — its column names, their types, and a few example values. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: births-2
 #| echo: false
 learnr2::question(
-  "Display the structure of data/us_births_1994_2014.xlsx — its column names, their types, and a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Display the structure of data/us_births_1994_2014.xlsx — its column names, their types, and a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -255,7 +255,7 @@ Build a tibble named `births_tibble` from the spreadsheet in which `day_of_week`
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -264,7 +264,7 @@ CP/CR.
 #| label: births-4
 #| echo: false
 learnr2::question(
-  "Build a tibble named births_tibble from the spreadsheet in which day_of_week is an ordered factor running \"Sun\", \"Mon\", \"Tues\", \"Wed\", \"Thurs\", \"Fri\", \"Sat\", then display its structure. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Build a tibble named births_tibble from the spreadsheet in which day_of_week is an ordered factor running \"Sun\", \"Mon\", \"Tues\", \"Wed\", \"Thurs\", \"Fri\", \"Sat\", then display its structure. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -299,7 +299,7 @@ glimpse(births_tibble)
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -308,7 +308,7 @@ CP/CR.
 #| label: births-5
 #| echo: false
 learnr2::question(
-  "births_tibble is worth keeping around, so the chunk that builds it should do nothing else. Delete the display line from that chunk, leaving only the definition of births_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "births_tibble is worth keeping around, so the chunk that builds it should do nothing else. Delete the display line from that chunk, leaving only the definition of births_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -390,13 +390,13 @@ The 7,670 rows are 365 × 21 years plus 5 leap days (1996, 2000, 2004, 2008, 201
 
 In a new code chunk, compute the average number of births for each calendar position — each combination of `month` and `date_of_month` — averaged across all 21 years. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: births-8
 #| echo: false
 learnr2::question(
-  "In a new code chunk, compute the average number of births for each calendar position — each combination of month and date_of_month — averaged across all 21 years. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In a new code chunk, compute the average number of births for each calendar position — each combination of month and date_of_month — averaged across all 21 years. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -468,13 +468,13 @@ A calendar heatmap lays a year out as a matrix — day of month across, month do
 
 Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: births-10
 #| echo: false
 learnr2::question(
-  "Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -607,13 +607,13 @@ The tool is a linear model. R predicts each day's birth count from year, month, 
 
 Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to `births_model`, and print the model's R² — the share of day-to-day variation those three factors account for. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: births-14
 #| echo: false
 learnr2::question(
-  "Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to births_model, and print the model's R² — the share of day-to-day variation those three factors account for. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to births_model, and print the model's R² — the share of day-to-day variation those three factors account for. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -639,13 +639,13 @@ The model's R² of roughly 0.88 means year, month, and weekday together explain 
 
 Add a column to `births_tibble` named `pct_resid` holding each day's residual from `births_model`, expressed as a percentage of the overall mean birth count, and assign the result to `births_adjusted`. Then collapse `births_adjusted` to one row per calendar position — 365 of them, with February 29 dropped — holding the mean `pct_resid` for that date. Add a date column that pins each position to 2001, a non-leap year, so the whole calendar can go on a date axis. Assign the result to `calendar_resid` and display it. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: births-16
 #| echo: false
 learnr2::question(
-  "Add a column to births_tibble named pct_resid holding each day's residual from births_model, expressed as a percentage of the overall mean birth count, and assign the result to births_adjusted. Then collapse births_adjusted to one row per calendar position — 365 of them, with February 29 dropped — holding the mean pct_resid for that date. Add a date column that pins each position to 2001, a non-leap year, so the whole calendar can go on a date axis. Assign the result to calendar_resid and display it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Add a column to births_tibble named pct_resid holding each day's residual from births_model, expressed as a percentage of the overall mean birth count, and assign the result to births_adjusted. Then collapse births_adjusted to one row per calendar position — 365 of them, with February 29 dropped — holding the mean pct_resid for that date. Add a date column that pins each position to 2001, a non-leap year, so the whole calendar can go on a date axis. Assign the result to calendar_resid and display it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

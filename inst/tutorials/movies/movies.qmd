@@ -140,7 +140,7 @@ In your QMD, add a chunk that loads the tidyverse, reads `data/movies.csv` into 
 Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -149,7 +149,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "In your QMD, add a chunk that loads the tidyverse, reads data/movies.csv into a tibble named movies, and prints movies. Add #| message: false so package startup messages stay out of the rendered page, and add execute: echo: false to the YAML header to hide code. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In your QMD, add a chunk that loads the tidyverse, reads data/movies.csv into a tibble named movies, and prints movies. Add #| message: false so package startup messages stay out of the rendered page, and add execute: echo: false to the YAML header to hide code. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -216,7 +216,7 @@ The `movies.csv` file has 8 columns covering 29,783 films. Two matter most for t
 Delete the line that prints `movies` from your first chunk, so it ends with the `read_csv()` assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -225,7 +225,7 @@ CP/CR.
 #| label: explore-3
 #| echo: false
 learnr2::question(
-  "Delete the line that prints movies from your first chunk, so it ends with the read_csv() assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Delete the line that prints movies from your first chunk, so it ends with the read_csv() assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -249,7 +249,7 @@ movies |>
 Replace the working chunk's code with code that splits the `genre` column so each row has exactly one genre, and stores the result as `movies_clean`. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -258,7 +258,7 @@ CP/CR.
 #| label: explore-5
 #| echo: false
 learnr2::question(
-  "Replace the working chunk's code with code that splits the genre column so each row has exactly one genre, and stores the result as movies_clean. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the working chunk's code with code that splits the genre column so each row has exactly one genre, and stores the result as movies_clean. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -347,7 +347,7 @@ Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-e
 Start a new working chunk that counts how many rows there are per genre in `movies_clean`, sorted from most to least common. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -356,7 +356,7 @@ CP/CR.
 #| label: explore-6
 #| echo: false
 learnr2::question(
-  "Start a new working chunk that counts how many rows there are per genre in movies_clean, sorted from most to least common. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Start a new working chunk that counts how many rows there are per genre in movies_clean, sorted from most to least common. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -380,7 +380,7 @@ Drama dominates with 13,273 rows — more than one in four genre tags after spli
 Replace the working chunk's code with code that computes the mean `audienceScore` and mean `tomatoMeter` across all films in `movies`. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -389,7 +389,7 @@ CP/CR.
 #| label: explore-7
 #| echo: false
 learnr2::question(
-  "Replace the working chunk's code with code that computes the mean audienceScore and mean tomatoMeter across all films in movies. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the working chunk's code with code that computes the mean audienceScore and mean tomatoMeter across all films in movies. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -484,7 +484,7 @@ The gap is `tomatoMeter - audienceScore`. A positive value means critics rated t
 Start a new working chunk that adds a `gap` column equal to `tomatoMeter - audienceScore` to `movies_clean` and stores the result as `movies_gap`. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -493,7 +493,7 @@ CP/CR.
 #| label: gap-1
 #| echo: false
 learnr2::question(
-  "Start a new working chunk that adds a gap column equal to tomatoMeter - audienceScore to movies_clean and stores the result as movies_gap. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Start a new working chunk that adds a gap column equal to tomatoMeter - audienceScore to movies_clean and stores the result as movies_gap. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -521,7 +521,7 @@ The `gap` column measures the difference between professional critics and genera
 Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because `movies_clean` has one row per genre, make sure each film appears only once. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -530,7 +530,7 @@ CP/CR.
 #| label: gap-2
 #| echo: false
 learnr2::question(
-  "Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because movies_clean has one row per genre, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because movies_clean has one row per genre, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -557,7 +557,7 @@ The top critic-favored films are obscure documentaries and foreign-language art 
 Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -566,7 +566,7 @@ CP/CR.
 #| label: gap-3
 #| echo: false
 learnr2::question(
-  "Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -593,7 +593,7 @@ Every one of the most audience-favored films has a `tomatoMeter` of 0, so a gap 
 Below the `movies_gap` assignment, replace the top-8 list with a count of how many films in `movies` have a `tomatoMeter` of exactly 0 and how many have an `audienceScore` of exactly 0. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -602,7 +602,7 @@ CP/CR.
 #| label: gap-8
 #| echo: false
 learnr2::question(
-  "Below the movies_gap assignment, replace the top-8 list with a count of how many films in movies have a tomatoMeter of exactly 0 and how many have an audienceScore of exactly 0. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Below the movies_gap assignment, replace the top-8 list with a count of how many films in movies have a tomatoMeter of exactly 0 and how many have an audienceScore of exactly 0. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -627,7 +627,7 @@ A 0 is not 628 films that every critic hated: Rotten Tomatoes publishes no score
 Change the `movies_gap` definition so it drops every row whose `tomatoMeter` or `audienceScore` is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -636,7 +636,7 @@ CP/CR.
 #| label: gap-5
 #| echo: false
 learnr2::question(
-  "Change the movies_gap definition so it drops every row whose tomatoMeter or audienceScore is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Change the movies_gap definition so it drops every row whose tomatoMeter or audienceScore is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -667,7 +667,7 @@ Dropping the zeros removes 661 films, and the gap across the remaining rows stil
 Keep only genres with at least 100 rows and store the result as `movies_summary`. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -676,7 +676,7 @@ CP/CR.
 #| label: gap-6
 #| echo: false
 learnr2::question(
-  "Keep only genres with at least 100 rows and store the result as movies_summary. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Keep only genres with at least 100 rows and store the result as movies_summary. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -750,7 +750,7 @@ Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Gar
 Start a new working chunk that filters `movies` to the eight live-action Spider-Man films — *Spider-Man*, *Spider-Man 2*, *Spider-Man 3*, *The Amazing Spider-Man*, *The Amazing Spider-Man 2*, *Spider-Man: Homecoming*, *Spider-Man: Far From Home*, and *Spider-Man: No Way Home* — and adds an `actor` column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two *Amazing* films, and Tom Holland for the three with a colon in the title. Store the result as `spiderman`, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -759,7 +759,7 @@ CP/CR.
 #| label: spider-man-1
 #| echo: false
 learnr2::question(
-  "Start a new working chunk that filters movies to the eight live-action Spider-Man films — Spider-Man, Spider-Man 2, Spider-Man 3, The Amazing Spider-Man, The Amazing Spider-Man 2, Spider-Man: Homecoming, Spider-Man: Far From Home, and Spider-Man: No Way Home — and adds an actor column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two Amazing films, and Tom Holland for the three with a colon in the title. Store the result as spiderman, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Start a new working chunk that filters movies to the eight live-action Spider-Man films — Spider-Man, Spider-Man 2, Spider-Man 3, The Amazing Spider-Man, The Amazing Spider-Man 2, Spider-Man: Homecoming, Spider-Man: Far From Home, and Spider-Man: No Way Home — and adds an actor column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two Amazing films, and Tom Holland for the three with a colon in the title. Store the result as spiderman, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -794,7 +794,7 @@ Three films star Tobey Maguire (2002–2007, directed by Sam Raimi), two star An
 Replace the table with one showing each film's gap — `tomatoMeter` minus `audienceScore` — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -803,7 +803,7 @@ CP/CR.
 #| label: spider-man-2
 #| echo: false
 learnr2::question(
-  "Replace the table with one showing each film's gap — tomatoMeter minus audienceScore — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the table with one showing each film's gap — tomatoMeter minus audienceScore — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

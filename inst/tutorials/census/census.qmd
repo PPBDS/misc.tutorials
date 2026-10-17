@@ -117,7 +117,7 @@ execute:
 Render again. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -126,7 +126,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In analysis.qmd, add a code chunk that loads the three libraries you will need: library(tidyverse), library(tidycensus), library(sf). Add #| message: false to the chunk, and add execute: echo: false to the YAML header to hide all code. Render again. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In analysis.qmd, add a code chunk that loads the three libraries you will need: library(tidyverse), library(tidycensus), library(sf). Add #| message: false to the chunk, and add execute: echo: false to the YAML header to hide all code. Render again. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -196,7 +196,7 @@ Add a chunk to `analysis.qmd` that uses **tidycensus** to get 2020 median househ
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -205,7 +205,7 @@ CP/CR.
 #| label: texas-income-1
 #| echo: false
 learnr2::question(
-  "Add a chunk to analysis.qmd that uses tidycensus to get 2020 median household income for every county in Texas, with county geometry attached for mapping, and saves it as income_tx. Add #| message: false to the chunk to hide the connection messages. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a chunk to analysis.qmd that uses tidycensus to get 2020 median household income for every county in Texas, with county geometry attached for mapping, and saves it as income_tx. Add #| message: false to the chunk to hide the connection messages. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -230,13 +230,13 @@ Every ACS request comes down to three choices: the **geographic level** (county 
 
 ### Exercise 2
 
-Add a chunk that prints `income_tx` so you can see its structure. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Add a chunk that prints `income_tx` so you can see its structure. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: texas-income-2
 #| echo: false
 learnr2::question(
-  "Add a chunk that prints income_tx so you can see its structure. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Add a chunk that prints income_tx so you can see its structure. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -258,13 +258,13 @@ Every county arrives with a `GEOID` (its FIPS code), a `NAME`, the `variable` co
 
 You are done changing the chunk that downloads `income_tx`, and re-downloading it — polygons and all — on every render is slow. `income_tx` earns its own cached chunk. The next three exercises set that up: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
 
-First, clean up. Delete the working chunk that printed `income_tx`, leaving the `income_tx <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+First, clean up. Delete the working chunk that printed `income_tx`, leaving the `income_tx <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: texas-income-9
 #| echo: false
 learnr2::question(
-  "First, clean up. Delete the working chunk that printed income_tx, leaving the income_tx <- get_acs(...) chunk as the last chunk in the file. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "First, clean up. Delete the working chunk that printed income_tx, leaving the income_tx <- get_acs(...) chunk as the last chunk in the file. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -345,7 +345,7 @@ Start a new working chunk that summarizes median household income and margin of 
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -354,7 +354,7 @@ CP/CR.
 #| label: texas-income-4
 #| echo: false
 learnr2::question(
-  "Start a new working chunk that summarizes median household income and margin of error across the Texas counties. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Start a new working chunk that summarizes median household income and margin of error across the Texas counties. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -386,7 +386,7 @@ Replace the working chunk with the same summary, dropping the missing county bef
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -395,7 +395,7 @@ CP/CR.
 #| label: texas-income-12
 #| echo: false
 learnr2::question(
-  "Replace the working chunk with the same summary, dropping the missing county before computing each statistic (na.rm = TRUE). Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the working chunk with the same summary, dropping the missing county before computing each statistic (na.rm = TRUE). Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -521,7 +521,7 @@ Add a chunk that uses **tidycensus** to get 2020 educational attainment for stat
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -530,7 +530,7 @@ CP/CR.
 #| label: education-by-state-1
 #| echo: false
 learnr2::question(
-  "Add a chunk that uses tidycensus to get 2020 educational attainment for state-level geographies and save it as edu_state. You need the table total plus the bachelor's-and-higher levels: variables B15003_001 (total), B15003_022, B15003_023, B15003_024, and B15003_025. Pass summary_var = \"B15003_001\" so the total rides along on every row. Add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a chunk that uses tidycensus to get 2020 educational attainment for state-level geographies and save it as edu_state. You need the table total plus the bachelor's-and-higher levels: variables B15003_001 (total), B15003_022, B15003_023, B15003_024, and B15003_025. Pass summary_var = \"B15003_001\" so the total rides along on every row. Add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -560,7 +560,7 @@ Add a working chunk that prints `edu_state`. Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -569,7 +569,7 @@ CP/CR.
 #| label: education-by-state-2
 #| echo: false
 learnr2::question(
-  "Add a working chunk that prints edu_state. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a working chunk that prints edu_state. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -594,7 +594,7 @@ Replace the working chunk with code that collapses `edu_state` to one row per ge
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -603,7 +603,7 @@ CP/CR.
 #| label: education-by-state-8
 #| echo: false
 learnr2::question(
-  "Replace the working chunk with code that collapses edu_state to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the working chunk with code that collapses edu_state to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -744,7 +744,7 @@ Add a chunk that uses **tidycensus** to get 2020 median age and total population
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -753,7 +753,7 @@ CP/CR.
 #| label: california-median-age-1
 #| echo: false
 learnr2::question(
-  "Add a chunk that uses tidycensus to get 2020 median age and total population for every county in California, naming the variables median_age (B01002_001) and population (B01003_001). You are building a non-map chart, so set geometry = FALSE. Save it as age_ca and add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a chunk that uses tidycensus to get 2020 median age and total population for every county in California, naming the variables median_age (B01002_001) and population (B01003_001). You are building a non-map chart, so set geometry = FALSE. Save it as age_ca and add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -783,7 +783,7 @@ Add a working chunk that prints `age_ca`. Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -792,7 +792,7 @@ CP/CR.
 #| label: california-median-age-2
 #| echo: false
 learnr2::question(
-  "Add a working chunk that prints age_ca. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a working chunk that prints age_ca. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -817,7 +817,7 @@ Replace the working chunk with code that reshapes `age_ca` to one row per county
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -826,7 +826,7 @@ CP/CR.
 #| label: california-median-age-5
 #| echo: false
 learnr2::question(
-  "Replace the working chunk with code that reshapes age_ca to one row per county, with one column for median_age and one for population. Print the table sorted from largest to smallest population. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Replace the working chunk with code that reshapes age_ca to one row per county, with one column for median_age and one for population. Print the table sorted from largest to smallest population. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

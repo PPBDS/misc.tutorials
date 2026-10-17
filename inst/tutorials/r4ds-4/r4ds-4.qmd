@@ -97,7 +97,7 @@ execute:
 Render. In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -106,7 +106,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -201,7 +201,7 @@ In a new code chunk, inspect the schema of `data/daily_prices.parquet` without p
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -210,7 +210,7 @@ CP/CR.
 #| label: crypto-markets-2
 #| echo: false
 learnr2::question(
-  "In a new code chunk, inspect the schema of data/daily_prices.parquet without pulling the full file into memory. Don't assign the result — just print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In a new code chunk, inspect the schema of data/daily_prices.parquet without pulling the full file into memory. Don't assign the result — just print it. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -235,7 +235,7 @@ Take a random sample of 10 rows from `data/daily_prices.parquet` and collect the
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -244,7 +244,7 @@ CP/CR.
 #| label: crypto-markets-3
 #| echo: false
 learnr2::question(
-  "Take a random sample of 10 rows from data/daily_prices.parquet and collect the result into a tibble. Do not assign it — just print it so you can see a variety of coins and dates. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Take a random sample of 10 rows from data/daily_prices.parquet and collect the result into a tibble. Do not assign it — just print it so you can see a variety of coins and dates. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -272,7 +272,7 @@ That last answer read the entire file into memory before sampling it. This time,
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -281,7 +281,7 @@ CP/CR.
 #| label: crypto-markets-4
 #| echo: false
 learnr2::question(
-  "That last answer read the entire file into memory before sampling it. This time, leave the data on disk: get each coin's average market cap since the start of 2025, ordered from largest to smallest, doing the filtering and the averaging inside the parquet file and bringing only the finished 22-row summary back into R. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "That last answer read the entire file into memory before sampling it. This time, leave the data on disk: get each coin's average market cap since the start of 2025, ordered from largest to smallest, doing the filtering and the averaging inside the parquet file and bringing only the finished 22-row summary back into R. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -311,7 +311,7 @@ Bring the whole price file into memory as an analysis table named `prices`. In t
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -320,7 +320,7 @@ CP/CR.
 #| label: crypto-markets-7
 #| echo: false
 learnr2::question(
-  "Bring the whole price file into memory as an analysis table named prices. In the same chunk, below the prices line, load coin_metadata.parquet as metadata. Print metadata so you can inspect the coin-level fields before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Bring the whole price file into memory as an analysis table named prices. In the same chunk, below the prices line, load coin_metadata.parquet as metadata. Print metadata so you can inspect the coin-level fields before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -349,7 +349,7 @@ Load `categories.parquet` as `categories` in the same chunk, below the `metadata
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -358,7 +358,7 @@ CP/CR.
 #| label: crypto-markets-8
 #| echo: false
 learnr2::question(
-  "Load categories.parquet as categories in the same chunk, below the metadata line. Print categories instead of metadata so you can inspect the category lookup table before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Load categories.parquet as categories in the same chunk, below the metadata line. Print categories instead of metadata so you can inspect the category lookup table before joining. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -389,7 +389,7 @@ The `categories` table has one row per crypto category, and `category_id` is the
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -398,7 +398,7 @@ CP/CR.
 #| label: crypto-markets-9
 #| echo: false
 learnr2::question(
-  "metadata records when each coin launched. Show the coin, its name, and its launch date for the 22 coins so you can see how those dates were recorded. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "metadata records when each coin launched. Show the coin, its name, and its launch date for the 22 coins so you can see how those dates were recorded. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -424,7 +424,7 @@ Add a real date column to `metadata` that handles both conventions, then list th
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -433,7 +433,7 @@ CP/CR.
 #| label: crypto-markets-10
 #| echo: false
 learnr2::question(
-  "Add a real date column to metadata that handles both conventions, then list the coins from oldest to newest, showing the original text next to the parsed date. Every coin should end up with a date and no missing values. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a real date column to metadata that handles both conventions, then list the coins from oldest to newest, showing the original text next to the parsed date. Every coin should end up with a date and no missing values. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -497,7 +497,7 @@ Join `prices` to `metadata` by `coin_id` to attach coin-level details to each pr
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -506,7 +506,7 @@ CP/CR.
 #| label: crypto-markets-14
 #| echo: false
 learnr2::question(
-  "Join prices to metadata by coin_id to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Join prices to metadata by coin_id to attach coin-level details to each price row. Do not assign the result — just print it to see what columns were added. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -532,7 +532,7 @@ Before joining `categories`, check whether it shares any column names with the t
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -541,7 +541,7 @@ CP/CR.
 #| label: crypto-markets-15
 #| echo: false
 learnr2::question(
-  "Before joining categories, check whether it shares any column names with the table you just built. Resolve any collision, then add the category labels to the pipe by category_id. Still do not assign — just print the result. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Before joining categories, check whether it shares any column names with the table you just built. Resolve any collision, then add the category labels to the pipe by category_id. Still do not assign — just print the result. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -568,7 +568,7 @@ Both `metadata` and `categories` have a `description` column. Joining without re
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -577,7 +577,7 @@ CP/CR.
 #| label: crypto-markets-17
 #| echo: false
 learnr2::question(
-  "date_raw is still a character string, which means sorting, filtering by date range, and time-series plots all behave unexpectedly. Finalize the data-preparation chunk: merge the three file loads and the join pipe into a single chunk, add a proper date field to the pipe, assign the pipe's result to crypto, and keep nothing but those loads and that pipe. End by printing crypto. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "date_raw is still a character string, which means sorting, filtering by date range, and time-series plots all behave unexpectedly. Finalize the data-preparation chunk: merge the three file loads and the join pipe into a single chunk, add a proper date field to the pipe, assign the pipe's result to crypto, and keep nothing but those loads and that pipe. End by printing crypto. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -614,7 +614,7 @@ Delete the `crypto` line at the bottom of that chunk, so it defines the table an
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -623,7 +623,7 @@ CP/CR.
 #| label: crypto-markets-18
 #| echo: false
 learnr2::question(
-  "Delete the crypto line at the bottom of that chunk, so it defines the table and nothing else. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Delete the crypto line at the bottom of that chunk, so it defines the table and nothing else. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

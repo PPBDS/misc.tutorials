@@ -104,7 +104,7 @@ Render again. Check the rendered HTML. Only the title and author should appear i
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -113,7 +113,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse) and library(maps) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In your QMD, put library(tidyverse) and library(maps) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -197,13 +197,13 @@ music.csv
 
 Add a new chunk that reads `data/music.csv` into an object named `music` and then prints it. Suppress the column specification that **readr** prints while parsing.
 
-Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-2
 #| echo: false
 learnr2::question(
-  "Add a new chunk that reads data/music.csv into an object named music and then prints it. Suppress the column specification that readr prints while parsing. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Add a new chunk that reads data/music.csv into an object named music and then prints it. Suppress the column specification that readr prints while parsing. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -226,13 +226,13 @@ This file has 10,000 rows and 35 columns. A tibble auto-truncates to 10 rows and
 
 That chunk does two jobs: it defines `music` and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into `music`.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-3
 #| echo: false
 learnr2::question(
-  "That chunk does two jobs: it defines music and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into music. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "That chunk does two jobs: it defines music and it prints it. Reading a file is a step worth saving between renders, so it should stand alone. Delete the printing line, leaving only the line that reads the file into music. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -307,13 +307,13 @@ With both generated directories ignored, the only changes git now sees are `anal
 
 Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the `music` data.
 
-Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-6
 #| echo: false
 learnr2::question(
-  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the music data. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the music data. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -333,13 +333,13 @@ The dotted naming convention groups variables by entity: `artist.*` columns desc
 
 ### Exercise 7
 
-Show the structure of just the artist columns of `music` — the type of each column with a few example values. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Show the structure of just the artist columns of `music` — the type of each column with a few example values. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-7
 #| echo: false
 learnr2::question(
-  "Show the structure of just the artist columns of music — the type of each column with a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Show the structure of just the artist columns of music — the type of each column with a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -361,13 +361,13 @@ This compact view shows one line per column, which works here because the artist
 
 ### Exercise 8
 
-Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-8
 #| echo: false
 learnr2::question(
-  "Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Print a smaller table with the columns that are easiest to read: artist name, location, coordinates, genre terms, familiarity, hotness, song title, and year. Show just the first eight rows. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -420,13 +420,13 @@ Both variables run from 0 to 1, where higher values mean more familiarity or mor
 
 ### Exercise 10
 
-Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Get summary statistics — minimum, maximum, median, and quartiles — for `artist.familiarity`, `artist.hotttnesss`, `song.year`, and `song.tempo`. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-10
 #| echo: false
 learnr2::question(
-  "Get summary statistics — minimum, maximum, median, and quartiles — for artist.familiarity, artist.hotttnesss, song.year, and song.tempo. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Get summary statistics — minimum, maximum, median, and quartiles — for artist.familiarity, artist.hotttnesss, song.year, and song.tempo. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -486,13 +486,13 @@ The dataset skews heavily toward recent music: over half the songs are from the 
 
 ### Exercise 12
 
-We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-12
 #| echo: false
 learnr2::question(
-  "We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -573,13 +573,13 @@ Most of the points sit in a single blob in the Gulf of Guinea, off the west coas
 
 ### Exercise 14
 
-Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-13
 #| echo: false
 learnr2::question(
-  "Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count how many songs (rows) have usable coordinates versus placeholder coordinates, where placeholder means both latitude and longitude equal 0. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

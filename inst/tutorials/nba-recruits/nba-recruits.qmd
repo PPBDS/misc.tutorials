@@ -105,7 +105,7 @@ execute:
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -114,7 +114,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse) and library(readxl) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In your QMD, put library(tidyverse) and library(readxl) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -208,13 +208,13 @@ The Pudding collected recruit rankings from 247Sports and career statistics from
 
 Display the structure of `data/nba_recruits.xlsx` — its column names, their types, and a few example values. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: basketball-recruits-2
 #| echo: false
 learnr2::question(
-  "Display the structure of data/nba_recruits.xlsx — its column names, their types, and a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Display the structure of data/nba_recruits.xlsx — its column names, their types, and a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -236,13 +236,13 @@ One row per player, 1,873 of them. `nba_mean_ws48` is Win Shares per 48 minutes,
 
 Show summary statistics for `rank`, `nba_mean_ws48`, `top_mean_wa`, `total_seasons`, and `drafted`. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: basketball-recruits-3
 #| echo: false
 learnr2::question(
-  "Show summary statistics for rank, nba_mean_ws48, top_mean_wa, total_seasons, and drafted. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Show summary statistics for rank, nba_mean_ws48, top_mean_wa, total_seasons, and drafted. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -269,7 +269,7 @@ Build a tibble named `basketball_tibble` from the spreadsheet in which `tier` is
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -278,7 +278,7 @@ CP/CR.
 #| label: basketball-recruits-5
 #| echo: false
 learnr2::question(
-  "Build a tibble named basketball_tibble from the spreadsheet in which tier is an ordered factor running \"Never played\", \"Brief career\", \"Solid career\", \"All-Star level\", \"Superstar\" and recruit_group is an ordered factor running \"#1–10\", \"#11–25\", \"#26–50\", \"#51–100\", \"Outside top 100\". Count the players in each tier, then count the players in each recruit group. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Build a tibble named basketball_tibble from the spreadsheet in which tier is an ordered factor running \"Never played\", \"Brief career\", \"Solid career\", \"All-Star level\", \"Superstar\" and recruit_group is an ordered factor running \"#1–10\", \"#11–25\", \"#26–50\", \"#51–100\", \"Outside top 100\". Count the players in each tier, then count the players in each recruit group. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -318,7 +318,7 @@ More than half of the 1,873 players — 1,014 — fall into "Never played," anot
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -327,7 +327,7 @@ CP/CR.
 #| label: basketball-recruits-7
 #| echo: false
 learnr2::question(
-  "basketball_tibble is the object the rest of this tutorial is built on, so the chunk that creates it should do nothing else. Delete the two counting lines from that chunk, leaving only the definition of basketball_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "basketball_tibble is the object the rest of this tutorial is built on, so the chunk that creates it should do nothing else. Delete the two counting lines from that chunk, leaving only the definition of basketball_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -500,13 +500,13 @@ With the "Outside top 100" group removed, the four bars represent comparable coh
 
 Replace the code in that chunk with a table of the ten players with the highest career WS48, showing each one's name, recruit rank, recruit group, and WS48. Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: basketball-recruits-12
 #| echo: false
 learnr2::question(
-  "Replace the code in that chunk with a table of the ten players with the highest career WS48, showing each one's name, recruit rank, recruit group, and WS48. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the code in that chunk with a table of the ten players with the highest career WS48, showing each one's name, recruit rank, recruit group, and WS48. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

@@ -252,7 +252,7 @@ Create a new page in your website named `map.qmd`, giving it the title `"Map"`, 
 
 At the top of `map.qmd`, add a code chunk that loads `library(tidyverse)`, `library(sf)`, and `library(rnaturalearth)`, with `#| message: false` so startup messages stay out of the page. Keep the `library()` lines in a chunk of their own, and add a second chunk below it that reads `data/mallards.csv` and prints the first 10 rows.
 
-Render. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("map.qmd")`.
 
 CP/CR.
 
@@ -260,7 +260,7 @@ CP/CR.
 #| label: where-do-they-go-2
 #| echo: false
 learnr2::question(
-  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse), library(sf), and library(rnaturalearth), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/mallards.csv and prints the first 10 rows. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse), library(sf), and library(rnaturalearth), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/mallards.csv and prints the first 10 rows. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -283,13 +283,13 @@ Each row is one **GPS fix** — a single location recorded by one duck at one mo
 
 Count GPS fixes per duck, sorted from most to least. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-3
 #| echo: false
 learnr2::question(
-  "Count GPS fixes per duck, sorted from most to least. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count GPS fixes per duck, sorted from most to least. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -312,13 +312,13 @@ Duck `2351` has over 20,000 fixes — the most of any individual, tracked contin
 
 Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-4
 #| echo: false
 learnr2::question(
-  "Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Summarize the geographic range of the data: minimum and maximum latitude and longitude. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -353,13 +353,13 @@ Below: the full region the ducks travel through (left) and a detailed view of La
 
 Read `data/mallards.csv`, parse the timestamp, and add `month`, `month_num`, `year`, and `season` columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make `season` a factor whose levels run in calendar order. Assign the result to `mallards` and print it. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-5
 #| echo: false
 learnr2::question(
-  "Read data/mallards.csv, parse the timestamp, and add month, month_num, year, and season columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make season a factor whose levels run in calendar order. Assign the result to mallards and print it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Read data/mallards.csv, parse the timestamp, and add month, month_num, year, and season columns. Define season as: Spring (March–May), Summer (June–August), Autumn (September–November), Winter (December–February). Make season a factor whose levels run in calendar order. Assign the result to mallards and print it. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -396,13 +396,13 @@ The `season` column is a factor so plots display seasons in calendar order rathe
 
 Before caching anything, clean up the chunk. Delete the line that prints `mallards`, so the chunk holds only the pipeline, and add one line at the end that saves `mallards` to `data/mallards.rds` — the seasons page will read that file instead of repeating the pipeline. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("map.qmd")`. CP/CR.
 
 ```{r}
 #| label: where-do-they-go-12
 #| echo: false
 learnr2::question(
-  "Before caching anything, clean up the chunk. Delete the line that prints mallards, so the chunk holds only the pipeline, and add one line at the end that saves mallards to data/mallards.rds. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Before caching anything, clean up the chunk. Delete the line that prints mallards, so the chunk holds only the pipeline, and add one line at the end that saves mallards to data/mallards.rds. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -612,13 +612,13 @@ Create a new page named `seasons.qmd`, giving it the title `"Seasons"`, and add 
 
 At the top of the page, add a code chunk that loads `library(tidyverse)` and `library(ggridges)` with `#| message: false`, then a second chunk that reads `data/mallards.rds` into `mallards` — the cleaned table the map page saved. Then add a working chunk that counts GPS fixes per month. Render.
 
-In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("seasons.qmd")`. CP/CR.
 
 ```{r}
 #| label: when-do-they-move-1
 #| echo: false
 learnr2::question(
-  "Create a new page named seasons.qmd, giving it the title \"Seasons\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) and library(ggridges) with #| message: false, then a second chunk that reads data/mallards.rds into mallards. Then add a working chunk that counts GPS fixes per month. Render. In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page named seasons.qmd, giving it the title \"Seasons\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) and library(ggridges) with #| message: false, then a second chunk that reads data/mallards.rds into mallards. Then add a working chunk that counts GPS fixes per month. Render. In the R Terminal, run show_file(\"seasons.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -641,13 +641,13 @@ September dominates with roughly 21,000 fixes — more than double any other mon
 
 Get summary statistics for `speed`. Render.
 
-In the R Terminal, run `show_file("seasons.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("seasons.qmd")`. CP/CR.
 
 ```{r}
 #| label: when-do-they-move-2
 #| echo: false
 learnr2::question(
-  "Get summary statistics for speed. Render. In the R Terminal, run show_file(\"seasons.qmd\", chunk = \"Last\"). CP/CR.",
+  "Get summary statistics for speed. Render. In the R Terminal, run show_file(\"seasons.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

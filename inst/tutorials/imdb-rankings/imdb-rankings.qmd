@@ -102,7 +102,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -111,7 +111,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(rvest), library(httr2), library(purrr). Also add execute: echo: false to the YAML header to remove all code from the HTML output. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(rvest), library(httr2), library(purrr). Also add execute: echo: false to the YAML header to remove all code from the HTML output. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -229,7 +229,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -238,7 +238,7 @@ CP/CR.
 #| label: movie-rankings-1
 #| echo: false
 learnr2::question(
-  "Download the dataset into your data/ directory. The file is imdb_snapshots.rds and the URL is: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds Then, in a new chunk, read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Download the dataset into your data/ directory. The file is imdb_snapshots.rds and the URL is: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds Then, in a new chunk, read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -272,7 +272,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -281,7 +281,7 @@ CP/CR.
 #| label: movie-rankings-3
 #| echo: false
 learnr2::question(
-  "Using imdb_snapshots, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Using imdb_snapshots, show the ten films with the largest rank change between the 2015 and 2022 snapshots. Only include films that appear in both years. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -319,7 +319,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -328,7 +328,7 @@ CP/CR.
 #| label: movie-rankings-4
 #| echo: false
 learnr2::question(
-  "Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Add a release decade column to the rank-change data, then show the average rank change by decade sorted chronologically. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -371,7 +371,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -380,7 +380,7 @@ CP/CR.
 #| label: movie-rankings-7
 #| echo: false
 learnr2::question(
-  "Count how many of the five snapshots each film appears in, then show the distribution of that count. Render. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "Count how many of the five snapshots each film appears in, then show the distribution of that count. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -429,13 +429,13 @@ tutorial works either way.
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: movie-rankings-8
 #| echo: false
 learnr2::question(
-  "The five snapshots come from these Wayback Machine captures: 2015 https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/ 2017 https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/ 2019 https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/ 2021 https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/ 2022 https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/ Now build the pipeline that assembled this data. In a new chunk, store those five addresses and their five years as two parallel vectors. Then fetch the 2015 page, read the one table it contains, and print just its rank-and-title column and its rating column, so you can see what a scrape actually hands you. Allow a generous timeout and a couple of retries — the archive is slow and occasionally drops a request. If the Wayback Machine refuses the request, keep the readRDS() chunk and continue; the rest of the tutorial works either way. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "The five snapshots come from these Wayback Machine captures: 2015 https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/ 2017 https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/ 2019 https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/ 2021 https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/ 2022 https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/ Now build the pipeline that assembled this data. In a new chunk, store those five addresses and their five years as two parallel vectors. Then fetch the 2015 page, read the one table it contains, and print just its rank-and-title column and its rating column, so you can see what a scrape actually hands you. Allow a generous timeout and a couple of retries — the archive is slow and occasionally drops a request. If the Wayback Machine refuses the request, keep the readRDS() chunk and continue; the rest of the tutorial works either way. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -501,13 +501,13 @@ print the result.
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: movie-rankings-9
 #| echo: false
 learnr2::question(
-  "Wrap that fetch in a function that takes one address and one snapshot year and returns a tidy 250-row tibble with the columns snap_year, rank, title, year, rating, and number. Two pieces of cleaning are needed. First, split the rank-and-title text into three separate columns. Second, the vote count lives in the tooltip attribute of each rating element rather than in the table — text of the form 9.2 based on 1,354,030 votes — so read that attribute off the page and pull the number out of it. Replace the exploratory fetch with the function, then call it on the 2015 snapshot and print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Wrap that fetch in a function that takes one address and one snapshot year and returns a tidy 250-row tibble with the columns snap_year, rank, title, year, rating, and number. Two pieces of cleaning are needed. First, split the rank-and-title text into three separate columns. Second, the vote count lives in the tooltip attribute of each rating element rather than in the table — text of the form 9.2 based on 1,354,030 votes — so read that attribute off the page and pull the number out of it. Replace the exploratory fetch with the function, then call it on the 2015 snapshot and print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -581,13 +581,13 @@ first line of the scrape chunk instead.)
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: movie-rankings-10
 #| echo: false
 learnr2::question(
-  "A function that handles one snapshot handles all five. Replace the single call with one that runs the function once for each address-and-year pair, then stack the five results into a single tibble named imdb_snapshots. Print it. Once the scrape works, delete the readRDS() chunk from earlier, so that imdb_snapshots is defined only once. (If the archive is still refusing you, keep the readRDS() chunk and put #| eval: false as the first line of the scrape chunk instead.) Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "A function that handles one snapshot handles all five. Replace the single call with one that runs the function once for each address-and-year pair, then stack the five results into a single tibble named imdb_snapshots. Print it. Once the scrape works, delete the readRDS() chunk from earlier, so that imdb_snapshots is defined only once. (If the archive is still refusing you, keep the readRDS() chunk and put #| eval: false as the first line of the scrape chunk instead.) Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -659,13 +659,13 @@ That chunk now makes five network round trips every time you render. Before turn
 caching, strip the `imdb_snapshots` print line from the chunk, leaving only the addresses,
 the years, the function, and the assignment.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: movie-rankings-11
 #| echo: false
 learnr2::question(
-  "That chunk now makes five network round trips every time you render. Before turning on caching, strip the imdb_snapshots print line from the chunk, leaving only the addresses, the years, the function, and the assignment. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "That chunk now makes five network round trips every time you render. Before turning on caching, strip the imdb_snapshots print line from the chunk, leaving only the addresses, the years, the function, and the assignment. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

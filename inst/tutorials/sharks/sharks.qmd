@@ -240,7 +240,7 @@ Create a new page in your website named `map.qmd`, giving it the title `"Map"`, 
 
 At the top of `map.qmd`, add a code chunk that loads `library(tidyverse)` and `library(maps)`, with `#| message: false` so startup messages stay out of the page. Keep the `library()` lines in a chunk of their own, and add a second chunk below it that reads `data/attacks_clean.csv` and prints it.
 
-Render. In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+Render. In the R Terminal, run `show_file("map.qmd")`.
 
 CP/CR.
 
@@ -248,7 +248,7 @@ CP/CR.
 #| label: where-2
 #| echo: false
 learnr2::question(
-  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse) and library(maps), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/attacks_clean.csv and prints it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page in your website named map.qmd, giving it the title \"Map\", and add it to the site navigation in _quarto.yml so it appears in the navbar with the same label. At the top of map.qmd, add a code chunk that loads library(tidyverse) and library(maps), with #| message: false so startup messages stay out of the page. Keep the library() lines in a chunk of their own, and add a second chunk below it that reads data/attacks_clean.csv and prints it. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -270,7 +270,7 @@ Each row is one shark incident. The `Activity` column records what the person wa
 
 Count fatal vs non-fatal attacks. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+In the R Terminal, run `show_file("map.qmd")`.
 
 CP/CR.
 
@@ -278,7 +278,7 @@ CP/CR.
 #| label: where-4
 #| echo: false
 learnr2::question(
-  "Count fatal vs non-fatal attacks. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Count fatal vs non-fatal attacks. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -301,7 +301,7 @@ Only 943 of the 5,094 incidents were fatal — about 18.5% — but the column is
 
 Replace the contents of your working chunk with a cleaning pipeline. Read `data/attacks_clean.csv`, add a `Country_lower` column holding the trimmed, lowercase country name, add a `Fatal_clean` column that labels `Y` as "Fatal", `N` as "Non-fatal", and everything else as "Unknown", assign the result to `attacks`, and print it. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+In the R Terminal, run `show_file("map.qmd")`.
 
 CP/CR.
 
@@ -309,7 +309,7 @@ CP/CR.
 #| label: where-11
 #| echo: false
 learnr2::question(
-  "Replace the contents of your working chunk with a cleaning pipeline. Read data/attacks_clean.csv, add a Country_lower column holding the trimmed, lowercase country name, add a Fatal_clean column that labels Y as \"Fatal\", N as \"Non-fatal\", and everything else as \"Unknown\", assign the result to attacks, and print it. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Replace the contents of your working chunk with a cleaning pipeline. Read data/attacks_clean.csv, add a Country_lower column holding the trimmed, lowercase country name, add a Fatal_clean column that labels Y as \"Fatal\", N as \"Non-fatal\", and everything else as \"Unknown\", assign the result to attacks, and print it. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -341,7 +341,7 @@ attacks
 
 Before caching anything, tidy the chunk. Delete the line that prints `attacks`, and add a last line that saves the cleaned table with `write_rds(attacks, "data/attacks.rds")`, so the trends page you build later can read it instead of repeating the cleaning. Render.
 
-In the R Terminal, run `show_file("map.qmd", chunk = "Last")`.
+In the R Terminal, run `show_file("map.qmd")`.
 
 CP/CR.
 
@@ -349,7 +349,7 @@ CP/CR.
 #| label: where-12
 #| echo: false
 learnr2::question(
-  "Before caching anything, tidy the chunk. Delete the line that prints attacks, and add a last line that saves the cleaned table with write_rds(attacks, \"data/attacks.rds\"), so the trends page you build later can read it instead of repeating the cleaning. Render. In the R Terminal, run show_file(\"map.qmd\", chunk = \"Last\"). CP/CR.",
+  "Before caching anything, tidy the chunk. Delete the line that prints attacks, and add a last line that saves the cleaned table with write_rds(attacks, \"data/attacks.rds\"), so the trends page you build later can read it instead of repeating the cleaning. Render. In the R Terminal, run show_file(\"map.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -545,7 +545,7 @@ Create a new page named `trends.qmd`, giving it the title `"Trends"`, and add it
 
 At the top of the page, add a code chunk that loads `library(tidyverse)` with `#| message: false`. Below it, add a data chunk that reads `data/attacks.rds` into `attacks`, and below that a working chunk that counts attacks per year. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`.
+In the R Terminal, run `show_file("trends.qmd")`.
 
 CP/CR.
 
@@ -553,7 +553,7 @@ CP/CR.
 #| label: when-1
 #| echo: false
 learnr2::question(
-  "Create a new page named trends.qmd, giving it the title \"Trends\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) with #| message: false. Below it, add a data chunk that reads data/attacks.rds into attacks, and below that a working chunk that counts attacks per year. Render. In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  "Create a new page named trends.qmd, giving it the title \"Trends\", and add it to the navbar in _quarto.yml with the same label. At the top of the page, add a code chunk that loads library(tidyverse) with #| message: false. Below it, add a data chunk that reads data/attacks.rds into attacks, and below that a working chunk that counts attacks per year. Render. In the R Terminal, run show_file(\"trends.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -620,7 +620,7 @@ The line jumps to 81, 84, 72, and 77 incidents in 1959–1962 — roughly double
 
 Update your chunk to count attacks by activity, keeping only activities with at least 50 incidents. Render.
 
-In the R Terminal, run `show_file("trends.qmd", chunk = "Last")`.
+In the R Terminal, run `show_file("trends.qmd")`.
 
 CP/CR.
 
@@ -628,7 +628,7 @@ CP/CR.
 #| label: when-3
 #| echo: false
 learnr2::question(
-  "Update your chunk to count attacks by activity, keeping only activities with at least 50 incidents. Render. In the R Terminal, run show_file(\"trends.qmd\", chunk = \"Last\"). CP/CR.",
+  "Update your chunk to count attacks by activity, keeping only activities with at least 50 incidents. Render. In the R Terminal, run show_file(\"trends.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

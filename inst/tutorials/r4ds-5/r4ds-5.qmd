@@ -130,7 +130,7 @@ Render.
 In the R Terminal, run:
 
 ```r
-show_file("analysis.qmd", chunk = "Last")
+show_file("analysis.qmd")
 ```
 
 CP/CR.
@@ -139,7 +139,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(purrr), library(leaflet), library(jsonlite). Also add execute: echo: false to the YAML header to remove all code from the HTML output. In the R Terminal, run: show_file(\"analysis.qmd\", chunk = \"Last\") CP/CR.",
+  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(purrr), library(leaflet), library(jsonlite). Also add execute: echo: false to the YAML header to remove all code from the HTML output. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -246,13 +246,13 @@ Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the number o
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-2
 #| echo: false
 learnr2::question(
-  "Read data/wildfires.geojson as JSON and assign it to raw. Print the number of features it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Read data/wildfires.geojson as JSON and assign it to raw. Print the number of features it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -278,13 +278,13 @@ Extract the first fire from `raw` and show its component names. Then navigate in
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-3
 #| echo: false
 learnr2::question(
-  "Extract the first fire from raw and show its component names. Then navigate into that fire's geometry to extract the first coordinate pair of its boundary. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Extract the first fire from raw and show its component names. Then navigate into that fire's geometry to extract the first coordinate pair of its boundary. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -309,13 +309,13 @@ Wrap `raw$features` in a tibble with a column called `features`, then expand tha
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-6
 #| echo: false
 learnr2::question(
-  "Wrap raw$features in a tibble with a column called features, then expand that list-column so each named element becomes its own column, and expand the properties list-column the same way. Print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Wrap raw$features in a tibble with a column called features, then expand that list-column so each named element becomes its own column, and expand the properties list-column the same way. Print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -341,13 +341,13 @@ Continue the pipeline by expanding the `geometry` list-column. Note that a `type
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-8
 #| echo: false
 learnr2::question(
-  "Continue the pipeline by expanding the geometry list-column. Note that a type column already exists at the feature level, so the geometry expansion will create a naming conflict — make sure the geometry columns get distinct names. Then keep only the six columns you will need: incident, gis_acres, fire_year, agency, state, and geometry_coordinates. Coerce gis_acres to numeric and fire_year to integer. Assign the result to fires. Print fires. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "Continue the pipeline by expanding the geometry list-column. Note that a type column already exists at the feature level, so the geometry expansion will create a naming conflict — make sure the geometry columns get distinct names. Then keep only the six columns you will need: incident, gis_acres, fire_year, agency, state, and geometry_coordinates. Coerce gis_acres to numeric and fire_year to integer. Assign the result to fires. Print fires. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -388,13 +388,13 @@ If your `fires` does not match ours, replace your code with the pipeline above b
 
 That GeoJSON pipeline takes time on every render. Strip the `fires` print line from the chunk, leaving only the pipeline that defines `fires`.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-9
 #| echo: false
 learnr2::question(
-  "That GeoJSON pipeline takes time on every render. Strip the fires print line from the chunk, leaving only the pipeline that defines fires. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "That GeoJSON pipeline takes time on every render. Strip the fires print line from the chunk, leaving only the pipeline that defines fires. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -479,13 +479,13 @@ In a new working chunk, search `fires` for any fire whose name contains the word
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-12
 #| echo: false
 learnr2::question(
-  "In a new working chunk, search fires for any fire whose name contains the word \"August\". How many rows come back? Then show the ten largest fires by acreage. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "In a new working chunk, search fires for any fire whose name contains the word \"August\". How many rows come back? Then show the ten largest fires by acreage. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -597,13 +597,13 @@ The working chunk has done its job. Replace its contents with code that filters 
 
 Render.
 
-In the R Terminal, run `show_file("analysis.qmd", chunk = "Last")`. CP/CR.
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: wildfire-perimeters-16
 #| echo: false
 learnr2::question(
-  "The working chunk has done its job. Replace its contents with code that filters fires to fires of at least 100,000 acres and adds lon and lat columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to big_fires and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\", chunk = \"Last\"). CP/CR.",
+  "The working chunk has done its job. Replace its contents with code that filters fires to fires of at least 100,000 acres and adds lon and lat columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to big_fires and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
