@@ -2,6 +2,19 @@
 
 ## misc.tutorials (development version)
 
+- Every code block now says what it is: commands carry their language
+  (`r`, `bash`, `yaml`), text to type that is in no language (commit
+  messages, `.gitignore` lines, download URLs) is `default`, and
+  transcripts and the answers shown after Continue are `{.output}`,
+  which renders lighter and without a copy button. The 376 bare fences
+  are gone, so
+  [`learnr2::check_tutorial()`](https://ppbds.github.io/learnr2/reference/check_tutorial.html)
+  runs clean.
+
+- Every screenshot question is image-only (`allow_text = FALSE`), and
+  the first one in each tutorial says how to take a screenshot and paste
+  it. Needs the learnr2 that ships `allow_text`.
+
 - The R for Data Science material is now ten tutorials instead of five.
   Each two-topic tutorial was split in two, keeping its first topic and
   spinning the second out under a topic name: `r4ds-1` (Billboard) and

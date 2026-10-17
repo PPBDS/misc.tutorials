@@ -21,8 +21,9 @@ truth for everything common to all such tutorials:
   Server**;
 - exercise rhythm, the question types, knowledge-drop discipline, CP/CR
   and `show_file()` evidence;
-- `echo = FALSE`, test-chunk discipline, code-chunk labeling, the
-  setup-chunk skeleton, data handling, and formatting conventions.
+- `#| echo: false` on widget chunks, test-chunk discipline, code-chunk
+  labeling, the setup-chunk skeleton, data handling, and formatting
+  conventions.
 
 `misc.tutorials` is one of the packages the base guide governs by
 default — it is **not** an exception (that is `vscode.tutorials`). In
@@ -85,11 +86,41 @@ choices, shared with `vscode.tutorials`:
   browser.
 - **Plots are checked with screenshots.** An exercise whose result is a
   plot or map asks the student to “Take a screenshot of the plot (or
-  map) in your rendered page and paste it below” (`allow_image = TRUE`),
-  not for `show_file()` output: a screenshot proves the right picture
-  was drawn, code proves only that code exists. Keep `show_file()` CP/CR
-  for exercises whose result is text — a printed tibble, summary
-  statistics, a YAML header.
+  map) in your rendered page and paste it below” with
+  `allow_image = TRUE, allow_text = FALSE` (no text box; Submit refuses
+  an empty box, since typed text there proves nothing), not for
+  `show_file()` output: a screenshot proves the right picture was drawn,
+  code proves only that code exists. Keep `show_file()` CP/CR for
+  exercises whose result is text — a printed tibble, summary statistics,
+  a YAML header. A tutorial’s first screenshot question adds the
+  one-sentence how-to (`Cmd + Ctrl + Shift + 4` on a Mac,
+  `Win + Shift + S` on Windows, then click in the answer box and paste);
+  later ones just ask. Our answer chunk after Continue draws the
+  expected plot.
+- **Every code block names what it is** (October 2026; learnr2’s “Code,
+  commands and output”). Something to type gets its language:
+  ```` ```r ```` for the R Terminal or a chunk to add, ```` ```bash ````
+  for the bash Terminal, ```` ```yaml ```` for YAML. Text to type that
+  is in no language — a commit message, lines for `.gitignore`, a
+  download URL — is ```` ```default ````, which boxes it with a copy
+  button. Anything the student *compares against* — a transcript, `ls`
+  output, the answer shown after Continue, a sample of a CSV — is
+  ```` ```{.output} ````, rendered lighter and without a copy button. A
+  bare ```` ``` ```` fence is a `check_tutorial()` warning. Label a
+  block with ```` ```{.bash filename="bash Terminal"} ```` when the
+  prose does not already say where it runs.
+- **Questions lock on submit, and Continue is gated.** Every text or
+  image question is `type = "reflection"`: one Submit, then the box
+  locks and our answer appears, so it cannot be copied back.
+  `reflection_editable` is for the minutes question only;
+  `student_info()` and the minutes question get an Edit/Submit cycle,
+  and a submitted screenshot gets an “Edit Answer” button for the image
+  box alone. The hidden `tutorial_options()` chunk defaults to
+  `require_submission = TRUE` (a section’s Continue stays disabled until
+  every question above it is submitted) and `allow_skip = FALSE` (TOC
+  entries past the current section are dimmed). Tutorial-wide switches
+  go through `tutorial_options()`, never a new YAML key. A bare `###` is
+  a Continue stop; never put one directly under a heading.
 - **Never mention learnr or tutorial.helpers.** `show_file()` comes from
   **learnr2**, and students load it with
   [`library(learnr2)`](https://github.com/PPBDS/learnr2).
@@ -418,7 +449,7 @@ be listed in `DESCRIPTION` (`Imports` or `Suggests`) or GitHub Actions
 (with `Remotes: PPBDS/learnr2`, since it is not on CRAN) (`utils` was
 dropped along with `R/zzz.R` — see *Data handling*); every
 tutorial-specific package (arrow, DBI, duckdb, readxl, sf, tidycensus,
-leaflet, plotly, …) lives under `Suggests`. When a new tutorial adds a
+leaflet, rvest, …) lives under `Suggests`. When a new tutorial adds a
 library, add it to `Suggests`.
 
 ## Checking
