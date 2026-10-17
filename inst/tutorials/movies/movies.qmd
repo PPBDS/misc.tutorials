@@ -65,7 +65,7 @@ You should be doing this tutorial in a repo named `movies`. If you are not, crea
 
 Create a new file, `analysis.qmd`, with the title `"Movie Analysis"` and your name as the author. In the bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -75,7 +75,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -95,7 +95,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -107,7 +107,7 @@ Rotten Tomatoes assigns every film two separate scores computed from completely 
 
 Create a `data` directory at the top level of your project, then download `movies.csv` into it from this URL:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/movies/data/movies.csv
 ```
 
@@ -125,7 +125,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 movies.csv
 ```
 
@@ -139,7 +139,7 @@ In your QMD, add a chunk that loads the tidyverse, reads `data/movies.csv` into 
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -157,7 +157,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 
@@ -180,7 +180,7 @@ movies
 
 Commit and push with a message like "Initial project setup with movies data". In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -198,7 +198,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 3f7a2c1 (HEAD -> main, origin/main) Initial project setup with movies data
 b81e94d Add analysis.qmd and .gitignore
 ```
@@ -215,7 +215,7 @@ The `movies.csv` file has 8 columns covering 29,783 films. Two matter most for t
 
 Delete the line that prints `movies` from your first chunk, so it ends with the `read_csv()` assignment. Then start a working chunk that counts how many values are missing in each column. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -248,7 +248,7 @@ movies |>
 
 Replace the working chunk's code with code that splits the `genre` column so each row has exactly one genre, and stores the result as `movies_clean`. The chunk should hold only that assignment, with nothing printed. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -283,7 +283,7 @@ Add `#| cache: true` to that chunk and render. The first render with caching tak
 
 In the bash Terminal, run:
 
-```
+```bash
 ls
 ```
 
@@ -301,7 +301,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -315,7 +315,7 @@ Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -333,7 +333,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -346,7 +346,7 @@ Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-e
 
 Start a new working chunk that counts how many rows there are per genre in `movies_clean`, sorted from most to least common. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -379,7 +379,7 @@ Drama dominates with 13,273 rows — more than one in four genre tags after spli
 
 Replace the working chunk's code with code that computes the mean `audienceScore` and mean `tomatoMeter` across all films in `movies`. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -411,7 +411,7 @@ Critics score films slightly higher on average than audiences — 64.4 versus 62
 
 ### Exercise 7
 
-Replace the working chunk's code with a histogram of `tomatoMeter`. Label the x-axis "Tomatometer Score" and the y-axis "Count", give the plot a title, and put the number of films in the subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.
+Replace the working chunk's code with a histogram of `tomatoMeter`. Label the x-axis "Tomatometer Score" and the y-axis "Count", give the plot a title, and put the number of films in the subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: explore-8
@@ -420,6 +420,7 @@ learnr2::question(
   "Replace the working chunk's code with a histogram of tomatoMeter. Label the x-axis \"Tomatometer Score\" and the y-axis \"Count\", give the plot a title, and put the number of films in the subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -446,7 +447,7 @@ Critic scores pile up at the high end, with the tallest bars between 80 and 100.
 
 Commit and push with a message like "Add data exploration and tomatoMeter histogram". In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -464,7 +465,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 9f3e2d1 Add data exploration and tomatoMeter histogram
 3f7a2c1 Initial project setup with movies data
 b81e94d Add analysis.qmd and .gitignore
@@ -482,7 +483,7 @@ The gap is `tomatoMeter - audienceScore`. A positive value means critics rated t
 
 Start a new working chunk that adds a `gap` column equal to `tomatoMeter - audienceScore` to `movies_clean` and stores the result as `movies_gap`. Below the assignment, show the title, both scores, and the gap for the first five rows. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -519,7 +520,7 @@ The `gap` column measures the difference between professional critics and genera
 
 Replace the five-row preview with the 8 films with the largest positive gaps — the films critics love most relative to audiences. Because `movies_clean` has one row per genre, make sure each film appears only once. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -555,7 +556,7 @@ The top critic-favored films are obscure documentaries and foreign-language art 
 
 Now show the 8 films with the largest negative gaps — the films audiences love most relative to critics. As before, make sure each film appears only once. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -591,7 +592,7 @@ Every one of the most audience-favored films has a `tomatoMeter` of 0, so a gap 
 
 Below the `movies_gap` assignment, replace the top-8 list with a count of how many films in `movies` have a `tomatoMeter` of exactly 0 and how many have an `audienceScore` of exactly 0. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -625,7 +626,7 @@ A 0 is not 628 films that every critic hated: Rotten Tomatoes publishes no score
 
 Change the `movies_gap` definition so it drops every row whose `tomatoMeter` or `audienceScore` is 0. Then replace the zero counts with the mean gap and the number of rows for each genre, with no minimum count, arranged by mean gap. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -665,7 +666,7 @@ Dropping the zeros removes 661 films, and the gap across the remaining rows stil
 
 Keep only genres with at least 100 rows and store the result as `movies_summary`. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -711,6 +712,7 @@ learnr2::question(
   "Add a horizontal bar chart of movies_summary showing average gap by genre, ordered from most audience-favored to most critic-favored, with a vertical line marking zero. Add a descriptive title and subtitle. Render, then take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -747,7 +749,7 @@ Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Gar
 
 Start a new working chunk that filters `movies` to the eight live-action Spider-Man films — *Spider-Man*, *Spider-Man 2*, *Spider-Man 3*, *The Amazing Spider-Man*, *The Amazing Spider-Man 2*, *Spider-Man: Homecoming*, *Spider-Man: Far From Home*, and *Spider-Man: No Way Home* — and adds an `actor` column worked out from the title: Tobey Maguire for the first three, Andrew Garfield for the two *Amazing* films, and Tom Holland for the three with a colon in the title. Store the result as `spiderman`, in release order, and below the assignment show the title, release date, actor, and both scores. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -791,7 +793,7 @@ Three films star Tobey Maguire (2002–2007, directed by Sam Raimi), two star An
 
 Replace the table with one showing each film's gap — `tomatoMeter` minus `audienceScore` — alongside its title and actor, sorted from the largest gap (critics far ahead of audiences) to the smallest. Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -833,6 +835,7 @@ learnr2::question(
   "Replace the table with a line chart of tomatoMeter and audienceScore across the eight films in release order, both lines on one plot with a legend telling them apart and a title that states the finding. Render, then take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -869,7 +872,7 @@ Averaged by actor, Holland's films score highest with both critics (91.7) and au
 
 Commit and push with the message "Add Spider-Man comparison". In the bash Terminal, run:
 
-```
+```bash
 git log -1
 ```
 
@@ -887,7 +890,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 commit 4b7e2a9c1d3f58e0b6a27c94d1e8f3a5b0c7d2e6 (HEAD -> main, origin/main)
 Author: Your Name <your-username@users.noreply.github.com>
 Date:   Sat Aug 15 09:12:04 2026 +0000
@@ -907,7 +910,7 @@ In this tutorial you used AI to analyze a Rotten Tomatoes dataset stored as a CS
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -1016,7 +1019,7 @@ Every chunk on the page draws on the same 29,783 films: the histogram uses all o
 
 Publish your analysis to GitHub Pages. In the bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -1034,7 +1037,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/movies/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -1051,7 +1054,7 @@ To https://github.com/your-username/movies.git
 
 Your answer is the last line's URL:
 
-```
+```{.output}
 https://your-username.github.io/movies/
 ```
 
@@ -1075,7 +1078,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/movies
 ```
 

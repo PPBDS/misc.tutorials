@@ -42,7 +42,7 @@ In this repo, create a new Quarto **website** project, as you did in the Website
 
 In a bash Terminal, render the whole site:
 
-```
+```bash
 quarto render
 ```
 
@@ -50,7 +50,7 @@ Quarto builds the site into a `_site` directory. Open `_site/index.html` with Li
 
 Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
 
-```
+```default
 /_site/
 /.quarto/
 /*_files/
@@ -58,13 +58,13 @@ Make sure your `.gitignore` ignores the generated site and Quarto's intermediate
 
 Commit and push. Use the commit message:
 
-```
+```default
 Create baseball website
 ```
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -84,7 +84,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -99,14 +99,14 @@ A Quarto website is a *project*: `quarto render` builds every `.qmd` in the fold
 
 Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("_quarto.yml")
 ```
 
@@ -124,7 +124,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 project:
   type: website
 
@@ -156,7 +156,7 @@ Make the home page welcoming. In `index.qmd`, replace the placeholder content wi
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("index.qmd")
 ```
 
@@ -174,7 +174,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ---
 title: "Baseball"
 ---
@@ -265,7 +265,7 @@ Now the unit of observation is a *season*: one row per year, from 1871 to 2025. 
 
 Plot total home runs by season as a line. Aggregate the home runs per year inside the chunk and put `yearID` on the x-axis and total home runs on the y-axis. Give it a title, axis labels, and a source caption.
 
-Render. Take a screenshot of the plot in your rendered page and paste it below.
+Render. Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: home-runs-4
@@ -274,6 +274,7 @@ learnr2::question(
   "Plot total home runs by season as a line. Aggregate the home runs per year inside the chunk and put yearID on the x-axis and total home runs on the y-axis. Give it a title, axis labels, and a source caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -351,6 +352,7 @@ learnr2::question(
   "Redo the plot using home runs per game instead of the total: divide each season's total home runs by its total team-games, and plot that rate against the season. Keep a title, labels, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -395,6 +397,7 @@ learnr2::question(
   "Polish the plot. Flag the shortened seasons (1918, 1919, 1981, 1994, 1995, and 2020) in a different color so a reader can see that the very seasons that fooled us earlier are ordinary once we use a rate. Add a legend and update the labels. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -440,7 +443,7 @@ Move the aggregation into its own chunk above the plot, assigning the season-lev
 
 In the R Terminal, run:
 
-```
+```r
 show_file("home-runs.qmd")
 ```
 
@@ -523,7 +526,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  home-runs_cache  home-runs_files  home-runs.qmd  index.qmd  _quarto.yml  _site
 ```
 
@@ -537,7 +540,7 @@ The Source Control change count just jumped, because `home-runs_cache/` and ever
 
 Add a line to your `.gitignore` that ignores the cache directories:
 
-```
+```default
 /*_cache/
 ```
 
@@ -557,7 +560,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -573,13 +576,13 @@ learnr2::question(
 
 Commit and push the home runs page. Use the commit message:
 
-```
+```default
 Add home runs analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -597,7 +600,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 b7e41d0 (HEAD -> main, origin/main) Add home runs analysis
 3f9c2a1 Create baseball website
 ```
@@ -698,6 +701,7 @@ learnr2::question(
   "Turn the leaders into a bar chart. Put career home runs on the x-axis and player names on the y-axis, ordered so the leader is on top, and color the bars by whether each player was active during the steroid era. Treat a player as active in that era if their career overlapped the years 1994 to 2009 (their last season was 1994 or later and their first season was 2009 or earlier). Add a legend, a title, labels, and a caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -750,6 +754,7 @@ learnr2::question(
   "Zoom in on the career home run leader, Barry Bonds. Plot his home runs in each season of his career as a bar chart, with season on the x-axis. Add a title and labels. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -782,13 +787,13 @@ Most hitters peak in their late twenties and decline. Bonds did the opposite: hi
 
 Commit and push the sluggers page. Use the commit message:
 
-```
+```default
 Add sluggers analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -806,7 +811,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 e2a6c58 (HEAD -> main, origin/main) Add sluggers analysis
 b7e41d0 Add home runs analysis
 3f9c2a1 Create baseball website
@@ -826,7 +831,7 @@ Turn the home page into a real introduction to the finished site. In `index.qmd`
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("index.qmd")
 ```
 
@@ -844,7 +849,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ---
 title: "Baseball"
 ---
@@ -871,7 +876,7 @@ A website's landing page is where a visitor decides whether to keep reading. Sta
 
 Publish the site to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages
 ```
 
@@ -889,7 +894,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://<your-github-username>.github.io/baseball/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -930,7 +935,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/<your-github-username>/baseball
 ```
 

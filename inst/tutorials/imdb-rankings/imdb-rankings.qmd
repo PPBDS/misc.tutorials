@@ -41,7 +41,7 @@ You should be doing this tutorial in a repo named `imdb-rankings`. If you are no
 
 Create a new file, `analysis.qmd`, with the title `"IMDb Rankings"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -51,7 +51,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -71,7 +71,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -83,7 +83,7 @@ This tutorial works with five archived snapshots of the IMDb Top 250, captured b
 
 In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
 
-```
+```r
 library(tidyverse)
 library(rvest)
 library(httr2)
@@ -92,7 +92,7 @@ library(purrr)
 
 Also add the following to the YAML header to remove all code from the HTML output:
 
-```
+```yaml
 execute:
   echo: false
 ```
@@ -101,7 +101,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -119,7 +119,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(rvest)
@@ -157,7 +157,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -218,7 +218,7 @@ imdb_snapshots |>
 Download the dataset into your `data/` directory. The file is `imdb_snapshots.rds` and
 the URL is:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds
 ```
 
@@ -228,7 +228,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -271,7 +271,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -318,7 +318,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -370,7 +370,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -411,7 +411,7 @@ identifier, check for drift before trusting any count of appearances.
 
 The five snapshots come from these Wayback Machine captures:
 
-```
+```{.output}
 2015  https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/
 2017  https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/
 2019  https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/
@@ -443,7 +443,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
@@ -465,7 +465,7 @@ request(snap_urls[1]) |>
 
 ###
 
-```
+```{.output}
 # A tibble: 250 x 2
    `Rank & Title`                                     `IMDb Rating`
    <chr>                                                      <dbl>
@@ -515,7 +515,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
@@ -595,7 +595,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
@@ -673,7 +673,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 snap_urls <- c(
   "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
   "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
@@ -736,7 +736,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -767,7 +767,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -792,7 +792,7 @@ films appear in both the 2015 and 2022 snapshots).
 
 Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: movie-rankings-14
@@ -801,6 +801,7 @@ learnr2::question(
   "In a new working chunk, make a bar chart of the average rank change from 2015 to 2022 by release decade, with decade on the y-axis and average rank change on the x-axis. Color the bars by direction — one color for decades where the average rank rose, another for decades where it fell. Add a vertical reference line at zero. Give the chart a proper title, subtitle, axis labels, a legend label, and a caption that mentions the sample size (190 films appear in both the 2015 and 2022 snapshots). Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -852,7 +853,7 @@ Commit `analysis.qmd` with the message `"Add movie rankings analysis"` and push 
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -870,7 +871,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 abc1234 Add movie rankings analysis
 ...
 ```
@@ -895,7 +896,7 @@ Render. Check your Live Server tab.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -1005,7 +1006,7 @@ One of the three chunks in that file is cached, so the five requests to a public
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -1023,7 +1024,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/imdb-rankings/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -1060,7 +1061,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/imdb-rankings
 ```
 

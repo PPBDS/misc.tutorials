@@ -43,7 +43,7 @@ You should be doing this tutorial in a repo named `prediction-markets`. If you a
 
 Create a new file, `analysis.qmd`, with the title `"Prediction Markets"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -53,7 +53,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -73,7 +73,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -85,21 +85,21 @@ The data comes from **Manifold Markets**, a play-money platform launched in 2022
 
 In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
 
-```
+```r
 library(tidyverse)
 library(arrow)
 ```
 
 Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -117,7 +117,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(arrow)
@@ -145,7 +145,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -168,7 +168,7 @@ In a new code chunk, print the schema of `history.parquet` without loading it in
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -202,7 +202,7 @@ Create the main forecasting table in that chunk. Read the market-level file into
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -248,7 +248,7 @@ Keep the code that defines `markets` and `joined`. Load the two topic files in t
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -293,7 +293,7 @@ Every daily snapshot needs the core accuracy measure: how far the crowd's probab
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -344,7 +344,7 @@ Add a second field to the same chunk: for every snapshot, the number of calendar
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -396,7 +396,7 @@ The comparison to come is across time horizons, not individual days. In the same
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -455,7 +455,7 @@ That chunk now builds everything the rest of the section needs, so make it a pur
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -512,7 +512,7 @@ Add `#| cache: true` to that chunk and render. The first render does the work; l
 
 In the bash Terminal, run:
 
-```
+```bash
 ls
 ```
 
@@ -530,7 +530,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -556,7 +556,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -571,7 +571,7 @@ Start a new chunk and stress-test the topic join. Join `markets` to `market_grou
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -607,7 +607,7 @@ The join check has done its job, so replace it. In that chunk, build a compact a
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -643,7 +643,7 @@ Mean error falls monotonically from 0.399 at 90+ days to 0.0896 on the final day
 
 Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the `accuracy` summary above it. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: crowd-16
@@ -652,6 +652,7 @@ learnr2::question(
   "Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the accuracy summary above it. Use the title \"Prediction markets get smarter near the deadline\" and the subtitle \"Mean absolute error in Manifold Markets forecasts, by days remaining\". Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -695,6 +696,7 @@ learnr2::question(
   "Convergence says markets get more accurate over time. The deeper question is whether they are well calibrated — whether events given a 70% chance actually happen about 70% of the time. Before testing that, look at the shape of the final-day forecasts. Leave the accuracy chart where it is and start a new chunk: filter joined to the snapshots on resolution day and plot the distribution of probability. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -723,7 +725,7 @@ Build the calibration table from those final-day snapshots. Group the markets in
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -770,6 +772,7 @@ learnr2::question(
   "Extend that chunk into a calibration curve, keeping the calibration summary above it. Put predicted probability on the x-axis and actual resolution rate on the y-axis, add a dashed 45° reference line for perfect calibration, scale both axes as percentages, and size each point by the number of markets in the bin. Give it a title that a reader could check against the plot. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -809,7 +812,7 @@ Stage `analysis.qmd`, commit with the message
 `"Add prediction market accuracy analysis"`, and push to GitHub. In the
 bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -827,7 +830,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 abc1234 Add prediction market accuracy analysis
 def5678 Add analysis.qmd and .gitignore
 ```
@@ -848,7 +851,7 @@ Render to ensure that everything works. Check your Live Server tab — the resul
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -956,7 +959,7 @@ The finished document is four chunks long, even though it took nineteen exercise
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -974,7 +977,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/prediction-markets/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 [gh-pages (root-commit) 0e5631c] Initializing gh-pages branch
@@ -1016,7 +1019,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/prediction-markets
 ```
 

@@ -43,7 +43,7 @@ You should be doing this tutorial in a repo named `r4ds-1`. If you are not, crea
 
 Create a new file, `analysis.qmd`, with the title `"Billboard Hot 100"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -65,7 +65,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd
 ```
 
@@ -81,7 +81,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -101,7 +101,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -109,7 +109,7 @@ analysis_files
 
 A CSV is the plainest possible table: one line per row, values separated by commas, and a first line naming the columns. Here are the first lines of the file you will download, cut off after five columns:
 
-```
+```{.output}
 artist,track,date.entered,wk1,wk2
 2 Pac,Baby Don't Cry (Keep...,2000-02-26,87,82
 2Ge+her,The Hardest Part Of ...,2000-09-02,91,87
@@ -123,7 +123,7 @@ In your QMD, put `library(tidyverse)` in a new code chunk. Add `#| message: fals
 
 Also add this to the YAML header to hide code in the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
@@ -132,7 +132,7 @@ Render again. Check the rendered HTML. Only the title and author should appear i
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -152,7 +152,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 ```
@@ -165,7 +165,7 @@ library(tidyverse)
 
 In the R Terminal, run these three commands:
 
-```
+```r
 getwd()
 dir.create("data")
 list.files()
@@ -189,7 +189,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 > getwd()
 [1] "/workspaces/r4ds-1"
 > dir.create("data")
@@ -211,7 +211,7 @@ The file you will put in `data/` is `billboard.csv`, a copy of the `billboard` d
 
 Download `billboard.csv` into your `data/` directory. In the R Terminal, run:
 
-```
+```r
 download.file(
   "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-1/data/billboard.csv",
   "data/billboard.csv"
@@ -220,7 +220,7 @@ download.file(
 
 In a bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -238,7 +238,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 billboard.csv
 ```
 
@@ -293,7 +293,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 billboard <- read_csv("data/billboard.csv", show_col_types = FALSE)
 ```
 
@@ -321,7 +321,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -347,7 +347,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -414,7 +414,7 @@ The data is centered on songs entering the chart around 1999 and 2000: every son
 
 Make a histogram of the `wk1` rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: billboard-hot-100-4
@@ -423,6 +423,7 @@ learnr2::question(
   "Make a histogram of the wk1 rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -500,6 +501,7 @@ learnr2::question(
   "Reshape billboard so the week columns become two columns, week and rank, then plot each song's ranking over time. Update your working chunk, render, and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -648,6 +650,7 @@ learnr2::question(
   "Plot only the songs that reached the top 10. Show all top-10 songs in gray, then highlight the three notable songs from the previous exercise in color, with a legend showing their names. Render and inspect the plot in the rendered HTML. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -745,13 +748,13 @@ The gray lines show the broader top-10 population; the colored lines turn three 
 
 Commit and push the Billboard work. Use the commit message:
 
-```
+```default
 Add Billboard chart analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -769,7 +772,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 a1b2c3d (HEAD -> main, origin/main) Add Billboard chart analysis
 e4f5a6b Add analysis.qmd and .gitignore
 ```
@@ -788,7 +791,7 @@ Render. Check the rendered HTML. The page should be attractive, with a clean ver
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -914,7 +917,7 @@ Your page now tells one story: how top-10 Billboard hits move through the chart,
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -932,7 +935,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/r4ds-1/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -950,7 +953,7 @@ To https://github.com/your-username/r4ds-1.git
 
 The URL on the last line is your answer:
 
-```
+```{.output}
 https://your-username.github.io/r4ds-1/
 ```
 
@@ -974,7 +977,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/r4ds-1
 ```
 

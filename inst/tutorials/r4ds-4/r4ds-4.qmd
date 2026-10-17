@@ -40,7 +40,7 @@ You should be doing this tutorial in a repo named `r4ds-4`. If you are not, crea
 
 Create a new file, `analysis.qmd`, with the title `"Crypto Markets"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -50,7 +50,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -70,7 +70,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -82,21 +82,21 @@ Parquet stores a table column-by-column instead of row-by-row. A query that need
 
 In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
 
-```
+```r
 library(tidyverse)
 library(arrow)
 ```
 
 Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -114,7 +114,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(arrow)
@@ -142,7 +142,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -168,7 +168,7 @@ Download the three crypto parquet files into your `data/` directory so the analy
 
 In the bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -186,7 +186,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 categories.parquet    coin_metadata.parquet    daily_prices.parquet
 ```
 
@@ -200,7 +200,7 @@ In a new code chunk, inspect the schema of `data/daily_prices.parquet` without p
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -234,7 +234,7 @@ Take a random sample of 10 rows from `data/daily_prices.parquet` and collect the
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -271,7 +271,7 @@ That last answer read the entire file into memory before sampling it. This time,
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -310,7 +310,7 @@ Bring the whole price file into memory as an analysis table named `prices`. In t
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -348,7 +348,7 @@ Load `categories.parquet` as `categories` in the same chunk, below the `metadata
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -388,7 +388,7 @@ The `categories` table has one row per crypto category, and `category_id` is the
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -423,7 +423,7 @@ Add a real date column to `metadata` that handles both conventions, then list th
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -458,7 +458,7 @@ Parsing a date means telling the parser the *order of the components*, not their
 
 Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the `btc` rows of `prices`. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: crypto-markets-11
@@ -467,6 +467,7 @@ learnr2::question(
   "Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the btc rows of prices. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -495,7 +496,7 @@ Join `prices` to `metadata` by `coin_id` to attach coin-level details to each pr
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -530,7 +531,7 @@ Before joining `categories`, check whether it shares any column names with the t
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -566,7 +567,7 @@ Both `metadata` and `categories` have a `description` column. Joining without re
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -612,7 +613,7 @@ Delete the `crypto` line at the bottom of that chunk, so it defines the table an
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -630,7 +631,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 prices <- open_dataset("data/daily_prices.parquet") |>
   collect()
 metadata <- open_dataset("data/coin_metadata.parquet") |>
@@ -654,7 +655,7 @@ Add `#| cache: true` to that chunk and render. This first render with caching wi
 
 In the bash Terminal, run:
 
-```
+```bash
 ls
 ```
 
@@ -672,7 +673,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -686,7 +687,7 @@ Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -704,7 +705,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -726,6 +727,7 @@ learnr2::question(
   "Start a new analysis chunk that gives market context: calculate total crypto market cap for each day in crypto and plot it as a line chart, with market cap shown in trillions of dollars. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -761,6 +763,7 @@ learnr2::question(
   "Replace the line chart in that chunk with a stacked area chart of category market-cap shares over time: aggregate the coin-level market caps for each day and category, and make the total height of the chart always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -797,6 +800,7 @@ learnr2::question(
   "Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption; the subtitle should state what the chart actually shows. Then add event context by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -832,7 +836,7 @@ A subtitle is a claim that a reader will trust more readily than the picture ben
 
 Commit `analysis.qmd` with the message `"Crypto market composition analysis"` and push to GitHub. In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -850,7 +854,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 abc1234 Crypto market composition analysis
 def5678 Add analysis.qmd and .gitignore
 ```
@@ -871,7 +875,7 @@ Render to ensure that everything works. Check your Live Server tab — the resul
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -946,7 +950,7 @@ The finished document is three chunks long, even though you worked through two d
 
 Publish your rendered QMD to GitHub Pages. In the bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -964,7 +968,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/r4ds-4/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -981,7 +985,7 @@ To https://github.com/your-username/r4ds-4.git
 
 Your answer is the last line's URL:
 
-```
+```{.output}
 https://your-username.github.io/r4ds-4/
 ```
 
@@ -1005,7 +1009,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/r4ds-4
 ```
 

@@ -59,7 +59,7 @@ Use AI however you like throughout. An agentic coding tool works best, since it 
 
 You should be doing this tutorial in a repo named `census`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -69,7 +69,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -89,7 +89,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -101,7 +101,7 @@ The American Community Survey (ACS) is the Census Bureau's rolling annual survey
 
 In `analysis.qmd`, add a code chunk that loads the three libraries you will need:
 
-```
+```r
 library(tidyverse)
 library(tidycensus)
 library(sf)
@@ -109,14 +109,14 @@ library(sf)
 
 Rendering shows the code and the package start-up messages, which we don't want in a published document. Add `#| message: false` to the chunk, and add this to the YAML header to hide all code:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render again. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -134,7 +134,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(tidycensus)
@@ -151,7 +151,7 @@ Every call to `get_acs()` needs a Census API key. Sign up for a free one at the 
 
 In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
 
-```
+```r
 tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE)
 ```
 
@@ -159,7 +159,7 @@ This stores the key in your `.Renviron` file so every future R session finds it 
 
 A running R session does not see the new line until it is restarted. Close the R Terminal (the trash icon on its tab) and open a new one, or run `readRenviron("~/.Renviron")`. Then, in the R Terminal, run:
 
-```
+```r
 nzchar(Sys.getenv("CENSUS_API_KEY"))
 ```
 
@@ -177,7 +177,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 [1] TRUE
 ```
 
@@ -195,7 +195,7 @@ Add a chunk to `analysis.qmd` that uses **tidycensus** to get 2020 median househ
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -213,7 +213,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 income_tx <- get_acs(
   geography = "county",
@@ -272,7 +272,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 income_tx <- get_acs(
   geography = "county",
@@ -303,7 +303,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd
 ```
 
@@ -329,7 +329,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -344,7 +344,7 @@ Start a new working chunk that summarizes median household income and margin of 
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -385,7 +385,7 @@ Replace the working chunk with the same summary, dropping the missing county bef
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -424,7 +424,7 @@ Across the 253 counties with an estimate, median household income runs from $22,
 
 Replace the working chunk with a choropleth map of median income across the counties using **ggplot2**. Render and check the map in your Live Server tab.
 
-Take a screenshot of the map in your rendered page and paste it below.
+Take a screenshot of the map in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: texas-income-6
@@ -433,6 +433,7 @@ learnr2::question(
   "Replace the working chunk with a choropleth map of median income across the counties using ggplot2. Render and check the map in your Live Server tab. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -464,6 +465,7 @@ learnr2::question(
   "Improve the map: give it a perceptually uniform color scale (the viridis family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -518,7 +520,7 @@ Add a chunk that uses **tidycensus** to get 2020 educational attainment for stat
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -536,7 +538,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 edu_state <- get_acs(
   geography = "state",
@@ -557,7 +559,7 @@ Add a working chunk that prints `edu_state`. Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -591,7 +593,7 @@ Replace the working chunk with code that collapses `edu_state` to one row per ge
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -639,6 +641,7 @@ learnr2::question(
   "Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -676,6 +679,7 @@ learnr2::question(
   "Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -739,7 +743,7 @@ Add a chunk that uses **tidycensus** to get 2020 median age and total population
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -757,7 +761,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 age_ca <- get_acs(
   geography = "county",
@@ -778,7 +782,7 @@ Add a working chunk that prints `age_ca`. Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -812,7 +816,7 @@ Replace the working chunk with code that reshapes `age_ca` to one row per county
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -856,6 +860,7 @@ learnr2::question(
   "Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -890,6 +895,7 @@ learnr2::question(
   "Improve the scatterplot: use a log-scaled population axis, label the largest counties, add a title, clean axis labels, and a source caption. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -952,7 +958,7 @@ This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data]
 
 Render and confirm all three figures appear. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -1082,7 +1088,7 @@ age_ca |>
 
 Publish your work to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -1100,7 +1106,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/census/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -1136,7 +1142,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/census
 ```
 

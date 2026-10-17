@@ -49,7 +49,7 @@ You should be doing this tutorial in a repo named `r4ds-2`. If you are not, crea
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births"`) and your name as author. In a bash Terminal, run:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -59,7 +59,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -79,7 +79,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -93,14 +93,14 @@ In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -120,7 +120,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(readxl)
@@ -156,7 +156,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 > getwd()
 [1] "/workspaces/r4ds-2"
 > dir.create("data")
@@ -181,7 +181,7 @@ New Year's Day and Christmas show the deepest dips; even the 13th of each month 
 
 Download the Excel file `us_births_1994_2014.xlsx` into your `data/` directory. In the R Terminal, run:
 
-```
+```r
 download.file(
   "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx",
   "data/us_births_1994_2014.xlsx",
@@ -193,7 +193,7 @@ Excel `.xlsx` files are binary, not plain text, which is why `download.file()` n
 
 In a bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -211,7 +211,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 us_births_1994_2014.xlsx
 ```
 
@@ -254,7 +254,7 @@ Build a tibble named `births_tibble` from the spreadsheet in which `day_of_week`
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -298,7 +298,7 @@ glimpse(births_tibble)
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -316,7 +316,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
   mutate(
     day_of_week = factor(
@@ -351,7 +351,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -377,7 +377,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -421,7 +421,7 @@ This summary collapses 7,670 daily observations into 366 cells (one per calendar
 
 Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: births-9
@@ -430,6 +430,7 @@ learnr2::question(
   "Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -523,6 +524,7 @@ learnr2::question(
   "Make a line and point chart of pct_of_baseline by year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -565,6 +567,7 @@ learnr2::question(
   "Update the plot to color each point by the weekday that December 25 fell on that year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -687,6 +690,7 @@ learnr2::question(
   "Plot calendar_resid as a line chart with calendar_date on the x-axis and mean_pct_resid on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -730,7 +734,7 @@ Commit `analysis.qmd` with the message `"Add births analysis"` and push to GitHu
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -748,7 +752,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 a1b2c3d (HEAD -> main, origin/main) Add births analysis
 e4f5a6b Add analysis.qmd and .gitignore
 ```
@@ -769,7 +773,7 @@ Render. Check your Live Server tab — the resulting HTML page should be attract
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -855,7 +859,7 @@ The whole analysis rests on one data-preparation step: reading the Excel file an
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -873,7 +877,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/r4ds-2/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -912,7 +916,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/r4ds-2
 ```
 

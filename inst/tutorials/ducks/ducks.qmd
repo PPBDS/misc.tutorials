@@ -72,7 +72,7 @@ In this repo, create a new Quarto **website** project, as you did in the Website
 
 In a bash Terminal, render the whole site:
 
-```
+```bash
 quarto render
 ```
 
@@ -80,7 +80,7 @@ Quarto builds the site into a `_site` directory. Open `_site/index.html` with Li
 
 Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
 
-```
+```default
 /_site/
 /.quarto/
 /*_files/
@@ -88,13 +88,13 @@ Make sure your `.gitignore` ignores the generated site and Quarto's intermediate
 
 Commit and push. Use the commit message:
 
-```
+```default
 Create ducks website
 ```
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -114,7 +114,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -129,14 +129,14 @@ The site so far is one page, `index.qmd`, built into `_site/`. A map page and a 
 
 Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("_quarto.yml")
 ```
 
@@ -154,7 +154,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 project:
   type: website
 
@@ -198,7 +198,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  data  index.qmd  _quarto.yml  _site
 ```
 
@@ -214,13 +214,13 @@ Lake Constance sits at the border of Germany, Switzerland, and Austria at roughl
 
 Download the mallard tracking data from this URL and save it in your `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/ducks/data/mallards.csv
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -238,7 +238,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 mallards.csv
 ```
 
@@ -410,7 +410,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 mallards <- read_csv("data/mallards.csv",
                      show_col_types = FALSE) |>
   mutate(
@@ -454,7 +454,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  data  index.qmd  map_cache  map_files  map.qmd  _quarto.yml  _site
 ```
 
@@ -468,7 +468,7 @@ The Source Control change count just jumped, because `map_cache/` and `data/mall
 
 Add two lines to your `.gitignore`:
 
-```
+```default
 /*_cache/
 data/mallards.rds
 ```
@@ -489,7 +489,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -506,7 +506,7 @@ data/mallards.rds
 
 Start a new working chunk in `map.qmd` that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 47–55°N, longitudes 8–25°E) and drawn over country outlines from **[rnaturalearth](https://docs.ropensci.org/rnaturalearth/)**. Render.
 
-Take a screenshot of the map in your rendered page and paste it below.
+Take a screenshot of the map in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: where-do-they-go-10
@@ -515,6 +515,7 @@ learnr2::question(
   "Start a new working chunk in map.qmd that makes a map of all GPS fixes, colored by individual duck, filtered to the region of interest (latitudes 47–55°N, longitudes 8–25°E) and drawn over country outlines from rnaturalearth. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -568,13 +569,13 @@ Most GPS fixes cluster tightly around Lake Constance in the southwest corner of 
 
 Commit and push the map page. Use the commit message:
 
-```
+```default
 Add duck map
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -592,7 +593,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 3f8a2c1 (HEAD -> main, origin/main) Add duck map
 9c4e1b7 Create ducks website
 ```
@@ -683,6 +684,7 @@ learnr2::question(
   "Drop the fixes with speeds above 30 m/s, then make a ridge plot of the speed distributions by month, one ridge per month in calendar order. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -717,13 +719,13 @@ With the GPS errors removed, mean speed peaks in July (0.48 m/s) and stays high 
 
 Commit and push the seasons page. Use the commit message:
 
-```
+```default
 Add seasonal movement analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -741,7 +743,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 7b2e9d4 (HEAD -> main, origin/main) Add seasonal movement analysis
 3f8a2c1 Add duck map
 9c4e1b7 Create ducks website
@@ -761,7 +763,7 @@ Turn the home page into a real introduction to the finished site. In `index.qmd`
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("index.qmd")
 ```
 
@@ -779,7 +781,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ---
 title: "Mallard Duck Movement"
 ---
@@ -806,7 +808,7 @@ The home page should give a reader who knows nothing about the study enough cont
 
 Publish the site to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages
 ```
 
@@ -824,7 +826,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/ducks/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -865,7 +867,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/ducks
 ```
 

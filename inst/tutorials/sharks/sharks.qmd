@@ -60,7 +60,7 @@ In this repo, create a new Quarto **website** project, as you did in the Website
 
 In a bash Terminal, render the whole site:
 
-```
+```bash
 quarto render
 ```
 
@@ -68,7 +68,7 @@ Quarto builds the site into a `_site` directory. Open `_site/index.html` with Li
 
 Make sure your `.gitignore` ignores the generated site and Quarto's intermediate files, each entry on its own line:
 
-```
+```default
 /_site/
 /.quarto/
 /*_files/
@@ -76,13 +76,13 @@ Make sure your `.gitignore` ignores the generated site and Quarto's intermediate
 
 Commit and push. Use the commit message:
 
-```
+```default
 Create sharks website
 ```
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -102,7 +102,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -117,14 +117,14 @@ The GSAF classifies each incident: 3,762 of the 5,094 in our data are unprovoked
 
 Tell Quarto to hide code across the whole site. In `_quarto.yml`, add:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("_quarto.yml")
 ```
 
@@ -142,7 +142,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 project:
   type: website
 
@@ -186,7 +186,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  data  index.qmd  _quarto.yml  _site
 ```
 
@@ -202,13 +202,13 @@ Shark attacks are not evenly distributed around the world. Some countries accoun
 
 Download the shark attack data from this URL and save it in your `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/sharks/data/attacks_clean.csv
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -226,7 +226,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 attacks_clean.csv
 ```
 
@@ -357,7 +357,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 attacks <- read_csv("data/attacks_clean.csv", show_col_types = FALSE) |>
   mutate(
     Country_lower = str_to_lower(str_trim(Country)),
@@ -395,7 +395,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  data  index.qmd  map_cache  map.qmd  _quarto.yml  _site
 ```
 
@@ -409,7 +409,7 @@ The Source Control change count just jumped, because `map_cache/` and `data/atta
 
 Add two lines to your `.gitignore`, one that ignores the cache directories and one that ignores the saved table:
 
-```
+```default
 /*_cache/
 data/attacks.rds
 ```
@@ -430,7 +430,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 /.quarto/
 **/*.quarto_ipynb
 /_site/
@@ -447,7 +447,7 @@ data/attacks.rds
 
 Start a new working chunk below the data chunk that draws a world map in which each country is colored by its number of shark attacks. Render.
 
-Take a screenshot of the map in your rendered page and paste it below.
+Take a screenshot of the map in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: where-9
@@ -456,6 +456,7 @@ learnr2::question(
   "Start a new working chunk below the data chunk that draws a world map in which each country is colored by its number of shark attacks. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -501,13 +502,13 @@ The USA (1,958 incidents), Australia (1,077), and South Africa (506) account for
 
 Commit and push the map page. Use the commit message:
 
-```
+```default
 Add shark attack map
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -525,7 +526,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 9b1c3e7 (HEAD -> main, origin/main) Add shark attack map
 3a8f2d1 Create sharks website
 ```
@@ -584,6 +585,7 @@ learnr2::question(
   "Update your chunk to show a line chart of attacks per year. 2018 is a partial year, so drop it. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -659,6 +661,7 @@ learnr2::question(
   "Update your chunk to show fatal vs non-fatal attacks by activity, for activities with at least 50 incidents, leaving out incidents whose outcome is unknown. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -696,13 +699,13 @@ Non-fatal attacks outnumber fatal ones in every activity category. The fatal sha
 
 Commit and push the trends page. Use the commit message:
 
-```
+```default
 Add trends analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -720,7 +723,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 4e7a1d9 (HEAD -> main, origin/main) Add trends analysis
 9b1c3e7 Add shark attack map
 3a8f2d1 Create sharks website
@@ -740,7 +743,7 @@ Turn the home page into a real introduction to the finished site. In `index.qmd`
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("index.qmd")
 ```
 
@@ -758,7 +761,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ---
 title: "Shark Attacks"
 ---
@@ -786,7 +789,7 @@ The home page should give a reader who knows nothing about the dataset enough co
 
 Publish the website to GitHub Pages. In the bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages
 ```
 
@@ -804,7 +807,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/sharks/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -845,7 +848,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/sharks
 ```
 

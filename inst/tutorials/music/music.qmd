@@ -42,7 +42,7 @@ You should be doing this tutorial in a repo named `music`. If you are not, creat
 
 Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -52,7 +52,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -72,7 +72,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -80,7 +80,7 @@ analysis_files
 
 A CSV is the plainest possible table: one line per row, values separated by commas, and a first line naming the columns.
 
-```
+```{.output}
 "artist.name","artist.familiarity","song.year"
 "Casual",0.581793766,0
 "The Box Tops",0.630630038,1969
@@ -94,7 +94,7 @@ In your QMD, put `library(tidyverse)` and `library(maps)` in a new code chunk. A
 
 Also add this to the YAML header to hide code in the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
@@ -103,7 +103,7 @@ Render again. Check the rendered HTML. Only the title and author should appear i
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -121,7 +121,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(maps)
@@ -149,7 +149,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -165,7 +165,7 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 
 Download `music.csv` from this URL and save it in your `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/music/data/music.csv
 ```
 
@@ -185,7 +185,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 music.csv
 ```
 
@@ -240,7 +240,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 music <- read_csv("data/music.csv", show_col_types = FALSE)
 ```
 
@@ -268,7 +268,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -294,7 +294,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -448,7 +448,7 @@ Notice the minimums: `song.year` has a minimum of 0, which is not a real release
 
 ### Exercise 11
 
-The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: million-song-dataset-11
@@ -457,6 +457,7 @@ learnr2::question(
   "The summary didn't give a clear picture of the distribution of song years. Plot the distribution of song.year, filtering out rows where song.year is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -531,6 +532,7 @@ learnr2::question(
   "Artist locations are also stored as latitude and longitude. Make a world map showing every artist's location, exactly as the file records it, using the maps package for the world background. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -613,6 +615,7 @@ learnr2::question(
   "Iterate the map. Filter out artists where both latitude and longitude equal 0, and add a title and subtitle that note the coverage limitation. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -656,13 +659,13 @@ The map reveals a strong geographic bias: most artists with usable coordinates a
 
 Commit and push the Million Song work. Use the commit message:
 
-```
+```default
 Add Million Song analysis
 ```
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -680,7 +683,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 a1b2c3d (HEAD -> main, origin/main) Add Million Song analysis
 e4f5a6b Add analysis.qmd and .gitignore
 ```
@@ -699,7 +702,7 @@ Render. Check the rendered HTML. The page should be attractive, with clean versi
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -772,7 +775,7 @@ Your page now tells one story: where the artists behind the Million Song sample 
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -790,7 +793,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/music/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -808,7 +811,7 @@ To https://github.com/your-username/music.git
 
 The URL on the last line is your answer:
 
-```
+```{.output}
 https://your-username.github.io/music/
 ```
 
@@ -832,7 +835,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/music
 ```
 

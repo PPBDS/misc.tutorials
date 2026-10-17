@@ -53,7 +53,7 @@ You should be doing this tutorial in a repo named `nba-recruits`. If you are not
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing NBA Recruits"`) and your name as author. In a bash Terminal, run:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -63,7 +63,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -83,7 +83,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -97,14 +97,14 @@ In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -122,7 +122,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(readxl)
@@ -150,7 +150,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -170,7 +170,7 @@ The guiding question: does being a top-ranked teenager actually predict who beco
 
 Download the Excel file `nba_recruits.xlsx` into your `data/` directory from:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/nba-recruits/data/nba_recruits.xlsx
 ```
 
@@ -178,7 +178,7 @@ Excel `.xlsx` files are binary, not plain text, so whatever fetches the file mus
 
 In a bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -196,7 +196,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 nba_recruits.xlsx
 ```
 
@@ -268,7 +268,7 @@ Build a tibble named `basketball_tibble` from the spreadsheet in which `tier` is
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -317,7 +317,7 @@ More than half of the 1,873 players — 1,014 — fall into "Never played," anot
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -335,7 +335,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
   mutate(
     tier = factor(
@@ -374,7 +374,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -400,7 +400,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -413,7 +413,7 @@ Of the 40 players in the "Superstar" tier, 12 came from the "#1–10" group, but
 
 Add a new code chunk to your QMD that creates a bar chart from `basketball_tibble` showing the proportion of players in each career tier broken down by recruit group, with recruit groups on the y-axis and career tier as the fill color. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: basketball-recruits-9
@@ -422,6 +422,7 @@ learnr2::question(
   "Add a new code chunk to your QMD that creates a bar chart from basketball_tibble showing the proportion of players in each career tier broken down by recruit group, with recruit groups on the y-axis and career tier as the fill color. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -464,6 +465,7 @@ learnr2::question(
   "Replace the code in the previous chunk to filter basketball_tibble to the four ranked groups (excluding \"Outside top 100\") before plotting the proportional bar chart, so all groups share the same data structure. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -539,6 +541,7 @@ learnr2::question(
   "Replace the code in that chunk with a scatter plot of peak Wins Added against recruit rank, colored by career tier, with a straight-line trend added and at least four notable players labelled by name. Only players who have both a rank and a peak Wins Added value belong in the plot. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -594,7 +597,7 @@ Commit `analysis.qmd` with the message `"Add basketball recruits analysis"` and 
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -612,7 +615,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 f7e8d9c (HEAD -> main, origin/main) Add basketball recruits analysis
 e4f5a6b Add analysis.qmd and .gitignore
 ```
@@ -633,7 +636,7 @@ Render. Check your Live Server tab — the resulting HTML page should be attract
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -727,7 +730,7 @@ The whole analysis rests on one data-preparation step: reading the Excel file an
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -745,7 +748,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/nba-recruits/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -784,7 +787,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/nba-recruits
 ```
 

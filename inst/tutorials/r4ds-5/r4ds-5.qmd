@@ -69,7 +69,7 @@ You should be doing this tutorial in a repo named `r4ds-5`. If you are not, crea
 
 Create a new file, `analysis.qmd`, with the title `"Wildfires"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -79,7 +79,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -99,7 +99,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -111,7 +111,7 @@ This tutorial works with a GeoJSON file from the National Interagency Fire Cente
 
 In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
 
-```
+```r
 library(tidyverse)
 library(purrr)
 library(leaflet)
@@ -120,7 +120,7 @@ library(jsonlite)
 
 Also add the following to the YAML header to remove all code from the HTML output:
 
-```
+```yaml
 execute:
   echo: false
 ```
@@ -129,7 +129,7 @@ Render.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -147,7 +147,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(purrr)
@@ -186,7 +186,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -208,13 +208,13 @@ We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) In
 
 Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
 ```
 
 In a bash Terminal, run:
 
-```
+```bash
 ls data
 ```
 
@@ -232,7 +232,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 wildfires.geojson
 ```
 
@@ -355,7 +355,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 fires <- jsonlite::read_json("data/wildfires.geojson") |>
   pluck("features") |>
   tibble(features = _) |>
@@ -402,7 +402,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 fires <- jsonlite::read_json("data/wildfires.geojson") |>
   pluck("features") |>
   tibble(features = _) |>
@@ -438,7 +438,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -464,7 +464,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 analysis_cache
 ```
@@ -510,7 +510,7 @@ Plot the total acres burned per year in `fires` as a line chart. Give it a prope
 
 Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: wildfire-perimeters-14
@@ -519,6 +519,7 @@ learnr2::question(
   "Plot the total acres burned per year in fires as a line chart. Give it a proper title, axis labels, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -561,6 +562,7 @@ learnr2::question(
   "Evolve the working chunk to show total acres burned by state in fires. Show only the top 10 states, ordered by total acreage. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -647,6 +649,7 @@ learnr2::question(
   "The big_fires chunk is finished, so delete the big_fires print line from the bottom of it. Then, in a new working chunk, build a circle-marker leaflet map of big_fires where each circle's size reflects the fire's acreage. Zoom the map to the western US. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -687,6 +690,7 @@ learnr2::question(
   "Replace the circle markers with the actual boundary shapes of the ten largest fires in big_fires. Give each shape a popup naming the fire, its year, and its acreage, and set the view so those ten are all on screen. Render. Take a screenshot of the map in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -729,7 +733,7 @@ Commit `analysis.qmd` with the message `"Add wildfire perimeters analysis"` and 
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -747,7 +751,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 abc1234 Add wildfire perimeters analysis
 ...
 ```
@@ -768,7 +772,7 @@ Render. Check your Live Server tab.
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -866,7 +870,7 @@ One of the four chunks in that file is cached, so the 8.8 MB GeoJSON is read and
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -884,7 +888,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://your-username.github.io/r4ds-5/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -921,7 +925,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/your-username/r4ds-5
 ```
 

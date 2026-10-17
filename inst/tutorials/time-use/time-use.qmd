@@ -90,7 +90,7 @@ You should be doing this tutorial in a repo named `time-use`. If you are not, cr
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing Americans' Time Use"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -100,7 +100,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -120,7 +120,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -134,14 +134,14 @@ In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `l
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -159,7 +159,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(DBI)
@@ -189,7 +189,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -216,7 +216,7 @@ from this same survey.
 
 Download the DuckDB database `atus.duckdb` from this URL and save it in your `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/time-use/data/atus.duckdb
 ```
 
@@ -236,7 +236,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 atus.duckdb
 ```
 
@@ -260,7 +260,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 data/*.duckdb
 ```
@@ -497,7 +497,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 activity_avg <- dbplyr_act |>
   left_join(dbplyr_codes |> select(activity_code, major_name),
             by = "activity_code") |>
@@ -535,7 +535,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -559,7 +559,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 data/*.duckdb
 analysis_cache
@@ -622,7 +622,7 @@ hourly_avg
 
 Start a new code chunk. Make a horizontal grouped bar chart from `activity_avg` showing average daily minutes by category, with the bars colored by sex and ordered by average minutes. Leave out the `Data Codes` bucket, which is missing-data bookkeeping rather than an activity. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: time-use-14
@@ -631,6 +631,7 @@ learnr2::question(
   "Start a new code chunk. Make a horizontal grouped bar chart from activity_avg showing average daily minutes by category, with the bars colored by sex and ordered by average minutes. Leave out the Data Codes bucket, which is missing-data bookkeeping rather than an activity. Give the chart a title, subtitle, axis labels, and a data source caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -677,6 +678,7 @@ learnr2::question(
   "Start a new code chunk. Build a stacked area chart from hourly_avg showing how the day fills up: hour along the horizontal axis, average minutes vertically, one colored band per activity category, and a separate panel for each sex. Label the hour axis in clock time rather than in numbers. Give the chart a title, subtitle, and data source caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -715,7 +717,7 @@ Commit `analysis.qmd` with the message `"Add ATUS time-use analysis"` and push t
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -733,7 +735,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 9876fed Add ATUS time-use analysis
 def5678 Add .gitignore
 ```
@@ -754,7 +756,7 @@ Render. Check your Live Server tab. The page should show your two graphics and n
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -883,7 +885,7 @@ Six chunks, and only one of them is cached. Neither the cache nor the database f
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -901,7 +903,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://<your-github-username>.github.io/time-use/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -937,7 +939,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/<your-github-username>/time-use
 ```
 

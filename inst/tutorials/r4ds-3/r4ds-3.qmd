@@ -69,7 +69,7 @@ You should be doing this tutorial in a repo named `r4ds-3`. If you are not, crea
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
 
-```
+```bash
 quarto render analysis.qmd
 ```
 
@@ -79,7 +79,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```
+```r
 show_file(".gitignore")
 ```
 
@@ -99,7 +99,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 ```
 
@@ -113,14 +113,14 @@ In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `l
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
-```
+```yaml
 execute:
   echo: false
 ```
 
 Render. In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd", chunk = "Last")
 ```
 
@@ -138,7 +138,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 #| message: false
 library(tidyverse)
 library(DBI)
@@ -168,7 +168,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -193,7 +193,7 @@ from this same data in May of 2026.
 Download the DuckDB database `seda_2025.duckdb` from this URL and save it in your
 `data/` directory:
 
-```
+```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
 ```
 
@@ -213,7 +213,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 seda_2025.duckdb
 ```
 
@@ -237,7 +237,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 data/*.duckdb
 ```
@@ -464,7 +464,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 score_change <- dbplyr_dist |>
   filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
   select(district_id, district_name, state, year, rla_score) |>
@@ -489,7 +489,7 @@ The chunk above your last one still holds the connection, and it is the one part
 
 Add these two lines as the first lines of the last chunk:
 
-```
+```r
 #| cache: true
 #| cache.extra: !expr file.mtime("data/seda_2025.duckdb")
 ```
@@ -510,7 +510,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 ```
 
@@ -534,7 +534,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 analysis_files
 data/*.duckdb
 analysis_cache
@@ -548,7 +548,7 @@ The two tibbles in that cache are small — 9,644 district rows and 51 state row
 
 Start a new working chunk. Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below.
+Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
 ```{r}
 #| label: us-education-14
@@ -557,6 +557,7 @@ learnr2::question(
   "Start a new working chunk. Plot the distribution of rla_change from score_change as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -603,6 +604,7 @@ learnr2::question(
   "Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -647,7 +649,7 @@ Commit `analysis.qmd` with the message `"Add SEDA district reading analysis"` an
 
 In the bash Terminal, run:
 
-```
+```bash
 git log --oneline -3
 ```
 
@@ -665,7 +667,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 abc1234 Add SEDA district reading analysis
 def5678 Add .gitignore
 ```
@@ -686,7 +688,7 @@ Render. Check your Live Server tab. The page should show your arrow chart and no
 
 In the R Terminal, run:
 
-```
+```r
 show_file("analysis.qmd")
 ```
 
@@ -779,7 +781,7 @@ Four chunks, and only one of them is cached. Neither the cache nor the database 
 
 Publish your rendered QMD to GitHub Pages. In a bash Terminal, run:
 
-```
+```bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -797,7 +799,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 ? Publish site to https://<your-github-username>.github.io/r4ds-3/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -833,7 +835,7 @@ learnr2::question(
 
 ###
 
-```
+```{.output}
 https://github.com/<your-github-username>/r4ds-3
 ```
 
