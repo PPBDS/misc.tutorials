@@ -49,7 +49,7 @@ learnr2::student_info()
 
 ## Introduction
 
-In this tutorial you will build a small **website** about the movements of Mallard ducks. You will use AI to do the analysis and GPS tracking data from 52 Mallards (*Anas platyrhynchos*) fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, as your data source. Your job is to steer the analysis, render often, inspect the output, and write the words that turn a map and a chart into a site worth reading.
+In this tutorial you will build a small **website** about the movements of Mallard ducks. You will use AI to do the analysis and GPS tracking data from 52 Mallards (*Anas platyrhynchos*) fitted with solar-powered collars at Lake Constance, on the border of Germany and Switzerland, as your data source. Your job is to steer the analysis, render often, inspect the output, and write the home page that introduces the map and the chart.
 
 <div style="display: flex; justify-content: center; gap: 20px; align-items: flex-start;">
   <img src="images/mallard.jpg" style="height: 300px; width: auto;"/>
@@ -66,7 +66,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `ducks`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `ducks`. If you are not, create one and then connect to it.
 
 In this repo, create a new Quarto **website** project, as you did in the Websites tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Mallard Duck Movement"`. Quarto also creates an `about.qmd` page and a `styles.css` file: delete both, and remove the lines that mention them from `_quarto.yml`, so the site starts with just the home page.
 
@@ -106,7 +106,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named ducks. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Mallard Duck Movement\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create ducks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named ducks. If you are not, create one and then connect to it. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Mallard Duck Movement\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create ducks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -123,7 +123,7 @@ learnr2::question(
 
 ###
 
-The site so far is one page, `index.qmd`, built into `_site/`. A map page and a seasons page will join it, and because a Quarto website's navigation lives in `_quarto.yml` rather than in the pages, adding each one means editing two files.
+A Quarto website's navigation lives in `_quarto.yml`, not in the pages. Adding a page therefore means editing two files: the new `.qmd` and `_quarto.yml`.
 
 ### Exercise 2
 
@@ -208,7 +208,7 @@ The one file that will go in `data` holds 83,279 GPS fixes from 52 ducks tracked
 
 ## Where do they go?
 
-Lake Constance sits at the border of Germany, Switzerland, and Austria at roughly 47.5°N, 9.5°E. It is one of the largest freshwater lakes in Central Europe and an important staging area for waterfowl. But Mallards are not purely resident birds — some individuals make substantial seasonal movements while others barely leave the lake. The GPS data reveals exactly who goes where.
+Lake Constance sits at the border of Germany, Switzerland, and Austria at roughly 47.5°N, 9.5°E. Mallards are not purely resident birds: some individuals make substantial seasonal movements while others barely leave the lake.
 
 ### Exercise 1
 
@@ -432,11 +432,11 @@ write_rds(mallards, "data/mallards.rds")
 
 ###
 
-**RDS** is R's native format for saving one R object exactly as it is, so `mallards` comes back with its parsed timestamps and its season factor intact; the CSV would have to be re-parsed and re-cleaned every time.
+**RDS** is R's native format for saving one R object exactly as it is, so `mallards` comes back with its parsed timestamps and its season factor intact. The CSV would have to be re-parsed and re-cleaned every time.
 
 ### Exercise 7
 
-Now cache the data chunk. Add `#| cache: true` as the first line inside the `mallards` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `map_cache/` directory next to `map.qmd`.
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `mallards` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing. The first cached render creates a `map_cache/` directory next to `map.qmd`.
 
 To confirm the directory is there, in the bash Terminal, run `ls`.
 
@@ -604,7 +604,7 @@ This commit puts `data/mallards.csv` on GitHub too: the trimmed, GPS-only versio
 
 ## When do they move?
 
-GPS speed tells us not just where a duck was, but how actively it was moving at each fix. A speed near zero means the duck was resting or feeding; **higher speeds mean active flight**. Combined with timestamps, speed reveals the seasonal rhythm of duck activity across the 10-year study.
+GPS speed tells us not just where a duck was, but how actively it was moving at each fix. A speed near zero means the duck was resting or feeding. **Higher speeds mean active flight.** Combined with timestamps, speed reveals the seasonal rhythm of duck activity across the 10-year study.
 
 ### Exercise 1
 
@@ -669,7 +669,7 @@ mallards |>
 
 ###
 
-The median speed is 0.22 m/s — most fixes catch a duck that is barely moving, resting or feeding at the water's edge. The maximum, 127 m/s, is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS error; only 22 fixes exceed 30 m/s, and they should be dropped before any speed-based analysis.
+The median speed is 0.22 m/s, so most fixes catch a duck resting or feeding at the water's edge. The maximum, 127 m/s, is physically impossible for a Mallard (real flight speeds top out around 25–30 m/s) and is almost certainly a GPS error. Only 22 fixes exceed 30 m/s, and they should be dropped before any speed-based analysis.
 
 ### Exercise 3
 
@@ -802,7 +802,7 @@ and activity peaks in July and August, after the breeding season.
 
 ###
 
-The home page should give a reader who knows nothing about the study enough context to understand the map and the seasonal chart. Stating the findings up front — and pointing to the pages that back them up — is what makes two charts feel like one coherent project.
+The home page should give a reader who knows nothing about the study enough context to understand the map and the seasonal chart. State the findings up front and point to the pages that back them up.
 
 ### Exercise 2
 
@@ -849,7 +849,7 @@ Your answer is the URL on the last line: `https://your-username.github.io/ducks/
 
 ###
 
-The site is served from the `gh-pages` branch, so only the rendered HTML — home page, map, seasons, and the navbar that links them — is published; your `.qmd` source, `data/mallards.csv`, and the cache stay on `main` or on your machine.
+The site is served from the `gh-pages` branch, so only the rendered HTML — home page, map, seasons, and the navbar that links them — is published. Your `.qmd` source, `data/mallards.csv`, and the cache stay on `main` or on your machine.
 
 ### Exercise 3
 

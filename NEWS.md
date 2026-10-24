@@ -1,5 +1,10 @@
 # misc.tutorials (development version)
 
+* Editorial pass over every tutorial: prose has almost no semicolons and
+  filler sentences are gone. No exercise asked for two pastes, so none were
+  split. The repo line no longer says "You may need to restart this tutorial
+  after you do so," which was a learnr artifact.
+
 * Every code block now says what it is: commands carry their language
   (`r`, `bash`, `yaml`), text to type that is in no language (commit
   messages, `.gitignore` lines, download URLs) is `default`, and transcripts

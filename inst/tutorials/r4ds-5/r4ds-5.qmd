@@ -65,7 +65,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Wildfires"` and your name as the author. In a bash Terminal, render it:
 
@@ -91,7 +91,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -105,7 +105,7 @@ analysis_files
 
 ###
 
-This tutorial works with a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US, every one of them at least 10,000 acres, from 1990 to 2023. It is a study in one of the messiest storage formats data scientists encounter: deeply nested geographic JSON.
+This tutorial works with a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US, every one of them at least 10,000 acres, from 1990 to 2023.
 
 ### Exercise 2
 
@@ -192,7 +192,7 @@ AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-**jsonlite** is R's standard package for reading and writing JSON; it reads a local file like the GeoJSON you are about to download into nested R lists, one level per level of braces. Every element of the fire file sits three or four lists deep, which is why the first few exercises are about navigating a list before any table exists.
+**jsonlite** is R's standard package for reading and writing JSON. It reads a file like the GeoJSON you are about to download into nested R lists, one level per level of braces. Every element of the fire file sits three or four lists deep.
 
 ## Wildfire perimeters
 
@@ -301,7 +301,7 @@ pluck(raw, "features", 1, "geometry", "coordinates", 1, 1)
 
 ###
 
-Each fire is a named list with four keys — `type`, `id`, `geometry` (the coordinate arrays that define the boundary), and `properties` (tabular metadata like name, year, and acreage) — and GeoJSON stores each coordinate as `[longitude, latitude]`, longitude first, the opposite of the spoken convention. A pair of numbers means something only relative to a **coordinate reference system**, the model of the earth's shape that fixes where zero is and what one unit is worth; GeoJSON is always WGS84, the same system a phone's GPS reports, so `-121.5, 40.1` here is unambiguous.
+Each fire is a named list with four keys: `type`, `id`, `geometry` (the coordinate arrays that define the boundary), and `properties` (tabular metadata like name, year, and acreage). GeoJSON stores each coordinate as `[longitude, latitude]`, longitude first, the opposite of the spoken convention. A pair of numbers means something only relative to a **coordinate reference system**, the model of the earth's shape that fixes where zero is and what one unit is worth. GeoJSON is always WGS84, the same system a phone's GPS reports, so `-121.5, 40.1` here is unambiguous.
 
 ### Exercise 4
 
@@ -333,7 +333,7 @@ tibble(features = raw$features) |>
 
 ###
 
-A list-column holds one complete R list per row — here one fire feature — and widening it turns each named element of those lists into a column of its own; repeating that move until nothing is nested is called **rectangling**. The eight attributes (`incident`, `gis_acres`, `fire_year`, `agency`, `state`, `map_method`, `date_current`, `unique_fire_id`) are now flat columns, while `geometry` is still a list-column holding the polygon coordinates and needs separate handling.
+A list-column holds one complete R list per row, here one fire feature. Widening it turns each named element of those lists into a column of its own. Repeating that move until nothing is nested is called **rectangling**. The eight attributes (`incident`, `gis_acres`, `fire_year`, `agency`, `state`, `map_method`, `date_current`, `unique_fire_id`) are now flat columns, while `geometry` is still a list-column holding the polygon coordinates and needs separate handling.
 
 ### Exercise 5
 
@@ -382,7 +382,7 @@ fires
 
 If your `fires` does not match ours, replace your code with the pipeline above before continuing.
 
-`geometry` holds two fields: `type` (the string `"Polygon"`) and `coordinates`. A `type` column already exists from the feature level, so widening geometry without a naming rule overwrites one `type` with the other — a **name collision**, the most common way a rectangling pipeline loses a column without raising an error. Asking for the parent's name to be prefixed onto its children gives `geometry_type` and `geometry_coordinates` instead.
+`geometry` holds two fields: `type` (the string `"Polygon"`) and `coordinates`. A `type` column already exists from the feature level, so widening geometry without a naming rule overwrites one `type` with the other. That is a **name collision**, the most common way a rectangling pipeline loses a column without raising an error. Prefixing the parent's name onto its children gives `geometry_type` and `geometry_coordinates` instead.
 
 ### Exercise 6
 
@@ -418,7 +418,7 @@ fires <- jsonlite::read_json("data/wildfires.geojson") |>
 
 ###
 
-The cleaned pipeline is a readable map of the GeoJSON nesting: each step corresponds to one level of structure in the raw file — features, then properties, then geometry.
+Each step of the pipeline corresponds to one level of nesting in the raw file: features, then properties, then geometry.
 
 ### Exercise 7
 
@@ -502,7 +502,7 @@ fires |> arrange(desc(gis_acres)) |> head(10)
 
 ###
 
-The search returns zero rows, yet the second-largest record is "DOE" (CA, 2020, ~590k acres), the Doe component of the August Complex, which together burned over a million acres and became the largest fire in California history — the dataset records component fires under their own names, not the complex name the news reported. Those ten are the extreme tail: most of the 883 fires sit near the file's 10,000-acre floor, and only three exceed 500,000 acres.
+The search returns zero rows, yet the second-largest record is "DOE" (CA, 2020, ~590k acres), the Doe component of the August Complex. The dataset records component fires under their own names, not the complex name the news reported. Those ten are the extreme tail. Most of the 883 fires sit near the file's 10,000-acre floor, and only three exceed 500,000 acres.
 
 ### Exercise 10
 
@@ -545,7 +545,7 @@ fires |>
 
 ###
 
-Annual burned acreage in fires ≥ 10,000 acres averaged 414,000 acres in the 1990s and 1.5 million in the 2010s — roughly a tripling. The line peaks in 2020 at 5.4 million acres, with 2021 next at 4.0 million; no year in the 1990s cleared 1.2 million, and 1991 contributed no qualifying fire at all.
+Annual burned acreage in fires ≥ 10,000 acres averaged 414,000 acres in the 1990s and 1.5 million in the 2010s — roughly a tripling. The line peaks in 2020 at 5.4 million acres, with 2021 next at 4.0 million. No year in the 1990s cleared 1.2 million, and 1991 contributed no qualifying fire at all.
 
 ### Exercise 11
 
@@ -589,11 +589,11 @@ fires |>
 
 ###
 
-California's bar comes first, and by a wide margin: 12.6 million acres over the dataset's 33 years against Idaho's 6.9 million. Idaho burns more than Arizona (4.7 million), Oregon (4.7 million), or New Mexico (4.2 million), and yet almost nobody outside the interior west could name an Idaho fire: its large burns run through remote rangeland and forest, while California's threaten towns and structures.
+California's bar comes first by a wide margin: 12.6 million acres over the dataset's 33 years against Idaho's 6.9 million. Idaho burns more than Arizona (4.7 million), Oregon (4.7 million), or New Mexico (4.2 million), but its large burns run through remote rangeland and forest, while California's threaten towns and structures.
 
 ### Exercise 12
 
-The working chunk has done its job. Replace its contents with code that filters `fires` to fires of at least 100,000 acres and adds `lon` and `lat` columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to `big_fires` and print it.
+Replace the working chunk's contents with code that filters `fires` to fires of at least 100,000 acres and adds `lon` and `lat` columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to `big_fires` and print it.
 
 Render.
 
@@ -603,7 +603,7 @@ In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 #| label: wildfire-perimeters-16
 #| echo: false
 learnr2::question(
-  "The working chunk has done its job. Replace its contents with code that filters fires to fires of at least 100,000 acres and adds lon and lat columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to big_fires and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Replace the working chunk's contents with code that filters fires to fires of at least 100,000 acres and adds lon and lat columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to big_fires and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -632,7 +632,7 @@ big_fires
 
 ###
 
-Eighty-seven of the 883 fires clear 100,000 acres — about 156 square miles each — with California holding 25 of them, Idaho 16, and the US Forest Service listed as managing agency for 79. `lon` and `lat` are the plain average of the boundary's vertices, not the polygon's centroid: vertices bunch up where a boundary wiggles, so the average drifts toward the crinkly side of a fire — close enough to drop a dot in the right valley, though **[sf](https://r-spatial.github.io/sf/)** computes area-weighted centers properly when position has to be right.
+Eighty-seven of the 883 fires clear 100,000 acres, about 156 square miles each. California holds 25 of them, Idaho 16, and the US Forest Service is the managing agency for 79. `lon` and `lat` are the plain average of the boundary's vertices, not the polygon's centroid. Vertices bunch up where a boundary wiggles, so the average drifts toward the crinkly side of a fire. That is close enough to drop a dot in the right valley, but **[sf](https://r-spatial.github.io/sf/)** computes area-weighted centers properly when position has to be right.
 
 ### Exercise 13
 
@@ -725,7 +725,7 @@ leaflet() |>
 
 ###
 
-Circle size told you how much burned; the outline tells you how it burned: click the biggest shape and it is Dixie (2021, 963,309 acres), a long ragged perimeter running north and east through the northern Sierra, while the compact block on Arizona's Mogollon Rim is Rodeo-Chediski (2002, 460,563 acres). Ten shapes is a deliberate limit: the full file holds 391,027 coordinate pairs, and handing all of them to a browser ships several megabytes of geometry to every reader for detail that no one can resolve at this zoom.
+Circle size told you how much burned. The outline tells you how it burned. Click the biggest shape and it is Dixie (2021, 963,309 acres), a long ragged perimeter running north and east through the northern Sierra, while the compact block on Arizona's Mogollon Rim is Rodeo-Chediski (2002, 460,563 acres). Ten shapes is a deliberate limit: the full file holds 391,027 coordinate pairs, and handing all of them to a browser ships several megabytes of geometry for detail no one can resolve at this zoom.
 
 ### Exercise 15
 
@@ -758,7 +758,7 @@ abc1234 Add wildfire perimeters analysis
 
 ###
 
-The **NIFC** also publishes current-year fire perimeters in real time — the **IRWIN** (Integrated Reporting of Wildland-Fire Information) feed is updated multiple times per day during active fire season. The historical archive used here is finalized geometry; the live feed shows boundaries as incident command teams map them in the field.
+The **NIFC** also publishes current-year fire perimeters in real time — the **IRWIN** (Integrated Reporting of Wildland-Fire Information) feed is updated multiple times per day during active fire season. The historical archive used here is finalized geometry. The live feed shows boundaries as incident command teams map them in the field.
 
 ## Summary
 
@@ -907,7 +907,7 @@ Your answer is the URL on the last line: `https://your-username.github.io/r4ds-5
 
 ###
 
-The leaflet polygon map you built is fully interactive in the published page — readers can pan, zoom, and inspect individual fire boundaries. This kind of interactivity only works in HTML output, which is one of the main reasons to publish to the web rather than share a static PDF.
+The leaflet polygon map is fully interactive in the published page: readers can pan, zoom, and click individual fire boundaries. That interactivity only works in HTML output, which is one reason to publish to the web rather than share a static PDF.
 
 ### Exercise 3
 
@@ -931,7 +931,7 @@ https://github.com/your-username/r4ds-5
 
 ###
 
-The polygons you published are finalized perimeters, surveyed after containment, and the file's builder removed 25 duplicate records where a fire had been mapped more than once as its boundary was revised. `date_current` in the raw properties is the date the record was last edited, not the date of the fire, which is why every chart here used `fire_year`.
+The polygons you published are finalized perimeters, surveyed after containment. The file's builder removed 25 duplicate records where a fire had been mapped more than once as its boundary was revised. `date_current` in the raw properties is the date the record was last edited, not the date of the fire, which is why every chart here used `fire_year`.
 
 ## Download answers
 

@@ -37,7 +37,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `imdb-rankings`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `imdb-rankings`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"IMDb Rankings"` and your name as the author. In a bash Terminal, render it:
 
@@ -63,7 +63,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named imdb-rankings. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named imdb-rankings. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -77,7 +77,7 @@ analysis_files
 
 ###
 
-This tutorial works with five archived snapshots of the IMDb Top 250, captured by the Wayback Machine in January 2015, 2017, 2019, and 2021 and in February 2022 — 1,250 rows in all, one per film per snapshot. The live chart changes every day; the archive is the only place the chart of a given past date still exists.
+This tutorial works with five archived snapshots of the IMDb Top 250, captured by the Wayback Machine in January 2015, 2017, 2019, and 2021 and in February 2022 — 1,250 rows in all, one per film per snapshot. The live chart changes every day. The archive is the only place the chart of a given past date still exists.
 
 ### Exercise 2
 
@@ -137,7 +137,7 @@ An HTML page is a tree of **elements**, each a start tag, optional attributes, s
 </td>
 ```
 
-The rating is the element's text; the vote count hides in its `title` attribute.
+The rating is the element's text. The vote count hides in its `title` attribute.
 
 ### Exercise 3
 
@@ -257,11 +257,10 @@ imdb_snapshots |>
 
 ###
 
-1,250 rows = 5 snapshots × 250 films: the `snap_year` column is what converts a
-single-year scrape into a **panel dataset**, with each film appearing up to 5 times, once
-per snapshot year, with its rank at that point in time. The IMDb Top 250 used static HTML
-until around 2022, which makes these five snapshots parseable with the same **rvest**
-pipeline — the one you will rebuild later in this section.
+1,250 rows = 5 snapshots × 250 films: the `snap_year` column turns a single-year scrape
+into a **panel dataset**, with each film appearing up to five times, once per snapshot,
+with its rank at that date. The IMDb Top 250 used static HTML until around 2022, so one
+**rvest** pipeline parses all five snapshots.
 
 ### Exercise 2
 
@@ -304,11 +303,9 @@ imdb_snapshots |>
 
 ###
 
-"It Happened One Night" (Frank Capra, 1934) fell from rank 149 to 243 — a drop of 94
-spots in seven years. Nine of these ten biggest movers are fallers (the one riser is
-Jurassic Park, up 70), even though 56 of the 190 films present in both snapshots gained
-ground; that asymmetry at the extremes is a clue that something is systematically pushing
-particular films down, not just shuffling the deck at random.
+Nine of these ten biggest movers are fallers (the one riser is Jurassic Park, up 70),
+even though 56 of the 190 films present in both snapshots gained ground. That asymmetry
+at the extremes is a clue that something systematically pushes particular films down.
 
 ### Exercise 3
 
@@ -424,7 +421,7 @@ addresses and their five years as two parallel vectors. Then fetch the 2015 page
 the one table it contains, and print just its rank-and-title column and its rating
 column, so you can see what a scrape actually hands you. Allow a generous timeout and a
 couple of retries — the archive is slow and occasionally drops a request. If the Wayback
-Machine refuses the request, keep the `readRDS()` chunk and continue; the rest of the
+Machine refuses the request, keep the `readRDS()` chunk and continue. The rest of the
 tutorial works either way.
 
 Render.
@@ -435,7 +432,7 @@ In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 #| label: movie-rankings-8
 #| echo: false
 learnr2::question(
-  "The five snapshots come from these Wayback Machine captures: 2015 https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/ 2017 https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/ 2019 https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/ 2021 https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/ 2022 https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/ Now build the pipeline that assembled this data. In a new chunk, store those five addresses and their five years as two parallel vectors. Then fetch the 2015 page, read the one table it contains, and print just its rank-and-title column and its rating column, so you can see what a scrape actually hands you. Allow a generous timeout and a couple of retries — the archive is slow and occasionally drops a request. If the Wayback Machine refuses the request, keep the readRDS() chunk and continue; the rest of the tutorial works either way. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "The five snapshots come from these Wayback Machine captures: 2015 https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/ 2017 https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/ 2019 https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/ 2021 https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/ 2022 https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/ Now build the pipeline that assembled this data. In a new chunk, store those five addresses and their five years as two parallel vectors. Then fetch the 2015 page, read the one table it contains, and print just its rank-and-title column and its rating column, so you can see what a scrape actually hands you. Allow a generous timeout and a couple of retries — the archive is slow and occasionally drops a request. If the Wayback Machine refuses the request, keep the readRDS() chunk and continue. The rest of the tutorial works either way. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -482,10 +479,9 @@ request(snap_urls[1]) |>
 **httr2** handles the conversation with the server — the request, the timeout, the
 retries — and **rvest** parses the HTML that comes back, which is not tidy: one cell
 carries rank, title, and release year glued together with the newlines of the original
-page layout, and the vote count is nowhere in the table at all. Scraping has rules: every
-site publishes a `robots.txt` at its root listing the paths automated clients are asked
-to leave alone, and its terms of service govern what you may do with whatever you do
-collect — the two are different documents and both matter.
+page layout, and the vote count is nowhere in the table at all. Every site publishes a
+`robots.txt` at its root listing the paths automated clients are asked to leave alone,
+and its terms of service govern what you may do with whatever you do collect.
 
 ### Exercise 6
 
@@ -562,13 +558,12 @@ imdb_snapshots |>
 
 ###
 
-The archive's own markup changed underneath these five captures: before 2022 the tooltip
-reads "9.2 based on 1,354,030 votes"; the 2022 capture reads "8.7 based on 2,432,861 user
-ratings". **[stringr](https://stringr.tidyverse.org/)** can match what precedes a value
-without capturing it, so a single pattern anchored on "based on " handles both wordings
-and the function needs no special case for the newer page. Scraped sources drift like
-this constantly, which is why the scraping logic belongs in one function you can fix in
-one place.
+The page's markup changed between captures: before 2022 the tooltip reads "9.2 based on
+1,354,030 votes", and the 2022 capture reads "8.7 based on 2,432,861 user ratings".
+**[stringr](https://stringr.tidyverse.org/)** can match what precedes a value without
+capturing it, so a single pattern anchored on "based on " handles both wordings. Scraped
+sources drift like this constantly, which is why the scraping logic belongs in one
+function you can fix in one place.
 
 ### Exercise 7
 
@@ -712,9 +707,9 @@ imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
 
 ###
 
-A scrape is the clearest case for caching there is. Reading a local file again costs you
-time; fetching a remote page again costs someone else bandwidth, and a host that sees the
-same request every few minutes may start refusing them.
+Reading a local file again costs you time. Fetching a remote page again costs someone
+else bandwidth, and a host that sees the same request every few minutes may start
+refusing them.
 
 ### Exercise 9
 
@@ -744,9 +739,9 @@ AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 
 `analysis_cache/` now holds the saved `imdb_snapshots` tibble, and every later render —
 including the one that publishes your page — loads it from disk without touching the
-network. The page you publish reports the archive as it stood when you first rendered, not
-as it stands today — for a fixed historical snapshot that is exactly right; for a source
-that updates, it is a decision to make deliberately rather than by accident.
+network. The published page therefore reports the archive as it stood when you first
+rendered, which is right for a fixed historical snapshot but a deliberate choice for a
+source that updates.
 
 ### Exercise 10
 
@@ -843,9 +838,8 @@ imdb_snapshots |>
 
 Films from the 1990s are essentially flat (+0.4 average): these films are still being
 actively rated by the audience that grew up with them — viewers now in their 30s and 40s
-who first used IMDb in the early 2000s. The IMDb voter base did not exist in 1934; it
-emerged around 1998 and is now dominated by viewers who have no particular attachment to
-films from that era.
+who first used IMDb in the early 2000s. The IMDb voter base emerged around 1998 and is
+now dominated by viewers with no particular attachment to films from the 1930s.
 
 ### Exercise 12
 
@@ -881,8 +875,8 @@ abc1234 Add movie rankings analysis
 The **[ggplot2movies](https://cran.r-project.org/package=ggplot2movies)** package on CRAN includes IMDb data from a 2015 snapshot — a
 convenient alternative for offline analysis that also exposes budgets, genres, and
 MPAA ratings. **Letterboxd**, a social film platform, maintains its own community-rated
-lists; its rankings often differ substantially from IMDb's because its user base skews
-younger and more cinephile than IMDb's general audience.
+lists, which often differ substantially from IMDb's because its user base skews younger
+and more cinephile.
 
 ## Summary
 
@@ -1043,7 +1037,7 @@ Your answer is the URL on the last line: `https://your-username.github.io/imdb-r
 
 ###
 
-The five snapshots form panel data: the same films observed at multiple points in time. A single snapshot can only rank films; five let you ask which aged well, which fell off, and how taste shifted over seven years.
+The five snapshots form panel data: the same films observed at multiple points in time. A single snapshot can only rank films. Five let you ask which aged well, which fell off, and how taste shifted over seven years.
 
 ### Exercise 3
 

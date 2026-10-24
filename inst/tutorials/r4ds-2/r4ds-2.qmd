@@ -45,7 +45,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. All lowercase: `r4ds-2`, not `R4DS-2` — every path and URL below assumes it.
+You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. All lowercase: `r4ds-2`, not `R4DS-2` — every path and URL below assumes it.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births"`) and your name as author. In a bash Terminal, run:
 
@@ -71,7 +71,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. All lowercase: r4ds-2, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. All lowercase: r4ds-2, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -128,7 +128,7 @@ library(readxl)
 
 ###
 
-Excel files exported from spreadsheet software often encode categorical variables as plain text. Before those columns display in the right order on a plot axis they need to be converted to ordered factors — you will do that for the day of the week in this tutorial.
+Excel files exported from spreadsheet software often encode categorical variables as plain text. Before those columns display in the right order on a plot axis they need to be converted to ordered factors.
 
 ### Exercise 3
 
@@ -138,7 +138,7 @@ In the R Terminal, run these three commands:
 `dir.create("data")`  
 `list.files()`  
 
-This will create a `data` directory in your project. This is a good place to store any data that you are working with. If `analysis.qmd` is not in this listing, you saved it somewhere else; move it into the `r4ds-2` folder before going on.
+This will create a `data` directory in your project. This is a good place to store any data that you are working with. If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-2` folder before going on.
 
 We will soon stop giving you commands like these and just have AI do it.
 
@@ -148,7 +148,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run these three commands: getwd() dir.create(\"data\") list.files() This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else; move it into the r4ds-2 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
+  "In the R Terminal, run these three commands: getwd() dir.create(\"data\") list.files() This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else. Move it into the r4ds-2 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -167,7 +167,7 @@ learnr2::question(
 
 ###
 
-Keeping raw data in its own `data/` directory is the convention [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) assumes: the spreadsheet you download stays untouched in one known place, and every change you make to it lives in code rather than in the file itself. That is what makes a spreadsheet analysis reproducible — an Excel workbook edited by hand carries no record of what was edited, while a QMD that reads the original workbook records every step.
+Keeping raw data in its own `data/` directory is the convention [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) assumes: the spreadsheet you download stays untouched, and every change you make to it lives in code. An Excel workbook edited by hand carries no record of what was edited, while a QMD that reads the original workbook records every step.
 
 ## Births
 
@@ -175,7 +175,7 @@ In 2016, FiveThirtyEight published ["Some People Are Too Superstitious to Have a
 
 ![](images/us-births-heatmap.png){width=90%}
 
-New Year's Day and Christmas show the deepest dips; even the 13th of each month is slightly lower than surrounding days. You will investigate this dataset and produce a version of this chart.
+New Year's Day and Christmas show the deepest dips. Even the 13th of each month is slightly lower than surrounding days. You will investigate this dataset and produce a version of this chart.
 
 ### Exercise 1
 
@@ -217,7 +217,7 @@ us_births_1994_2014.xlsx
 
 ###
 
-FiveThirtyEight published this data under a CC-BY license alongside their 2016 article. It combines two overlapping government sources: a CDC-derived file covering 1994–1999 and a Social Security Administration (SSA) file covering 2000–2014; the combined spreadsheet uses the SSA data for the 2000–2003 overlap to avoid double-counting.
+FiveThirtyEight published this data under a CC-BY license alongside their 2016 article. It combines two overlapping government sources: a CDC-derived file covering 1994–1999 and a Social Security Administration (SSA) file covering 2000–2014. The combined spreadsheet uses the SSA data for the 2000–2003 overlap to avoid double-counting.
 
 ### Exercise 2
 
@@ -329,7 +329,7 @@ births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
 
 ###
 
-The chunk now holds one thing: the tibble the rest of the section depends on. That is what makes it safe to save — a chunk that both builds an object and prints something about it would have to be re-run whenever you wanted a different printout.
+The chunk now holds one thing: the tibble the rest of the section depends on. A chunk that both builds an object and prints something about it would have to be re-run whenever you wanted a different printout.
 
 ### Exercise 5
 
@@ -462,7 +462,7 @@ births_tibble |>
 
 ###
 
-A calendar heatmap lays a year out as a matrix — day of month across, month down — and uses color as a third dimension, so 366 daily values fit in a single glance. The September cluster is immediately visible as the darkest band; the holiday notches are unmistakable light vertical cuts.
+A calendar heatmap lays a year out as a matrix — day of month across, month down — and uses color as a third dimension, so 366 daily values fit in a single glance. The September cluster is the darkest band. The holiday notches are the light vertical cuts.
 
 ### Exercise 9
 
@@ -509,7 +509,7 @@ christmas_data |>
 
 ###
 
-`pct_of_baseline` runs from 48.1% to 70.8% across the 21 Christmases, with a median of 60.7% — a 23-point spread too large to be noise alone. The `weekday` column shows Christmas falling on a different day each year — Sunday in 1994, Monday in 1995, Wednesday in 1996 — but the table alone cannot say how much of the swing comes from the weekday, from year-to-year differences in overall birth rates, or from noise.
+`pct_of_baseline` runs from 48.1% to 70.8% across the 21 Christmases, with a median of 60.7% — a 23-point spread too large to be noise alone. The `weekday` column shows Christmas falling on a different day each year — Sunday in 1994, Monday in 1995, Wednesday in 1996. The table alone cannot say how much of the swing comes from the weekday, from year-to-year differences in overall birth rates, or from noise.
 
 ### Exercise 10
 
@@ -597,13 +597,13 @@ christmas_data |>
 
 ###
 
-Saturday and Sunday years sit at the bottom of every vertical slice; Wednesday and Thursday years sit at the top — the confound is the day of the week. Weekend days already average roughly a third fewer births than weekdays, because scheduled inductions and cesareans are booked on working days, so a Saturday Christmas compounds the holiday effect while a Wednesday Christmas barely adds to it.
+Saturday and Sunday years sit at the bottom of every vertical slice and Wednesday and Thursday years at the top, so the confound is the day of the week. Weekend days already average roughly a third fewer births than weekdays, because scheduled inductions and cesareans are booked on working days, so a Saturday Christmas compounds the holiday effect while a Wednesday Christmas barely adds to it.
 
 ### Exercise 12
 
-The Christmas analysis revealed two confounds blurring the year-over-year comparison: which weekday December 25 falls on, and year-to-year variation in overall birth rates. The FiveThirtyEight graphic shown at the top of this section removes both of those effects, plus a third — season — before measuring the residual.
+The FiveThirtyEight graphic at the top of this section removes both confounds — weekday and year — plus a third, season, before measuring what is left.
 
-The tool is a linear model. R predicts each day's birth count from year, month, and day of week; the residuals — the gap between actual and predicted — carry the holiday signal in isolation, stripped of those confounds.
+The tool is a linear model. It predicts each day's birth count from year, month, and day of week. The residuals — the gap between actual and predicted — carry the holiday signal stripped of those confounds.
 
 Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to `births_model`, and print the model's R² — the share of day-to-day variation those three factors account for. Render.
 
@@ -633,7 +633,7 @@ summary(births_model)$r.squared
 
 ###
 
-The model's R² of roughly 0.88 means year, month, and weekday together explain about 88% of the day-to-day variation in US birth counts. The remaining 12% is what the three factors cannot account for — and that unexplained portion is what we want: it holds the holiday signal, isolated from season and schedule.
+The model's R² of roughly 0.88 means year, month, and weekday together explain about 88% of the day-to-day variation in US birth counts. The remaining 12% holds the holiday signal, isolated from season and schedule.
 
 ### Exercise 13
 
@@ -675,7 +675,7 @@ calendar_resid
 
 ###
 
-`pct_resid` is how many percentage points a day sits above or below the model's prediction for its year, season, and weekday, and the largest negative values belong to the major holidays: Christmas, New Year's Day, July 4, and Thanksgiving. In `calendar_resid` the December 25 row shows −39.4 — Christmas averages about 39 points below the adjusted baseline — while typical September dates sit near zero, because the September peak is fully captured by the month predictor.
+`pct_resid` is how many percentage points a day sits above or below the model's prediction for its year, season, and weekday. The largest negative values belong to the major holidays: Christmas, New Year's Day, July 4, and Thanksgiving. In `calendar_resid` the December 25 row shows −39.4 — Christmas averages about 39 points below the adjusted baseline — while typical September dates sit near zero, because the September peak is fully captured by the month predictor.
 
 ### Exercise 14
 
@@ -726,7 +726,7 @@ Original FiveThirtyEight graphic for comparison:
 
 ![](images/us-births-heatmap.png){width=90%}
 
-The pattern matches the FiveThirtyEight original: deep dips at Christmas, New Year's Day, and July 4; the rest of the year hovering near zero. After removing year, month, and weekday effects, the September peak disappears — it was entirely seasonal.
+The pattern matches the FiveThirtyEight original: deep dips at Christmas, New Year's Day, and July 4, with the rest of the year near zero. After removing year, month, and weekday effects, the September peak disappears — it was entirely seasonal.
 
 ### Exercise 15
 

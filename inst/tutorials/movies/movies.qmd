@@ -61,7 +61,7 @@ You will use AI to analyze roughly 30,000 films from Rotten Tomatoes, stored as 
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `movies`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `movies`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Movie Analysis"` and your name as the author. In the bash Terminal, render it:
 
@@ -101,7 +101,7 @@ analysis_files
 
 ###
 
-Rotten Tomatoes assigns every film two separate scores computed from completely independent sources — one from professional critics, one from verified ticket-buyers. The site was designed from the start to make both scores visible side by side, which is what makes it a useful dataset for comparing how differently these two groups respond to the same film.
+Rotten Tomatoes gives every film two scores from independent sources, one from professional critics and one from verified ticket-buyers. Having both side by side is what makes the data useful for comparing how the two groups respond to the same film.
 
 ### Exercise 2
 
@@ -131,7 +131,7 @@ movies.csv
 
 ###
 
-The dataset covers roughly 30,000 films spanning 1902 to 2023 (essentially 1914 onward; the 1902 film is the only one before 1914). It was compiled from Rotten Tomatoes' public data and includes both the `tomatoMeter` (critic score) and `audienceScore` (audience score) for each film, along with genre, director, runtime, release date, and box office revenue.
+The dataset covers roughly 30,000 films from 1902 to 2023, though only one of them predates 1914. It was compiled from Rotten Tomatoes' public data and includes both the `tomatoMeter` (critic score) and `audienceScore` (audience score) for each film, along with genre, director, runtime, release date, and box office revenue.
 
 ### Exercise 3
 
@@ -209,7 +209,7 @@ Every one of the 29,783 films has both a `tomatoMeter` and an `audienceScore`, b
 
 ## Exploring the data
 
-The `movies.csv` file has 8 columns covering 29,783 films. Two matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). A third column, `genre`, will need cleaning before it is useful.
+Two columns matter most for this analysis: `tomatoMeter` (the critic score) and `audienceScore` (the audience score). A third, `genre`, needs cleaning before it is useful.
 
 ### Exercise 1
 
@@ -279,7 +279,7 @@ A cell like `"Comedy, Romance"` becomes two rows, one labeled `"Comedy"` and one
 
 ### Exercise 3
 
-Add `#| cache: true` to that chunk and render. The first render with caching takes a moment; later renders load `movies_clean` from disk.
+Add `#| cache: true` to that chunk and render. The first render with caching takes a moment. Later renders load `movies_clean` from disk.
 
 In the bash Terminal, run:
 
@@ -293,7 +293,7 @@ CP/CR.
 #| label: explore-10
 #| echo: false
 learnr2::question(
-  "Add #| cache: true to that chunk and render. The first render with caching takes a moment; later renders load movies_clean from disk. In the bash Terminal, run ls. CP/CR.",
+  "Add #| cache: true to that chunk and render. The first render with caching takes a moment. Later renders load movies_clean from disk. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -311,7 +311,7 @@ The genre labels are Rotten Tomatoes' own: 34 distinct tags after splitting, fro
 
 ### Exercise 4
 
-Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
+Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared. Adding it to `.gitignore` drops it back.
 
 In the R Terminal, run:
 
@@ -325,7 +325,7 @@ CP/CR.
 #| label: explore-11
 #| echo: false
 learnr2::question(
-  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to .gitignore drops it back. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared. Adding it to .gitignore drops it back. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -340,7 +340,7 @@ analysis_cache
 
 ###
 
-Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-era films, not just recent releases, which is why the dataset reaches back to 1902. That single 1902 film aside, coverage runs continuously from 1914 to 2023.
+Rotten Tomatoes retroactively aggregates critic reviews for classic and silent-era films, not just recent releases, which is why the dataset reaches back to 1902.
 
 ### Exercise 5
 
@@ -477,7 +477,7 @@ About 63% of the films in the histogram — 18,654 of them — score 60 or above
 
 ## Critic vs. audience gap
 
-The gap is `tomatoMeter - audienceScore`. A positive value means critics rated the movie higher than audiences; a negative value means audiences rated it higher.
+The gap is `tomatoMeter - audienceScore`. A positive value means critics rated the movie higher than audiences. A negative value means audiences rated it higher.
 
 ### Exercise 1
 
@@ -514,7 +514,7 @@ movies_gap |>
 
 ###
 
-The `gap` column measures the difference between professional critics and general audiences for each film. Films appear more than once in this tibble because `movies_clean` has one row per genre — a film with three genres will appear three times with the same `gap` value.
+Films appear more than once in this tibble because `movies_clean` has one row per genre. A film with three genres appears three times with the same `gap` value.
 
 ### Exercise 2
 
@@ -699,7 +699,7 @@ movies_summary
 
 ###
 
-After filtering, 22 genres remain — enough to see a clear pattern. Action and Kids & family sit at the audience-favored end with mean gaps below −3.8, while Documentary and Horror sit at the critic-favored end with mean gaps above 8.
+After filtering, 22 genres remain. Action and Kids & family sit at the audience-favored end with mean gaps below −3.8, while Documentary and Horror sit at the critic-favored end with mean gaps above 8.
 
 ### Exercise 7
 
@@ -735,11 +735,11 @@ movies_summary |>
 
 ###
 
-Horror and Documentary rank at the top — critics consistently value them above audiences — while Action and Kids & family rank at the bottom. Comedy, the second most common genre, sits almost exactly at zero (−0.04): on the genre with the most films after Drama, critics and audiences agree.
+Horror and Documentary rank at the top — critics consistently value them above audiences — while Action and Kids & family rank at the bottom. Comedy, the second most common genre, sits almost exactly at zero (−0.04), so there critics and audiences agree.
 
 ## Spider-Man
 
-Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Garfield, and Tom Holland, across three different studios and eight films. Fans argue endlessly about who did it best — but "best" usually means one of two very different things: what critics thought, or what audiences thought. All eight films are in `movies`, so the gap you just measured by genre can settle whether critics and audiences agree on who the best Spider-Man is.
+Three actors have played Spider-Man on the big screen: Tobey Maguire, Andrew Garfield, and Tom Holland, across three studios and eight films. "Best" can mean what critics thought or what audiences thought. All eight films are in `movies`, so the gap you measured by genre can show whether critics and audiences agree on who the best Spider-Man is.
 
 <div style="display: flex; justify-content: center;">
   <img src="images/spiderman.jpg" style="height: 300px; width: auto;"/>

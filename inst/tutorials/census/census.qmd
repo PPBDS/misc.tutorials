@@ -53,11 +53,11 @@ learnr2::student_info()
 
 This tutorial follows Kyle Walker's [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Mapping Census data with R](https://walker-data.com/census-r/mapping-census-data-with-r.html) chapters from [Analyzing US Census Data](https://walker-data.com/census-r/). You will pull data from the American Community Survey through the Census API and turn it into one published page with three graphics: a choropleth map of Texas household income, a ranked chart of state educational attainment, and a scatterplot of California county population and median age.
 
-Use AI however you like throughout. An agentic coding tool works best, since it can read and edit your files directly; a chat-based assistant works too, with more copy/paste.
+Use AI however you like throughout. An agentic coding tool works best, since it can read and edit your files directly. A chat-based assistant works too, with more copy/paste.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `census`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
+You should be doing this tutorial in a repo named `census`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
 
 ```bash
 quarto render analysis.qmd
@@ -81,7 +81,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named census. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Analyzing US Census Data\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  "You should be doing this tutorial in a repo named census. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Analyzing US Census Data\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -147,7 +147,7 @@ library(sf)
 
 ### Exercise 3
 
-Every call to `get_acs()` needs a Census API key. Sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) — the key arrives by email within a few minutes. Click the activation link in that email; the key does not work until you do.
+Every call to `get_acs()` needs a Census API key. Sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) — the key arrives by email within a few minutes. Click the activation link in that email. The key does not work until you do.
 
 In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
 
@@ -183,7 +183,7 @@ learnr2::question(
 
 ###
 
-The key is tied to your email, not a Census account — there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits, and every `get_acs()` call in this tutorial picks it up automatically from here on.
+The key is tied to your email, not a Census account, so there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits.
 
 ## Texas income
 
@@ -226,7 +226,7 @@ income_tx <- get_acs(
 
 ###
 
-Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** — Census table codes like `B19013_001` for median household income — and the **year**, which for the ACS names a 5-year window (2020 means the 2016–2020 estimates, pooled across five years so even small counties have reliable numbers). The first render makes a real network call to the Census API, so it takes a moment.
+Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** (Census table codes like `B19013_001` for median household income), and the **year**. For the ACS, `year = 2020` names the 2016–2020 5-year estimates, pooled across five years so even small counties have reliable numbers.
 
 ### Exercise 2
 
@@ -252,11 +252,11 @@ income_tx
 
 ###
 
-Every county arrives with a `GEOID` (its FIPS code), a `NAME`, the `variable` code, an `estimate`, and a margin of error (`moe`). The `estimate` is the survey's best guess; the `moe` is the half-width of its 90% confidence interval.
+Every county arrives with a `GEOID` (its FIPS code), a `NAME`, the `variable` code, an `estimate`, and a margin of error (`moe`). The `estimate` is the survey's best guess. The `moe` is the half-width of its 90% confidence interval.
 
 ### Exercise 3
 
-You are done changing the chunk that downloads `income_tx`, and re-downloading it — polygons and all — on every render is slow. `income_tx` earns its own cached chunk. The next three exercises set that up: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
+You are done changing the chunk that downloads `income_tx`, and re-downloading it, polygons and all, on every render is slow. The next three exercises cache it: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
 
 First, clean up. Delete the working chunk that printed `income_tx`, leaving the `income_tx <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
@@ -336,7 +336,7 @@ analysis_cache
 
 ###
 
-Your `.gitignore` now lists both directories that rendering generates, `analysis_files` and `analysis_cache`.
+Both directories are regenerated by rendering, so neither belongs in git. Anyone who clones the repo renders once and builds their own cache.
 
 ### Exercise 6
 
@@ -418,7 +418,7 @@ income_tx |>
 
 ###
 
-Across the 253 counties with an estimate, median household income runs from $22,716 in Presidio County to $105,956 in Rockwall County, with a median of $52,683 and a median margin of error of $4,486. That spread is large enough that a map should be interesting, and the next question is whether the high-income counties are scattered randomly or clustered around particular metro areas.
+Across the 253 counties with an estimate, median household income runs from $22,716 in Presidio County to $105,956 in Rockwall County, with a median of $52,683 and a median margin of error of $4,486. A map will show whether the high-income counties are scattered randomly or clustered around particular metro areas.
 
 ### Exercise 8
 
@@ -488,7 +488,7 @@ ggplot(income_tx) +
 
 ###
 
-The **viridis** color scales are designed to be perceptually uniform and readable by colorblind viewers, which is why they have become a default for choropleths; **ggplot2** ships them, and the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice. Reading the finished map, the highest incomes cluster in the suburban counties around the big metros — Austin, Dallas–Fort Worth, and Houston — while many rural counties, especially along the Rio Grande border in the south, carry the lowest median incomes.
+The **viridis** color scales are perceptually uniform and readable by colorblind viewers, which is why they have become the default for choropleths (the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice). On the finished map, the highest incomes cluster in the suburban counties around Austin, Dallas–Fort Worth, and Houston, while many rural counties, especially along the Rio Grande border, carry the lowest.
 
 ### Exercise 10
 
@@ -508,7 +508,7 @@ learnr2::question(
 
 ###
 
-A choropleth shades each area by a value, so it is only as honest as the variable behind it. Median household income is a good fit because it is roughly comparable across counties; a raw count like "number of high earners" would mostly track county population and mislead.
+A choropleth shades each area by a value, so it is only as honest as the variable behind it. Median household income is a good fit because it is roughly comparable across counties. A raw count like "number of high earners" would mostly track county population and mislead.
 
 ## Education by state
 
@@ -626,7 +626,7 @@ edu_state |>
 
 ###
 
-The District of Columbia sits far above the states, at about 60%, because it is a city-like jurisdiction with a highly educated labor market; the lowest geography is about 21% and the middle one around 31%. Raw counts would have put California first simply because it has so many adults, which is why the share, not the count, is the measure to compare.
+The District of Columbia sits far above the states, at about 60%, because it is a city-like jurisdiction with a highly educated labor market. The lowest geography is about 21% and the middle one around 31%. Raw counts would have put California first simply because it has so many adults, which is why the share, not the count, is the measure to compare.
 
 ### Exercise 4
 
@@ -664,7 +664,7 @@ edu_state |>
 
 ###
 
-Ordering the bars turns the distribution into a comparison. The rough chart shows the main ranking immediately, but it still needs labels, a readable percent scale, and a source note before it is worth publishing.
+Sorting the bars turns a list of 52 numbers into a ranking you can read at a glance. The rough chart still needs labels, a readable percent scale, and a source note before it is worth publishing.
 
 ### Exercise 5
 
@@ -731,11 +731,11 @@ learnr2::question(
 
 ###
 
-This section used the same table as a county-level education map would use, but changed the geography to states and territories. That is one of **tidycensus**'s central ideas: the variables define what you measure, and the geography defines the units you compare.
+The same table B15003 request, with `geography = "county"`, would give an education map instead of a state ranking. In **tidycensus** the variables define what you measure and the geography defines the units you compare.
 
 ## California median age
 
-Not every Census question is a map. Here you will pull median age and total population for California counties, then ask whether larger counties tend to be younger or older. This section also revisits the reshaping step that long-format ACS data often needs.
+Here you will pull median age and total population for California counties, then ask whether larger counties tend to be younger or older.
 
 ### Exercise 1
 
@@ -774,7 +774,7 @@ age_ca <- get_acs(
 
 ###
 
-You can give each variable a readable name — `median_age`, `population` — instead of carrying raw codes like `B01002_001` around, which makes everything downstream easier to read. And because this section does not draw boundaries, skipping the geometry download is the right call — there is no reason to pull polygons you will not use.
+Naming the variables `median_age` and `population` instead of carrying raw codes like `B01002_001` makes everything downstream easier to read. Skipping the geometry download also keeps the call fast, since the polygons are the slow part of a **tidycensus** request.
 
 ### Exercise 2
 

@@ -42,7 +42,7 @@ learnr2::student_info()
 
 ## Introduction
 
-Sharks have patrolled the world's oceans for over 400 million years — long before dinosaurs existed. Yet most people fear them far more than the numbers suggest. In this tutorial you will build a small **website** that uses the **Global Shark Attack File (GSAF)**, a database maintained by the Shark Research Institute that records over a century of shark incidents worldwide, to ask: **are sharks actually as dangerous as we think?** Your job is to steer the analysis, render often, inspect the output, and write the words that turn a map and a few charts into a site worth reading.
+Sharks have patrolled the world's oceans for over 400 million years — long before dinosaurs existed. Yet most people fear them far more than the numbers suggest. In this tutorial you will build a small **website** that uses the **Global Shark Attack File (GSAF)**, a database maintained by the Shark Research Institute that records over a century of shark incidents worldwide, to ask: **are sharks actually as dangerous as we think?**
 
 <div style="display: flex; justify-content: center;">
   <img src="images/shark.jpg" style="height: 300px; width: auto;"/>
@@ -54,7 +54,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `sharks`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `sharks`. If you are not, create one and then connect to it.
 
 In this repo, create a new Quarto **website** project, as you did in the Websites tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Shark Attacks"`. Quarto also creates an `about.qmd` page and a `styles.css` file: delete both, and remove the lines that mention them from `_quarto.yml`, so the site starts with just the home page.
 
@@ -94,7 +94,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named sharks. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Shark Attacks\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create sharks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named sharks. If you are not, create one and then connect to it. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Shark Attacks\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create sharks website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -196,7 +196,7 @@ AGENTS.md  data  index.qmd  _quarto.yml  _site
 
 ## Where do attacks happen?
 
-Shark attacks are not evenly distributed around the world. Some countries account for the vast majority of incidents — a pattern driven by coastline length, water temperature, beach culture, and reporting practices. The GSAF data lets us map exactly where attacks have occurred over the past century.
+Shark attacks are not evenly distributed around the world. Some countries account for the vast majority of incidents — a pattern driven by coastline length, water temperature, beach culture, and reporting practices.
 
 ### Exercise 1
 
@@ -373,11 +373,11 @@ write_rds(attacks, "data/attacks.rds")
 
 ###
 
-`Country_lower` exists for the map: the **[maps](https://cran.r-project.org/package=maps)** package spells its regions `Australia` and the GSAF writes `AUSTRALIA`, and lowercasing both sides is the simplest way to make them match. Of the 388 Unknown outcomes, 359 were simply blank in the export; they stay in `attacks`, but every fatality figure below leaves them out.
+`Country_lower` exists for the map: the **[maps](https://cran.r-project.org/package=maps)** package spells its regions `Australia` and the GSAF writes `AUSTRALIA`, and lowercasing both sides is the simplest way to make them match. The 388 Unknown outcomes (359 of them blank in the export) stay in `attacks`, but every fatality figure below leaves them out.
 
 ### Exercise 6
 
-Now cache the data chunk. Add `#| cache: true` as the first line inside the `attacks` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `map_cache/` directory next to `map.qmd`.
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `attacks` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing. The first cached render creates a `map_cache/` directory next to `map.qmd`.
 
 To confirm the directory is there, in the bash Terminal, run `ls`.
 
@@ -533,11 +533,11 @@ learnr2::question(
 
 ###
 
-Papua New Guinea (108) and Brazil (100) are the only countries outside the top three with 100 or more incidents; the Bahamas (96) and New Zealand (94) come next.
+Papua New Guinea (108) and Brazil (100) are the only countries outside the top three with 100 or more incidents. The Bahamas (96) and New Zealand (94) come next.
 
 ## When and why?
 
-Shark attacks are not random — they cluster around certain activities, certain seasons, and certain decades. Understanding these patterns helps reframe the risk. If most attacks happen to surfers, the question becomes not "are sharks dangerous?" but "what is the risk per surfing session?" — a very different number.
+Shark attacks are not random — they cluster around certain activities, certain seasons, and certain decades. If most attacks happen to surfers, the question becomes not "are sharks dangerous?" but "what is the risk per surfing session?" — a very different number.
 
 ### Exercise 1
 
@@ -731,7 +731,7 @@ learnr2::question(
 
 ###
 
-The last full year in the data, 2017, has 129 incidents; 2018 has only 52 because the export was taken partway through the year.
+The last full year in the data, 2017, has 129 incidents. 2018 has only 52 because the export was taken partway through the year.
 
 ## Summary
 
@@ -783,7 +783,7 @@ most risk.
 
 ###
 
-The home page should give a reader who knows nothing about the dataset enough context to understand the map and trends pages. Good introductory text names the data source, frames the central question, and previews the main findings.
+Good introductory text names the data source, frames the central question, and previews the main findings.
 
 ### Exercise 2
 
@@ -854,7 +854,7 @@ https://github.com/your-username/sharks
 
 ###
 
-The Global Shark Attack File is updated regularly and is freely available at [sharkattackfile.net](https://www.sharkattackfile.net/). The same workflow used here — download a CSV, clean it, map locations, chart patterns, build a website — applies to any incident database.
+The Global Shark Attack File is updated regularly and is freely available at [sharkattackfile.net](https://www.sharkattackfile.net/).
 
 ## Download answers
 

@@ -39,7 +39,7 @@ Use AI however you like. The rhythm is always the same: describe the result you 
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-1`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. All lowercase: `r4ds-1`, not `R4DS-1` — every path and URL below assumes it.
+You should be doing this tutorial in a repo named `r4ds-1`. If you are not, create one and then connect to it. All lowercase: `r4ds-1`, not `R4DS-1` — every path and URL below assumes it.
 
 Create a new file, `analysis.qmd`, with the title `"Billboard Hot 100"` and your name as the author. In a bash Terminal, render it:
 
@@ -57,7 +57,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-1. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. All lowercase: r4ds-1, not R4DS-1; every path and URL below assumes it. Create a new file, analysis.qmd, with the title \"Billboard Hot 100\" and your name as the author. In a bash Terminal, render it with quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the bash Terminal, run ls. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-1. If you are not, create one and then connect to it. All lowercase: r4ds-1, not R4DS-1. Every path and URL below assumes it. Create a new file, analysis.qmd, with the title \"Billboard Hot 100\" and your name as the author. In a bash Terminal, render it with quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -69,7 +69,7 @@ learnr2::question(
 AGENTS.md  analysis_files  analysis.html  analysis.qmd
 ```
 
-If `analysis.qmd` is not in this listing, you saved it somewhere else; move it into the `r4ds-1` folder before going on.
+If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-1` folder before going on.
 
 ###
 
@@ -159,7 +159,7 @@ library(tidyverse)
 
 ###
 
-`read_csv()`, from **[readr](https://readr.tidyverse.org/)**, does much more than split lines on commas. It scans the first several thousand values in each column, guesses a type — integer, double, character, date — and then prints the specification it settled on.
+`read_csv()`, from **[readr](https://readr.tidyverse.org/)**, scans the first several thousand values in each column, guesses a type — integer, double, character, date — and then prints the specification it settled on.
 
 ### Exercise 4
 
@@ -299,7 +299,7 @@ billboard <- read_csv("data/billboard.csv", show_col_types = FALSE)
 
 ###
 
-Nothing in the file says that a rank of 1 is best and 100 is worst, or that an `NA` means "not on the chart that week" rather than "not recorded." That is knowledge you bring to the data; readr can guess a column's type, never its meaning.
+Nothing in the file says that a rank of 1 is best and 100 is worst, or that an `NA` means "not on the chart that week" rather than "not recorded." That is knowledge you bring to the data. **readr** can guess a column's type, never its meaning.
 
 ### Exercise 4
 
@@ -358,13 +358,13 @@ With both generated directories ignored, the only changes git now sees are `anal
 
 ### Exercise 6
 
-Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+Leave the data chunk alone. Start a new code chunk below it that prints just a few identifying columns from `billboard`: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: billboard-hot-100-2
 #| echo: false
 learnr2::question(
-  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it that prints just a few identifying columns from billboard: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Leave the data chunk alone. Start a new code chunk below it that prints just a few identifying columns from billboard: artist, track, date entered, and the first four week columns. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -408,7 +408,7 @@ summary(billboard$date.entered)
 
 ###
 
-The data is centered on songs entering the chart around 1999 and 2000: every song here appeared in the Billboard Hot 100 in 2000, but songs that first entered the chart in 1999 are included too. Before interpreting any plot, always ask what time period and population the data actually covers.
+Every song here was on the Hot 100 at some point in 2000, but some first entered the chart in 1999. Before interpreting any plot, ask what time period and population the data actually covers.
 
 ### Exercise 8
 
@@ -446,7 +446,7 @@ ggplot(billboard, aes(x = wk1)) +
 
 ###
 
-Rankings are reversed from many numeric measures: smaller numbers are better. A song ranked 1 is more popular than a song ranked 100.
+Rankings run backwards from most numeric measures: rank 1 is more popular than rank 100, so smaller is better.
 
 ### Exercise 9
 
@@ -534,7 +534,7 @@ billboard |>
 
 ###
 
-Notice that most lines stop at week 20. The chart holds 146 of these songs in week 20 and only 65 in week 21 — a cliff that none of the summaries so far gave any hint of.
+Most lines stop at week 20. The chart holds 146 of these songs in week 20 and only 65 in week 21, a cliff that none of the summaries so far gave any hint of.
 
 ### Exercise 11
 
@@ -635,7 +635,7 @@ bind_rows(
 
 ###
 
-Filtering to top-10 songs keeps the focus on recognizable hits while still leaving different stories to compare. Some hits peak quickly, some climb for months, and some last a long time without ever reaching number one.
+Madonna's "Music" entered at #41 and hit #1 in its sixth week, while Lonestar's "Amazed" entered at #81 and needed 40 weeks to get there. Creed's "Higher" never rose above #7 but stayed on the chart for 57 weeks, the longest run of any top-10 song.
 
 ### Exercise 13
 
@@ -742,7 +742,7 @@ billboard_top10_longer |>
 
 ###
 
-The gray lines show the broader top-10 population; the colored lines turn three rows of the summary table into stories readers can follow. The three highlighted paths show that top-10 hits do not all follow the same shape: some reach number one quickly, some climb slowly, and some stay on the chart for many weeks without ever reaching the top.
+Drawing the whole population in gray and a few named songs in color is a standard layering move from [Chapter 9](https://r4ds.hadley.nz/layers.html). The gray lines give context, and the colored lines carry the story.
 
 ### Exercise 14
 
@@ -983,7 +983,7 @@ https://github.com/your-username/r4ds-1
 
 ###
 
-The published page shows the result; the repo shows how it was made. Note that `data/billboard.csv` belongs in the repo but `analysis_cache/` does not: the CSV is the input someone else needs, the cache is something their own render rebuilds.
+The repo shows how the published page was made. `data/billboard.csv` belongs in it but `analysis_cache/` does not: the CSV is the input someone else needs, and the cache is something their own render rebuilds.
 
 ###
 

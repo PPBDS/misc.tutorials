@@ -65,7 +65,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
 
@@ -91,7 +91,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -105,7 +105,7 @@ analysis_files
 
 ###
 
-We will be working with databases in this tutorial. Two key differences between data frames and database tables: database tables are stored on disk and can be arbitrarily large, while data frames are stored in memory; database tables almost always have indexes for fast row lookups, while data frames do not.
+A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. A database table almost always has indexes for fast row lookups, and a data frame does not.
 
 ### Exercise 2
 
@@ -148,7 +148,7 @@ library(dbplyr)
 
 ###
 
-**DBI** is the common interface R uses to talk to any database management system; the DBMS-specific driver is a separate package, and **duckdb** is one such driver — DuckDB is unusual in being *in-process*, running inside your R session with no server to administer. The alternatives are worth knowing by name: **[RSQLite](https://rsqlite.r-dbi.org/)** for the other common in-process engine, **[RPostgres](https://rpostgres.r-dbi.org/)** and **[RMariaDB](https://rmariadb.r-dbi.org/)** for the client-server databases most organizations actually run, and **[odbc](https://odbc.r-dbi.org/)** as a generic fallback.
+**DBI** is the common interface R uses to talk to any database, and **duckdb** is one driver for it. DuckDB is *in-process*, running inside your R session with no server to administer. Other drivers: **[RSQLite](https://rsqlite.r-dbi.org/)** for the other common in-process engine, **[RPostgres](https://rpostgres.r-dbi.org/)** and **[RMariaDB](https://rmariadb.r-dbi.org/)** for the client-server databases most organizations run, and **[odbc](https://odbc.r-dbi.org/)** as a generic fallback.
 
 ### Exercise 3
 
@@ -244,7 +244,7 @@ data/*.duckdb
 
 ###
 
-Git keeps every version of every file it has ever tracked, so a 27 MB database committed once would travel with every clone of this repo forever, which is why the tutorial has you download the file rather than commit it.
+Git keeps every version of every file it has ever tracked. A 27 MB database committed once would travel with every clone of this repo forever.
 
 ### Exercise 3
 
@@ -301,7 +301,7 @@ dbplyr_dist
 
 ###
 
-The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. `dbplyr_dist` is a lazy reference — it points to the table but pulls no data into R; data only moves into memory when you call `collect()`.
+The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. `dbplyr_dist` is a lazy reference. It points to the table but pulls no data into R until you call `collect()`.
 
 ### Exercise 5
 
@@ -332,7 +332,7 @@ dbplyr_dist |>
 
 ###
 
-The 191,547 district-year rows span 2009–2019 and 2022–2025, with no observations for 2020 or 2021 — most states suspended standardized testing during the COVID-19 pandemic. Coverage is not flat in the years that are present, either: 2014 has 10,855 districts against 14,322 the year before, and the reason is that ten states — California and Ohio among them — contribute no rows at all that year.
+The 191,547 district-year rows span 2009–2019 and 2022–2025, with no observations for 2020 or 2021 — most states suspended standardized testing during the COVID-19 pandemic. Coverage is not flat in the years that are present, either. 2014 has 10,855 districts against 14,322 the year before, because ten states, California and Ohio among them, contribute no rows that year.
 
 ### Exercise 6
 
@@ -440,7 +440,7 @@ state_change
 
 ###
 
-In 2015 the district scores had a standard deviation of 0.36 and ran from −1.69 to +1.76; the state scores had a standard deviation of 0.14 and ran from −0.27 to +0.36. Averaging cancels the extremes, which is why a state-level chart looks calm even when the districts inside it do not.
+In 2015 the district scores had a standard deviation of 0.36 and ran from −1.69 to +1.76. The state scores had a standard deviation of 0.14 and ran from −0.27 to +0.36. Averaging cancels the extremes, which is why a state-level chart looks calm even when the districts inside it do not.
 
 ### Exercise 9
 
@@ -483,7 +483,7 @@ state_change <- tbl(con_seda, "state_scores") |>
 
 ###
 
-The chunk above your last one still holds the connection, and it is the one part of this analysis that must be rebuilt from scratch on every single render. A connection is a live handle to a running database process — an *external pointer*, in R's vocabulary — and external pointers do not survive being written to disk and read back.
+The connection is the one part of this analysis that must be rebuilt on every render. It is a live handle to a running database process, an *external pointer* in R's vocabulary, and external pointers do not survive being written to disk and read back.
 
 ### Exercise 10
 
@@ -516,7 +516,7 @@ AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-The first render with caching writes `analysis_cache/` to disk; later renders read `score_change` and `state_change` back from those files instead of re-querying SEDA. The second line keys the cache on the database file's modification time, so a newer `seda_2025.duckdb` dropped into `data/` invalidates it.
+The first render with caching writes `analysis_cache/` to disk, and later renders read `score_change` and `state_change` back from those files instead of re-querying SEDA. The second line keys the cache on the database file's modification time, so a newer `seda_2025.duckdb` dropped into `data/` invalidates it.
 
 ### Exercise 11
 
@@ -542,7 +542,7 @@ analysis_cache
 
 ###
 
-The two tibbles in that cache are small — 9,644 district rows and 51 state rows — because the year filter ran inside DuckDB and only the survivors crossed into R, which is Chapter 21's central discipline: push the work to the database and `collect()` only what you need.
+The two tibbles in that cache are small, 9,644 district rows and 51 state rows, because the year filter ran inside DuckDB and only the survivors crossed into R. That is Chapter 21's central discipline: push the work to the database and `collect()` only what you need.
 
 ### Exercise 12
 
@@ -583,7 +583,7 @@ ggplot(score_change, aes(x = rla_change)) +
 
 ###
 
-79% of the 9,644 districts sit left of the dashed line. The *New York Times* published the same histogram over a longer window — 2015 to 2025 — and got 83%, partly because the national series you printed in Exercise 6 keeps falling after 2023, and its caption restricts the sample to "traditional public school districts" for a reason you can see in your left tail: SEDA records special-education districts such as `Mo Schools For The Sev Disabled` (−2.44 in 2023) and `Specl. School Dst. St. Louis County` (−1.85) as ordinary rows alongside everyone else.
+79% of the 9,644 districts sit left of the dashed line. The *New York Times* got 83% over the longer 2015 to 2025 window, and its caption restricts the sample to "traditional public school districts." SEDA records special-education districts such as `Mo Schools For The Sev Disabled` (−2.44 in 2023) and `Specl. School Dst. St. Louis County` (−1.85) as ordinary rows, which is what fills your far left tail.
 
 ![](images/us-ed-district-score-change-nyt.png){width=90%}
 
@@ -641,7 +641,7 @@ state_change |>
 
 ###
 
-`state_change` has 51 rows, not 50 — SEDA reports the District of Columbia alongside the states — and only two arrows point right: Mississippi (+0.061) and Hawaii (+0.043). Mississippi has a well-known explanation — its 2013 Literacy-Based Promotion Act required phonics-based instruction, put literacy coaches in low-performing schools, and held back third graders who failed a reading screen — but note how short both blue arrows are next to the red ones: "improved" here means "declined by less than everyone else."
+`state_change` has 51 rows because SEDA reports the District of Columbia alongside the states. Only two arrows point right, Mississippi (+0.061) and Hawaii (+0.043), and both are short next to the red ones: "improved" here means "declined by less than everyone else." Mississippi's 2013 Literacy-Based Promotion Act required phonics-based instruction, put literacy coaches in low-performing schools, and held back third graders who failed a reading screen.
 
 ### Exercise 14
 
@@ -674,7 +674,7 @@ def5678 Add .gitignore
 
 ###
 
-About 79% of the 9,644 districts with comparable 2015 and 2023 scores lost ground in reading, and every post-COVID year in the national series is worse than the one before it. What the state chart adds is a caution about the story people usually attach to it: a decline this broad has exactly two exceptions, one of them with a famous literacy statute behind it and one without, which is not enough evidence to credit legislation for the pattern.
+A decline this broad has exactly two exceptions. One has a famous literacy statute behind it and one does not, which is not enough evidence to credit legislation for the pattern.
 
 ## Summary
 
@@ -775,7 +775,7 @@ state_change |>
 
 ###
 
-Four chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub — a reader of your published page gets the chart without needing 27 MB of DuckDB.
+Four chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub, so a reader of your published page gets the chart without needing 27 MB of DuckDB.
 
 ### Exercise 2
 
@@ -841,7 +841,7 @@ https://github.com/<your-github-username>/r4ds-3
 
 ###
 
-SEDA is maintained by Stanford's Educational Opportunity Project and reissued annually, which is exactly why the cached chunk in your document is keyed on the database file's modification time rather than on the code alone. Drop next year's file into `data/`, render, and the numbers update themselves; leave the cache unkeyed and they never would.
+SEDA is maintained by Stanford's Educational Opportunity Project and reissued annually, which is why the cached chunk is keyed on the database file's modification time rather than on the code alone. Drop next year's file into `data/`, render, and the numbers update themselves.
 
 ## Download answers
 

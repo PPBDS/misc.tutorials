@@ -39,7 +39,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `prediction-markets`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `prediction-markets`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Prediction Markets"` and your name as the author. In a bash Terminal, render it:
 
@@ -285,7 +285,7 @@ market_groups |> glimpse()
 
 ###
 
-The `groups` file is a reference table: one row per topic group, 115 of them. The `market_groups` file is a junction table — 2,820 rows recording which markets belong to which groups, with both keys repeating. A junction table is how a many-to-many relationship is stored.
+The `groups` file is a reference table: one row per topic group, 115 of them. The `market_groups` file is a junction table, the standard way to store a many-to-many relationship: 2,820 rows recording which markets belong to which groups, with both keys repeating.
 
 ### Exercise 4
 
@@ -447,7 +447,7 @@ joined |> count(time_bucket)
 
 ###
 
-The 7–30 day bucket is the largest, with 16,467 rows, because the median market lives only 36 days and the longest 240. Storing the horizons as an ordered category rather than plain text is what keeps them in time order everywhere they are used; as text they would sort alphabetically and put "1–7 days" first.
+The 7–30 day bucket is the largest, with 16,467 rows, because the median market lives only 36 days and the longest 240. Storing the horizons as an ordered category rather than plain text keeps them in time order everywhere they are used. As text they would sort alphabetically and put "1–7 days" first.
 
 ### Exercise 7
 
@@ -508,7 +508,7 @@ The chunk now produces a single table, `joined`, with 43,694 rows — one per ma
 
 ### Exercise 8
 
-Add `#| cache: true` to that chunk and render. The first render does the work; later ones read the four tables back from disk.
+Add `#| cache: true` to that chunk and render. The first render does the work. Later ones read the four tables back from disk.
 
 In the bash Terminal, run:
 
@@ -522,7 +522,7 @@ CP/CR.
 #| label: crowd-8
 #| echo: false
 learnr2::question(
-  "Add #| cache: true to that chunk and render. The first render does the work; later ones read the four tables back from disk. In the bash Terminal, run ls. CP/CR.",
+  "Add #| cache: true to that chunk and render. The first render does the work. Later ones read the four tables back from disk. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -599,7 +599,7 @@ markets |>
 
 ###
 
-The row count climbs from 800 to 2,885: the 2,820 group memberships contribute one row each, and the 65 markets with no group at all are kept by the left join as a single row apiece, so any per-market summary computed after this join would over-weight the markets carrying the most topic labels. Those labels lean toward economics, politics, AI, and geopolitics — what Manifold users were trading in this window, not what prediction markets cover in general.
+The row count climbs from 800 to 2,885: each of the 2,820 group memberships adds a row, and the left join keeps the 65 markets with no group as a single row apiece. Any per-market summary computed after this join would over-weight the markets carrying the most topic labels, which lean toward economics, politics, AI, and geopolitics.
 
 ### Exercise 11
 
@@ -637,7 +637,7 @@ accuracy
 
 ###
 
-Mean error falls monotonically from 0.399 at 90+ days to 0.0896 on the final day — more than four times more accurate at the deadline than three months out. That does not mean traders suddenly get smarter; it usually means decisive information has arrived.
+Mean error falls monotonically from 0.399 at 90+ days to 0.0896 on the final day — more than four times more accurate at the deadline than three months out. That does not mean traders suddenly get smarter. It usually means decisive information has arrived.
 
 ### Exercise 12
 
@@ -804,7 +804,7 @@ calibration |>
 
 ###
 
-The large dots at 0 and 1, where most of the data lives, sit almost exactly on the line — 0.5% of the bottom bin resolved YES and 99.5% of the top one. The middle is a different story: the middle bins hold between 11 and 67 markets, they zigzag across the diagonal, and the 70–90% bins all sit *above* it, at 92%, 91%, and 100%.
+The large dots at 0 and 1, where most of the data lives, sit almost exactly on the line — 0.5% of the bottom bin resolved YES and 99.5% of the top one. The middle bins hold between 11 and 67 markets, zigzag across the diagonal, and the 70–90% bins all sit *above* it, at 92%, 91%, and 100%.
 
 ### Exercise 16
 
@@ -837,7 +837,7 @@ def5678 Add analysis.qmd and .gitignore
 
 ###
 
-A final-day price is not magic; it is a market incorporating facts that often did not exist weeks earlier. These are also play-money markets on one platform over eight months, so the convergence result is about Manifold in this window, not about prediction markets in general.
+A final-day price incorporates facts that often did not exist weeks earlier. These are also play-money markets on one platform over eight months, so the convergence result is about Manifold in this window, not about prediction markets in general.
 
 ## Summary
 
@@ -953,7 +953,7 @@ calibration |>
 
 ###
 
-The finished document is four chunks long, even though it took nineteen exercises to build: the libraries, one cached data chunk, and two charts.
+Both charts read from the one cached `joined` table. Editing that chunk invalidates its cache, and the next render rebuilds all four tables from the parquet files.
 
 ### Exercise 2
 
@@ -1025,7 +1025,7 @@ https://github.com/your-username/prediction-markets
 
 ###
 
-A forecaster who says 50% about everything is perfectly calibrated and useless; one who commits to 5% and 95% is far more informative but easier to embarrass. Manifold's curve is tight at the extremes, where most markets sit, and wanders in the middle, where few do — which is the shape you would expect when the interesting questions are also the rare ones.
+A forecaster who says 50% about everything is perfectly calibrated and useless. One who commits to 5% and 95% is far more informative but easier to embarrass. Manifold's curve is tight at the extremes, where most markets sit, and wanders in the middle, where few do.
 
 ## Download answers
 

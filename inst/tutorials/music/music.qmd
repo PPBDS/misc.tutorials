@@ -38,7 +38,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `music`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `music`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and your name as the author. In a bash Terminal, render it:
 
@@ -64,7 +64,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named music. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named music. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -159,7 +159,7 @@ The file you will put in `data/` is a 10,000-song teaching sample of the [Millio
 
 ## Million Song Dataset
 
-The **music** CSV file comes from a teaching version of the [Million Song Dataset](https://corgis-edu.github.io/corgis/csv/music/) published by CORGIS. It includes 10,000 rows and 35 columns about artists, songs, and audio features — more than you can scan at a glance — so the first step is understanding what is in it.
+The **music** CSV file comes from a teaching version of the [Million Song Dataset](https://corgis-edu.github.io/corgis/csv/music/) published by CORGIS. It includes 10,000 rows and 35 columns about artists, songs, and audio features.
 
 ### Exercise 1
 
@@ -220,7 +220,7 @@ music
 
 ###
 
-This file has 10,000 rows and 35 columns. A tibble auto-truncates to 10 rows and summarises extra columns on one line — the printed output only hints at what the data contains.
+A tibble auto-truncates to 10 rows and summarises extra columns on one line, so the printed output only hints at what the data contains.
 
 ### Exercise 3
 
@@ -246,7 +246,7 @@ music <- read_csv("data/music.csv", show_col_types = FALSE)
 
 ###
 
-`read_csv()` guessed a type for each of those 35 columns and converted 350,000 values, and its guesses are worth checking. This file uses the number `0` for "we don't know", even in columns that ought to hold text, so `artist.location` and `song.title` come back as `<dbl>` rather than `<chr>`.
+`read_csv()` guessed a type for each of the 35 columns and converted 350,000 values. This file uses the number `0` for "we don't know", even in columns that ought to hold text, so `artist.location` and `song.title` come back as `<dbl>` rather than `<chr>`.
 
 ### Exercise 4
 
@@ -305,7 +305,7 @@ With both generated directories ignored, the only changes git now sees are `anal
 
 ### Exercise 6
 
-Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the `music` data.
+Start a new code chunk below the data chunk and print the names of every column in the `music` data.
 
 Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
@@ -313,7 +313,7 @@ Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 #| label: million-song-dataset-6
 #| echo: false
 learnr2::question(
-  "Your data chunk now does one job, and it should stay that way. Start a new code chunk below it and print the names of every column in the music data. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Start a new code chunk below the data chunk and print the names of every column in the music data. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -357,7 +357,7 @@ music |>
 
 ###
 
-This compact view shows one line per column, which works here because the artist group has only 10 columns. Two things stand out: `artist.latitude` and `artist.longitude` are mostly `0`, and `artist.terms` holds a whole string of genre tags rather than a single category.
+This compact view shows one line per column, which works because the artist group has only 10 columns. `artist.latitude` and `artist.longitude` are mostly `0`, and `artist.terms` holds a whole string of genre tags rather than a single category.
 
 ### Exercise 8
 
@@ -395,7 +395,7 @@ music |>
 
 ###
 
-Look at the values, not just the names: `artist.name` and `artist.terms` are populated, but `artist.location`, `song.title`, and half the `song.year` values are `0`. A column that exists is not the same as a column you can use.
+`artist.name` and `artist.terms` are populated, but `artist.location`, `song.title`, and half the `song.year` values are `0`. A column that exists is not the same as a column you can use.
 
 ### Exercise 9
 
@@ -416,7 +416,7 @@ learnr2::question(
 
 ###
 
-Both variables run from 0 to 1, where higher values mean more familiarity or more hotness. They are related but not identical: an artist can be widely known without being especially hot at that moment, or newly hot without being familiar to everyone. Nonpositive values should be treated as missing rather than as real zeros.
+Both variables run from 0 to 1, and nonpositive values mean missing rather than real zeros. An artist can be widely known without being especially hot at that moment, or newly hot without being familiar to everyone.
 
 ### Exercise 10
 
@@ -444,7 +444,7 @@ music |>
 
 ###
 
-Notice the minimums: `song.year` has a minimum of 0, which is not a real release year, and `artist.familiarity` and `artist.hotttnesss` have values at or near 0 that represent missing or unusable data rather than genuinely zero-familiarity artists. Scanning the minimum and maximum of each numeric column is a fast way to spot placeholder values and understand the scale before plotting.
+`song.year` has a minimum of 0, which is not a real release year, and `artist.familiarity` and `artist.hotttnesss` have values at or near 0 that mean missing rather than artists nobody has heard of. Scanning the minimum and maximum of each numeric column is a fast way to spot placeholder values before plotting.
 
 ### Exercise 11
 
@@ -486,13 +486,13 @@ The dataset skews heavily toward recent music: over half the songs are from the 
 
 ### Exercise 12
 
-We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+Several other columns also use placeholders. Count how many rows have placeholder values in `artist.location`, `release.name`, `song.title`, `song.year`, `artist.familiarity`, and `artist.hotttnesss`. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
 #| label: million-song-dataset-12
 #| echo: false
 learnr2::question(
-  "We know from earlier that several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Several other columns also use placeholders. Count how many rows have placeholder values in artist.location, release.name, song.title, song.year, artist.familiarity, and artist.hotttnesss. For the numeric scores, treat any value of 0 as a placeholder. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -517,7 +517,7 @@ music |>
 
 ###
 
-Missingness in this file is wildly uneven: `artist.location` (9,999), `song.title` (9,992), and `release.name` (9,989) are placeholders in nearly every one of the 10,000 rows, so those columns are useless no matter what you ask of them. `artist.familiarity` has only 24 zero values (less than 1%) while `artist.hotttnesss` has 496 (nearly 5%).
+Missingness in this file is wildly uneven: `artist.location` (9,999), `song.title` (9,992), and `release.name` (9,989) are placeholders in nearly every one of the 10,000 rows, so those columns are useless. `artist.familiarity` has only 24 zero values (less than 1%) while `artist.hotttnesss` has 496 (nearly 5%).
 
 ### Exercise 13
 
@@ -569,7 +569,7 @@ music |>
 
 ###
 
-Most of the points sit in a single blob in the Gulf of Guinea, off the west coast of Africa, where the equator crosses the prime meridian — latitude 0, longitude 0, a spot sometimes called Null Island. No artist lives there; that is where every unknown location landed.
+Most of the points sit in a single blob in the Gulf of Guinea, off the west coast of Africa, where the equator crosses the prime meridian — latitude 0, longitude 0, a spot sometimes called Null Island. No artist lives there. That is where every unknown location landed.
 
 ### Exercise 14
 
@@ -841,7 +841,7 @@ https://github.com/your-username/music
 
 ###
 
-The published page shows the result; the repo shows how it was made. Note that `data/music.csv` belongs in the repo but `analysis_cache/` does not: the CSV is the input someone else needs, the cache is something their own render rebuilds.
+`data/music.csv` belongs in the repo but `analysis_cache/` does not. The CSV is the input someone else needs, while the cache is something their own render rebuilds.
 
 ###
 

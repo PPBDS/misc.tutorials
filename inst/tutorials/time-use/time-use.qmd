@@ -80,13 +80,13 @@ learnr2::student_info()
 
 This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html), [Chapter 17: Dates and times](https://r4ds.hadley.nz/datetimes.html), and [Chapter 16: Factors](https://r4ds.hadley.nz/factors.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will use the **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query the American Time Use Survey (ATUS), which records how Americans spend a single day; this tutorial looks at how people who are not in the labor force spend their weekdays, a question the *New York Times* asked of the same survey.
+You will use the **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query the American Time Use Survey (ATUS), which records how Americans spend a single day. The tutorial looks at how people who are not in the labor force spend their weekdays, a question the *New York Times* asked of the same survey.
 
 Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `time-use`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `time-use`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing Americans' Time Use"` and your name as the author. In a bash Terminal, render it:
 
@@ -112,7 +112,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named time-use. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file, analysis.qmd, with the title \"Analyzing Americans' Time Use\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named time-use. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing Americans' Time Use\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -202,7 +202,7 @@ ATUS interviews one randomly selected person, aged 15 or older, from a household
 This section uses a DuckDB database built from the Bureau of Labor Statistics
 [American Time Use Survey (ATUS)](https://www.bls.gov/tus/), which asks one
 randomly selected person per household to record every activity they did across
-a single 24-hour diary day. The survey has run each year since 2003; this build
+a single 24-hour diary day. The survey has run each year since 2003. This build
 covers 2003 through 2024, 252,808 respondents, and 4,880,021 activity records.
 
 ###
@@ -267,7 +267,7 @@ data/*.duckdb
 
 ###
 
-GitHub warns about any file over 50 MB and refuses one over 100 MB, and Git keeps every version of every file it has ever tracked, so a 47 MB database committed once would travel with every clone of this repo forever, which is why the tutorial has you download the file rather than commit it.
+GitHub warns about any file over 50 MB and refuses one over 100 MB. Git keeps every version of every file it has ever tracked, so a 47 MB database committed once would travel with every clone of this repo forever.
 
 ### Exercise 3
 
@@ -298,11 +298,11 @@ dbplyr_act
 
 ###
 
-Three tables: `activities` records every diary entry with its start time and duration, `respondents` holds one row per person with sex, age, and employment status, and `activity_codes` maps numeric codes to category names. The six-digit `activity_code` packs a three-level hierarchy into one integer — 120303 is Socializing, Relaxing, and Leisure (12) > TV and Movies (03) > Watching TV (03) — and `start_hhmm` uses the same packing trick: 1430 means 2:30 PM.
+Three tables: `activities` records every diary entry with its start time and duration, `respondents` holds one row per person with sex, age, and employment status, and `activity_codes` maps numeric codes to category names. The six-digit `activity_code` packs a three-level hierarchy into one integer: 120303 is Socializing, Relaxing, and Leisure (12) > TV and Movies (03) > Watching TV (03). `start_hhmm` uses the same packing trick: 1430 means 2:30 PM.
 
 ### Exercise 4
 
-Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here — it is the large tables we defer. Render.
+Collect the entire `dbplyr_codes` table and print it. Because `activity_codes` is only a few hundred rows, `collect()` is fine here. It is the large tables we defer. Render.
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
@@ -310,7 +310,7 @@ In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 #| label: time-use-5
 #| echo: false
 learnr2::question(
-  "Collect the entire dbplyr_codes table and print it. Because activity_codes is only a few hundred rows, collect() is fine here; it is the large tables we defer. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Collect the entire dbplyr_codes table and print it. Because activity_codes is only a few hundred rows, collect() is fine here. It is the large tables we defer. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -327,7 +327,7 @@ dbplyr_codes |>
 
 ###
 
-426 detailed codes roll up into 18 major categories, running from `Personal Care Activities` (01) through `Traveling` (18), with 17 unused and one oddity at the end: major code 50, `Data Codes`, which is where the survey files unclassifiable, refused, and missing answers rather than an actual activity. This section works with four of the real ones — 01 Personal Care, 02 Household Activities, 03 Caring For & Helping Household (HH) Members, and 12 Socializing, Relaxing, and Leisure — and note the exact spelling of that third label: it uses an ampersand and the abbreviation `(HH)`, and a filter written from the plain-English name will silently match nothing.
+426 detailed codes roll up into 18 major categories, from `Personal Care Activities` (01) through `Traveling` (18), with 17 unused. Major code 50, `Data Codes`, is where the survey files unclassifiable, refused, and missing answers rather than an actual activity. This section works with four of the real ones: 01 Personal Care, 02 Household Activities, 03 Caring For & Helping Household (HH) Members, and 12 Socializing, Relaxing, and Leisure. That third label uses an ampersand and the abbreviation `(HH)`, so a filter written from the plain-English name will silently match nothing.
 
 ### Exercise 5
 
@@ -361,7 +361,7 @@ dbplyr_act |>
 
 ###
 
-Traveling comes last at 18.7 minutes per record even though it has more records than any other category — 938,689, because every leg of a trip is its own entry — while Personal Care Activities averages 159 minutes, behind only Work & Work-Related Activities at 180, because a night's sleep enters the file as one very long row. A database is not the only way to handle a 4.9-million-row table: **[arrow](https://arrow.apache.org/docs/r/)** gives you the same aggregate-then-collect discipline over Parquet files with no database at all, and **[duckplyr](https://duckplyr.tidyverse.org/)** runs the DuckDB engine underneath ordinary data-frame code.
+Traveling comes last at 18.7 minutes per record even though it has more records than any other category, 938,689, because every leg of a trip is its own entry. Personal Care Activities averages 159 minutes, behind only Work & Work-Related Activities at 180, because a night's sleep enters the file as one very long row. A database is not the only way to handle a 4.9-million-row table: **[arrow](https://arrow.apache.org/docs/r/)** gives you the same aggregate-then-collect discipline over Parquet files with no database at all, and **[duckplyr](https://duckplyr.tidyverse.org/)** runs the DuckDB engine underneath ordinary data-frame code.
 
 ### Exercise 6
 
@@ -392,7 +392,7 @@ dbplyr_resp |>
 
 ###
 
-"Not in labor force" means the person was neither working nor job-hunting — retirees, full-time caregivers, and non-enrolled students all qualify — and that group, the focus of the *New York Times* graphic, holds 56,492 women and 30,349 men, nearly two to one, against an employed group that is almost evenly split (78,566 women, 76,716 men). The `weight` column adjusts each respondent to represent the full US population, but nothing you do in this tutorial uses it, so every average you produce is an average over *respondents*, not over Americans.
+"Not in labor force" means the person was neither working nor job-hunting. Retirees, full-time caregivers, and non-enrolled students all qualify. That group, the focus of the *New York Times* graphic, holds 56,492 women and 30,349 men, nearly two to one, while the employed group is almost evenly split (78,566 women, 76,716 men). The `weight` column adjusts each respondent to represent the full US population. Nothing in this tutorial uses it, so every average you produce is an average over *respondents*, not over Americans.
 
 ### Exercise 7
 
@@ -473,13 +473,13 @@ activity_avg
 
 If your result differs from ours, replace your code with the code above before moving on, so that `activity_avg` matches for the rest of the section.
 
-`activity_avg` has 36 rows: 18 categories × 2 sexes. Read `avg_daily_min` carefully — it is the average over the people who did that activity at all, since someone who never gardened has no Household Activities row to contribute.
+`activity_avg` has 36 rows: 18 categories × 2 sexes. `avg_daily_min` is the average over the people who did that activity at all, since someone who never gardened has no Household Activities row to contribute.
 
 ### Exercise 9
 
-Now clean up the working chunk — but split it in two rather than leaving it as one.
+Clean up the working chunk, and split it in two.
 
-`activity_avg` is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk — now the last chunk in the file — holding only the `activity_avg` computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of `activity_avg`.
+`activity_avg` is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the `activity_avg` computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of `activity_avg`.
 
 Render.
 
@@ -489,7 +489,7 @@ In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 #| label: time-use-18
 #| echo: false
 learnr2::question(
-  "Now clean up the working chunk, but split it in two rather than leaving it as one. activity_avg is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the activity_avg computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of activity_avg. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Clean up the working chunk, and split it in two. activity_avg is an ordinary tibble: once computed, it can be saved to disk and reloaded. A database connection cannot. Put the connection and the three lazy references in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the activity_avg computation. Delete everything exploratory from Exercises 4 through 7, and delete the print of activity_avg. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -515,7 +515,7 @@ activity_avg <- dbplyr_act |>
 
 ###
 
-A connection is a live handle to a running database process — an *external pointer*, in R's vocabulary — and external pointers do not survive being written to disk and read back, which is why it must sit outside the chunk you are about to cache. The chunk that remains collapses 4.9 million activity rows to 36, and the collapse happened inside DuckDB; the 36-row answer is the only thing that crossed into R.
+A connection is a live handle to a running database process, an *external pointer* in R's vocabulary. External pointers do not survive being written to disk and read back, which is why the connection must sit outside the chunk you are about to cache. The remaining chunk collapses 4.9 million activity rows to 36 inside DuckDB. Only the 36-row answer crosses into R.
 
 ### Exercise 10
 
@@ -541,7 +541,7 @@ AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-That render took as long as the last one, because the two-level aggregation over 4.9 million rows still had to run once to fill `analysis_cache/`; from now on every render reads the 36-row `activity_avg` back from disk and never touches the database. The cache is keyed on the chunk's code, not on the database file, so if you ever drop a newer `atus.duckdb` into `data/`, delete `analysis_cache/` before trusting the numbers.
+That render took as long as the last one, because the aggregation over 4.9 million rows still had to run once to fill `analysis_cache/`. From now on every render reads the 36-row `activity_avg` back from disk and never touches the database. The cache is keyed on the chunk's code, not on the database file. If you ever drop a newer `atus.duckdb` into `data/`, delete `analysis_cache/` before trusting the numbers.
 
 ### Exercise 11
 
@@ -567,7 +567,7 @@ analysis_cache
 
 ###
 
-The averages sitting in that cache rest on 42,490 diaries — the weekday respondents who were not in the labor force, about a sixth of the 252,808 people the survey interviewed. Three things now stay out of GitHub: the rendered page, the cache, and the 47 MB database, and `analysis.qmd` plus a fresh download of `atus.duckdb` is enough to rebuild all three.
+The averages sitting in that cache rest on 42,490 diaries, the weekday respondents who were not in the labor force, about a sixth of the 252,808 people the survey interviewed. Three things now stay out of GitHub: the rendered page, the cache, and the 47 MB database. `analysis.qmd` plus a fresh download of `atus.duckdb` is enough to rebuild all three.
 
 ### Exercise 12
 
@@ -616,7 +616,7 @@ hourly_avg
 
 ###
 
-`hourly_avg` should have exactly 144 rows: 4 categories × 2 sexes × 18 hours. If yours has 108, the category filter matched only three labels — check the spelling of the caregiving category against the table you printed in Exercise 4.
+`hourly_avg` should have exactly 144 rows: 4 categories × 2 sexes × 18 hours. If yours has 108, the category filter matched only three labels. Check the spelling of the caregiving category against the table you printed in Exercise 4.
 
 ### Exercise 13
 
@@ -659,7 +659,7 @@ activity_avg |>
 
 ###
 
-The caregiving gap is the biggest one on the chart, and it is much bigger than the housework gap: 167 minutes for women against 96.9 for men, a difference of 70 minutes a day. Sociologist Arlie Hochschild named this pattern the "second shift" in 1989 — even as women entered paid work, they kept the bulk of unpaid domestic labor — and what ATUS adds is that the pattern survives when nobody in the comparison has a job at all.
+The caregiving gap is the biggest one on the chart, much bigger than the housework gap: 167 minutes for women against 96.9 for men, a difference of 70 minutes a day. Sociologist Arlie Hochschild named this pattern the "second shift" in 1989: even as women entered paid work, they kept the bulk of unpaid domestic labor. ATUS shows that the pattern survives when nobody in the comparison has a job at all.
 
 ### Exercise 14
 
@@ -709,7 +709,7 @@ ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
 
 ###
 
-Four bands, and the caregiving one is the band that carries the sex difference — it is visible across the women's morning and afternoon and barely there for men. The *New York Times* version measures the fraction of people in each activity at each minute, which is more precise and arrives at the same picture: the leisure band is taller for men all afternoon, and the household band is wider and starts earlier for women.
+The caregiving band carries the sex difference: it is visible across the women's morning and afternoon and barely there for men. The *New York Times* version measures the fraction of people in each activity at each minute, which is more precise and arrives at the same picture: the leisure band is taller for men all afternoon, and the household band is wider and starts earlier for women.
 
 ### Exercise 15
 
@@ -742,7 +742,7 @@ def5678 Add .gitignore
 
 ###
 
-ATUS microdata is released every June for the prior year and is free from the BLS, but the sample is not stable: it falls from 20,720 respondents in 2003 — the first year was fielded at roughly double the later scale — to 7,669 in 2024, so your pooled 2003–2024 averages lean toward the mid-2000s. The published BLS estimates all apply the survey weight you ignored, so your numbers describe ATUS respondents rather than the US population — close enough to see the pattern, not close enough to quote.
+ATUS microdata is released every June for the prior year and is free from the BLS. The sample is not stable: it falls from 20,720 respondents in 2003, when the survey was fielded at roughly double the later scale, to 7,669 in 2024, so your pooled 2003–2024 averages lean toward the mid-2000s. The published BLS estimates apply the survey weight you ignored, so your numbers describe ATUS respondents rather than the US population: close enough to see the pattern, not close enough to quote.
 
 ## Summary
 
@@ -879,7 +879,7 @@ ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
 
 ###
 
-Six chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub — a reader of your published page gets the graphics without needing 47 MB of DuckDB.
+Six chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub. A reader of your published page gets the graphics without needing 47 MB of DuckDB.
 
 ### Exercise 2
 
@@ -921,7 +921,7 @@ To https://github.com/<your-github-username>/time-use.git
 
 ###
 
-Every band and bar on that page was produced without ever loading a full ATUS table into R. The database did the joining and averaging; `collect()` pulled down 36 rows for one chart and 144 for the other.
+Every band and bar on that page was produced without ever loading a full ATUS table into R. The database did the joining and averaging. `collect()` pulled down 36 rows for one chart and 144 for the other.
 
 ### Exercise 3
 
@@ -945,7 +945,7 @@ https://github.com/<your-github-username>/time-use
 
 ###
 
-The *New York Times* chart measured the fraction of people engaged in each activity at each minute of the day, which is finer than your hourly averages and arrives at the same picture; the BLS publishes those minute-level estimates itself, weighted, in its annual ATUS tables, which is where to go for a number you can quote.
+The BLS publishes its own minute-by-minute estimates, weighted, in its annual ATUS tables. That is where to go for a number you can quote.
 
 ## Download answers
 

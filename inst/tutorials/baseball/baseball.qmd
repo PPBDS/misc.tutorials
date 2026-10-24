@@ -36,7 +36,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `baseball`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `baseball`. If you are not, create one and then connect to it.
 
 In this repo, create a new Quarto **website** project, as you did in the Websites tutorials. The project should include a `_quarto.yml` configuration file and a home page named `index.qmd`. Give the site the title `"Baseball"`. Quarto also creates an `about.qmd` page and a `styles.css` file: delete both, and remove the lines that mention them from `_quarto.yml`, so the site starts with just the home page.
 
@@ -76,7 +76,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named baseball. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Baseball\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create baseball website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named baseball. If you are not, create one and then connect to it. In this repo, create a new Quarto website project, as you did in the Websites tutorials. The project should include a _quarto.yml configuration file and a home page named index.qmd. Give the site the title \"Baseball\". Quarto also creates an about.qmd page and a styles.css file: delete both, and remove the lines that mention them from _quarto.yml. In a bash Terminal, render the whole site with quarto render. Open _site/index.html with Live Server and keep the tab open. Make sure your .gitignore ignores /_site/, /.quarto/, and /*_files/, each entry on its own line. Commit and push with the message Create baseball website. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -189,11 +189,11 @@ starting with its signature event: the home run.
 
 ###
 
-The words around a chart are what tell a reader why it matters --- AI can draft them, but you decide what the page actually claims. Note what `index.qmd` does *not* contain: a Quarto website's navigation lives in `_quarto.yml`, not in the pages, so adding a page means editing two files.
+`index.qmd` holds no navigation. A Quarto website's navbar lives in `_quarto.yml`, so adding a page means editing two files.
 
 ## Home runs
 
-Major League Baseball has kept detailed records since 1871, and the **Lahman** database packages that history for R. Its `Teams` table holds one row per team per season; its `Batting` table holds one row per player per season. We start with the home run --- the sport's signature event --- and a puzzle hiding in plain sight.
+Major League Baseball has kept detailed records since 1871, and the **Lahman** database packages that history for R. Its `Teams` table holds one row per team per season. Its `Batting` table holds one row per player per season. We start with the home run, the sport's signature event.
 
 ### Exercise 1
 
@@ -225,11 +225,11 @@ Teams
 
 ###
 
-`Teams` has 48 columns and one row for every team in every season since 1871 --- the unit of observation is a *team-season*. For finer detail, analysts reach for **Retrosheet** (play-by-play for every game) or **Statcast** (pitch-by-pitch tracking since 2015, available in R through the **[baseballr](https://billpetti.github.io/baseballr/)** package); Lahman is the right grain for questions about whole seasons.
+`Teams` has 48 columns and one row for every team in every season since 1871 --- the unit of observation is a *team-season*. For finer detail, analysts reach for **Retrosheet** (play-by-play for every game) or **Statcast** (pitch-by-pitch tracking since 2015, available in R through the **[baseballr](https://billpetti.github.io/baseballr/)** package). Lahman is the right grain for questions about whole seasons.
 
 ### Exercise 2
 
-That table is too wide to read, and we need only three of its 48 columns: `yearID`, the season; `G`, games played (about 162 in a modern full season); and `HR`, that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games.
+That table is too wide to read, and we need only three of its 48 columns. `yearID` is the season. `G` is games played, about 162 in a modern full season. `HR` is that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games.
 
 Render. In the R Terminal, run `show_file("home-runs.qmd")`.
 
@@ -239,7 +239,7 @@ CP/CR.
 #| label: home-runs-3
 #| echo: false
 learnr2::question(
-  "That table is too wide to read, and we need only three of its 48 columns: yearID, the season; G, games played (about 162 in a modern full season); and HR, that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games. Render. In the R Terminal, run show_file(\"home-runs.qmd\"). CP/CR.",
+  "That table is too wide to read, and we need only three of its 48 columns. yearID is the season. G is games played, about 162 in a modern full season. HR is that team's home runs. Change the chunk to add up all teams' home runs and all teams' games within each season, producing a table with one row per season holding the total home runs and the total team-games. Render. In the R Terminal, run show_file(\"home-runs.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -337,7 +337,7 @@ Teams |>
 
 ###
 
-In 2020 the season was cut to 60 games by the COVID-19 pandemic --- about 1,800 team-games instead of the usual 4,860 --- so the *total* fell even though the *rate* was 1.28 home runs per game, near an all-time high. 1981 and 1994 were strike-shortened seasons: the dips were never about hitting; they were about how many games got played.
+In 2020 the COVID-19 pandemic cut the season to 60 games, about 1,800 team-games instead of the usual 4,860, so the *total* fell even though the *rate* was 1.28 home runs per game, near an all-time high. 1981 and 1994 were strike-shortened seasons: the dips reflect how many games got played, not how hitters hit.
 
 ### Exercise 5
 
@@ -382,7 +382,7 @@ Teams |>
 
 ###
 
-The artifact dips are gone, and the real story appears. The rate sits near zero through the **dead-ball era** before 1920, jumps sharply in the 1920s (Babe Ruth, a livelier ball, and a ban on the spitball), sags during World War II as players left for military service, climbs through the late-1990s and 2000s **steroid era**, and spikes to a record 1.39 in 2019 --- the season of the so-called "juiced ball."
+The artifact dips are gone. The rate sits near zero through the **dead-ball era** before 1920, jumps sharply in the 1920s (Babe Ruth, a livelier ball, and a ban on the spitball), sags during World War II as players left for military service, climbs through the late-1990s and 2000s **steroid era**, and spikes to a record 1.39 in 2019 --- the season of the so-called "juiced ball."
 
 ### Exercise 6
 
@@ -433,11 +433,11 @@ Teams |>
 
 ###
 
-The red points sit right on the trend line: once we measure a rate, the strike and pandemic years are unremarkable. This is the payoff of the whole section --- the same seasons that looked like collapses in the first plot are now visibly normal.
+The red points sit right on the trend line: once we measure a rate, the strike and pandemic years are unremarkable.
 
 ### Exercise 7
 
-Before caching anything, split the work. Caching the chunk that draws the plot would be self-defeating: every time you adjusted a label, the cache would be invalidated and the whole thing would run again. The part worth caching is the aggregation, which does not change when you restyle a chart.
+Before caching anything, split the work. Caching the plot chunk would be self-defeating, since every label change would invalidate the cache and rerun everything. The part worth caching is the aggregation, which does not change when you restyle a chart.
 
 Move the aggregation into its own chunk above the plot, assigning the season-level table to `hr_by_season`, and leave the plot chunk with nothing but the code that draws from it. Render.
 
@@ -508,7 +508,7 @@ hr_by_season |>
 
 ### Exercise 8
 
-Now cache the data chunk. Add `#| cache: true` as the first line inside the `hr_by_season` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing; the first cached render creates a `home-runs_cache/` directory next to `home-runs.qmd`.
+Now cache the data chunk. Add `#| cache: true` as the first line inside the `hr_by_season` chunk. Render. Caching saves that chunk's result to disk so later renders reload it instead of recomputing. The first cached render creates a `home-runs_cache/` directory next to `home-runs.qmd`.
 
 To confirm the directory is there, in the bash Terminal, run `ls`.
 
@@ -532,7 +532,7 @@ AGENTS.md  home-runs_cache  home-runs_files  home-runs.qmd  index.qmd  _quarto.y
 
 ###
 
-Our aggregation is fast, so caching saves little here --- but it is a habit worth building, like `.gitignore`. The payoff grows with the data: a Statcast analysis reads millions of pitch-level rows, and caching that step means you wait once rather than on every render.
+Our aggregation is fast, so caching saves little here. The payoff grows with the data: a Statcast analysis reads millions of pitch-level rows, and caching that step means you wait once rather than on every render.
 
 ### Exercise 9
 
@@ -607,11 +607,11 @@ b7e41d0 (HEAD -> main, origin/main) Add home runs analysis
 
 ###
 
-Home runs per game is one of the cleanest ways to see baseball's history in a single line, but a rate hides who produced it. The 2019 spike and the late-1990s climb were the work of specific players, and the league total says nothing about whether many hitters improved a little or a few improved enormously --- a distinction any aggregate measure buries.
+A rate hides who produced it. The 2019 spike and the late-1990s climb were the work of specific players, and the league total says nothing about whether many hitters improved a little or a few improved enormously.
 
 ## Sluggers
 
-The league trend is made of individual careers. The **Lahman** `Batting` table records every player's batting line for every season, and the `People` table holds their names and biographical details. We will find the career home run leaders and connect them back to the eras we just discovered.
+The league trend is made of individual careers. The **Lahman** `Batting` table records every player's batting line for every season, and the `People` table holds their names and biographical details.
 
 ### Exercise 1
 
@@ -686,7 +686,7 @@ Batting |>
 
 ###
 
-Barry Bonds leads with 762, ahead of Hank Aaron (755) and Babe Ruth (714). Look at the career spans: several of these players were active in the same window, which is the thread we pull on next.
+Barry Bonds leads with 762, ahead of Hank Aaron (755) and Babe Ruth (714). Look at the career spans: several of these players were active in the same window.
 
 ### Exercise 3
 
@@ -917,7 +917,7 @@ Your answer is the URL on the last line: `https://<your-github-username>.github.
 
 ###
 
-The site is served from the `gh-pages` branch, so only the rendered HTML --- home page, both analysis pages, and the navbar that links them --- is published; your `.qmd` source stays on `main`.
+The site is served from the `gh-pages` branch, so only the rendered HTML --- home page, both analysis pages, and the navbar that links them --- is published. Your `.qmd` source stays on `main`.
 
 ### Exercise 3
 
@@ -941,7 +941,7 @@ https://github.com/<your-github-username>/baseball
 
 ###
 
-Your repo holds the source that reproduces the published site; the published site shows the result. Together they are a complete piece of work: a reader can both see what you found and check how you found it.
+Your repo holds the source. The published site shows the result. A reader can see what you found and check how you found it.
 
 ## Download answers
 

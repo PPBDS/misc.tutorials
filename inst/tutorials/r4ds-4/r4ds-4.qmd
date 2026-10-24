@@ -30,13 +30,13 @@ learnr2::student_info()
 
 This tutorial covers key concepts from [Chapter 22: Arrow](https://r4ds.hadley.nz/arrow.html), [Chapter 19: Joins](https://r4ds.hadley.nz/joins.html), and [Chapter 17: Dates and Times](https://r4ds.hadley.nz/datetimes.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will use cryptocurrency price, metadata, and category files to analyze how the composition of the crypto market changed between 2018 and 2026, reading them with **[arrow](https://arrow.apache.org/docs/r/)**. A companion tutorial, `prediction-markets`, uses the same tools on a different question.
+You will use cryptocurrency price, metadata, and category files to analyze how the composition of the crypto market changed between 2018 and 2026, reading them with **[arrow](https://arrow.apache.org/docs/r/)**.
 
 Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-4`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `r4ds-4`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Crypto Markets"` and your name as the author. In a bash Terminal, render it:
 
@@ -122,7 +122,7 @@ library(arrow)
 
 ###
 
-**arrow** is one of several tools for data that is too large or too slow for ordinary in-memory work. **[duckdb](https://r.duckdb.org/)** runs SQL directly against parquet files and is usually the fastest option for big joins and aggregations; **[data.table](https://rdatatable.gitlab.io/data.table/)** is the classic in-memory speed package; **[fst](https://www.fstpackage.org/)** is a fast R-only binary format for local caching.
+**arrow** is one of several tools for data that is too large or too slow for ordinary in-memory work. **[duckdb](https://r.duckdb.org/)** runs SQL directly against parquet files and is usually the fastest option for big joins and aggregations. **[data.table](https://rdatatable.gitlab.io/data.table/)** is the classic in-memory speed package, and **[fst](https://www.fstpackage.org/)** is a fast R-only binary format for local caching.
 
 ### Exercise 3
 
@@ -152,7 +152,7 @@ In production, a parquet *dataset* is usually not one file but a directory of th
 
 ## Crypto markets
 
-Bitcoin launched the cryptocurrency market in 2009, and for its first several years it *was* the market. That had already stopped being true by the time this dataset opens: on January 1, 2018, Ethereum and the other smart-contract platforms held about 52% of the value of the 22 coins tracked here, against Bitcoin's 48%. Which categories held the market over the eight years that followed?
+Bitcoin launched the cryptocurrency market in 2009, and for its first several years it *was* the market. That had already stopped being true by the time this dataset opens: on January 1, 2018, Ethereum and the other smart-contract platforms held about 52% of the value of the 22 coins tracked here, against Bitcoin's 48%.
 
 ![](images/morningstar-chart.png){width=90%}
 
@@ -226,7 +226,7 @@ open_dataset("data/daily_prices.parquet")
 
 ###
 
-Opening a parquet file does not read it: every parquet file ends with a footer holding its *schema* — the column names and types — and that footer is all that was read here. Notice that `date_raw` is stored as text, not as a date, which means it has to be parsed before any date-based analysis will behave.
+Opening a parquet file does not read it: every parquet file ends with a footer holding its *schema* — the column names and types — and that footer is all that was read here. `date_raw` is stored as text, not as a date, so it must be parsed before any date-based analysis will behave.
 
 ### Exercise 3
 
@@ -302,7 +302,7 @@ open_dataset("data/daily_prices.parquet") |>
 
 ###
 
-**arrow** hands the filter and the grouping to the file itself — *predicate pushdown* — so only rows that pass the filter, and only the three columns the query mentions, are ever decoded; the result that comes back is 22 rows instead of 59,436. That is the whole point of this file format: the same query works unchanged on a folder of files far larger than your computer's memory, because R only ever holds the answer.
+**arrow** hands the filter and the grouping to the file itself, which is called *predicate pushdown*. Only rows that pass the filter, and only the three columns the query mentions, are ever decoded, so the result that comes back is 22 rows instead of 59,436. The same query works unchanged on a folder of files far larger than your computer's memory, because R only ever holds the answer.
 
 ### Exercise 5
 
@@ -340,7 +340,7 @@ metadata
 
 ###
 
-`prices` has one row per coin per day; `metadata` has one row per coin, with `coin_id` linking back to `prices` and `category_id` linking forward to `categories`. It also carries hand-entered fields — a `description`, a `launch_date`, a `consensus` mechanism — and hand-entered fields are where messiness lives.
+`prices` has one row per coin per day. `metadata` has one row per coin, with `coin_id` linking back to `prices` and `category_id` linking forward to `categories`. It also carries hand-entered fields — a `description`, a `launch_date`, a `consensus` mechanism — and hand-entered fields are where messiness lives.
 
 ### Exercise 6
 
@@ -415,7 +415,7 @@ metadata |>
 
 ###
 
-Two conventions are mixed in one column: `btc` reads `January 3, 2009` while `eth` reads `2015-07-30`. This is what hand-assembled reference data looks like, and it is dangerous precisely because it is invisible — a parser told to expect one convention returns a missing value for every row written in the other, and a silent `NA` is much worse than an error.
+Two conventions are mixed in one column: `btc` reads `January 3, 2009` while `eth` reads `2015-07-30`. A parser told to expect one convention returns a missing value for every row written in the other, and a silent `NA` is much worse than an error.
 
 ### Exercise 8
 
@@ -452,11 +452,11 @@ metadata |>
 
 ###
 
-Parsing a date means telling the parser the *order of the components*, not their punctuation: month-day-year for `January 3, 2009`, year-month-day for `2015-07-30`; give it both orders and it tries each in turn. This also explains why [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) — `YYYY-MM-DD`, biggest unit first — is the only format worth writing down: `03/04/2020` is March 4 in the United States and April 3 in most of Europe, and no parser can tell which one you meant.
+Parsing a date means telling the parser the *order of the components*, not their punctuation: month-day-year for `January 3, 2009`, year-month-day for `2015-07-30`. Give it both orders and it tries each in turn. [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) — `YYYY-MM-DD`, biggest unit first — is the only format worth writing down, because `03/04/2020` is March 4 in the United States and April 3 in most of Europe, and no parser can tell which one you meant.
 
 ### Exercise 9
 
-Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the `btc` rows of `prices`. Render.
+In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the `btc` rows of `prices`. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
 
@@ -464,7 +464,7 @@ Take a screenshot of the plot in your rendered page and paste it below. To take 
 #| label: crypto-markets-11
 #| echo: false
 learnr2::question(
-  "Get a feel for the raw price data. In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the btc rows of prices. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  "In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the btc rows of prices. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -488,7 +488,7 @@ prices |>
 
 ###
 
-Two cycles are visible, and the second dwarfs the first: Bitcoin's 2021 high was $67,542, it fell below $16,000 in late 2022, and it reached $124,824 in 2025 before falling back to $76,620 when the data ends on May 23, 2026. Price is what one unit costs; market cap is price times circulating supply, and because Bitcoin's supply grows slowly and predictably the two series have nearly the same shape, which is why market cap, not price, is the unit for comparing coins.
+Two cycles are visible, and the second dwarfs the first: Bitcoin's 2021 high was $67,542, it fell below $16,000 in late 2022, and it reached $124,824 in 2025 before falling back to $76,620 when the data ends on May 23, 2026. Market cap is price times circulating supply. Bitcoin's supply grows slowly and predictably, so the two series have nearly the same shape, and market cap, not price, is the unit for comparing coins.
 
 ### Exercise 10
 
@@ -651,7 +651,7 @@ Across the whole period, Bitcoin's median daily market cap is about $560B and Et
 
 ### Exercise 14
 
-Add `#| cache: true` to that chunk and render. This first render with caching will take a moment; later renders load the table from disk.
+Add `#| cache: true` to that chunk and render. This first render with caching will take a moment. Later renders load the table from disk.
 
 In the bash Terminal, run:
 
@@ -665,7 +665,7 @@ CP/CR.
 #| label: crypto-markets-19
 #| echo: false
 learnr2::question(
-  "Add #| cache: true to that chunk and render. This first render with caching will take a moment; later renders load the table from disk. In the bash Terminal, run: ls CP/CR.",
+  "Add #| cache: true to that chunk and render. This first render with caching will take a moment. Later renders load the table from disk. In the bash Terminal, run: ls CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -683,7 +683,7 @@ Stablecoin market cap can rise even when token prices stay pinned near $1: for c
 
 ### Exercise 15
 
-Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to `.gitignore` drops it back.
+Add `analysis_cache` to your `.gitignore`. The Source Control change count in VS Code jumped when the cache directory appeared. Adding it to `.gitignore` drops it back.
 
 In the R Terminal, run:
 
@@ -697,7 +697,7 @@ CP/CR.
 #| label: crypto-markets-20
 #| echo: false
 learnr2::question(
-  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared; adding it to .gitignore drops it back. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  "Add analysis_cache to your .gitignore. The Source Control change count in VS Code jumped when the cache directory appeared. Adding it to .gitignore drops it back. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -752,7 +752,7 @@ These 22 coins were worth $0.58T on the first day of the data and $2.35T on the 
 
 ### Exercise 17
 
-Replace the line chart in that chunk with a stacked area chart of category market-cap shares over time: aggregate the coin-level market caps for each day and category, and make the total height of the chart always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render.
+Replace the line chart in that chunk with a stacked area chart of category market-cap shares over time: aggregate the coin-level market caps for each day and category, and make the total height of the chart always sum to 100%, with each colored band representing one category's share. This is the format of the Morningstar chart shown at the start of the section. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
@@ -760,7 +760,7 @@ Take a screenshot of the plot in your rendered page and paste it below.
 #| label: crypto-markets-23
 #| echo: false
 learnr2::question(
-  "Replace the line chart in that chunk with a stacked area chart of category market-cap shares over time: aggregate the coin-level market caps for each day and category, and make the total height of the chart always sum to 100%, with each colored band representing one category's share. This format — familiar from the Morningstar chart shown at the start of the section — makes it easy to see how category dominance shifted over the period. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  "Replace the line chart in that chunk with a stacked area chart of category market-cap shares over time: aggregate the coin-level market caps for each day and category, and make the total height of the chart always sum to 100%, with each colored band representing one category's share. This is the format of the Morningstar chart shown at the start of the section. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -785,11 +785,11 @@ crypto |>
 
 ###
 
-Read the bands and the story runs opposite to the usual one: Bitcoin starts at 48%, bottoms out near 42% in late 2022, and finishes at 66%, while smart-contract platforms fall from 52% to 21%. Stablecoins are the genuine newcomer, going from 0.2% to a 21% spike in mid-2022 and 11% at the end.
+Bitcoin starts at 48%, bottoms out near 42% in late 2022, and finishes at 66%, while smart-contract platforms fall from 52% to 21%. Stablecoins are the genuine newcomer, going from 0.2% to a 21% spike in mid-2022 and 11% at the end.
 
 ### Exercise 18
 
-Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption; the subtitle should state what the chart actually shows. Then add event context by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
+Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. The subtitle should state what the chart actually shows. Then add event context by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
@@ -797,7 +797,7 @@ Take a screenshot of the plot in your rendered page and paste it below.
 #| label: crypto-markets-24
 #| echo: false
 learnr2::question(
-  "Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption; the subtitle should state what the chart actually shows. Then add event context by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  "Polish the market-share chart for publication. Order the legend by typical category size, use a colorblind-safe palette, and add a clear title, subtitle, axis labels, and source caption. The subtitle should state what the chart actually shows. Then add event context by marking two major crypto shocks: the Luna/UST crash (approximately May 7–12, 2022) and the FTX collapse (approximately November 8–11, 2022). Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -861,7 +861,7 @@ def5678 Add analysis.qmd and .gitignore
 
 ###
 
-The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins, so the category shares are approximations rather than exact measures of the full crypto market. That tradeoff is intentional: the file stays small enough for a tutorial while preserving the dominant category-level patterns.
+The 22 coins in this dataset represent the major categories but exclude thousands of smaller coins, so the category shares are approximations rather than exact measures of the full crypto market.
 
 ## Summary
 
@@ -944,7 +944,7 @@ crypto |>
 
 ###
 
-The finished document is three chunks long, even though you worked through two dozen exercises: the libraries, one cached data chunk, and one plot. That is what a reproducible analysis looks like — only the steps whose results appear in the output survive, and everything else was scaffolding.
+The finished document is three chunks: the libraries, one cached data chunk, and one plot. Only the steps whose results appear in the output survive in a finished analysis.
 
 ### Exercise 2
 

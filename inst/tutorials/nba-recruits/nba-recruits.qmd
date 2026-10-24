@@ -49,7 +49,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `nba-recruits`. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so.
+You should be doing this tutorial in a repo named `nba-recruits`. If you are not, create one and then connect to it.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing NBA Recruits"`) and your name as author. In a bash Terminal, run:
 
@@ -75,7 +75,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named nba-recruits. If you are not, create one and then connect to it. You may need to restart this tutorial after you do so. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing NBA Recruits\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named nba-recruits. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing NBA Recruits\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -130,7 +130,7 @@ library(readxl)
 
 ###
 
-Spreadsheets store a categorical variable as plain text, so a column like a player's career tier arrives in R as `<chr>` and sorts alphabetically — "All-Star level" before "Brief career." Chapter 16's fix is the factor: a variable with a fixed, ordered set of levels, which is what tells **ggplot2** to lay out "Never played" through "Superstar" in career order rather than in alphabetical order.
+Spreadsheets store a categorical variable as plain text, so a column like a player's career tier arrives in R as `<chr>` and sorts alphabetically — "All-Star level" before "Brief career." Chapter 16's fix is the factor: a variable with a fixed, ordered set of levels, which tells **ggplot2** to lay out "Never played" through "Superstar" in career order.
 
 ### Exercise 3
 
@@ -164,7 +164,7 @@ In 2019, The Pudding published [*How Many High School Stars Actually Make It in 
 
 ![](images/nba-hype.jpg){width=90%}
 
-The guiding question: does being a top-ranked teenager actually predict who becomes an NBA star? Our spreadsheet `data/nba_recruits.xlsx` contains The Pudding's dataset — one row per player, with recruit ranking, draft information, and career statistics.
+The guiding question is whether being a top-ranked teenager predicts who becomes an NBA star. Our spreadsheet `data/nba_recruits.xlsx` contains The Pudding's dataset — one row per player, with recruit ranking, draft information, and career statistics.
 
 ### Exercise 1
 
@@ -230,7 +230,7 @@ read_excel("data/nba_recruits.xlsx") |> glimpse()
 
 ###
 
-One row per player, 1,873 of them. `nba_mean_ws48` is Win Shares per 48 minutes, a measure of career productivity normalized for playing time; it is already `NA` for the third and sixth players listed, who never accumulated enough NBA minutes for career stats to register.
+One row per player, 1,873 of them. `nba_mean_ws48` is Win Shares per 48 minutes, a measure of career productivity normalized for playing time. It is `NA` for the third and sixth players listed, who never accumulated enough NBA minutes for career stats to register.
 
 ### Exercise 3
 
@@ -309,7 +309,7 @@ count(basketball_tibble, recruit_group)
 
 ###
 
-More than half of the 1,873 players — 1,014 — fall into "Never played," another 640 had only a brief career, and just 40 reached "Superstar"; because `tier` is now a factor, the rows run in career order instead of alphabetically. Each ranked group spans a known rank range, so across 16 recruit classes the expected counts are 160, 240, 400, and 800 players, and every group falls slightly short — 158, 232, 382, and 763 — with the gap growing down the rankings.
+More than half of the 1,873 players — 1,014 — fall into "Never played," another 640 had only a brief career, and just 40 reached "Superstar." Because `tier` is now a factor, the rows run in career order instead of alphabetically. Each ranked group spans a known rank range, so across 16 recruit classes the expected counts are 160, 240, 400, and 800 players. Every group falls slightly short — 158, 232, 382, and 763 — with the gap growing down the rankings.
 
 ### Exercise 5
 
@@ -450,7 +450,7 @@ basketball_tibble |>
 
 ###
 
-Among the four ranked groups, the funnel is clear: the "Never played" segment shrinks steadily from "#51–100" to "#1–10," while the share of players with solid, All-Star, or superstar careers grows. One bar breaks the funnel, though: the "Outside top 100" group shows no "Never played" segment at all, a sampling artifact — unranked players entered this dataset only because they reached the NBA, so the thousands who never did are simply absent.
+Among the four ranked groups, the "Never played" segment shrinks steadily from "#51–100" to "#1–10," while the share of players with solid, All-Star, or superstar careers grows. One bar breaks the funnel, though: the "Outside top 100" group shows no "Never played" segment at all, a sampling artifact — unranked players entered this dataset only because they reached the NBA, so the thousands who never did are absent.
 
 ### Exercise 9
 
@@ -494,7 +494,7 @@ basketball_tibble |>
 
 ###
 
-With the "Outside top 100" group removed, the four bars represent comparable cohorts — every group includes players who made the NBA and players who did not. The funnel is now honest: "Never played" is highest in the "#51–100" group and falls steadily toward the "#1–10" group.
+With the "Outside top 100" group removed, the four bars represent comparable cohorts — every group includes players who made the NBA and players who did not. "Never played" is highest in the "#51–100" group and falls steadily toward the "#1–10" group.
 
 ### Exercise 10
 
@@ -622,7 +622,7 @@ e4f5a6b Add analysis.qmd and .gitignore
 
 ###
 
-The analysis shows a two-part finding: recruit rank predicts NBA entry (the bar chart), but not career quality once there (the scatter plot). The scatter's nearly-flat trendline — and labelled outliers like Draymond Green (#95), Klay Thompson (#58), and Gilbert Arenas (#99) — tell the same story with individual names attached.
+The analysis shows a two-part finding: recruit rank predicts NBA entry (the bar chart), but not career quality once there (the scatter plot).
 
 ## Summary
 
