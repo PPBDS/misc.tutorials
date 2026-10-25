@@ -59,7 +59,7 @@ Use AI however you like throughout. An agentic coding tool works best, since it 
 
 You should be doing this tutorial in a repo named `census`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Analyzing US Census Data"`) and your name as author. In a bash Terminal, run:
 
-```bash
+``` bash
 quarto render analysis.qmd
 ```
 
@@ -69,7 +69,7 @@ Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file(".gitignore")
 ```
 
@@ -87,13 +87,13 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 analysis_files
 ```
 
-###
+### 
 
 The American Community Survey (ACS) is the Census Bureau's rolling annual survey of about 3.5 million households. Unlike the Decennial Census, which counts everyone every ten years, the ACS estimates characteristics like income, education, and age from a sample — which is why every value arrives with a margin of error.
 
@@ -101,7 +101,7 @@ The American Community Survey (ACS) is the Census Bureau's rolling annual survey
 
 In `analysis.qmd`, add a code chunk that loads the three libraries you will need:
 
-```r
+``` r
 library(tidyverse)
 library(tidycensus)
 library(sf)
@@ -109,14 +109,14 @@ library(sf)
 
 Rendering shows the code and the package start-up messages, which we don't want in a published document. Add `#| message: false` to the chunk, and add this to the YAML header to hide all code:
 
-```yaml
+``` yaml
 execute:
   echo: false
 ```
 
 Render again. In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -132,18 +132,18 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 #| message: false
 library(tidyverse)
 library(tidycensus)
 library(sf)
 ```
 
-###
+### 
 
-**[tidycensus](https://walker-data.com/tidycensus/)** returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an **[sf](https://r-spatial.github.io/sf/)** object — a table with a spatial column attached — that **[ggplot2](https://ggplot2.tidyverse.org/)** can map directly.
+[**tidycensus**](https://walker-data.com/tidycensus/) returns ACS data as a tidy data frame, one row per geography (or per geography-variable). If you also ask for the geographic boundaries, it hands you an [**sf**](https://r-spatial.github.io/sf/) object — a table with a spatial column attached — that [**ggplot2**](https://ggplot2.tidyverse.org/) can map directly.
 
 ### Exercise 3
 
@@ -151,15 +151,15 @@ Every call to `get_acs()` needs a Census API key. Sign up for a free one at the 
 
 In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
 
-```r
+``` r
 tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE)
 ```
 
-This stores the key in your `.Renviron` file so every future R session finds it automatically. The key is stored on this machine only — on a new machine, install it again with `census_api_key("KEY", install = TRUE, overwrite = TRUE)`.
+This stores the key in your `.Renviron` file so every future R session finds it automatically. The key is stored on this machine only — on a new machine, install it again with `census_api_key("KEY", install = TRUE, overwrite = TRUE)`. In other words, if you install the key in a Codespace, then it disappears when the Codespace does. You will need to do it again when you start a new Codespace, at least until you learn how to create a `dotfiles` repo.
 
 A running R session does not see the new line until it is restarted. Close the R Terminal (the trash icon on its tab) and open a new one, or run `readRenviron("~/.Renviron")`. Then, in the R Terminal, run:
 
-```r
+``` r
 nzchar(Sys.getenv("CENSUS_API_KEY"))
 ```
 
@@ -175,15 +175,17 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 [1] TRUE
 ```
 
-###
+### 
 
 The key is tied to your email, not a Census account, so there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits.
+
+<!-- DK: Is the above true? Why does Git try to get students to commit the .Renviron./ -->
 
 ## Texas income
 
@@ -191,11 +193,11 @@ Median household income is one of the most-requested ACS variables. Its code is 
 
 ### Exercise 1
 
-Add a chunk to `analysis.qmd` that uses **tidycensus** to get 2020 median household income for every county in Texas, with county geometry attached for mapping, and saves it as `income_tx`. Add `#| message: false` to the chunk to hide the connection messages. Render.
+Add a code chunk to `analysis.qmd` that uses **tidycensus** to get 2020 median household income for every county in Texas, with county geometry attached for mapping, and then saves it as `income_tx`. Add `#| message: false` to the chunk to hide the connection messages. Render.
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -211,9 +213,9 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 #| message: false
 income_tx <- get_acs(
   geography = "county",
@@ -224,9 +226,9 @@ income_tx <- get_acs(
 )
 ```
 
-###
+### 
 
-Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are equally available), the **variables** (Census table codes like `B19013_001` for median household income), and the **year**. For the ACS, `year = 2020` names the 2016–2020 5-year estimates, pooled across five years so even small counties have reliable numbers.
+Every ACS request comes down to three choices: the **geographic level** (county here, but census tract, place, or state are also available), the **variables** (Census table codes like `B19013_001` for median household income), and the **year**. For the ACS, `year = 2020` retrieves the 2016–2020 5-year estimates, pooled across five years so even small counties have reliable numbers.
 
 ### Exercise 2
 
@@ -242,7 +244,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: texas-income-2-answer
@@ -250,13 +252,13 @@ learnr2::question(
 income_tx
 ```
 
-###
+### 
 
 Every county arrives with a `GEOID` (its FIPS code), a `NAME`, the `variable` code, an `estimate`, and a margin of error (`moe`). The `estimate` is the survey's best guess. The `moe` is the half-width of its 90% confidence interval.
 
 ### Exercise 3
 
-You are done changing the chunk that downloads `income_tx`, and re-downloading it, polygons and all, on every render is slow. The next three exercises cache it: clean the chunk, turn caching on, add the cache directory to `.gitignore`.
+You are done changing the chunk that downloads `income_tx`, and re-downloading it, polygons and all, on every render is slow. The next three exercises cache it. We clean up the chunk, turn caching on, and add the cache directory to `.gitignore`.
 
 First, clean up. Delete the working chunk that printed `income_tx`, leaving the `income_tx <- get_acs(...)` chunk as the last chunk in the file. Render. In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
@@ -270,9 +272,9 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 #| message: false
 income_tx <- get_acs(
   geography = "county",
@@ -283,7 +285,7 @@ income_tx <- get_acs(
 )
 ```
 
-###
+### 
 
 `analysis.qmd` now ends with the `income_tx` download: 254 Texas counties, each carrying an income estimate, its margin of error, and the polygon that will draw it on the map.
 
@@ -301,13 +303,13 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd
 ```
 
-###
+### 
 
 `analysis_cache` now sits next to `analysis_files` and holds the saved `income_tx`, polygons included, so later renders skip both the Census API call and the boundary download.
 
@@ -327,14 +329,14 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 analysis_files
 analysis_cache
 ```
 
-###
+### 
 
 Both directories are regenerated by rendering, so neither belongs in git. Anyone who clones the repo renders once and builds their own cache.
 
@@ -344,7 +346,7 @@ Start a new working chunk that summarizes median household income and margin of 
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -360,7 +362,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: texas-income-4-answer
@@ -375,7 +377,9 @@ income_tx |>
   )
 ```
 
-###
+### 
+
+As always, it is OK if your code/approach differs from ours. The important thing is that you understand what it does and why. Our summary shows the minimum, median, and maximum income across the counties, along with the median margin of error. It is OK if your summary is very different.
 
 Every value in the summary is `NA` because one county, Jeff Davis (GEOID 48243), has no 2020 income estimate: the ACS sample there is too small for the Census Bureau to publish a number. `min()`, `median()`, and `max()` return `NA` whenever a missing value is present, and keep doing so until you add `na.rm = TRUE`.
 
@@ -385,7 +389,7 @@ Replace the working chunk with the same summary, dropping the missing county bef
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -401,7 +405,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: texas-income-12-answer
@@ -416,9 +420,9 @@ income_tx |>
   )
 ```
 
-###
+### 
 
-Across the 253 counties with an estimate, median household income runs from $22,716 in Presidio County to $105,956 in Rockwall County, with a median of $52,683 and a median margin of error of $4,486. A map will show whether the high-income counties are scattered randomly or clustered around particular metro areas.
+Across the 253 counties with an estimate, median household income runs from \$22,716 in Presidio County to \$105,956 in Rockwall County, with a median of \$52,683 and a median margin of error of \$4,486. A map will show whether the high-income counties are scattered randomly or clustered around particular metro areas.
 
 ### Exercise 8
 
@@ -438,7 +442,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: texas-income-6-answer
@@ -448,13 +452,13 @@ ggplot(income_tx) +
   geom_sf(aes(fill = estimate))
 ```
 
-###
+### 
 
 This is a **choropleth** — each county drawn from its boundary and shaded by its income — and the one county left gray, Jeff Davis in far West Texas, is the missing estimate from the summary. Two things make this first version hard to read: the default blue gradient runs dark-to-light in a direction many readers misjudge, and the gray panel with latitude/longitude gridlines adds clutter a map does not need.
 
 ### Exercise 9
 
-Improve the map: give it a perceptually uniform color scale (the **[viridis](https://sjmgarnier.github.io/viridis/)** family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
+Improve the map: give it a perceptually uniform color scale (the [**viridis**](https://sjmgarnier.github.io/viridis/) family is the standard choice), a clear title and legend label, a caption naming the data source, and a clean map theme. Render and compare to ours.
 
 Take a screenshot of the map in your rendered page and paste it below.
 
@@ -470,7 +474,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: texas-income-7-answer
@@ -486,9 +490,9 @@ ggplot(income_tx) +
   theme_void()
 ```
 
-###
+### 
 
-The **viridis** color scales are perceptually uniform and readable by colorblind viewers, which is why they have become the default for choropleths (the **[RColorBrewer](https://colorbrewer2.org/)** palettes are the other common choice). On the finished map, the highest incomes cluster in the suburban counties around Austin, Dallas–Fort Worth, and Houston, while many rural counties, especially along the Rio Grande border, carry the lowest.
+The **viridis** color scales are perceptually uniform and readable by colorblind viewers, which is why they have become the default for choropleths (the [**RColorBrewer**](https://colorbrewer2.org/) palettes are the other common choice). On the finished map, the highest incomes cluster in the suburban counties around Austin, Dallas–Fort Worth, and Houston, while many rural counties, especially along the Rio Grande border, carry the lowest.
 
 ### Exercise 10
 
@@ -506,7 +510,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 A choropleth shades each area by a value, so it is only as honest as the variable behind it. Median household income is a good fit because it is roughly comparable across counties. A raw count like "number of high earners" would mostly track county population and mislead.
 
@@ -520,7 +524,7 @@ Add a chunk that uses **tidycensus** to get 2020 educational attainment for stat
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -536,9 +540,9 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 #| message: false
 edu_state <- get_acs(
   geography = "state",
@@ -549,7 +553,7 @@ edu_state <- get_acs(
 )
 ```
 
-###
+### 
 
 These five variable codes report *completed* degrees, not enrollment. `B15003_022` through `B15003_025` are bachelor's, master's, professional, and doctorate degrees — four separate, non-overlapping levels — so adding them counts everyone with at least a bachelor's.
 
@@ -559,7 +563,7 @@ Add a working chunk that prints `edu_state`. Render.
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -575,7 +579,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: education-by-state-2-answer
@@ -583,7 +587,7 @@ learnr2::question(
 edu_state
 ```
 
-###
+### 
 
 The result is **long**: each state-level geography appears once for each requested variable. With 52 geographies and five variables, `edu_state` has 260 rows — **tidycensus** includes the 50 states, the District of Columbia, and Puerto Rico when you request `geography = "state"`.
 
@@ -593,7 +597,7 @@ Replace the working chunk with code that collapses `edu_state` to one row per ge
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -609,7 +613,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: education-by-state-8-answer
@@ -624,7 +628,7 @@ edu_state |>
   arrange(desc(percent))
 ```
 
-###
+### 
 
 The District of Columbia sits far above the states, at about 60%, because it is a city-like jurisdiction with a highly educated labor market. The lowest geography is about 21% and the middle one around 31%. Raw counts would have put California first simply because it has so many adults, which is why the share, not the count, is the measure to compare.
 
@@ -646,7 +650,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: education-by-state-11-answer
@@ -662,7 +666,7 @@ edu_state |>
   coord_flip()
 ```
 
-###
+### 
 
 Sorting the bars turns a list of 52 numbers into a ranking you can read at a glance. The rough chart still needs labels, a readable percent scale, and a source note before it is worth publishing.
 
@@ -684,7 +688,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: education-by-state-12-answer
@@ -709,7 +713,7 @@ edu_state |>
   theme_minimal()
 ```
 
-###
+### 
 
 The finished chart shows a regional and institutional pattern that a table makes hard to scan: the highest values cluster in the District of Columbia and several Northeastern or knowledge-economy states, while the lowest values are concentrated in parts of Appalachia and the South. Because this is a percentage of adults 25 and over, the comparison is not just a population-size ranking.
 
@@ -729,7 +733,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 The same table B15003 request, with `geography = "county"`, would give an education map instead of a state ranking. In **tidycensus** the variables define what you measure and the geography defines the units you compare.
 
@@ -743,7 +747,7 @@ Add a chunk that uses **tidycensus** to get 2020 median age and total population
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -759,9 +763,9 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 #| message: false
 age_ca <- get_acs(
   geography = "county",
@@ -772,7 +776,7 @@ age_ca <- get_acs(
 )
 ```
 
-###
+### 
 
 Naming the variables `median_age` and `population` instead of carrying raw codes like `B01002_001` makes everything downstream easier to read. Skipping the geometry download also keeps the call fast, since the polygons are the slow part of a **tidycensus** request.
 
@@ -782,7 +786,7 @@ Add a working chunk that prints `age_ca`. Render.
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -798,7 +802,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: california-median-age-2-answer
@@ -806,7 +810,7 @@ learnr2::question(
 age_ca
 ```
 
-###
+### 
 
 Again the data is **long**: each county has two rows, one for `median_age` and one for `population`. That shape is natural for the Census API response, but not for a scatterplot comparing the two measures.
 
@@ -816,7 +820,7 @@ Replace the working chunk with code that reshapes `age_ca` to one row per county
 
 In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -832,7 +836,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: california-median-age-5-answer
@@ -843,7 +847,7 @@ age_ca |>
   arrange(desc(population))
 ```
 
-###
+### 
 
 **Reshaping** turns repeated variable/value rows into one column per variable, so each of the 58 counties now has `median_age` and `population` side by side. Population runs from tiny Alpine County to Los Angeles County, while median age varies by only a few decades.
 
@@ -865,7 +869,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: california-median-age-7-answer
@@ -878,7 +882,7 @@ age_ca |>
   geom_point()
 ```
 
-###
+### 
 
 The rough scatterplot has the right variables — most counties sit in the mid-30s to mid-40s, with a few much older ones — but the population axis is hard to read because Los Angeles County is so much larger than most counties. A log scale is a better fit when one variable spans several orders of magnitude.
 
@@ -900,7 +904,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: california-median-age-8-answer
@@ -926,7 +930,7 @@ age_ca |>
   theme_minimal()
 ```
 
-###
+### 
 
 The final plot shows a negative relationship: California's largest counties are mostly in the 30s, while many of the oldest counties are small. The log scale keeps Los Angeles County visible without flattening every smaller county into the left edge of the chart.
 
@@ -946,7 +950,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 Median age is itself an ACS estimate with a margin of error, just like income. For large counties the margin is tiny, but for the smallest counties a difference of a year or two between counties may be inside the margin and not real.
 
@@ -958,7 +962,7 @@ This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data]
 
 Render and confirm all three figures appear. In the R Terminal, run:
 
-```r
+``` r
 show_file("analysis.qmd")
 ```
 
@@ -974,7 +978,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ````{verbatim}
 ---
@@ -1080,7 +1084,7 @@ age_ca |>
 ```
 ````
 
-###
+### 
 
 **tidycensus** accepts a state as a name (`"Texas"`), a postal code (`"TX"`), or a FIPS code (`"48"`), and will aggregate to whatever geographic level you ask for — county here, but also census tract, place, or state. The same request scales from a single county map to a national tract-level analysis without changing the approach.
 
@@ -1088,7 +1092,7 @@ age_ca |>
 
 Publish your work to GitHub Pages. In a bash Terminal, run:
 
-```bash
+``` bash
 quarto publish gh-pages analysis.qmd
 ```
 
@@ -1104,9 +1108,9 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 ? Publish site to https://your-username.github.io/census/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
@@ -1122,7 +1126,7 @@ To https://github.com/your-username/census.git
 [✓] Published to https://your-username.github.io/census/
 ```
 
-###
+### 
 
 All three figures on your published page draw on the same ACS 5-year window, the 2016–2020 estimates, across three different geographies: Texas counties, state-level geographies, and California counties.
 
@@ -1140,13 +1144,13 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
-```{.output}
+``` output
 https://github.com/your-username/census
 ```
 
-###
+### 
 
 The workflow you used here — **tidycensus** to pull ACS data (with boundaries when you want a map), **sf** to hold the geometry, and **ggplot2** to draw it — is the standard modern approach to US Census analysis. From here, Walker's book goes on to time-series comparisons, spatial statistics, and modeling, all built on the same foundation.
 
@@ -1163,7 +1167,7 @@ learnr2::question(
 )
 ```
 
-###
+### 
 
 ```{r}
 #| label: download-answers-2

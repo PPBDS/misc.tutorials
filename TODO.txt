@@ -18,6 +18,29 @@
 
  R4DS 1 - 5 are evolving into a nice collection of tutorials, I think. Should be a core part of what we use going forward. Need to make sure each tutorial is a reasonable length. Should take about 45 minutes on average.
 
+## Going through census
+
+1) We don't need this in every tutorial:
+
+> To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+
+2) I don't like questions like this:
+
+> or write a short note describing how you committed and pushed.
+
+Just require them to issue a `git log` command or something similar.
+
+3) Maybe Census, with three different data downloads and plots is too long?
+
+4) Are questions like this good, at least in later tutorials? After all, we can tell them to commit and ask for the path to the committed file. Copy/paste a whole file seems annoying and excessive.
+
+> Render and confirm all three figures appear. In the R Terminal, run:
+
+``` r
+show_file("analysis.qmd")
+```
+
+5) 
 
 ## Var
 
