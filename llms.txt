@@ -61,9 +61,12 @@ tutorial draws on are listed below.
 
 ### Analyzing US Census Data
 
-We have one tutorial, `census`, covering material from [*Analyzing US
-Census Data: Methods, Maps, and Models in
-R*](https://walker-data.com/census-r/index.html) by Kyle Walker.
+We have two tutorials covering material from [*Analyzing US Census Data:
+Methods, Maps, and Models in
+R*](https://walker-data.com/census-r/index.html) by Kyle Walker:
+`census` maps median household income across Texas counties, and
+`demographics` charts educational attainment by state and median age by
+California county.
 
 ### Topic tutorials
 

@@ -58,7 +58,7 @@
 <li>
 <strong>The <code>setup</code> chunk</strong> is a hidden (<code>#| include: false</code>) chunk holding the libraries and data objects that our answer chunks use at render time. It runs once when the tutorial is built, never in the student’s browser.</li>
 <li>
-<strong>Plots are checked with screenshots.</strong> An exercise whose result is a plot or map asks the student to “Take a screenshot of the plot (or map) in your rendered page and paste it below” with <code>allow_image = TRUE, allow_text = FALSE</code> (no text box; Submit refuses an empty box, since typed text there proves nothing), not for <code>show_file()</code> output: a screenshot proves the right picture was drawn, code proves only that code exists. Keep <code>show_file()</code> CP/CR for exercises whose result is text — a printed tibble, summary statistics, a YAML header. A tutorial’s first screenshot question adds the one-sentence how-to (<code>Cmd + Ctrl + Shift + 4</code> on a Mac, <code>Win + Shift + S</code> on Windows, then click in the answer box and paste); later ones just ask. Our answer chunk after Continue draws the expected plot.</li>
+<strong>Plots are checked with screenshots.</strong> An exercise whose result is a plot or map asks the student to “Take a screenshot of the plot (or map) in your rendered page and paste it below” with <code>allow_image = TRUE, allow_text = FALSE</code> (no text box; Submit refuses an empty box, since typed text there proves nothing), not for <code>show_file()</code> output: a screenshot proves the right picture was drawn, code proves only that code exists. Keep <code>show_file()</code> CP/CR for exercises whose result is text — a printed tibble, summary statistics, a YAML header. No tutorial here explains how to take a screenshot. That how-to lives in the first three <code>vscode.tutorials</code> (Orientation, Workflow, Code) and nowhere else, so every screenshot question just asks: no key combinations, no paraphrase. Our answer chunk after Continue draws the expected plot.</li>
 <li>
 <strong>Every code block names what it is</strong> (October 2026; learnr2’s “Code, commands and output”). Something to type gets its language: <code>```r</code> for the R Terminal or a chunk to add, <code>```bash</code> for the bash Terminal, <code>```yaml</code> for YAML. Text to type that is in no language — a commit message, lines for <code>.gitignore</code>, a download URL — is <code>```default</code>, which boxes it with a copy button. Anything the student <em>compares against</em> — a transcript, <code>ls</code> output, the answer shown after Continue, a sample of a CSV — is <code>```{.output}</code>, rendered lighter and without a copy button. A bare <code>```</code> fence is a <code>check_tutorial()</code> warning. Label a block with <code>```{.bash filename="bash Terminal"}</code> when the prose does not already say where it runs.</li>
 <li>
@@ -72,7 +72,7 @@
 <ul><li>
 <strong><a href="https://r4ds.hadley.nz/" class="external-link">R for Data Science (2e)</a></strong> — the <strong>R4DS family</strong>, ten tutorials: <code>r4ds-1</code> … <code>r4ds-5</code> and the five topic-named tutorials split out of them (<code>music</code>, <code>nba-recruits</code>, <code>time-use</code>, <code>prediction-markets</code>, <code>imdb-rankings</code>).</li>
 <li>
-<strong><a href="https://walker-data.com/census-r/" class="external-link">Analyzing US Census Data</a></strong> by Kyle Walker — the <code>census</code> tutorial.</li>
+<strong><a href="https://walker-data.com/census-r/" class="external-link">Analyzing US Census Data</a></strong> by Kyle Walker — the <code>census</code> and <code>demographics</code> tutorials. The second was split out of the first in October 2026, when <code>census</code> had reached 28 exercises: <code>census</code> keeps the Texas income map (plus two margin-of-error exercises added in the split), and <code>demographics</code> takes the state education chart and the California age scatterplot.</li>
 <li>
 <strong>Topic tutorials</strong> (<code>baseball</code>, <code>ducks</code>, <code>sharks</code>, <code>movies</code>) — organized around a domain rather than a book. The first three are <em>project-tier</em> (each builds a multi-page website); <code>movies</code> builds a single page. See <em>Project tutorials</em> below.</li>
 </ul><p><strong>The organizing theme is storage technology.</strong> Each R4DS-family tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, scraped HTML, and web APIs — and then works with that data using the <strong><a href="https://www.tidyverse.org/" class="external-link">tidyverse</a></strong>. The storage technology is the spine of each tutorial; the subject-area domain (Billboard, births, pop music, basketball recruits, school districts, time use, crypto, prediction markets, wildfires, film rankings, census demographics) is chosen to suit it.</p>
@@ -163,11 +163,17 @@
 <td><code>census</code></td>
 <td>Web API</td>
 <td>tidycensus, sf</td>
-<td>
-<code>income_tx.rds</code>, <code>edu_state.rds</code>, <code>age_ca.rds</code>
-</td>
+<td><code>income_tx.rds</code></td>
 <td>—</td>
 </tr><tr><td>12</td>
+<td><code>demographics</code></td>
+<td>Web API</td>
+<td>tidycensus</td>
+<td>
+<code>edu_state.rds</code>, <code>age_ca.rds</code>
+</td>
+<td>—</td>
+</tr><tr><td>13</td>
 <td><code>baseball</code></td>
 <td>R data package (Lahman)</td>
 <td>Lahman</td>
@@ -175,26 +181,26 @@
 <code><a href="http://cdalzell.github.io/Lahman/reference/Teams.html" class="external-link">Lahman::Teams</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/Batting.html" class="external-link">Lahman::Batting</a></code>, <code><a href="http://cdalzell.github.io/Lahman/reference/People.html" class="external-link">Lahman::People</a></code>
 </td>
 <td>—</td>
-</tr><tr><td>13</td>
+</tr><tr><td>14</td>
 <td><code>ducks</code></td>
 <td>Delimited files (CSV)</td>
 <td>sf, rnaturalearth, ggridges</td>
 <td><code>mallards.csv</code></td>
 <td>—</td>
-</tr><tr><td>14</td>
+</tr><tr><td>15</td>
 <td><code>sharks</code></td>
 <td>Delimited files (CSV)</td>
 <td>maps</td>
 <td><code>attacks_clean.csv</code></td>
 <td>—</td>
-</tr><tr><td>15</td>
+</tr><tr><td>16</td>
 <td><code>movies</code></td>
 <td>Delimited files (CSV)</td>
 <td>tidyverse</td>
 <td><code>movies.csv</code></td>
 <td>—</td>
-</tr></tbody></table><p><code>baseball</code>, <code>ducks</code> and <code>sharks</code> are <strong>project-tier</strong> tutorials that build a multi-page website (see the next section); every other tutorial builds a single published <code>analysis.qmd</code> page. The four topic tutorials (<code>baseball</code>, <code>ducks</code>, <code>sharks</code>, <code>movies</code>) are organized around a domain rather than a storage technology they introduce, per the project tier’s <em>topic-driven, not a new storage technology</em> override. A spin-out shares its storage technology with the parent it was split from (<code>music</code> with <code>r4ds-1</code>, <code>nba-recruits</code> with <code>r4ds-2</code>, <code>time-use</code> with <code>r4ds-3</code>, <code>prediction-markets</code> with <code>r4ds-4</code>); <code>imdb-rankings</code> is the one spin-out that took a storage technology (scraped HTML) with it, leaving <code>r4ds-5</code> purely spatial.</p>
-<p><strong>List order.</strong> Each tutorial’s YAML header sets <code>learnr2:</code> / <code>ordering: &lt;n&gt;</code>, which fixes its place in the VS Code tutorial list (lowest first; tutorials without it sort after, by folder name). The current order is the <code>#</code> column above: the R4DS family occupies 1–10, each spin-out directly after its parent, then <code>census</code> (11) and the topic tutorials (12–15). A new tutorial must set an <code>ordering</code>. Because <code>ordering</code> controls the sequence, folder names carry no numeric prefix (the r4ds folders were renamed from <code>01-r4ds-1</code> … <code>05-r4ds-5</code> to <code>r4ds-1</code> … <code>r4ds-5</code> in October 2026).</p>
+</tr></tbody></table><p><code>baseball</code>, <code>ducks</code> and <code>sharks</code> are <strong>project-tier</strong> tutorials that build a multi-page website (see the next section); every other tutorial builds a single published <code>analysis.qmd</code> page. <code>demographics</code> shares its storage technology (the Census API) with <code>census</code>, which it was split from. The four topic tutorials (<code>baseball</code>, <code>ducks</code>, <code>sharks</code>, <code>movies</code>) are organized around a domain rather than a storage technology they introduce, per the project tier’s <em>topic-driven, not a new storage technology</em> override. A spin-out shares its storage technology with the parent it was split from (<code>music</code> with <code>r4ds-1</code>, <code>nba-recruits</code> with <code>r4ds-2</code>, <code>time-use</code> with <code>r4ds-3</code>, <code>prediction-markets</code> with <code>r4ds-4</code>); <code>imdb-rankings</code> is the one spin-out that took a storage technology (scraped HTML) with it, leaving <code>r4ds-5</code> purely spatial.</p>
+<p><strong>List order.</strong> Each tutorial’s YAML header sets <code>learnr2:</code> / <code>ordering: &lt;n&gt;</code>, which fixes its place in the VS Code tutorial list (lowest first; tutorials without it sort after, by folder name). The current order is the <code>#</code> column above: the R4DS family occupies 1–10, each spin-out directly after its parent, then <code>census</code> (11) and <code>demographics</code> (12), and the topic tutorials (13–16). A new tutorial must set an <code>ordering</code>. Because <code>ordering</code> controls the sequence, folder names carry no numeric prefix (the r4ds folders were renamed from <code>01-r4ds-1</code> … <code>05-r4ds-5</code> to <code>r4ds-1</code> … <code>r4ds-5</code> in October 2026).</p>
 </div>
 <div class="section level2">
 <h2 id="project-tutorials-baseball-and-later">Project tutorials (<code>baseball</code> and later)<a class="anchor" aria-label="anchor" href="#project-tutorials-baseball-and-later"></a></h2>

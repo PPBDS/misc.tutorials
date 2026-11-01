@@ -92,11 +92,11 @@ choices, shared with `vscode.tutorials`:
   `show_file()` output: a screenshot proves the right picture was drawn,
   code proves only that code exists. Keep `show_file()` CP/CR for
   exercises whose result is text — a printed tibble, summary statistics,
-  a YAML header. A tutorial’s first screenshot question adds the
-  one-sentence how-to (`Cmd + Ctrl + Shift + 4` on a Mac,
-  `Win + Shift + S` on Windows, then click in the answer box and paste);
-  later ones just ask. Our answer chunk after Continue draws the
-  expected plot.
+  a YAML header. No tutorial here explains how to take a screenshot.
+  That how-to lives in the first three `vscode.tutorials` (Orientation,
+  Workflow, Code) and nowhere else, so every screenshot question just
+  asks: no key combinations, no paraphrase. Our answer chunk after
+  Continue draws the expected plot.
 - **Every code block names what it is** (October 2026; learnr2’s “Code,
   commands and output”). Something to type gets its language:
   ```` ```r ```` for the R Terminal or a chunk to add, ```` ```bash ````
@@ -135,7 +135,11 @@ plus a set of topic tutorials:
   tutorials split out of them (`music`, `nba-recruits`, `time-use`,
   `prediction-markets`, `imdb-rankings`).
 - **[Analyzing US Census Data](https://walker-data.com/census-r/)** by
-  Kyle Walker — the `census` tutorial.
+  Kyle Walker — the `census` and `demographics` tutorials. The second
+  was split out of the first in October 2026, when `census` had reached
+  28 exercises: `census` keeps the Texas income map (plus two
+  margin-of-error exercises added in the split), and `demographics`
+  takes the state education chart and the California age scatterplot.
 - **Topic tutorials** (`baseball`, `ducks`, `sharks`, `movies`) —
   organized around a domain rather than a book. The first three are
   *project-tier* (each builds a multi-page website); `movies` builds a
@@ -215,33 +219,35 @@ sentence of its Introduction (and, in the past tense, in its Summary).
 | 8 | `prediction-markets` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
 | 9 | `r4ds-5` | Spatial JSON | jsonlite, leaflet, purrr | `wildfires.geojson` | 23 Hierarchical data; 9 Layers |
 | 10 | `imdb-rankings` | Scraped HTML (Wayback Machine) | rvest, httr2, purrr | `imdb_snapshots.rds` | 24 Web scraping; 25 Functions; 26 Iteration |
-| 11 | `census` | Web API | tidycensus, sf | `income_tx.rds`, `edu_state.rds`, `age_ca.rds` | — |
-| 12 | `baseball` | R data package (Lahman) | Lahman | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) | — |
-| 13 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
-| 14 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
-| 15 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
+| 11 | `census` | Web API | tidycensus, sf | `income_tx.rds` | — |
+| 12 | `demographics` | Web API | tidycensus | `edu_state.rds`, `age_ca.rds` | — |
+| 13 | `baseball` | R data package (Lahman) | Lahman | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) | — |
+| 14 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
+| 15 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
+| 16 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
 
 `baseball`, `ducks` and `sharks` are **project-tier** tutorials that
 build a multi-page website (see the next section); every other tutorial
-builds a single published `analysis.qmd` page. The four topic tutorials
-(`baseball`, `ducks`, `sharks`, `movies`) are organized around a domain
-rather than a storage technology they introduce, per the project tier’s
-*topic-driven, not a new storage technology* override. A spin-out shares
-its storage technology with the parent it was split from (`music` with
-`r4ds-1`, `nba-recruits` with `r4ds-2`, `time-use` with `r4ds-3`,
-`prediction-markets` with `r4ds-4`); `imdb-rankings` is the one spin-out
-that took a storage technology (scraped HTML) with it, leaving `r4ds-5`
-purely spatial.
+builds a single published `analysis.qmd` page. `demographics` shares its
+storage technology (the Census API) with `census`, which it was split
+from. The four topic tutorials (`baseball`, `ducks`, `sharks`, `movies`)
+are organized around a domain rather than a storage technology they
+introduce, per the project tier’s *topic-driven, not a new storage
+technology* override. A spin-out shares its storage technology with the
+parent it was split from (`music` with `r4ds-1`, `nba-recruits` with
+`r4ds-2`, `time-use` with `r4ds-3`, `prediction-markets` with `r4ds-4`);
+`imdb-rankings` is the one spin-out that took a storage technology
+(scraped HTML) with it, leaving `r4ds-5` purely spatial.
 
 **List order.** Each tutorial’s YAML header sets `learnr2:` /
 `ordering: <n>`, which fixes its place in the VS Code tutorial list
 (lowest first; tutorials without it sort after, by folder name). The
 current order is the `#` column above: the R4DS family occupies 1–10,
-each spin-out directly after its parent, then `census` (11) and the
-topic tutorials (12–15). A new tutorial must set an `ordering`. Because
-`ordering` controls the sequence, folder names carry no numeric prefix
-(the r4ds folders were renamed from `01-r4ds-1` … `05-r4ds-5` to
-`r4ds-1` … `r4ds-5` in October 2026).
+each spin-out directly after its parent, then `census` (11) and
+`demographics` (12), and the topic tutorials (13–16). A new tutorial
+must set an `ordering`. Because `ordering` controls the sequence, folder
+names carry no numeric prefix (the r4ds folders were renamed from
+`01-r4ds-1` … `05-r4ds-5` to `r4ds-1` … `r4ds-5` in October 2026).
 
 ## Project tutorials (`baseball` and later)
 
