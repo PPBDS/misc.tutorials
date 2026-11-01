@@ -458,7 +458,7 @@ Parsing a date means telling the parser the *order of the components*, not their
 
 In a new chunk, draw a line chart of Bitcoin's daily price over the whole period, using only the `btc` rows of `prices`. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: crypto-markets-11
@@ -871,21 +871,15 @@ You read parquet files with **arrow**, inspected schemas and summarized data on 
 
 ### Exercise 1
 
-Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots.
+Render one last time. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your final plots. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab - the resulting HTML page should be attractive, showing a clean version of your final plots. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -893,54 +887,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Crypto Markets"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(arrow)
+```{.output}
+https://github.com/your-username/r4ds-4/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-prices <- open_dataset("data/daily_prices.parquet") |>
-  collect()
-metadata <- open_dataset("data/coin_metadata.parquet") |>
-  collect()
-categories <- open_dataset("data/categories.parquet") |>
-  collect()
-
-crypto <- prices |>
-  left_join(metadata, by = "coin_id") |>
-  left_join(select(categories, -description), by = "category_id") |>
-  mutate(date = ymd(date_raw))
-```
-
-```{r}
-crypto |>
-  group_by(date, category_name) |>
-  summarise(cat_mcap = sum(market_cap_usd, na.rm = TRUE), .groups = "drop") |>
-  mutate(category_name = fct_reorder(category_name, cat_mcap, .fun = median, .desc = TRUE)) |>
-  ggplot(aes(x = date, y = cat_mcap, fill = category_name)) +
-  geom_area(position = "fill") +
-  scale_fill_viridis_d(option = "plasma", end = 0.9) +
-  scale_y_continuous(labels = scales::percent) +
-  annotate("rect", xmin = as.Date("2022-05-07"), xmax = as.Date("2022-05-12"),
-           ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
-  annotate("rect", xmin = as.Date("2022-11-08"), xmax = as.Date("2022-11-11"),
-           ymin = -Inf, ymax = Inf, alpha = 0.15, fill = "red") +
-  labs(x = NULL, y = "Share of total market cap", fill = NULL,
-       title = "Crypto market cap share by category, 2018–2026",
-       subtitle = "Bitcoin gained share as smart-contract platforms shrank and stablecoins grew",
-       caption = "Source: Coin Metrics Community Data (CC BY 4.0)")
-```
-````
 
 ###
 
@@ -992,26 +941,6 @@ https://your-username.github.io/r4ds-4/
 ###
 
 Only the file's *output* travels: readers see the charts, not the parquet files behind them, which is why the caption naming the data source is the only provenance they get.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/r4ds-4
-```
 
 ###
 

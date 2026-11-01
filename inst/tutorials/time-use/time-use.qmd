@@ -622,7 +622,7 @@ hourly_avg
 
 Start a new code chunk. Make a horizontal grouped bar chart from `activity_avg` showing average daily minutes by category, with the bars colored by sex and ordered by average minutes. Leave out the `Data Codes` bucket, which is missing-data bookkeeping rather than an activity. Give the chart a title, subtitle, axis labels, and a data source caption. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: time-use-14
@@ -752,21 +752,15 @@ You used **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/a
 
 ### Exercise 1
 
-Render. Check your Live Server tab. The page should show your two graphics and nothing else, so if the `hourly_avg` chunk still prints a tibble, delete that print first.
+Render one last time. Check your Live Server tab. The page should show your two graphics and nothing else, so if the `hourly_avg` chunk still prints a tibble, delete that print first. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check your Live Server tab. The page should show your two graphics and nothing else, so if the hourly_avg chunk still prints a tibble, delete that print first. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab. The page should show your two graphics and nothing else, so if the hourly_avg chunk still prints a tibble, delete that print first. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -774,108 +768,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Analyzing Americans' Time Use"
-author: "<your name>"
-format: html
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(DBI)
-library(duckdb)
-library(dbplyr)
+```{.output}
+https://github.com/<your-github-username>/time-use/blob/main/analysis.qmd
 ```
-
-```{r}
-con_atus <- dbConnect(duckdb::duckdb(), dbdir = "data/atus.duckdb", read_only = TRUE)
-dbplyr_act   <- tbl(con_atus, "activities")
-dbplyr_resp  <- tbl(con_atus, "respondents")
-dbplyr_codes <- tbl(con_atus, "activity_codes")
-```
-
-```{r}
-#| cache: true
-activity_avg <- dbplyr_act |>
-  left_join(dbplyr_codes |> select(activity_code, major_name),
-            by = "activity_code") |>
-  inner_join(dbplyr_resp |>
-               filter(str_starts(employment_status, "Not"),
-                      day_type == "Weekday") |>
-               select(tucaseid, sex),
-             by = "tucaseid") |>
-  group_by(tucaseid, sex, major_name) |>
-  summarize(daily_min = sum(duration_min, na.rm = TRUE), .groups = "drop") |>
-  group_by(sex, major_name) |>
-  summarize(avg_daily_min = mean(daily_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
-```
-
-```{r}
-keep_cats <- c(
-  "Personal Care Activities",
-  "Household Activities",
-  "Caring For & Helping Household (HH) Members",
-  "Socializing, Relaxing, and Leisure"
-)
-
-hourly_avg <- dbplyr_act |>
-  mutate(hour = start_hhmm %/% 100L) |>
-  filter(hour >= 6L, hour <= 23L) |>
-  left_join(dbplyr_codes |> select(activity_code, major_name),
-            by = "activity_code") |>
-  filter(major_name %in% keep_cats) |>
-  inner_join(dbplyr_resp |>
-               filter(str_starts(employment_status, "Not"),
-                      day_type == "Weekday") |>
-               select(tucaseid, sex),
-             by = "tucaseid") |>
-  group_by(sex, hour, major_name) |>
-  summarize(avg_min = mean(duration_min, na.rm = TRUE), .groups = "drop") |>
-  collect()
-```
-
-```{r}
-activity_avg |>
-  filter(major_name != "Data Codes") |>
-  mutate(major_name = fct_reorder(major_name, avg_daily_min)) |>
-  ggplot(aes(x = avg_daily_min, y = major_name, fill = sex)) +
-  geom_col(position = "dodge") +
-  labs(
-    title = "How Non-Employed Americans Spend Weekdays",
-    subtitle = "Women devote more time to housework and caregiving; men spend more on leisure",
-    x = "Average minutes per weekday",
-    y = NULL,
-    fill = "Sex",
-    caption = "Source: BLS American Time Use Survey (2003–2024). Weekday non-employed respondents."
-  ) +
-  theme_minimal()
-```
-
-```{r}
-ggplot(hourly_avg, aes(x = hour, y = avg_min, fill = major_name)) +
-  geom_area(alpha = 0.85) +
-  facet_wrap(~ sex) +
-  scale_x_continuous(
-    breaks = c(6, 9, 12, 15, 18, 21),
-    labels = c("6 AM", "9 AM", "Noon", "3 PM", "6 PM", "9 PM")
-  ) +
-  labs(
-    title = "Time Use by Hour of Day, Non-Employed Americans (Weekdays)",
-    subtitle = "Men's afternoon leisure peak is taller; women's morning housework block is wider",
-    x = NULL,
-    y = "Average minutes in activities starting this hour",
-    fill = "Activity",
-    caption = "Source: BLS American Time Use Survey (2003–2024). Weekday non-employed respondents."
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-````
 
 ###
 
@@ -922,26 +817,6 @@ To https://github.com/<your-github-username>/time-use.git
 ###
 
 Every band and bar on that page was produced without ever loading a full ATUS table into R. The database did the joining and averaging. `collect()` pulled down 36 rows for one chart and 144 for the other.
-
-### Exercise 3
-
-Commit and push all your files. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push all your files. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/<your-github-username>/time-use
-```
 
 ###
 

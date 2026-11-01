@@ -1,5 +1,29 @@
 # misc.tutorials (development version)
 
+* `census` is split in two. `census` (ordering 11) keeps the Texas income map
+  and adds two exercises on the margin of error: a table of the counties
+  where it is largest relative to the estimate, and a second map of that
+  share. The new `demographics` (ordering 12) takes the state education
+  chart and the California age scatterplot, with the scatterplot's log scale
+  now a step of its own. They run 17 and 18 exercises instead of 28. The
+  topic tutorials move to orderings 13 to 16.
+
+* Every Summary now ends the same way. Its first exercise is a final render,
+  commit and push, answered with the URL of `analysis.qmd` (or `index.qmd`)
+  on GitHub; that link is the record of the whole file. The whole-file
+  `show_file("analysis.qmd")` paste is gone: with no `chunk` argument,
+  `show_file()` prints only the last chunk, so the whole-file answer shown
+  after Continue never matched what students saw. The separate repo-URL
+  exercise is gone too, since the file URL contains it.
+
+* Every commit question asks for `git log --oneline -3`. The three census
+  questions that accepted "a short note describing how you committed and
+  pushed" now do too.
+
+* No tutorial explains how to take a screenshot any more. That sentence
+  belongs to the first three `vscode.tutorials`; every screenshot question
+  here just asks for the screenshot.
+
 * Editorial pass over every tutorial: prose has almost no semicolons and
   filler sentences are gone. No exercise asked for two pastes, so none were
   split. The repo line no longer says "You may need to restart this tutorial

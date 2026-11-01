@@ -643,7 +643,7 @@ Mean error falls monotonically from 0.399 at 90+ days to 0.0896 on the final day
 
 Extend that chunk into the section's first published chart: a line-and-point plot of mean error by time bucket, keeping the `accuracy` summary above it. Use the title `"Prediction markets get smarter near the deadline"` and the subtitle `"Mean absolute error in Manifold Markets forecasts, by days remaining"`. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: crowd-16
@@ -847,21 +847,15 @@ You read parquet files with **arrow**, inspected a schema before pulling anythin
 
 ### Exercise 1
 
-Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of both final charts.
+Render one last time. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of both final charts. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render to ensure that everything works. Check your Live Server tab — the resulting HTML page should be attractive, showing clean versions of both final charts. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab - the resulting HTML page should be attractive, showing clean versions of both final charts. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -869,87 +863,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Prediction Markets"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(arrow)
+```{.output}
+https://github.com/your-username/prediction-markets/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-markets <- read_parquet("data/markets.parquet")
-
-joined <- open_dataset("data/history.parquet") |>
-  collect() |>
-  left_join(markets, by = "market_id") |>
-  mutate(
-    outcome_numeric    = if_else(outcome == "YES", 1, 0),
-    prediction_error   = abs(probability - outcome_numeric),
-    days_to_resolution = as.numeric(as.Date(ymd_hms(resolved_at)) - date),
-    time_bucket = factor(
-      case_when(
-        days_to_resolution >  90 ~ "90+ days",
-        days_to_resolution >  30 ~ "30–90 days",
-        days_to_resolution >   7 ~ "7–30 days",
-        days_to_resolution >=  1 ~ "1–7 days",
-        TRUE                     ~ "Final day"
-      ),
-      levels = c("90+ days", "30–90 days", "7–30 days", "1–7 days", "Final day"),
-      ordered = TRUE
-    )
-  )
-
-groups        <- read_parquet("data/groups.parquet")
-market_groups <- read_parquet("data/market_groups.parquet")
-```
-
-```{r}
-accuracy <- joined |>
-  group_by(time_bucket) |>
-  summarise(mean_error = mean(prediction_error), n_rows = n(), .groups = "drop")
-
-accuracy |>
-  ggplot(aes(x = time_bucket, y = mean_error, group = 1)) +
-  geom_line(linewidth = 1.2, color = "#2166ac") +
-  geom_point(size = 3, color = "#2166ac") +
-  labs(
-    title    = "Prediction markets get smarter near the deadline",
-    subtitle = "Mean absolute error in Manifold Markets forecasts, by days remaining",
-    x        = "Days until resolution",
-    y        = "Mean absolute error"
-  ) +
-  theme_minimal()
-```
-
-```{r}
-calibration <- joined |>
-  filter(days_to_resolution == 0) |>
-  mutate(prob_bin = round(probability * 10) / 10) |>
-  group_by(prob_bin) |>
-  summarise(actual_rate = mean(outcome_numeric), n = n(), .groups = "drop")
-
-calibration |>
-  ggplot(aes(x = prob_bin, y = actual_rate)) +
-  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "gray60") +
-  geom_line(color = "#2166ac") +
-  geom_point(aes(size = n), color = "#2166ac", alpha = 0.8) +
-  scale_x_continuous(labels = scales::percent, limits = c(0, 1)) +
-  scale_y_continuous(labels = scales::percent, limits = c(0, 1)) +
-  labs(x = "Predicted probability", y = "Actual resolution rate",
-       title = "Calibration is tight at the extremes and noisy in between",
-       subtitle = "Point size shows how many markets landed in each probability bin",
-       size = "Markets") +
-  theme_minimal()
-```
-````
 
 ###
 
@@ -1002,26 +918,6 @@ To https://github.com/your-username/prediction-markets.git
 ###
 
 Readers see the two charts, not the parquet files behind them, so the first chart's subtitle naming Manifold Markets is the only provenance they get. A chart that reports a play-money platform without saying so invites a reader to assume real money was at stake.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/prediction-markets
-```
 
 ###
 

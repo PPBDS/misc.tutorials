@@ -414,7 +414,7 @@ Every song here was on the Hot 100 at some point in 2000, but some first entered
 
 Make a histogram of the `wk1` rankings, including the number of values used in the plot. Update your working chunk to make it, render, and inspect the plot in the rendered HTML.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: billboard-hot-100-4
@@ -787,21 +787,15 @@ This tutorial used AI to analyze a year of Billboard Hot 100 rankings, drawing o
 
 ### Exercise 1
 
-Render. Check the rendered HTML. The page should be attractive, with a clean version of your plot.
+Render one last time. Check the rendered HTML. The page should be attractive, with a clean version of your plot. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check the rendered HTML. The page should be attractive, with a clean version of your plot. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Render one last time. Check the rendered HTML. The page should be attractive, with a clean version of your plot. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -809,105 +803,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Billboard Hot 100"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
+```{.output}
+https://github.com/your-username/r4ds-1/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-billboard <- read_csv("data/billboard.csv", show_col_types = FALSE)
-```
-
-```{r}
-billboard_longer <- billboard |>
-  mutate(song = str_c(artist, " - ", track)) |>
-  pivot_longer(
-    cols = starts_with("wk"),
-    names_to = "week",
-    values_to = "rank"
-  ) |>
-  mutate(week = parse_number(week))
-
-billboard_song_summary <- billboard_longer |>
-  filter(!is.na(rank)) |>
-  group_by(artist, track, song) |>
-  summarise(
-    best_rank = min(rank),
-    first_best_week = min(week[rank == best_rank]),
-    weeks_on_chart = n(),
-    .groups = "drop"
-  )
-
-billboard_top10_stories <- bind_rows(
-  billboard_song_summary |>
-    filter(best_rank == 1) |>
-    slice_min(first_best_week, n = 1, with_ties = FALSE) |>
-    mutate(story = "Fastest to #1"),
-  billboard_song_summary |>
-    filter(best_rank == 1) |>
-    slice_max(first_best_week, n = 1, with_ties = FALSE) |>
-    mutate(story = "Slowest to #1"),
-  billboard_song_summary |>
-    filter(best_rank <= 10) |>
-    slice_max(weeks_on_chart, n = 1, with_ties = FALSE) |>
-    mutate(story = "Longest top-10 run")
-)
-
-billboard_top10_longer <- billboard_longer |>
-  semi_join(
-    billboard_song_summary |> filter(best_rank <= 10),
-    by = c("artist", "track", "song")
-  )
-
-billboard_top10_longer |>
-  filter(!is.na(rank)) |>
-  ggplot(aes(x = week, y = rank, group = song)) +
-  geom_line(color = "gray75", alpha = 0.35) +
-  geom_line(
-    data = billboard_top10_longer |>
-      semi_join(billboard_top10_stories, by = c("artist", "track", "song")) |>
-      filter(!is.na(rank)),
-    aes(color = song),
-    linewidth = 1
-  ) +
-  geom_point(
-    data = billboard_top10_stories,
-    aes(x = first_best_week, y = best_rank, color = song),
-    size = 2
-  ) +
-  geom_text(
-    data = billboard_top10_stories,
-    aes(
-      x = first_best_week,
-      y = best_rank,
-      label = story,
-      color = song
-    ),
-    hjust = -0.05,
-    vjust = -0.5,
-    size = 2.8,
-    show.legend = FALSE
-  ) +
-  scale_y_reverse() +
-  labs(
-    title = "Top-10 hits follow different chart paths",
-    subtitle = "Each line is one song that reached the top 10 of the Billboard Hot 100",
-    x = "Weeks since entering the chart",
-    y = "Billboard rank",
-    color = "Song",
-    caption = "Source: tidyr::billboard"
-  )
-```
-````
 
 ###
 
@@ -960,26 +858,6 @@ https://your-username.github.io/r4ds-1/
 ###
 
 The published plot shows only the 53 songs that reached the top 10 — one in six of the 317 in `billboard.csv` — and 17 of those went all the way to #1.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/r4ds-1
-```
 
 ###
 

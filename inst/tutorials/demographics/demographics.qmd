@@ -1,0 +1,783 @@
+---
+title: Census Demographics
+author: David Kane and Alec Rogers
+description: "Companion to the tidycensus chapters of 'Analyzing US Census Data' by Kyle Walker. Pulls American Community Survey tables with tidycensus, reshapes them with the tidyverse, and builds one published page with two graphics: a ranked chart of educational attainment by state and a scatterplot of California county population and median age."
+format: live-html
+engine: knitr
+toc: true
+learnr2:
+  ordering: 12
+---
+
+{{< include _extensions/r-wasm/live/_knitr.qmd >}}
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+library(tidycensus)
+
+# The data below was pulled once with tidycensus and saved, so this tutorial
+# renders without hitting the Census API. Students make the live calls in their
+# own analysis.qmd.
+
+# edu_state <- get_acs(geography = "state",
+# variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+# year = 2020, geometry = FALSE, summary_var = "B15003_001")
+# write_rds(edu_state, "data/edu_state.rds")
+edu_state <- read_rds("data/edu_state.rds")
+
+# age_ca <- get_acs(geography = "county",
+# variables = c(median_age = "B01002_001", population = "B01003_001"),
+# state = "CA", year = 2020, geometry = FALSE)
+# write_rds(age_ca, "data/age_ca.rds")
+age_ca <- read_rds("data/age_ca.rds")
+```
+
+## Information
+
+```{r}
+#| label: information-1
+#| echo: false
+learnr2::student_info()
+```
+
+## Introduction
+
+This tutorial follows Kyle Walker's [An introduction to tidycensus](https://walker-data.com/census-r/an-introduction-to-tidycensus.html) and [Wrangling Census data with tidyverse tools](https://walker-data.com/census-r/wrangling-census-data-with-tidyverse-tools.html) chapters from [Analyzing US Census Data](https://walker-data.com/census-r/). You will pull two American Community Survey tables through the Census API, reshape them with the tidyverse, and turn them into one published page with two graphics: a ranked chart of educational attainment by state and a scatterplot of California county population and median age.
+
+Use AI however you like throughout. An agentic coding tool works best, since it can read and edit your files directly. A chat-based assistant works too, with more copy/paste.
+
+### Exercise 1
+
+You should be doing this tutorial in a repo named `demographics`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Census Demographics"`) and your name as author. In a bash Terminal, run:
+
+```bash
+quarto render analysis.qmd
+```
+
+Open `analysis.html` by right-clicking it in the Explorer and selecting **Open with Live Server**. Keep this tab open — it refreshes automatically whenever you re-render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In the R Terminal, run:
+
+```r
+show_file(".gitignore")
+```
+
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
+
+CP/CR.
+
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "You should be doing this tutorial in a repo named demographics. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Census Demographics\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+analysis_files
+```
+
+###
+
+The American Community Survey (ACS) publishes tens of thousands of variables, organized into tables. A table has a code, like `B15003` for educational attainment, and each variable in it a numbered suffix: `B15003_001` is the table's total, and the rest are its categories. Most of the work in a Census analysis is picking the right table and the right rows of it.
+
+### Exercise 2
+
+In `analysis.qmd`, add a code chunk that loads the two libraries you will need:
+
+```r
+library(tidyverse)
+library(tidycensus)
+```
+
+Rendering shows the code and the package start-up messages, which we don't want in a published document. Add `#| message: false` to the chunk, and add this to the YAML header to hide all code:
+
+```yaml
+execute:
+  echo: false
+```
+
+Render again. In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-2
+#| echo: false
+learnr2::question(
+  "In analysis.qmd, add a code chunk that loads the two libraries you will need: library(tidyverse), library(tidycensus). Add #| message: false to the chunk, and add execute: echo: false to the YAML header to hide all code. Render again. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+#| message: false
+library(tidyverse)
+library(tidycensus)
+```
+
+###
+
+[**tidycensus**](https://walker-data.com/tidycensus/) returns ACS data as a tidy data frame, one row per geography and variable. To find a variable's code, `load_variables(2020, "acs5")` returns a table of every variable in the 2020 5-year ACS, which you can search with `filter()` or hand to your AI.
+
+### Exercise 3
+
+Every call to `get_acs()` needs a Census API key. If you did the `census` tutorial on this machine, the key is still in your `.Renviron` file. In a new Codespace it is gone, and you need to install it again. If you have never had a key, sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) and click the activation link in the email that arrives.
+
+In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
+
+```r
+tidycensus::census_api_key("YOUR-KEY-HERE", install = TRUE, overwrite = TRUE)
+```
+
+A running R session does not see the new line until it is restarted. Close the R Terminal (the trash icon on its tab) and open a new one, or run `readRenviron("~/.Renviron")`. Then, in the R Terminal, run:
+
+```r
+nzchar(Sys.getenv("CENSUS_API_KEY"))
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "If your Census API key is not installed on this machine, install it: in the R Terminal, run tidycensus::census_api_key(\"YOUR-KEY-HERE\", install = TRUE, overwrite = TRUE) with your own key in place of YOUR-KEY-HERE, then close the R Terminal and open a new one, or run readRenviron(\"~/.Renviron\"). Then, in the R Terminal, run: nzchar(Sys.getenv(\"CENSUS_API_KEY\")) CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+[1] TRUE
+```
+
+###
+
+The key is tied to your email, not a Census account, so there is no login to manage. Because `install = TRUE` writes it to `.Renviron` rather than `analysis.qmd`, it never appears in your code or your commits.
+
+## Education by state
+
+Educational attainment lives in ACS table B15003, which breaks the adult population into 24 completed schooling levels from "no schooling" up to "doctorate." In this section you will compare the share of adults with at least a bachelor's degree across all state-level geographies.
+
+### Exercise 1
+
+Add a chunk that uses **tidycensus** to get 2020 educational attainment for state-level geographies and save it as `edu_state`. You need the table total plus the bachelor's-and-higher levels: variables `B15003_001` (total), `B15003_022`, `B15003_023`, `B15003_024`, and `B15003_025`. Pass `summary_var = "B15003_001"` so the total rides along on every row. Add `#| message: false`. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: education-by-state-1
+#| echo: false
+learnr2::question(
+  "Add a chunk that uses tidycensus to get 2020 educational attainment for state-level geographies and save it as edu_state. You need the table total plus the bachelor's-and-higher levels: variables B15003_001 (total), B15003_022, B15003_023, B15003_024, and B15003_025. Pass summary_var = \"B15003_001\" so the total rides along on every row. Add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+#| message: false
+edu_state <- get_acs(
+  geography = "state",
+  variables = c("B15003_001", "B15003_022", "B15003_023", "B15003_024", "B15003_025"),
+  year = 2020,
+  geometry = FALSE,
+  summary_var = "B15003_001"
+)
+```
+
+###
+
+These five variable codes report *completed* degrees, not enrollment. `B15003_022` through `B15003_025` are bachelor's, master's, professional, and doctorate degrees — four separate, non-overlapping levels — so adding them counts everyone with at least a bachelor's.
+
+### Exercise 2
+
+Add a working chunk that prints `edu_state`. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: education-by-state-2
+#| echo: false
+learnr2::question(
+  "Add a working chunk that prints edu_state. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: education-by-state-2-answer
+#| echo: true
+edu_state
+```
+
+###
+
+The result is **long**: each state-level geography appears once for each requested variable. With 52 geographies and five variables, `edu_state` has 260 rows — **tidycensus** includes the 50 states, the District of Columbia, and Puerto Rico when you request `geography = "state"`.
+
+### Exercise 3
+
+Replace the working chunk with code that collapses `edu_state` to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: education-by-state-3
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that collapses edu_state to one row per geography. Compute the percentage of adults with at least a bachelor's degree, then print the table sorted from highest to lowest percentage. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: education-by-state-3-answer
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    adults = unique(summary_est),
+    .groups = "drop"
+  ) |>
+  arrange(desc(percent))
+```
+
+###
+
+The District of Columbia sits far above the states, at about 60%, because it is a city-like jurisdiction with a highly educated labor market. The lowest geography is about 21% and the middle one around 31%. Raw counts would have put California first simply because it has so many adults, which is why the share, not the count, is the measure to compare.
+
+### Exercise 4
+
+Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: education-by-state-4
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a horizontal bar chart of the bachelor's-or-higher percentage for every state-level geography, sorted by percentage. Render and look at it. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: education-by-state-4-answer
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = reorder(NAME, percent), y = percent)) +
+  geom_col() +
+  coord_flip()
+```
+
+###
+
+Sorting the bars turns a list of 52 numbers into a ranking you can read at a glance. The rough chart still needs labels, a readable percent scale, and a source note before it is worth publishing.
+
+### Exercise 5
+
+Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: education-by-state-5
+#| echo: false
+learnr2::question(
+  "Improve the chart: add a clear title, axis label, source caption, percent-formatted axis labels, and a cleaner theme. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: education-by-state-5-answer
+#| echo: true
+edu_state |>
+  group_by(GEOID, NAME) |>
+  summarize(
+    percent = 100 * sum(estimate[variable != "B15003_001"]) / unique(summary_est),
+    .groups = "drop"
+  ) |>
+  ggplot(aes(x = reorder(NAME, percent), y = percent, fill = percent)) +
+  geom_col() +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  scale_fill_viridis_c(option = "plasma", guide = "none") +
+  labs(
+    title = "Adults with a bachelor's degree or higher by state-level geography (2020)",
+    x = NULL,
+    y = "Share of adults 25 and over",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The finished chart shows a regional and institutional pattern that a table makes hard to scan: the highest values cluster in the District of Columbia and several Northeastern or knowledge-economy states, while the lowest values are concentrated in parts of Appalachia and the South. Because this is a percentage of adults 25 and over, the comparison is not just a population-size ranking.
+
+### Exercise 6
+
+Commit and push the education chart. Use the commit message:
+
+```default
+Add state education chart
+```
+
+In the bash Terminal, run:
+
+```bash
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r}
+#| label: education-by-state-6
+#| echo: false
+learnr2::question(
+  "Commit and push the education chart. Use the commit message: Add state education chart. In the bash Terminal, run git log --oneline -3. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+a1b2c3d (HEAD -> main, origin/main) Add state education chart
+e4f5a6b Add analysis.qmd and .gitignore
+```
+
+###
+
+The same table B15003 request, with `geography = "county"`, would give an education map instead of a state ranking. In **tidycensus** the variables define what you measure and the geography defines the units you compare.
+
+## California median age
+
+Here you will pull median age and total population for California counties, then ask whether larger counties tend to be younger or older.
+
+### Exercise 1
+
+Add a chunk that uses **tidycensus** to get 2020 median age and total population for every county in California, naming the variables `median_age` (`B01002_001`) and `population` (`B01003_001`). You are building a non-map chart, so set `geometry = FALSE`. Save it as `age_ca` and add `#| message: false`. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: california-median-age-1
+#| echo: false
+learnr2::question(
+  "Add a chunk that uses tidycensus to get 2020 median age and total population for every county in California, naming the variables median_age (B01002_001) and population (B01003_001). You are building a non-map chart, so set geometry = FALSE. Save it as age_ca and add #| message: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+#| message: false
+age_ca <- get_acs(
+  geography = "county",
+  variables = c(median_age = "B01002_001", population = "B01003_001"),
+  state = "CA",
+  year = 2020,
+  geometry = FALSE
+)
+```
+
+###
+
+Naming the variables `median_age` and `population` instead of carrying raw codes like `B01002_001` makes everything downstream easier to read. Skipping the geometry download also keeps the call fast, since the polygons are the slow part of a **tidycensus** request.
+
+### Exercise 2
+
+Add a working chunk that prints `age_ca`. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: california-median-age-2
+#| echo: false
+learnr2::question(
+  "Add a working chunk that prints age_ca. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: california-median-age-2-answer
+#| echo: true
+age_ca
+```
+
+###
+
+Again the data is **long**: each county has two rows, one for `median_age` and one for `population`. That shape is natural for the Census API response, but not for a scatterplot comparing the two measures.
+
+### Exercise 3
+
+Replace the working chunk with code that reshapes `age_ca` to one row per county, with one column for `median_age` and one for `population`. Print the table sorted from largest to smallest population. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: california-median-age-3
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with code that reshapes age_ca to one row per county, with one column for median_age and one for population. Print the table sorted from largest to smallest population. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: california-median-age-3-answer
+#| echo: true
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  arrange(desc(population))
+```
+
+###
+
+**Reshaping** turns repeated variable/value rows into one column per variable, so each of the 58 counties now has `median_age` and `population` side by side. Population runs from tiny Alpine County to Los Angeles County, while median age varies by only a few decades.
+
+### Exercise 4
+
+Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: california-median-age-4
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with a scatterplot of county population against median age. Render and look at the relationship. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: california-median-age-4-answer
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point()
+```
+
+###
+
+The rough scatterplot has the right variables — most counties sit in the mid-30s to mid-40s, with a few much older ones — but the population axis is hard to read because Los Angeles County is so much larger than most counties. Almost every other county is squeezed into the left edge.
+
+### Exercise 5
+
+Replace the working chunk with the same scatterplot on a log-scaled population axis (`scale_x_log10()`). Render and look again.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: california-median-age-5
+#| echo: false
+learnr2::question(
+  "Replace the working chunk with the same scatterplot on a log-scaled population axis (scale_x_log10()). Render and look again. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: california-median-age-5-answer
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+###
+
+On a log axis each major tick marks a tenfold jump, so Alpine County's thousand-odd residents and Los Angeles County's ten million fit in one picture. A log scale is the right choice whenever one variable spans several orders of magnitude. Spread out this way, the counties show a downward drift: the bigger the county, the younger its median resident.
+
+### Exercise 6
+
+Improve the scatterplot: label the largest counties, add a title, clean axis labels, and a source caption. Keep the log scale. Render and compare to ours.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: california-median-age-6
+#| echo: false
+learnr2::question(
+  "Improve the scatterplot: label the largest counties, add a title, clean axis labels, and a source caption. Keep the log scale. Render and compare to ours. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: california-median-age-6-answer
+#| echo: true
+#| message: false
+age_ca |>
+  select(NAME, variable, estimate) |>
+  pivot_wider(names_from = variable, values_from = estimate) |>
+  mutate(label = if_else(min_rank(desc(population)) <= 8, NAME, "")) |>
+  ggplot(aes(x = population, y = median_age)) +
+  geom_point(color = "#2c7fb8", alpha = 0.75, size = 2.5) +
+  geom_text(aes(label = label), hjust = -0.05, check_overlap = TRUE, size = 3) +
+  scale_x_log10(
+    labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+    expand = expansion(mult = c(0.02, 0.25))
+  ) +
+  labs(
+    title = "Smaller California counties tend to be older (2020)",
+    x = "Population (log scale)",
+    y = "Median age",
+    caption = "Source: ACS 5-year estimates via tidycensus"
+  ) +
+  theme_minimal()
+```
+
+###
+
+The final plot shows a negative relationship: California's largest counties are mostly in the 30s, while many of the oldest counties are small. The labels put names on the right-hand cluster, so a reader does not have to guess which dot is Los Angeles.
+
+### Exercise 7
+
+Commit and push the scatterplot. Use the commit message:
+
+```default
+Add California age scatterplot
+```
+
+In the bash Terminal, run:
+
+```bash
+git log --oneline -3
+```
+
+CP/CR.
+
+```{r}
+#| label: california-median-age-7
+#| echo: false
+learnr2::question(
+  "Commit and push the scatterplot. Use the commit message: Add California age scatterplot. In the bash Terminal, run git log --oneline -3. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+a1b2c3d (HEAD -> main, origin/main) Add California age scatterplot
+e4f5a6b Add state education chart
+c7d8e9f Add analysis.qmd and .gitignore
+```
+
+###
+
+Median age is itself an ACS estimate with a margin of error, just like income. For large counties the margin is tiny, but for the smallest counties a difference of a year or two between counties may be inside the margin and not real.
+
+## Summary
+
+This tutorial followed the **tidycensus** chapters of [Analyzing US Census Data](https://walker-data.com/census-r/) by Kyle Walker. You pulled two American Community Survey tables through the Census API with **tidycensus**, collapsed a 24-level education table to one share per state, reshaped long results into the wide shape that a scatterplot needs, and built one published page with two graphics: a ranked chart of educational attainment by state and a scatterplot of California county population and median age.
+
+### Exercise 1
+
+Render one last time. Check your Live Server tab. The page should show your two charts and nothing else. Commit and push.
+
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
+
+```{r}
+#| label: summary-1
+#| echo: false
+learnr2::question(
+  "Render one last time. Check your Live Server tab. The page should show your two charts and nothing else. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+https://github.com/your-username/demographics/blob/main/analysis.qmd
+```
+
+###
+
+**tidycensus** accepts a state as a name (`"California"`), a postal code (`"CA"`), or a FIPS code (`"06"`), and will aggregate to whatever geographic level you ask for — state and county here, but also census tract or place. The same request scales from one state's counties to a national tract-level analysis without changing the approach.
+
+### Exercise 2
+
+Publish your work to GitHub Pages. In a bash Terminal, run:
+
+```bash
+quarto publish gh-pages analysis.qmd
+```
+
+Copy and paste the resulting URL below.
+
+```{r}
+#| label: summary-2
+#| echo: false
+learnr2::question(
+  "Publish your work to GitHub Pages. In a bash Terminal, run: quarto publish gh-pages analysis.qmd. Copy and paste the resulting URL below.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+? Publish site to https://your-username.github.io/demographics/ using gh-pages? (Y/n) › Yes
+Switched to a new branch 'gh-pages'
+...
+Rendering for publish:
+...
+Output created: analysis.html
+...
+[gh-pages abc1234] Built site for gh-pages
+...
+To https://github.com/your-username/demographics.git
+...
+[✓] Deploying gh-pages branch to website (this may take a few minutes)
+[✓] Published to https://your-username.github.io/demographics/
+```
+
+###
+
+Both charts on your published page draw on the same ACS 5-year window, the 2016–2020 estimates, at two geographies: the 52 state-level geographies and the 58 California counties. Neither download needed boundaries, which is why both chunks ran in seconds and needed no cache.
+
+###
+
+The workflow you used here — **tidycensus** to pull a table, the tidyverse to collapse or reshape it, and **ggplot2** to draw it — is the standard modern approach to US Census analysis. From here, Walker's book goes on to time-series comparisons, spatial statistics, and modeling, all built on the same foundation.
+
+## Download answers
+
+```{r}
+#| label: download-answers-1
+#| echo: false
+learnr2::question(
+  "How many minutes, approximately, did it take you to complete this
+  tutorial? For example, an hour and a half would be 90 minutes.",
+  type = "reflection_editable",
+  validate = "integer"
+)
+```
+
+###
+
+```{r}
+#| label: download-answers-2
+#| echo: false
+learnr2::download_answers_button(filename_prefix = "demographics")
+```

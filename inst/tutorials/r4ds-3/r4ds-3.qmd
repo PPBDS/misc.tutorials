@@ -548,7 +548,7 @@ The two tibbles in that cache are small, 9,644 district rows and 51 state rows, 
 
 Start a new working chunk. Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: us-education-14
@@ -684,21 +684,15 @@ You used **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/a
 
 ### Exercise 1
 
-Render. Check your Live Server tab. The page should show your arrow chart and nothing else.
+Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check your Live Server tab. The page should show your arrow chart and nothing else. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -706,72 +700,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Analyzing School District Reading Scores"
-author: "<your name>"
-format: html
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(DBI)
-library(duckdb)
-library(dbplyr)
+```{.output}
+https://github.com/<your-github-username>/r4ds-3/blob/main/analysis.qmd
 ```
-
-```{r}
-con_seda <- dbConnect(duckdb::duckdb(), dbdir = "data/seda_2025.duckdb", read_only = TRUE)
-dbplyr_dist <- tbl(con_seda, "district_scores")
-```
-
-```{r}
-#| cache: true
-#| cache.extra: !expr file.mtime("data/seda_2025.duckdb")
-score_change <- dbplyr_dist |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(district_id, district_name, state, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-state_change <- tbl(con_seda, "state_scores") |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(stateabb, state_name, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-```
-
-```{r}
-state_change |>
-  arrange(rla_2023) |>
-  mutate(state_name = fct_inorder(state_name)) |>
-  ggplot(aes(y = state_name)) +
-  geom_segment(
-    aes(x = rla_2015, xend = rla_2023, yend = state_name,
-        color = rla_change > 0),
-    arrow = arrow(length = unit(0.15, "cm"), type = "closed"),
-    linewidth = 0.7,
-    show.legend = FALSE
-  ) +
-  geom_point(aes(x = rla_2015), color = "gray60", size = 1) +
-  scale_color_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +
-  labs(
-    title = "State Reading Score Changes, 2015 to 2023",
-    subtitle = "Arrows point left (decline) in 49 of 51 jurisdictions; only Mississippi and Hawaii gained",
-    x = "Reading score (grade-equivalents)",
-    y = NULL,
-    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
-  ) +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 9))
-```
-````
 
 ###
 
@@ -818,26 +749,6 @@ To https://github.com/<your-github-username>/r4ds-3.git
 ###
 
 The chart on that page was produced without ever loading a full SEDA table into R. The database did the filtering, and `collect()` pulled down 9,644 district rows and 51 state rows.
-
-### Exercise 3
-
-Commit and push all your files. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push all your files. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/<your-github-username>/r4ds-3
-```
 
 ###
 

@@ -10,7 +10,7 @@ format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 14
+  ordering: 15
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -447,7 +447,7 @@ data/attacks.rds
 
 Start a new working chunk below the data chunk that draws a world map in which each country is colored by its number of shark attacks. Render.
 
-Take a screenshot of the map in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the map in your rendered page and paste it below.
 
 ```{r}
 #| label: where-9
@@ -834,13 +834,13 @@ The `[1/3]` to `[3/3]` lines show all three pages being rendered before the site
 
 ### Exercise 3
 
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
+Commit and push any remaining changes. Open your repo on GitHub, click `index.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-4
 #| echo: false
 learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
+  "Commit and push any remaining changes. Open your repo on GitHub, click index.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -849,7 +849,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/sharks
+https://github.com/your-username/sharks/blob/main/index.qmd
 ```
 
 ###

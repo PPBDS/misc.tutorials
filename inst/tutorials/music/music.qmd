@@ -448,7 +448,7 @@ music |>
 
 ### Exercise 11
 
-The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+The summary didn't give a clear picture of the distribution of song years. Plot the distribution of `song.year`, filtering out rows where `song.year` is 0, and include the number of songs used in the subtitle. Render and take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: million-song-dataset-11
@@ -698,21 +698,15 @@ This tutorial used AI to explore a sample of the Million Song Dataset, drawing o
 
 ### Exercise 1
 
-Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots.
+Render one last time. Check the rendered HTML. The page should be attractive, with clean versions of your plots. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check the rendered HTML. The page should be attractive, with clean versions of your plots. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Render one last time. Check the rendered HTML. The page should be attractive, with clean versions of your plots. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -720,52 +714,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Million Song Dataset"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(maps)
+```{.output}
+https://github.com/your-username/music/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-music <- read_csv("data/music.csv", show_col_types = FALSE)
-```
-
-```{r}
-world <- map_data("world")
-
-music |>
-  filter(!(artist.latitude == 0 & artist.longitude == 0)) |>
-  ggplot() +
-  geom_map(
-    data = world, map = world,
-    aes(map_id = region),
-    fill = "gray90", color = "gray70", linewidth = 0.2
-  ) +
-  geom_point(
-    aes(x = artist.longitude, y = artist.latitude),
-    alpha = 0.3, color = "steelblue", size = 0.6
-  ) +
-  expand_limits(x = world$long, y = world$lat) +
-  labs(
-    title = "Artist locations in the Million Song Dataset",
-    subtitle = "Only 37% of artists have usable coordinates; US and Western Europe dominate",
-    x = NULL,
-    y = NULL,
-    caption = "Source: Million Song Dataset teaching CSV"
-  ) +
-  theme_minimal() +
-  theme(axis.text = element_blank(), axis.ticks = element_blank())
-```
-````
 
 ###
 
@@ -818,26 +769,6 @@ https://your-username.github.io/music/
 ###
 
 The published map shows only the 3,742 songs with usable coordinates — fewer than four in ten of the 10,000 rows in `music.csv`.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/music
-```
 
 ###
 

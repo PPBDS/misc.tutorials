@@ -26,7 +26,7 @@ Every tutorial is a **learnr2** Quarto document, `inst/tutorials/<name>/<name>.q
 - **Prompts stay in the prose.** Each question's instructions are ordinary text above its chunk; the `question()` call carries a plain-text copy in `text` with `show_text = FALSE`, so the downloaded answers still show what was asked.
 - **Boilerplate** sits under `## Information` (`information-1`, `student_info()`) and `## Download answers` (`download-answers-1`, the minutes question; `download-answers-2`, `download_answers_button()`).
 - **The `setup` chunk** is a hidden (`#| include: false`) chunk holding the libraries and data objects that our answer chunks use at render time. It runs once when the tutorial is built, never in the student's browser.
-- **Plots are checked with screenshots.** An exercise whose result is a plot or map asks the student to "Take a screenshot of the plot (or map) in your rendered page and paste it below" with `allow_image = TRUE, allow_text = FALSE` (no text box; Submit refuses an empty box, since typed text there proves nothing), not for `show_file()` output: a screenshot proves the right picture was drawn, code proves only that code exists. Keep `show_file()` CP/CR for exercises whose result is text — a printed tibble, summary statistics, a YAML header. A tutorial's first screenshot question adds the one-sentence how-to (`Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, then click in the answer box and paste); later ones just ask. Our answer chunk after Continue draws the expected plot.
+- **Plots are checked with screenshots.** An exercise whose result is a plot or map asks the student to "Take a screenshot of the plot (or map) in your rendered page and paste it below" with `allow_image = TRUE, allow_text = FALSE` (no text box; Submit refuses an empty box, since typed text there proves nothing), not for `show_file()` output: a screenshot proves the right picture was drawn, code proves only that code exists. Keep `show_file()` CP/CR for exercises whose result is text — a printed tibble, summary statistics, a YAML header. No tutorial here explains how to take a screenshot. That how-to lives in the first three `vscode.tutorials` (Orientation, Workflow, Code) and nowhere else, so every screenshot question just asks: no key combinations, no paraphrase. Our answer chunk after Continue draws the expected plot.
 - **Every code block names what it is** (October 2026; learnr2's "Code, commands and output"). Something to type gets its language: ```` ```r ```` for the R Terminal or a chunk to add, ```` ```bash ```` for the bash Terminal, ```` ```yaml ```` for YAML. Text to type that is in no language — a commit message, lines for `.gitignore`, a download URL — is ```` ```default ````, which boxes it with a copy button. Anything the student *compares against* — a transcript, `ls` output, the answer shown after Continue, a sample of a CSV — is ```` ```{.output} ````, rendered lighter and without a copy button. A bare ```` ``` ```` fence is a `check_tutorial()` warning. Label a block with ```` ```{.bash filename="bash Terminal"} ```` when the prose does not already say where it runs.
 - **Questions lock on submit, and Continue is gated.** Every text or image question is `type = "reflection"`: one Submit, then the box locks and our answer appears, so it cannot be copied back. `reflection_editable` is for the minutes question only; `student_info()` and the minutes question get an Edit/Submit cycle, and a submitted screenshot gets an "Edit Answer" button for the image box alone. The hidden `tutorial_options()` chunk defaults to `require_submission = TRUE` (a section's Continue stays disabled until every question above it is submitted) and `allow_skip = FALSE` (TOC entries past the current section are dimmed). Tutorial-wide switches go through `tutorial_options()`, never a new YAML key. A bare `###` is a Continue stop; never put one directly under a heading.
 - **Never mention learnr or tutorial.helpers.** `show_file()` comes from **learnr2**, and students load it with `library(learnr2)`.
@@ -36,7 +36,7 @@ Every tutorial is a **learnr2** Quarto document, `inst/tutorials/<name>/<name>.q
 A collection of tutorials covering material from two companion texts, plus a set of topic tutorials:
 
 - **[R for Data Science (2e)](https://r4ds.hadley.nz/)** — the **R4DS family**, ten tutorials: `r4ds-1` … `r4ds-5` and the five topic-named tutorials split out of them (`music`, `nba-recruits`, `time-use`, `prediction-markets`, `imdb-rankings`).
-- **[Analyzing US Census Data](https://walker-data.com/census-r/)** by Kyle Walker — the `census` tutorial.
+- **[Analyzing US Census Data](https://walker-data.com/census-r/)** by Kyle Walker — the `census` and `demographics` tutorials. The second was split out of the first in October 2026, when `census` had reached 28 exercises: `census` keeps the Texas income map (plus two margin-of-error exercises added in the split), and `demographics` takes the state education chart and the California age scatterplot.
 - **Topic tutorials** (`baseball`, `ducks`, `sharks`, `movies`) — organized around a domain rather than a book. The first three are *project-tier* (each builds a multi-page website); `movies` builds a single page. See *Project tutorials* below.
 
 **The organizing theme is storage technology.** Each R4DS-family tutorial sources its data from a different sort of storage — delimited files, spreadsheets, databases, Arrow files, spatial formats, scraped HTML, and web APIs — and then works with that data using the **[tidyverse](https://www.tidyverse.org/)**. The storage technology is the spine of each tutorial; the subject-area domain (Billboard, births, pop music, basketball recruits, school districts, time use, crypto, prediction markets, wildfires, film rankings, census demographics) is chosen to suit it.
@@ -66,15 +66,17 @@ Rows are in list order (`ordering`). The last column lists the *R for Data Scien
 | 8 | `prediction-markets` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
 | 9 | `r4ds-5` | Spatial JSON | jsonlite, leaflet, purrr | `wildfires.geojson` | 23 Hierarchical data; 9 Layers |
 | 10 | `imdb-rankings` | Scraped HTML (Wayback Machine) | rvest, httr2, purrr | `imdb_snapshots.rds` | 24 Web scraping; 25 Functions; 26 Iteration |
-| 11 | `census` | Web API | tidycensus, sf | `income_tx.rds`, `edu_state.rds`, `age_ca.rds` | — |
-| 12 | `baseball` | R data package (Lahman) | Lahman | `Lahman::Teams`, `Lahman::Batting`, `Lahman::People` | — |
-| 13 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
-| 14 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
-| 15 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
+| 11 | `census` | Web API | tidycensus, sf | `income_tx.rds` | — |
+| 12 | `demographics` | Web API | tidycensus | `edu_state.rds`, `age_ca.rds` | — |
+| 13 | `baseball` | R data package (Lahman) | Lahman | `Lahman::Teams`, `Lahman::Batting`, `Lahman::People` | — |
+| 14 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
+| 15 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
+| 16 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
 
 `baseball`, `ducks` and `sharks` are **project-tier** tutorials that build a multi-page
 website (see the next section); every other tutorial builds a single published
-`analysis.qmd` page. The four topic tutorials (`baseball`, `ducks`, `sharks`, `movies`)
+`analysis.qmd` page. `demographics` shares its storage technology (the Census API) with `census`, which it was
+split from. The four topic tutorials (`baseball`, `ducks`, `sharks`, `movies`)
 are organized around a domain rather than a storage technology they introduce, per the
 project tier's *topic-driven, not a new storage technology* override. A spin-out shares
 its storage technology with the parent it was split from (`music` with `r4ds-1`,
@@ -85,8 +87,8 @@ HTML) with it, leaving `r4ds-5` purely spatial.
 **List order.** Each tutorial's YAML header sets `learnr2:` / `ordering: <n>`, which fixes
 its place in the VS Code tutorial list (lowest first; tutorials without it sort after, by
 folder name). The current order is the `#` column above: the R4DS family occupies 1–10,
-each spin-out directly after its parent, then `census` (11) and the topic tutorials
-(12–15). A new tutorial must set an `ordering`. Because `ordering` controls the sequence,
+each spin-out directly after its parent, then `census` (11) and `demographics` (12), and
+the topic tutorials (13–16). A new tutorial must set an `ordering`. Because `ordering` controls the sequence,
 folder names carry no numeric prefix (the r4ds folders were renamed from `01-r4ds-1` …
 `05-r4ds-5` to `r4ds-1` … `r4ds-5` in October 2026).
 

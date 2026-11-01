@@ -413,7 +413,7 @@ Of the 40 players in the "Superstar" tier, 12 came from the "#1–10" group, but
 
 Add a new code chunk to your QMD that creates a bar chart from `basketball_tibble` showing the proportion of players in each career tier broken down by recruit group, with recruit groups on the y-axis and career tier as the fill color. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: basketball-recruits-9
@@ -632,21 +632,15 @@ You read a spreadsheet of top-ranked high school basketball recruits with **read
 
 ### Exercise 1
 
-Render. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot.
+Render one last time. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab - the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -654,73 +648,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Analyzing NBA Recruits"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(readxl)
+```{.output}
+https://github.com/your-username/nba-recruits/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-basketball_tibble <- read_excel("data/nba_recruits.xlsx") |>
-  mutate(
-    tier = factor(
-      tier,
-      levels = c("Never played", "Brief career", "Solid career",
-                 "All-Star level", "Superstar")
-    ),
-    recruit_group = factor(
-      recruit_group,
-      levels = c("#1–10", "#11–25", "#26–50", "#51–100", "Outside top 100")
-    )
-  )
-```
-
-```{r}
-basketball_tibble |>
-  filter(!is.na(rank), !is.na(top_mean_wa)) |>
-  ggplot(aes(x = rank, y = top_mean_wa, color = tier)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm", se = FALSE, color = "black", linewidth = 0.5) +
-  geom_text(
-    data = \(d) d |> filter(name %in% c("LeBron James", "Kevin Durant",
-                                        "Klay Thompson")),
-    aes(label = name),
-    nudge_y = 1.2, hjust = 0,
-    size = 3, show.legend = FALSE
-  ) +
-  geom_text(
-    data = \(d) d |> filter(name %in% c("Draymond Green", "Gilbert Arenas")),
-    aes(label = name),
-    nudge_y = 1.2, hjust = 1,
-    size = 3, show.legend = FALSE
-  ) +
-  scale_color_manual(values = c(
-    "Never played"   = "gray80",
-    "Brief career"   = "#74add1",
-    "Solid career"   = "#fee090",
-    "All-Star level" = "#f46d43",
-    "Superstar"      = "#d73027"
-  )) +
-  labs(
-    title = "Does High School Recruit Rank Predict NBA Stardom?",
-    subtitle = "Among players who reached the NBA — rank predicts average careers but not superstars",
-    x = "High school recruit rank (1 = top recruit)",
-    y = "Peak Wins Added (best 5-season average)",
-    color = "Career level",
-    caption = "Source: The Pudding, 2019"
-  ) +
-  theme_minimal()
-```
-````
 
 ###
 
@@ -770,26 +700,6 @@ Your answer is the URL on the last line: `https://your-username.github.io/nba-re
 ###
 
 The published page carries one finding: high school recruit rank predicts whether a player reaches the NBA, but not how good he becomes once there. A top-10 recruit was drafted 84% of the time, yet 8 of the 40 superstars were never ranked in the top 100.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/nba-recruits
-```
 
 ###
 

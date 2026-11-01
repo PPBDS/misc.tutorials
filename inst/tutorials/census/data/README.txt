@@ -1,9 +1,13 @@
 census tutorial data: Web API cache
 
-income_tx.rds, edu_state.rds, age_ca.rds
-  American Community Survey (ACS) 5-year estimates pulled once with
+income_tx.rds
+  American Community Survey (ACS) 2016-2020 5-year estimates pulled once with
   tidycensus::get_acs() and cached so the tutorial renders without hitting the
-  Census API. The exact get_acs() calls are recorded (commented) in the census
-  tutorial's setup chunk: median household income by TX county (income_tx),
-  educational attainment by state-level geography (edu_state), and median age + population by
-  CA county (age_ca).
+  Census API: median household income (B19013_001) by Texas county, with
+  county geometry. The exact get_acs() call is recorded (commented) in the
+  tutorial's setup chunk. Students make the live call in their own
+  analysis.qmd.
+
+  edu_state.rds and age_ca.rds, formerly here, moved to the demographics
+  tutorial (inst/tutorials/demographics/data/) when census was split in two in
+  October 2026.

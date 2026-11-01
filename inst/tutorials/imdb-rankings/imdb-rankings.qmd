@@ -787,7 +787,7 @@ films appear in both the 2015 and 2022 snapshots).
 
 Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: movie-rankings-14
@@ -886,21 +886,15 @@ You learned about web scraping, functions, and iteration using core packages suc
 
 ### Exercise 1
 
-Render. Check your Live Server tab.
+Render one last time. Check your Live Server tab. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check your Live Server tab. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -908,89 +902,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "IMDb Rankings"
-author: Your Name
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(rvest)
-library(httr2)
-library(purrr)
+```{.output}
+https://github.com/your-username/imdb-rankings/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-snap_urls <- c(
-  "https://web.archive.org/web/20150101/https://www.imdb.com/chart/top/",
-  "https://web.archive.org/web/20170101/https://www.imdb.com/chart/top/",
-  "https://web.archive.org/web/20190101/https://www.imdb.com/chart/top/",
-  "https://web.archive.org/web/20210101/https://www.imdb.com/chart/top/",
-  "https://web.archive.org/web/20220201012049/https://www.imdb.com/chart/top/"
-)
-snap_years <- c(2015, 2017, 2019, 2021, 2022)
-
-scrape_snapshot <- function(url, snap_year) {
-  page      <- request(url) |>
-    req_timeout(60) |>
-    req_retry(max_tries = 3, backoff = ~ 5) |>
-    req_perform() |>
-    resp_body_html()
-  tbl       <- page |> html_element("table") |> html_table()
-  attr_vals <- page |> html_elements("td strong") |> html_attr("title")
-  tbl |>
-    select(rank_title_year = `Rank & Title`, rating = `IMDb Rating`) |>
-    mutate(
-      rank_title_year = str_replace_all(rank_title_year, "\n +", " "),
-      number = str_extract(attr_vals, "(?<=based on )[0-9,]+") |>
-        parse_number()
-    ) |>
-    separate_wider_regex(
-      rank_title_year,
-      patterns = c(rank = "\\d+", "\\. ", title = ".+", " +\\(", year = "\\d+", "\\)")
-    ) |>
-    mutate(rank = as.integer(rank), year = as.integer(year), snap_year = snap_year) |>
-    select(snap_year, rank, title, year, rating, number)
-}
-
-imdb_snapshots <- map2(snap_urls, snap_years, scrape_snapshot) |>
-  list_rbind()
-```
-
-```{r}
-imdb_snapshots |>
-  filter(snap_year %in% c(2015, 2022)) |>
-  select(snap_year, title, year, rank) |>
-  pivot_wider(names_from = snap_year, values_from = rank, names_prefix = "rank_") |>
-  drop_na() |>
-  mutate(
-    rank_change = rank_2015 - rank_2022,
-    decade = paste0(floor(year / 10) * 10, "s")
-  ) |>
-  group_by(decade) |>
-  summarise(avg_change = mean(rank_change), .groups = "drop") |>
-  mutate(direction = if_else(avg_change > 0, "Rose", "Fell")) |>
-  ggplot(aes(x = avg_change, y = decade, fill = direction)) +
-  geom_col() +
-  geom_vline(xintercept = 0, linewidth = 0.8) +
-  scale_fill_manual(values = c("Rose" = "#2a9d8f", "Fell" = "#e76f51")) +
-  labs(
-    title = "Classic Films Slide, 1990s Films Hold Steady",
-    subtitle = "Average rank change in the IMDb Top 250, 2015 to 2022",
-    x = "Average rank change (positive = rose)",
-    y = "Film release decade",
-    fill = NULL,
-    caption = "Films appearing in both 2015 and 2022 snapshots. n = 190 films."
-  ) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
-````
 
 ###
 
@@ -1038,26 +952,6 @@ Your answer is the URL on the last line: `https://your-username.github.io/imdb-r
 ###
 
 The five snapshots form panel data: the same films observed at multiple points in time. A single snapshot can only rank films. Five let you ask which aged well, which fell off, and how taste shifted over seven years.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/imdb-rankings
-```
 
 ###
 

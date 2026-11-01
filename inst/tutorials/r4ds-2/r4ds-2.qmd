@@ -421,7 +421,7 @@ This summary collapses 7,670 daily observations into 366 cells (one per calendar
 
 Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render.
 
-Take a screenshot of the plot in your rendered page and paste it below. To take a screenshot, press `Cmd + Ctrl + Shift + 4` on a Mac, `Win + Shift + S` on Windows, or `Ctrl + Shift + Show windows` on a Chromebook, select the area, then click in the answer box and press `Cmd + V` (Mac) or `Ctrl + V` (Windows) to paste it.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
 #| label: births-9
@@ -769,21 +769,15 @@ You learned about working with tabular data from Excel files using **readxl** an
 
 ### Exercise 1
 
-Render. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot.
+Render one last time. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push.
 
-In the R Terminal, run:
-
-```r
-show_file("analysis.qmd")
-```
-
-CP/CR.
+Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
 ```{r}
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Render one last time. Check your Live Server tab - the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -791,65 +785,9 @@ learnr2::question(
 
 ###
 
-````{verbatim}
----
-title: "Analyzing US Births"
-author: <your name>
-execute:
-  echo: false
----
-
-```{r}
-#| message: false
-library(tidyverse)
-library(readxl)
+```{.output}
+https://github.com/your-username/r4ds-2/blob/main/analysis.qmd
 ```
-
-```{r}
-#| cache: true
-births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
-  mutate(
-    day_of_week = factor(
-      day_of_week,
-      levels = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"),
-      ordered = TRUE
-    )
-  )
-```
-
-```{r}
-births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
-                   data = births_tibble)
-
-births_adjusted <- births_tibble |>
-  mutate(pct_resid = resid(births_model) / mean(births) * 100)
-
-calendar_resid <- births_adjusted |>
-  filter(!(month == 2 & date_of_month == 29)) |>
-  group_by(month, date_of_month) |>
-  summarize(mean_pct_resid = mean(pct_resid), .groups = "drop") |>
-  mutate(calendar_date = as.Date(paste("2001", month, date_of_month,
-                                       sep = "-")))
-
-calendar_resid |>
-  ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
-  geom_hline(yintercept = 0, color = "gray60") +
-  geom_line(linewidth = 0.4) +
-  annotate("text", x = as.Date("2001-01-01"), y = -21, label = "Jan. 1",  size = 3, hjust = 0.2) +
-  annotate("text", x = as.Date("2001-07-04"), y = -23, label = "July 4",  size = 3, hjust = 0.5) +
-  annotate("text", x = as.Date("2001-12-25"), y = -36, label = "Dec. 25", size = 3, hjust = 1) +
-  scale_x_date(date_labels = "%b.", date_breaks = "3 months") +
-  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
-  labs(
-    title = "Fewer Babies Are Born on Holidays",
-    subtitle = "US births relative to year-, month-, and weekday-adjusted baseline (1994–2014)",
-    x = NULL,
-    y = "% vs. adjusted baseline",
-    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
-  ) +
-  theme_minimal()
-```
-````
 
 ###
 
@@ -899,26 +837,6 @@ Your answer is the URL on the last line: `https://your-username.github.io/r4ds-2
 ###
 
 The published page carries one finding: births on December 25 run about 39 percentage points below the year-, month-, and weekday-adjusted baseline, with Christmas Eve and July 4 (both about −26) and New Year's Day (−24) the next-deepest dips.
-
-### Exercise 3
-
-Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.
-
-```{r}
-#| label: summary-3
-#| echo: false
-learnr2::question(
-  "Commit and push any remaining changes. Copy/paste the URL to your GitHub repo.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-https://github.com/your-username/r4ds-2
-```
 
 ###
 
