@@ -1,5 +1,5 @@
 ---
-title: IMDb Rankings
+title: R4DS 10
 author: David Kane
 description: 'Scraping five Wayback Machine snapshots of the IMDb Top 250 with httr2 and rvest, wrapping the scrape in a function and iterating it across years with purrr, and charting which decades of film rose or fell between 2015 and 2022.'
 format: live-html
@@ -37,7 +37,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `imdb-rankings`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-10`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"IMDb Rankings"` and your name as the author. In a bash Terminal, render it:
 
@@ -63,7 +63,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named imdb-rankings. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-10. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -141,7 +141,7 @@ The rating is the element's text. The vote count hides in its `title` attribute.
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `imdb-rankings` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-10` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -149,7 +149,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the imdb-rankings repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-10 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -219,7 +219,7 @@ Download the dataset into your `data/` directory. The file is `imdb_snapshots.rd
 the URL is:
 
 ```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-10/data/imdb_snapshots.rds
 ```
 
 Then, in a new chunk, read `data/imdb_snapshots.rds` into a tibble called `imdb_snapshots`. Print it, then print a count of rows per snapshot year.
@@ -238,7 +238,7 @@ CP/CR.
 #| label: movie-rankings-1
 #| echo: false
 learnr2::question(
-  "Download the dataset into your data/ directory. The file is imdb_snapshots.rds and the URL is: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/imdb-rankings/data/imdb_snapshots.rds Then, in a new chunk, read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Download the dataset into your data/ directory. The file is imdb_snapshots.rds and the URL is: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-10/data/imdb_snapshots.rds Then, in a new chunk, read data/imdb_snapshots.rds into a tibble called imdb_snapshots. Print it, then print a count of rows per snapshot year. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -903,7 +903,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/imdb-rankings/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-10/blob/main/analysis.qmd
 ```
 
 ###
@@ -933,7 +933,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/imdb-rankings/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-10/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -942,12 +942,12 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/imdb-rankings.git
+To https://github.com/your-username/r4ds-10.git
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/imdb-rankings/
+[✓] Published to https://your-username.github.io/r4ds-10/
 ```
 
-Your answer is the URL on the last line: `https://your-username.github.io/imdb-rankings/`.
+Your answer is the URL on the last line: `https://your-username.github.io/r4ds-10/`.
 
 ###
 
@@ -975,5 +975,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "imdb-rankings")
+learnr2::download_answers_button(filename_prefix = "r4ds-10")
 ```

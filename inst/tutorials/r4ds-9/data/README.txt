@@ -1,4 +1,4 @@
-r4ds-5 tutorial data: Spatial JSON
+r4ds-9 tutorial data: Spatial JSON
 
 wildfires.geojson
   Finalized wildfire perimeter polygons from the NIFC

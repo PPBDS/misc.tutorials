@@ -1,4 +1,4 @@
-music tutorial data: Delimited files (CSV)
+r4ds-2 tutorial data: Delimited files (CSV)
 
 music.csv
   10,000-song sample from the Million Song Dataset via CORGIS

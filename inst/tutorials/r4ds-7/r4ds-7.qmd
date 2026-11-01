@@ -1,5 +1,5 @@
 ---
-title: R4DS 4
+title: R4DS 7
 author: David Kane
 description: "Arrow / Parquet files: cryptocurrency market composition"
 format: live-html
@@ -36,7 +36,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-4`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-7`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Crypto Markets"` and your name as the author. In a bash Terminal, render it:
 
@@ -126,7 +126,7 @@ library(arrow)
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-4` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-7` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -134,7 +134,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the r4ds-4 repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-7 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -162,9 +162,9 @@ In this section you will join three parquet files — daily prices, coin metadat
 
 Download the three crypto parquet files into your `data/` directory so the analysis can run locally and reproducibly. Use these stable URLs:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/daily_prices.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/coin_metadata.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/categories.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/daily_prices.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/coin_metadata.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/categories.parquet`
 
 In the bash Terminal, run:
 
@@ -178,7 +178,7 @@ CP/CR.
 #| label: crypto-markets-1
 #| echo: false
 learnr2::question(
-  "Download the three crypto parquet files into your data/ directory so the analysis can run locally and reproducibly. Use these stable URLs: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/daily_prices.parquet https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/coin_metadata.parquet https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-4/data/categories.parquet In the bash Terminal, run: ls data CP/CR.",
+  "Download the three crypto parquet files into your data/ directory so the analysis can run locally and reproducibly. Use these stable URLs: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/daily_prices.parquet https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/coin_metadata.parquet https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-7/data/categories.parquet In the bash Terminal, run: ls data CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -888,7 +888,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/r4ds-4/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-7/blob/main/analysis.qmd
 ```
 
 ###
@@ -918,7 +918,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/r4ds-4/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-7/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -927,15 +927,15 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/r4ds-4.git
+To https://github.com/your-username/r4ds-7.git
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/r4ds-4/
+[✓] Published to https://your-username.github.io/r4ds-7/
 ```
 
 Your answer is the last line's URL:
 
 ```{.output}
-https://your-username.github.io/r4ds-4/
+https://your-username.github.io/r4ds-7/
 ```
 
 ###
@@ -964,5 +964,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-4")
+learnr2::download_answers_button(filename_prefix = "r4ds-7")
 ```

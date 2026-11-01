@@ -1,4 +1,4 @@
-census tutorial data: Web API cache
+census-1 tutorial data: Web API cache
 
 income_tx.rds
   American Community Survey (ACS) 2016-2020 5-year estimates pulled once with
@@ -8,6 +8,6 @@ income_tx.rds
   tutorial's setup chunk. Students make the live call in their own
   analysis.qmd.
 
-  edu_state.rds and age_ca.rds, formerly here, moved to the demographics
-  tutorial (inst/tutorials/demographics/data/) when census was split in two in
+  edu_state.rds and age_ca.rds, formerly here, moved to the census-2
+  tutorial (inst/tutorials/census-2/data/) when census was split in two in
   October 2026.

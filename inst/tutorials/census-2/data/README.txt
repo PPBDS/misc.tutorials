@@ -1,4 +1,4 @@
-demographics tutorial data: Web API cache
+census-2 tutorial data: Web API cache
 
 edu_state.rds, age_ca.rds
   American Community Survey (ACS) 2016-2020 5-year estimates pulled once with

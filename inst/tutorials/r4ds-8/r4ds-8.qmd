@@ -1,5 +1,5 @@
 ---
-title: Prediction Markets
+title: R4DS 8
 author: David Kane
 description: 'Students join four parquet files covering 800 resolved Manifold Markets
   questions and 43,694 daily probability snapshots to ask whether crowd forecasts get
@@ -39,7 +39,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `prediction-markets`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-8`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Prediction Markets"` and your name as the author. In a bash Terminal, render it:
 
@@ -129,7 +129,7 @@ Parquet stores a table column-by-column rather than row-by-row, so a query that 
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `prediction-markets` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-8` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -137,7 +137,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the prediction-markets repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-8 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -161,8 +161,8 @@ In this section you will join four parquet files representing 800 resolved marke
 
 Get the two core prediction-market files, `markets.parquet` and `history.parquet`, into `data/` so the analysis can run locally. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/markets.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/history.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/markets.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/history.parquet`
 
 In a new code chunk, print the schema of `history.parquet` without loading it into memory. Render.
 
@@ -178,7 +178,7 @@ CP/CR.
 #| label: crowd-1
 #| echo: false
 learnr2::question(
-  "Get the two core prediction-market files, markets.parquet and history.parquet, into data/ so the analysis can run locally. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/markets.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/history.parquet. In a new code chunk, print the schema of history.parquet without loading it into memory. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Get the two core prediction-market files, markets.parquet and history.parquet, into data/ so the analysis can run locally. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/markets.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/history.parquet. In a new code chunk, print the schema of history.parquet without loading it into memory. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -241,8 +241,8 @@ The row count does not change: this is a one-to-many join, with one market row m
 
 Get the two topic-classification files, `groups.parquet` and `market_groups.parquet`, into `data/`. The stable URLs are:
 
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/groups.parquet`
-`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/market_groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/groups.parquet`
+`https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/market_groups.parquet`
 
 Keep the code that defines `markets` and `joined`. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to `markets`. Render.
 
@@ -258,7 +258,7 @@ CP/CR.
 #| label: crowd-3
 #| echo: false
 learnr2::question(
-  "Get the two topic-classification files, groups.parquet and market_groups.parquet, into data/. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/groups.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/prediction-markets/data/market_groups.parquet. Keep the code that defines markets and joined. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to markets. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "Get the two topic-classification files, groups.parquet and market_groups.parquet, into data/. The stable URLs are https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/groups.parquet and https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-8/data/market_groups.parquet. Keep the code that defines markets and joined. Load the two topic files in the same chunk and inspect their structure: column types, a few example values, and row counts. Use that output to work out how these tables relate to markets. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -864,7 +864,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/prediction-markets/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-8/blob/main/analysis.qmd
 ```
 
 ###
@@ -894,10 +894,10 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/prediction-markets/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-8/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 [gh-pages (root-commit) 0e5631c] Initializing gh-pages branch
-To https://github.com/your-username/prediction-markets.git
+To https://github.com/your-username/r4ds-8.git
  * [new branch]      HEAD -> gh-pages
 Switched to branch 'main'
 Rendering for publish:
@@ -908,11 +908,11 @@ output file: analysis.knit.md
 Output created: analysis.html
 
 [gh-pages 9c1d2a4] Built site for gh-pages
-To https://github.com/your-username/prediction-markets.git
+To https://github.com/your-username/r4ds-8.git
    0e5631c..9c1d2a4  HEAD -> gh-pages
 
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/prediction-markets/
+[✓] Published to https://your-username.github.io/r4ds-8/
 ```
 
 ###
@@ -941,5 +941,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "prediction-markets")
+learnr2::download_answers_button(filename_prefix = "r4ds-8")
 ```

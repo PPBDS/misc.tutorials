@@ -1,4 +1,4 @@
-nba-recruits tutorial data: Spreadsheets (Excel)
+r4ds-4 tutorial data: Spreadsheets (Excel)
 
 nba_recruits.xlsx
   Top-ranked high school basketball recruits (1998–2013 draft classes) and
@@ -23,10 +23,10 @@ nba_recruits.xlsx
            recruit_group, nba_mean_ws48, top_mean_wa,
            total_seasons, tier)
 
-  dir.create("inst/tutorials/nba-recruits/data", recursive = TRUE,
+  dir.create("inst/tutorials/r4ds-4/data", recursive = TRUE,
              showWarnings = FALSE)
   writexl::write_xlsx(nba_recruits,
-    "inst/tutorials/nba-recruits/data/nba_recruits.xlsx")
+    "inst/tutorials/r4ds-4/data/nba_recruits.xlsx")
 
-  The file was first written to inst/tutorials/r4ds-2/data/ and moved here
+  The file was first written to inst/tutorials/r4ds-3/data/ and moved here
   unchanged when the basketball section became its own tutorial.

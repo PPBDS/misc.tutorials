@@ -50,7 +50,7 @@ Use AI however you like throughout. An agentic coding tool works best, since it 
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `demographics`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Census Demographics"`) and your name as author. In a bash Terminal, run:
+You should be doing this tutorial in a repo named `census-2`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Census Demographics"`) and your name as author. In a bash Terminal, run:
 
 ```bash
 quarto render analysis.qmd
@@ -74,7 +74,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named demographics. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Census Demographics\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  "You should be doing this tutorial in a repo named census-2. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Census Demographics\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -138,7 +138,7 @@ library(tidycensus)
 
 ### Exercise 3
 
-Every call to `get_acs()` needs a Census API key. If you did the `census` tutorial on this machine, the key is still in your `.Renviron` file. In a new Codespace it is gone, and you need to install it again. If you have never had a key, sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) and click the activation link in the email that arrives.
+Every call to `get_acs()` needs a Census API key. If you did the `census-1` tutorial on this machine, the key is still in your `.Renviron` file. In a new Codespace it is gone, and you need to install it again. If you have never had a key, sign up for a free one at the [Census API key signup page](https://api.census.gov/data/key_signup.html) and click the activation link in the email that arrives.
 
 In the R Terminal, run (with your own key in place of `"YOUR-KEY-HERE"`):
 
@@ -708,7 +708,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/demographics/blob/main/analysis.qmd
+https://github.com/your-username/census-2/blob/main/analysis.qmd
 ```
 
 ###
@@ -738,7 +738,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/demographics/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/census-2/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -747,10 +747,10 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/demographics.git
+To https://github.com/your-username/census-2.git
 ...
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/demographics/
+[✓] Published to https://your-username.github.io/census-2/
 ```
 
 ###
@@ -779,5 +779,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "demographics")
+learnr2::download_answers_button(filename_prefix = "census-2")
 ```

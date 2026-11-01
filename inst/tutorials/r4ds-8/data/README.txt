@@ -1,7 +1,7 @@
-prediction-markets tutorial data: Arrow / Parquet
+r4ds-8 tutorial data: Arrow / Parquet
 
-Split out of the r4ds-4 tutorial in August 2026, when the prediction-market
-half became its own tutorial. The crypto files stayed with r4ds-4.
+Split out of the r4ds-7 tutorial in August 2026, when the prediction-market
+half became its own tutorial. The crypto files stayed with r4ds-7.
 
 markets.parquet         800 rows x 11 cols
   market_id             chr    Manifold internal market identifier

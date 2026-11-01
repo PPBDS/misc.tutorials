@@ -1,12 +1,12 @@
 ---
-title: R4DS 2
+title: R4DS 3
 author: David Kane
 description: 'This tutorial for "R for Data Science" covers Chapter 20: Spreadsheets, Chapter 9: Layers, Chapter 10: Exploratory Data Analysis, and Chapter 11: Communication. Students read FiveThirtyEight daily US birth counts (1994–2014) from an Excel file with readxl, cache the cleaned tibble, build a calendar heatmap with geom_tile(), discover how the weekday confounds a year-by-year comparison of Christmas births, and fit a linear model whose residuals reproduce the FiveThirtyEight holiday chart.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 2
+  ordering: 3
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -45,7 +45,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. All lowercase: `r4ds-2`, not `R4DS-2` — every path and URL below assumes it.
+You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it. All lowercase: `r4ds-3`, not `R4DS-2` — every path and URL below assumes it.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births"`) and your name as author. In a bash Terminal, run:
 
@@ -71,7 +71,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. All lowercase: r4ds-2, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. All lowercase: r4ds-3, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -138,7 +138,7 @@ In the R Terminal, run these three commands:
 `dir.create("data")`  
 `list.files()`  
 
-This will create a `data` directory in your project. This is a good place to store any data that you are working with. If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-2` folder before going on.
+This will create a `data` directory in your project. This is a good place to store any data that you are working with. If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-3` folder before going on.
 
 We will soon stop giving you commands like these and just have AI do it.
 
@@ -148,7 +148,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "In the R Terminal, run these three commands: getwd() dir.create(\"data\") list.files() This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else. Move it into the r4ds-2 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
+  "In the R Terminal, run these three commands: getwd() dir.create(\"data\") list.files() This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else. Move it into the r4ds-3 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -158,7 +158,7 @@ learnr2::question(
 
 ```{.output}
 > getwd()
-[1] "/workspaces/r4ds-2"
+[1] "/workspaces/r4ds-3"
 > dir.create("data")
 > list.files()
 [1] "AGENTS.md"      "analysis.html"  "analysis.qmd"   "analysis_files" "data"
@@ -183,7 +183,7 @@ Download the Excel file `us_births_1994_2014.xlsx` into your `data/` directory. 
 
 ```r
 download.file(
-  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx",
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/us_births_1994_2014.xlsx",
   "data/us_births_1994_2014.xlsx",
   mode = "wb"
 )
@@ -203,7 +203,7 @@ CP/CR.
 #| label: births-1
 #| echo: false
 learnr2::question(
-  "Download the Excel file us_births_1994_2014.xlsx into your data/ directory. In the R Terminal, run: download.file(\"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx\", \"data/us_births_1994_2014.xlsx\", mode = \"wb\") Excel .xlsx files are binary, not plain text, which is why download.file() needs mode = \"wb\" (\"write binary\"). In a bash Terminal, run: ls data CP/CR.",
+  "Download the Excel file us_births_1994_2014.xlsx into your data/ directory. In the R Terminal, run: download.file(\"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/us_births_1994_2014.xlsx\", \"data/us_births_1994_2014.xlsx\", mode = \"wb\") Excel .xlsx files are binary, not plain text, which is why download.file() needs mode = \"wb\" (\"write binary\"). In a bash Terminal, run: ls data CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -786,7 +786,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/r4ds-2/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-3/blob/main/analysis.qmd
 ```
 
 ###
@@ -816,7 +816,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/r4ds-2/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-3/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -827,12 +827,12 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/r4ds-2.git
+To https://github.com/your-username/r4ds-3.git
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/r4ds-2/
+[✓] Published to https://your-username.github.io/r4ds-3/
 ```
 
-Your answer is the URL on the last line: `https://your-username.github.io/r4ds-2/`.
+Your answer is the URL on the last line: `https://your-username.github.io/r4ds-3/`.
 
 ###
 
@@ -860,5 +860,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-2")
+learnr2::download_answers_button(filename_prefix = "r4ds-3")
 ```

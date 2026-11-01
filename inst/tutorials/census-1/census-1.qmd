@@ -44,7 +44,7 @@ Use AI however you like throughout. An agentic coding tool works best, since it 
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `census`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Mapping Census Data"`) and your name as author. In a bash Terminal, run:
+You should be doing this tutorial in a repo named `census-1`. If you are not, create one and then connect to it. Create a new file and save it as `analysis.qmd`. Add a YAML header with a title (`"Mapping Census Data"`) and your name as author. In a bash Terminal, run:
 
 ```bash
 quarto render analysis.qmd
@@ -68,7 +68,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named census. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Mapping Census Data\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
+  "You should be doing this tutorial in a repo named census-1. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header with a title (\"Mapping Census Data\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd. Open analysis.html by right-clicking it in the Explorer and selecting Open with Live Server. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -624,7 +624,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/census/blob/main/analysis.qmd
+https://github.com/your-username/census-1/blob/main/analysis.qmd
 ```
 
 ###
@@ -654,7 +654,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/census/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/census-1/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -663,10 +663,10 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/census.git
+To https://github.com/your-username/census-1.git
 ...
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/census/
+[✓] Published to https://your-username.github.io/census-1/
 ```
 
 ###
@@ -675,7 +675,7 @@ Both maps on your published page draw on the same ACS 5-year window, the 2016–
 
 ###
 
-The workflow you used here — **tidycensus** to pull ACS data with its boundaries, **sf** to hold the geometry, and **ggplot2** to draw it — is the standard modern approach to US Census analysis. From here, Walker's book goes on to time-series comparisons, spatial statistics, and modeling, all built on the same foundation. The `demographics` tutorial picks up with ACS tables that need no map.
+The workflow you used here — **tidycensus** to pull ACS data with its boundaries, **sf** to hold the geometry, and **ggplot2** to draw it — is the standard modern approach to US Census analysis. From here, Walker's book goes on to time-series comparisons, spatial statistics, and modeling, all built on the same foundation. The `census-2` tutorial picks up with ACS tables that need no map.
 
 ## Download answers
 
@@ -695,5 +695,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "census")
+learnr2::download_answers_button(filename_prefix = "census-1")
 ```

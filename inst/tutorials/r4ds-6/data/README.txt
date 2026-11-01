@@ -1,4 +1,4 @@
-time-use tutorial data: Databases (DuckDB)
+r4ds-6 tutorial data: Databases (DuckDB)
 
 atus.duckdb
   Time-diary microdata from the Bureau of Labor Statistics American Time Use

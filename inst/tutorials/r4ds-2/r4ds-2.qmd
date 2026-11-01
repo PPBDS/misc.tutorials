@@ -1,12 +1,12 @@
 ---
-title: Music
+title: R4DS 2
 author: David Kane
 description: 'Explores a 10,000-song sample of the Million Song Dataset from CORGIS. Students download the CSV, cache the parse, discover that the file uses 0 to mean "missing" in text columns, release years, and coordinates, map the artists and watch the unknown ones pile up at Null Island, then filter them out for an honest map of where the data actually comes from.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 3
+  ordering: 2
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -38,7 +38,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `music`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and your name as the author. In a bash Terminal, render it:
 
@@ -64,7 +64,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named music. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -133,7 +133,7 @@ library(maps)
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `music` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-2` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -141,7 +141,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the music repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-2 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -166,7 +166,7 @@ The **music** CSV file comes from a teaching version of the [Million Song Datase
 Download `music.csv` from this URL and save it in your `data/` directory:
 
 ```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/music/data/music.csv
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/music.csv
 ```
 
 In the bash Terminal, run `ls data`.
@@ -177,7 +177,7 @@ CP/CR.
 #| label: million-song-dataset-1
 #| echo: false
 learnr2::question(
-  "Download music.csv from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/music/data/music.csv In the bash Terminal, run ls data. CP/CR.",
+  "Download music.csv from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/music.csv In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -715,7 +715,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/music/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-2/blob/main/analysis.qmd
 ```
 
 ###
@@ -745,7 +745,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/music/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-2/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -754,16 +754,16 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/music.git
+To https://github.com/your-username/r4ds-2.git
 ...
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/music/
+[✓] Published to https://your-username.github.io/r4ds-2/
 ```
 
 The URL on the last line is your answer:
 
 ```{.output}
-https://your-username.github.io/music/
+https://your-username.github.io/r4ds-2/
 ```
 
 ###
@@ -796,5 +796,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "music")
+learnr2::download_answers_button(filename_prefix = "r4ds-2")
 ```

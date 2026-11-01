@@ -1,5 +1,5 @@
 ---
-title: R4DS 3
+title: R4DS 5
 author: David Kane and Alec Rogers
 description: 'Students use DuckDB and dbplyr to analyze the Stanford Education Data
   Archive (SEDA), featured in the New York Times: reading scores across 13,000 US
@@ -65,7 +65,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
 
@@ -91,7 +91,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -152,7 +152,7 @@ library(dbplyr)
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-3` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -160,7 +160,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the r4ds-3 repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-5 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -194,7 +194,7 @@ Download the DuckDB database `seda_2025.duckdb` from this URL and save it in you
 `data/` directory:
 
 ```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/seda_2025.duckdb
 ```
 
 In the bash Terminal, run `ls data`.
@@ -205,7 +205,7 @@ CP/CR.
 #| label: us-education-1
 #| echo: false
 learnr2::question(
-  "Download the DuckDB database seda_2025.duckdb from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb In the bash Terminal, run ls data. CP/CR.",
+  "Download the DuckDB database seda_2025.duckdb from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/seda_2025.duckdb In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -701,7 +701,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/<your-github-username>/r4ds-3/blob/main/analysis.qmd
+https://github.com/<your-github-username>/r4ds-5/blob/main/analysis.qmd
 ```
 
 ###
@@ -731,7 +731,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://<your-github-username>.github.io/r4ds-3/ using gh-pages? (Y/n) › Yes
+? Publish site to https://<your-github-username>.github.io/r4ds-5/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -740,10 +740,10 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/<your-github-username>/r4ds-3.git
+To https://github.com/<your-github-username>/r4ds-5.git
 ...
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://<your-github-username>.github.io/r4ds-3/
+[✓] Published to https://<your-github-username>.github.io/r4ds-5/
 ```
 
 ###
@@ -772,5 +772,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-3")
+learnr2::download_answers_button(filename_prefix = "r4ds-5")
 ```

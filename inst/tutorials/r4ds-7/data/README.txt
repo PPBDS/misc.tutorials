@@ -1,4 +1,4 @@
-r4ds-4 tutorial data: Arrow / Parquet (crypto markets)
+r4ds-7 tutorial data: Arrow / Parquet (crypto markets)
 
 daily_prices.parquet
 coin_metadata.parquet

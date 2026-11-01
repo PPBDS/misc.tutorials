@@ -1,4 +1,4 @@
-r4ds-2 tutorial data: Spreadsheets (Excel)
+r4ds-3 tutorial data: Spreadsheets (Excel)
 
 us_births_1994_2014.xlsx
   US daily birth counts, 1994–2014. One row per calendar day; five columns:
@@ -30,4 +30,4 @@ us_births_1994_2014.xlsx
     arrange(year, month, date_of_month)
 
   writexl::write_xlsx(births,
-    "inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx")
+    "inst/tutorials/r4ds-3/data/us_births_1994_2014.xlsx")

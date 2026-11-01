@@ -1,4 +1,4 @@
-r4ds-3 tutorial data: Databases (DuckDB)
+r4ds-5 tutorial data: Databases (DuckDB)
 
 seda_2025.duckdb
   District and state reading/math achievement scores from the Stanford Education

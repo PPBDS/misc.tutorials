@@ -1,4 +1,4 @@
-imdb-rankings tutorial data: Scraped HTML
+r4ds-10 tutorial data: Scraped HTML
 
 imdb_snapshots.rds
   IMDb Top 250 panel data from five Wayback Machine snapshots (2015–2022).
@@ -19,5 +19,5 @@ imdb_snapshots.rds
   + html_elements("td strong") -> html_attr("title") -> separate_wider_regex() ->
   str_extract() for vote counts -> purrr::map2() across 5 URLs -> list_rbind().
 
-  Moved here from inst/tutorials/r4ds-5/data/ in October 2026 when the movie
+  Moved here from inst/tutorials/r4ds-9/data/ in October 2026 when the movie
   rankings topic was split out of R4DS 5 into its own tutorial.

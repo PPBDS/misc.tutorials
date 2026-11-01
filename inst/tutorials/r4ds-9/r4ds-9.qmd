@@ -1,5 +1,5 @@
 ---
-title: R4DS 5
+title: R4DS 9
 author: David Kane
 description: 'Rectangling the nested GeoJSON of 883 western US wildfire perimeters into a tidy table with jsonlite, tidyr, and purrr, then charting 33 years of burned acreage and mapping the largest fire boundaries with leaflet.'
 format: live-html
@@ -65,7 +65,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-9`. If you are not, create one and then connect to it.
 
 Create a new file, `analysis.qmd`, with the title `"Wildfires"` and your name as the author. In a bash Terminal, render it:
 
@@ -91,7 +91,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-9. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -170,7 +170,7 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-9` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -178,7 +178,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the r4ds-5 repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-9 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -209,7 +209,7 @@ We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) In
 Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
 
 ```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-9/data/wildfires.geojson
 ```
 
 In a bash Terminal, run:
@@ -224,7 +224,7 @@ CP/CR.
 #| label: wildfire-perimeters-1
 #| echo: false
 learnr2::question(
-  "Download the file wildfires.geojson from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson In a bash Terminal, run: ls data CP/CR.",
+  "Download the file wildfires.geojson from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-9/data/wildfires.geojson In a bash Terminal, run: ls data CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -785,7 +785,7 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/r4ds-5/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-9/blob/main/analysis.qmd
 ```
 
 ###
@@ -815,7 +815,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/r4ds-5/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-9/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -824,12 +824,12 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/r4ds-5.git
+To https://github.com/your-username/r4ds-9.git
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/r4ds-5/
+[✓] Published to https://your-username.github.io/r4ds-9/
 ```
 
-Your answer is the URL on the last line: `https://your-username.github.io/r4ds-5/`.
+Your answer is the URL on the last line: `https://your-username.github.io/r4ds-9/`.
 
 ###
 
@@ -857,5 +857,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-5")
+learnr2::download_answers_button(filename_prefix = "r4ds-9")
 ```
