@@ -21,7 +21,7 @@ by Kyle Walker."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">misc.tutorials</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,23 +74,25 @@ whose code runs in the browser via WebR.</p>
 extension shows them. The organization differs from the book: each tutorial
 begins by sourcing data from a different sort of storage technology and then
 works with that data.</p><ul><li><p><strong>r4ds-1</strong>: Billboard Hot 100 from a CSV file (data import, data tidying, layers)</p></li>
-<li><p><strong>r4ds-2</strong>: US births from a spreadsheet (spreadsheets, layers, exploratory data analysis, communication)</p></li>
-<li><p><strong>music</strong>: a Million Song Dataset sample from a CSV file (data import, missing values, exploratory data analysis)</p></li>
-<li><p><strong>nba-recruits</strong>: NBA recruits from a spreadsheet (spreadsheets, factors, exploratory data analysis)</p></li>
-<li><p><strong>r4ds-3</strong>: school district test scores from a DuckDB database (databases, logical vectors, numbers)</p></li>
-<li><p><strong>time-use</strong>: the American Time Use Survey from a DuckDB database (databases, dates and times, factors)</p></li>
-<li><p><strong>r4ds-4</strong>: cryptocurrency prices from Parquet files (Arrow, joins, dates and times)</p></li>
-<li><p><strong>prediction-markets</strong>: Manifold prediction markets from Parquet files (Arrow, joins, dates and times)</p></li>
-<li><p><strong>r4ds-5</strong>: wildfire perimeters from GeoJSON (hierarchical data, layers)</p></li>
-<li><p><strong>imdb-rankings</strong>: IMDb Top 250 snapshots scraped from the Wayback Machine (web scraping, functions, iteration)</p></li>
+<li><p><strong>r4ds-2</strong>: a Million Song Dataset sample from a CSV file (data import, missing values, exploratory data analysis)</p></li>
+<li><p><strong>r4ds-3</strong>: US births from a spreadsheet (spreadsheets, layers, exploratory data analysis, communication)</p></li>
+<li><p><strong>r4ds-4</strong>: NBA recruits from a spreadsheet (spreadsheets, factors, exploratory data analysis)</p></li>
+<li><p><strong>r4ds-5</strong>: school district test scores from a DuckDB database (databases, logical vectors, numbers)</p></li>
+<li><p><strong>r4ds-6</strong>: the American Time Use Survey from a DuckDB database (databases, dates and times, factors)</p></li>
+<li><p><strong>r4ds-7</strong>: cryptocurrency prices from Parquet files (Arrow, joins, dates and times)</p></li>
+<li><p><strong>r4ds-8</strong>: Manifold prediction markets from Parquet files (Arrow, joins, dates and times)</p></li>
+<li><p><strong>r4ds-9</strong>: wildfire perimeters from GeoJSON (hierarchical data, layers)</p></li>
+<li><p><strong>r4ds-10</strong>: IMDb Top 250 snapshots scraped from the Wayback Machine (web scraping, functions, iteration)</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="census-data-tutorial">Census Data Tutorial<a class="anchor" aria-label="anchor" href="#census-data-tutorial"></a></h2>
 
 
-<p>The census tutorial covers working with US Census data using the tidycensus
-package, walking through case studies on income, educational attainment, and
-median age, including choropleth maps drawn with ggplot2.</p>
+<p>Two tutorials cover US Census data with the tidycensus package:
+<strong>census-1</strong> maps median household income across Texas counties, and
+the margin of error behind it, with choropleth maps drawn with ggplot2;
+<strong>census-2</strong> charts educational attainment by state and median age by
+California county.</p>
     </div>
     <div class="section level2">
     <h2 id="topic-tutorials">Topic Tutorials<a class="anchor" aria-label="anchor" href="#topic-tutorials"></a></h2>
@@ -108,8 +110,7 @@ website; movies builds a single page.</p>
 
 <p>To run a tutorial, use:
 <code>learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")</code></p>
-<p>Available tutorial names are: r4ds-1, r4ds-2, music, nba-recruits, r4ds-3,
-time-use, r4ds-4, prediction-markets, r4ds-5, imdb-rankings, census,
+<p>Available tutorial names are: r4ds-1 through r4ds-10, census-1, census-2,
 baseball, ducks, sharks, and movies.</p>
     </div>
     <div class="section level2">

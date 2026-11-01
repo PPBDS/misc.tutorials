@@ -26,39 +26,40 @@ technology and then works with that data.
 - **r4ds-1**: Billboard Hot 100 from a CSV file (data import, data
   tidying, layers)
 
-- **r4ds-2**: US births from a spreadsheet (spreadsheets, layers,
+- **r4ds-2**: a Million Song Dataset sample from a CSV file (data
+  import, missing values, exploratory data analysis)
+
+- **r4ds-3**: US births from a spreadsheet (spreadsheets, layers,
   exploratory data analysis, communication)
 
-- **music**: a Million Song Dataset sample from a CSV file (data import,
-  missing values, exploratory data analysis)
+- **r4ds-4**: NBA recruits from a spreadsheet (spreadsheets, factors,
+  exploratory data analysis)
 
-- **nba-recruits**: NBA recruits from a spreadsheet (spreadsheets,
-  factors, exploratory data analysis)
-
-- **r4ds-3**: school district test scores from a DuckDB database
+- **r4ds-5**: school district test scores from a DuckDB database
   (databases, logical vectors, numbers)
 
-- **time-use**: the American Time Use Survey from a DuckDB database
+- **r4ds-6**: the American Time Use Survey from a DuckDB database
   (databases, dates and times, factors)
 
-- **r4ds-4**: cryptocurrency prices from Parquet files (Arrow, joins,
+- **r4ds-7**: cryptocurrency prices from Parquet files (Arrow, joins,
   dates and times)
 
-- **prediction-markets**: Manifold prediction markets from Parquet files
-  (Arrow, joins, dates and times)
+- **r4ds-8**: Manifold prediction markets from Parquet files (Arrow,
+  joins, dates and times)
 
-- **r4ds-5**: wildfire perimeters from GeoJSON (hierarchical data,
+- **r4ds-9**: wildfire perimeters from GeoJSON (hierarchical data,
   layers)
 
-- **imdb-rankings**: IMDb Top 250 snapshots scraped from the Wayback
-  Machine (web scraping, functions, iteration)
+- **r4ds-10**: IMDb Top 250 snapshots scraped from the Wayback Machine
+  (web scraping, functions, iteration)
 
 ## Census Data Tutorial
 
-The census tutorial covers working with US Census data using the
-tidycensus package, walking through case studies on income, educational
-attainment, and median age, including choropleth maps drawn with
-ggplot2.
+Two tutorials cover US Census data with the tidycensus package:
+**census-1** maps median household income across Texas counties, and the
+margin of error behind it, with choropleth maps drawn with ggplot2;
+**census-2** charts educational attainment by state and median age by
+California county.
 
 ## Topic Tutorials
 
@@ -73,9 +74,8 @@ builds a single page.
 To run a tutorial, use:
 `learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")`
 
-Available tutorial names are: r4ds-1, r4ds-2, music, nba-recruits,
-r4ds-3, time-use, r4ds-4, prediction-markets, r4ds-5, imdb-rankings,
-census, baseball, ducks, sharks, and movies.
+Available tutorial names are: r4ds-1 through r4ds-10, census-1,
+census-2, baseball, ducks, sharks, and movies.
 
 ## See also
 

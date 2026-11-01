@@ -2,14 +2,28 @@
 
 ## misc.tutorials (development version)
 
-- `census` is split in two. `census` (ordering 11) keeps the Texas
-  income map and adds two exercises on the margin of error: a table of
-  the counties where it is largest relative to the estimate, and a
-  second map of that share. The new `demographics` (ordering 12) takes
-  the state education chart and the California age scatterplot, with the
-  scatterplot’s log scale now a step of its own. They run 17 and 18
-  exercises instead of 28. The topic tutorials move to orderings 13 to
-  16.
+- `census-1` is split in two. `census-1` keeps the Texas income map and
+  adds two exercises on the margin of error: a table of the counties
+  where it is largest relative to the estimate, and a second map of that
+  share. The new `census-2` takes the state education chart and the
+  California age scatterplot, with the scatterplot’s log scale now a
+  step of its own. They run 17 and 18 exercises instead of 28.
+
+- The R4DS family is renumbered `r4ds-1` through `r4ds-10`, each
+  spin-out in the slot after its parent: `music` is now `r4ds-2`, the
+  old `r4ds-2` (births) is `r4ds-3`, `nba-recruits` is `r4ds-4`, the old
+  `r4ds-3` (school districts) is `r4ds-5`, `time-use` is `r4ds-6`, the
+  old `r4ds-4` (crypto) is `r4ds-7`, `prediction-markets` is `r4ds-8`,
+  the old `r4ds-5` (wildfires) is `r4ds-9`, and `imdb-rankings` is
+  `r4ds-10`. Titles follow (“R4DS 2” and so on), as do the repo names
+  and download URLs inside each tutorial. Older entries below use the
+  names current when they were written.
+
+- The census tutorials’ folders are `census-1` and `census-2` (formerly
+  `census` and `demographics`), so their order is visible at a glance;
+  their titles stay *Mapping Census Data* and *Census Demographics*. The
+  list order is `r4ds-1` to `r4ds-10`, then `census-1` and `census-2`,
+  then the topic tutorials.
 
 - Every Summary now ends the same way. Its first exercise is a final
   render, commit and push, answered with the URL of `analysis.qmd` (or
@@ -54,15 +68,15 @@
   With `prediction-markets` (split from `r4ds-4` in August) the family
   runs 18–25 exercises per tutorial, and the VS Code list shows each
   spin-out directly after its parent (`ordering` 1–10), followed by
-  `census`, `baseball`, `ducks`, `sharks`, and `movies`.
+  `census-1`, `baseball`, `ducks`, `sharks`, and `movies`.
 
 - `spiderman` is retired; its Spider-Man comparison is now the closing
   topic of `movies`.
 
 - `ducks` and `sharks` are rebuilt on the multi-page website form that
   `baseball` introduced, and every tutorial now follows the
-  three-exercise caching arc exactly once. `census` and `baseball` were
-  shortened as well; every tutorial now runs 18–28 exercises.
+  three-exercise caching arc exactly once. `census-1` and `baseball`
+  were shortened as well; every tutorial now runs 18–28 exercises.
 
 - Package-wide clean-up: every question carries a complete plain-text
   copy of its prompt; faked listings include the `AGENTS.md` that every
