@@ -1,12 +1,16 @@
 ---
-title: R4DS 5
-author: David Kane
-description: 'Rectangling the nested GeoJSON of 883 western US wildfire perimeters into a tidy table with jsonlite, tidyr, and purrr, then charting 33 years of burned acreage and mapping the largest fire boundaries with leaflet.'
+title: R4DS 3
+author: David Kane and Alec Rogers
+description: 'Students use DuckDB and dbplyr to analyze the Stanford Education Data
+  Archive (SEDA), featured in the New York Times: reading scores across 13,000 US
+  school districts, rescaled so that districts and states can be compared across
+  years. The final artifact is a state-level arrow chart of changes in reading
+  scores from 2015 to 2023.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 9
+  ordering: 5
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -15,36 +19,32 @@ learnr2:
 #| label: setup
 #| include: false
 library(tidyverse)
-library(leaflet)
-library(purrr)
+library(DBI)
+library(duckdb)
+library(dbplyr)
 
-centroid_lon <- function(coords) {
-  mean(map_dbl(coords[[1]], 1))
-}
-centroid_lat <- function(coords) {
-  mean(map_dbl(coords[[1]], 2))
-}
 
-raw <- jsonlite::read_json("data/wildfires.geojson")
+con_seda <- dbConnect(duckdb::duckdb(),
+                      dbdir = "data/seda_2025.duckdb",
+                      read_only = TRUE)
 
-fires <- raw |>
-  pluck("features") |>
-  tibble(features = _) |>
-  unnest_wider(features) |>
-  unnest_wider(properties) |>
-  unnest_wider(geometry, names_sep = "_") |>
-  select(incident, gis_acres, fire_year, agency, state, geometry_coordinates) |>
-  mutate(
-    gis_acres = as.numeric(gis_acres),
-    fire_year = as.integer(fire_year)
-  )
+dbplyr_dist <- tbl(con_seda, "district_scores")
 
-big_fires <- fires |>
-  filter(gis_acres >= 100000) |>
-  mutate(
-    lon = map_dbl(geometry_coordinates, centroid_lon),
-    lat = map_dbl(geometry_coordinates, centroid_lat)
-  )
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+
+state_change <- tbl(con_seda, "state_scores") |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(stateabb, state_name, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
 ```
 
 ## Information
@@ -57,17 +57,17 @@ learnr2::student_info()
 
 ## Introduction
 
-This section covers key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/rectangling.html) and [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html), [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-Using core packages such as **[jsonlite](https://cran.r-project.org/package=jsonlite)**, **[tidyr](https://tidyr.tidyverse.org/)**, **[purrr](https://purrr.tidyverse.org/)**, and **[leaflet](https://rstudio.github.io/leaflet/)**, you will extract nested elements from lists, expand list-columns into a tidy table, chart burned acreage over time and across states, and render geographic polygon boundaries as an interactive map. The data is a GeoJSON file of wildfire perimeter polygons from the National Interagency Fire Center.
+You will use the **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query the Stanford Education Data Archive (SEDA), recently featured in the *New York Times*: reading scores across 13,000 US school districts, rescaled so that districts and states can be compared with each other and across years.
 
 Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Wildfires"` and your name as the author. In a bash Terminal, render it:
+Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
 
 ```bash
 quarto render analysis.qmd
@@ -91,7 +91,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -105,29 +105,20 @@ analysis_files
 
 ###
 
-This tutorial works with a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US, every one of them at least 10,000 acres, from 1990 to 2023.
+A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. A database table almost always has indexes for fast row lookups, and a data frame does not.
 
 ### Exercise 2
 
-In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
+In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. Render.
 
-```r
-library(tidyverse)
-library(purrr)
-library(leaflet)
-library(jsonlite)
-```
-
-Also add the following to the YAML header to remove all code from the HTML output:
+Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
 ```yaml
 execute:
   echo: false
 ```
 
-Render.
-
-In the R Terminal, run:
+Render. In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
@@ -139,7 +130,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(purrr), library(leaflet), library(jsonlite). Also add execute: echo: false to the YAML header to remove all code from the HTML output. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -150,27 +141,18 @@ learnr2::question(
 ```{.output}
 #| message: false
 library(tidyverse)
-library(purrr)
-library(leaflet)
-library(jsonlite)
+library(DBI)
+library(duckdb)
+library(dbplyr)
 ```
 
 ###
 
-JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
-
-```json
-{
-  "place": "Northern California",
-  "magnitude": 4.2,
-  "felt": true,
-  "tags": ["minor", "shallow"]
-}
-```
+**DBI** is the common interface R uses to talk to any database, and **duckdb** is one driver for it. DuckDB is *in-process*, running inside your R session with no server to administer. Other drivers: **[RSQLite](https://rsqlite.r-dbi.org/)** for the other common in-process engine, **[RPostgres](https://rpostgres.r-dbi.org/)** and **[RMariaDB](https://rmariadb.r-dbi.org/)** for the client-server databases most organizations run, and **[odbc](https://odbc.r-dbi.org/)** as a generic fallback.
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
+Create a `data` directory at the top level of the `r4ds-3` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
@@ -178,7 +160,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the r4ds-5 repo. In the bash Terminal, run ls. CP/CR.",
+  "Create a data directory at the top level of the r4ds-3 repo. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -192,39 +174,38 @@ AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-**jsonlite** is R's standard package for reading and writing JSON. It reads a file like the GeoJSON you are about to download into nested R lists, one level per level of braces. Every element of the fire file sits three or four lists deep.
+At the simplest level, a database is a collection of data frames — called tables. Like a data frame, a table is a set of named columns where every value in a column has the same type.
 
-## Wildfire perimeters
+## US education
 
-The **[National Interagency Fire Center](https://data-nifc.opendata.arcgis.com/)** maintains a consolidated archive of finalized wildfire perimeter polygons — one polygon per fire, with metadata on name, acreage, year, state, and managing agency — published as a GeoJSON file. GeoJSON stores geometry as deeply nested lists that often must be reformatted before they can be analyzed. Using **jsonlite**, **[tidyr](https://tidyr.tidyverse.org/)**, **purrr**, and **leaflet**, you will flatten that nested structure, analyze 33 years of burned acreage, and render the actual fire boundaries as an interactive polygon map — the kind of visualization the [New York Times](https://www.nytimes.com/interactive/2020/us/fires-map-tracker.html) built during the 2020 fire season:
+This section uses the [Stanford Education Data Archive (SEDA)](https://edopportunity.org/),
+which converts each state's standardized test results into a common
+grade-equivalent scale so that achievement can be compared across districts and
+years.
 
-![](images/nyt-fire-map.png){width=90%}
+Here's [what the *New York Times* found](https://www.nytimes.com/2026/05/13/upshot/test-scores-school-districts-us.html)
+from this same data in May of 2026.
 
-###
-
-We use `wildfires.geojson` from the **National Interagency Fire Center (NIFC) InterAgencyFirePerimeterHistory** dataset — a consolidated archive of finalized wildfire perimeter polygons contributed by the USFS, NPS, BLM, BIA, CAL FIRE, and state agencies. Each feature is a polygon representing one fire's surveyed boundary. The 2020 season was one of the most destructive on record — the August Complex burned over a million acres, becoming the largest fire in California history.
+![](images/us-ed-state-reading-change-nyt.png){width=90%}
 
 ### Exercise 1
 
-Download the file `wildfires.geojson` from this URL and save it in your `data/` directory:
+Download the DuckDB database `seda_2025.duckdb` from this URL and save it in your
+`data/` directory:
 
 ```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson
+https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
 ```
 
-In a bash Terminal, run:
-
-```bash
-ls data
-```
+In the bash Terminal, run `ls data`.
 
 CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-1
+#| label: us-education-1
 #| echo: false
 learnr2::question(
-  "Download the file wildfires.geojson from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/wildfires.geojson In a bash Terminal, run: ls data CP/CR.",
+  "Download the DuckDB database seda_2025.duckdb from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb In the bash Terminal, run ls data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -233,26 +214,22 @@ learnr2::question(
 ###
 
 ```{.output}
-wildfires.geojson
+seda_2025.duckdb
 ```
 
 ###
 
-GeoJSON is a standard format for geographic data built on JSON. Each feature pairs a **geometry** — the spatial shape, stored as nested coordinate arrays — with a **properties** object holding tabular metadata like name, acreage, and year.
+Every state gives a different test, and those raw scores are not comparable to each other. SEDA's contribution is the rescaling: it anchors each state's results to the National Assessment of Educational Progress and reports everything in grade-equivalent units, which is what makes a district in Mississippi comparable to one in Vermont.
 
 ### Exercise 2
 
-Read `data/wildfires.geojson` as JSON and assign it to `raw`. Print the number of features it contains.
-
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+`seda_2025.duckdb` is 27 MB, far too big to commit. Add `data/*.duckdb` to your `.gitignore` on its own line, so that Git never offers to track it. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-2
+#| label: us-education-18
 #| echo: false
 learnr2::question(
-  "Read data/wildfires.geojson as JSON and assign it to raw. Print the number of features it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "seda_2025.duckdb is 27 MB, far too big to commit. Add data/*.duckdb to your .gitignore on its own line, so that Git never offers to track it. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -260,31 +237,26 @@ learnr2::question(
 
 ###
 
-```{r}
-#| label: wildfire-perimeters-2-answer
-#| echo: true
-# your path will be "data/wildfires.geojson"
-raw <- jsonlite::read_json("data/wildfires.geojson")
-length(raw$features)
+```{.output}
+analysis_files
+data/*.duckdb
 ```
 
 ###
 
-`raw` has two top-level keys: `type` (the string `"FeatureCollection"`, a GeoJSON standard marker) and `features` (the list of fires). `raw$features` holds 883 elements — one per fire — each a named list containing the fire's geographic shape and tabular metadata.
+Git keeps every version of every file it has ever tracked. A 27 MB database committed once would travel with every clone of this repo forever.
 
 ### Exercise 3
 
-Extract the first fire from `raw` and show its component names. Then navigate into that fire's geometry to extract the first coordinate pair of its boundary.
-
-Render.
+Create a new working chunk in `analysis.qmd`. Connect to the database file and display the names of the tables it contains. Render.
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-3
+#| label: us-education-2
 #| echo: false
 learnr2::question(
-  "Extract the first fire from raw and show its component names. Then navigate into that fire's geometry to extract the first coordinate pair of its boundary. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Create a new working chunk in analysis.qmd. Connect to the database file and display the names of the tables it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -293,29 +265,26 @@ learnr2::question(
 ###
 
 ```{r}
-#| label: wildfire-perimeters-3-answer
+#| label: us-education-2-answer
 #| echo: true
-pluck(raw, "features", 1) |> names()
-pluck(raw, "features", 1, "geometry", "coordinates", 1, 1)
+dbListTables(con_seda)
 ```
 
 ###
 
-Each fire is a named list with four keys: `type`, `id`, `geometry` (the coordinate arrays that define the boundary), and `properties` (tabular metadata like name, year, and acreage). GeoJSON stores each coordinate as `[longitude, latitude]`, longitude first, the opposite of the spoken convention. A pair of numbers means something only relative to a **coordinate reference system**, the model of the earth's shape that fixes where zero is and what one unit is worth. GeoJSON is always WGS84, the same system a phone's GPS reports, so `-121.5, 40.1` here is unambiguous.
+The SEDA database has three tables: `district_scores` (one row per district per year), `district_demographics` (the same districts broken out by race, gender, and income), and `state_scores` (one row per state per year).
 
 ### Exercise 4
 
-Wrap `raw$features` in a tibble with a column called `features`, then expand that list-column so each named element becomes its own column, and expand the `properties` list-column the same way. Print the result.
-
-Render.
+In the current working chunk, create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-6
+#| label: us-education-3
 #| echo: false
 learnr2::question(
-  "Wrap raw$features in a tibble with a column called features, then expand that list-column so each named element becomes its own column, and expand the properties list-column the same way. Print the result. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "In the current working chunk, create a lazy reference to the district_scores table, assign it to dbplyr_dist, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -324,30 +293,170 @@ learnr2::question(
 ###
 
 ```{r}
-#| label: wildfire-perimeters-6-answer
+#| label: us-education-3-answer
 #| echo: true
-tibble(features = raw$features) |>
-  unnest_wider(features) |>
-  unnest_wider(properties)
+dbplyr_dist <- tbl(con_seda, "district_scores")
+dbplyr_dist
 ```
 
 ###
 
-A list-column holds one complete R list per row, here one fire feature. Widening it turns each named element of those lists into a column of its own. Repeating that move until nothing is nested is called **rectangling**. The eight attributes (`incident`, `gis_acres`, `fire_year`, `agency`, `state`, `map_method`, `date_current`, `unique_fire_id`) are now flat columns, while `geometry` is still a list-column holding the polygon coordinates and needs separate handling.
+The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. `dbplyr_dist` is a lazy reference. It points to the table but pulls no data into R until you call `collect()`.
 
 ### Exercise 5
 
-Continue the pipeline by expanding the `geometry` list-column. Note that a `type` column already exists at the feature level, so the geometry expansion will create a naming conflict — make sure the geometry columns get distinct names. Then keep only the six columns you will need: `incident`, `gis_acres`, `fire_year`, `agency`, `state`, and `geometry_coordinates`. Coerce `gis_acres` to numeric and `fire_year` to integer. Assign the result to `fires`. Print `fires`.
+Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: us-education-4
+#| echo: false
+learnr2::question(
+  "Count the number of district-year observations per year in dbplyr_dist. Collect and arrange by year. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: us-education-4-answer
+#| echo: true
+dbplyr_dist |>
+  count(year) |>
+  collect() |>
+  arrange(year)
+```
+
+###
+
+The 191,547 district-year rows span 2009–2019 and 2022–2025, with no observations for 2020 or 2021 — most states suspended standardized testing during the COVID-19 pandemic. Coverage is not flat in the years that are present, either. 2014 has 10,855 districts against 14,322 the year before, because ten states, California and Ohio among them, contribute no rows that year.
+
+### Exercise 6
+
+Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: us-education-6
+#| echo: false
+learnr2::question(
+  "Compute the mean rla_score grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: us-education-6-answer
+#| echo: true
+dbplyr_dist |>
+  filter(!is.na(rla_score)) |>
+  group_by(year) |>
+  summarize(mean_rla = mean(rla_score, na.rm = TRUE)) |>
+  arrange(year) |>
+  collect()
+```
+
+###
+
+Scores drift slightly above zero from 2012 through 2018, peaking at 0.064 in 2014, then turn negative in 2019, and the four post-COVID years are far worse and get worse every year: −0.069 in 2022, −0.099 in 2023, −0.122 in 2024, −0.124 in 2025. These are district averages, not student averages: a one-room district counts as much as Los Angeles Unified.
+
+### Exercise 7
+
+Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: us-education-7
+#| echo: false
+learnr2::question(
+  "Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: us-education-7-answer
+#| echo: true
+dbplyr_dist |>
+  filter(!is.na(rla_score)) |>
+  group_by(year) |>
+  summarize(mean_rla = mean(rla_score, na.rm = TRUE)) |>
+  arrange(year) |>
+  show_query()
+```
+
+###
+
+You never wrote SQL, but SQL is what ran. **dbplyr** turns the pipeline into a query string, hands the string to the database, and lets the database do the work: the row filter becomes a `WHERE` clause, the grouping and averaging become `GROUP BY` and `AVG`, and the sort becomes `ORDER BY`.
+
+### Exercise 8
+
+For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to `score_change`. Then build `state_change` the same way from the `state_scores` table — the same structure, aggregated at the state level — and print it. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: us-education-8
+#| echo: false
+learnr2::question(
+  "For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to score_change. Then build state_change the same way from the state_scores table, the same structure, aggregated at the state level, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{r}
+#| label: us-education-8-answer
+#| echo: true
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change <- tbl(con_seda, "state_scores") |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(stateabb, state_name, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change
+```
+
+###
+
+In 2015 the district scores had a standard deviation of 0.36 and ran from −1.69 to +1.76. The state scores had a standard deviation of 0.14 and ran from −0.27 to +0.36. Averaging cancels the extremes, which is why a state-level chart looks calm even when the districts inside it do not.
+
+### Exercise 9
+
+Now clean up the working chunk — but split it in two rather than leaving it as one.
+
+`score_change` and `state_change` are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the `dbplyr_dist` reference in their own chunk, and leave a second chunk — now the last chunk in the file — holding only the `score_change` and `state_change` computations. Delete everything exploratory from Exercises 4 through 7.
 
 Render.
 
 In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-8
+#| label: us-education-10
 #| echo: false
 learnr2::question(
-  "Continue the pipeline by expanding the geometry list-column. Note that a type column already exists at the feature level, so the geometry expansion will create a naming conflict — make sure the geometry columns get distinct names. Then keep only the six columns you will need: incident, gis_acres, fire_year, agency, state, and geometry_coordinates. Coerce gis_acres to numeric and fire_year to integer. Assign the result to fires. Print fires. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Now clean up the working chunk, but split it in two rather than leaving it as one. score_change and state_change are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the dbplyr_dist reference in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the score_change and state_change computations. Delete everything exploratory from Exercises 4 through 7. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -356,81 +465,44 @@ learnr2::question(
 ###
 
 ```{.output}
-fires <- jsonlite::read_json("data/wildfires.geojson") |>
-  pluck("features") |>
-  tibble(features = _) |>
-  unnest_wider(features) |>
-  unnest_wider(properties) |>
-  unnest_wider(geometry, names_sep = "_") |>
-  select(incident, gis_acres, fire_year, agency, state, geometry_coordinates) |>
-  mutate(
-    gis_acres = as.numeric(gis_acres),
-    fire_year = as.integer(fire_year)
-  )
-fires
+score_change <- dbplyr_dist |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(district_id, district_name, state, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
+state_change <- tbl(con_seda, "state_scores") |>
+  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
+  select(stateabb, state_name, year, rla_score) |>
+  collect() |>
+  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
+  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
+  mutate(rla_change = rla_2023 - rla_2015)
 ```
 
 ###
 
-```{r}
-#| label: wildfire-perimeters-8-answer
-#| echo: true
-fires
+The connection is the one part of this analysis that must be rebuilt on every render. It is a live handle to a running database process, an *external pointer* in R's vocabulary, and external pointers do not survive being written to disk and read back.
+
+### Exercise 10
+
+Add these two lines as the first lines of the last chunk:
+
+```r
+#| cache: true
+#| cache.extra: !expr file.mtime("data/seda_2025.duckdb")
 ```
 
-###
-
-If your `fires` does not match ours, replace your code with the pipeline above before continuing.
-
-`geometry` holds two fields: `type` (the string `"Polygon"`) and `coordinates`. A `type` column already exists from the feature level, so widening geometry without a naming rule overwrites one `type` with the other. That is a **name collision**, the most common way a rectangling pipeline loses a column without raising an error. Prefixing the parent's name onto its children gives `geometry_type` and `geometry_coordinates` instead.
-
-### Exercise 6
-
-That GeoJSON pipeline takes time on every render. Strip the `fires` print line from the chunk, leaving only the pipeline that defines `fires`.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: wildfire-perimeters-9
-#| echo: false
-learnr2::question(
-  "That GeoJSON pipeline takes time on every render. Strip the fires print line from the chunk, leaving only the pipeline that defines fires. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-fires <- jsonlite::read_json("data/wildfires.geojson") |>
-  pluck("features") |>
-  tibble(features = _) |>
-  unnest_wider(features) |>
-  unnest_wider(properties) |>
-  unnest_wider(geometry, names_sep = "_") |>
-  select(incident, gis_acres, fire_year, agency, state, geometry_coordinates) |>
-  mutate(
-    gis_acres = as.numeric(gis_acres),
-    fire_year = as.integer(fire_year)
-  )
-```
-
-###
-
-Each step of the pipeline corresponds to one level of nesting in the raw file: features, then properties, then geometry.
-
-### Exercise 7
-
-Add `#| cache: true` as the first line inside the `fires` chunk. Render. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`. To confirm the directory is there, in the bash Terminal, run `ls`.
+Render. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-10
+#| label: us-education-11
 #| echo: false
 learnr2::question(
-  "Add #| cache: true as the first line inside the fires chunk. Render. Rendering with caching turned on creates an analysis_cache/ directory next to your analysis.qmd. To confirm the directory is there, in the bash Terminal, run ls. CP/CR.",
+  "Add these two lines as the first lines of the last chunk: #| cache: true and #| cache.extra: !expr file.mtime(\"data/seda_2025.duckdb\"). Render. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -444,16 +516,14 @@ AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-`analysis_cache/` now holds the saved `fires` tibble. Every subsequent render loads it from disk instead of re-reading and re-rectangling the 8.8 MB GeoJSON file.
+The first render with caching writes `analysis_cache/` to disk, and later renders read `score_change` and `state_change` back from those files instead of re-querying SEDA. The second line keys the cache on the database file's modification time, so a newer `seda_2025.duckdb` dropped into `data/` invalidates it.
 
-### Exercise 8
-
-The Source Control change count jumped because `analysis_cache/` now looks like untracked work to git. Cached files should never go to GitHub.
+### Exercise 11
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-11
+#| label: us-education-12
 #| echo: false
 learnr2::question(
   "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
@@ -466,145 +536,28 @@ learnr2::question(
 
 ```{.output}
 analysis_files
+data/*.duckdb
 analysis_cache
 ```
 
 ###
 
-`wildfires.geojson` holds only fires of at least 10,000 acres, so its 883 perimeters are the large end of 33 years of western wildfire, not every fire.
-
-### Exercise 9
-
-In a new working chunk, search `fires` for any fire whose name contains the word "August". How many rows come back? Then show the ten largest fires by acreage.
-
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: wildfire-perimeters-12
-#| echo: false
-learnr2::question(
-  "In a new working chunk, search fires for any fire whose name contains the word \"August\". How many rows come back? Then show the ten largest fires by acreage. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: wildfire-perimeters-12-answer
-#| echo: true
-fires |> filter(str_detect(incident, "August"))
-fires |> arrange(desc(gis_acres)) |> head(10)
-```
-
-###
-
-The search returns zero rows, yet the second-largest record is "DOE" (CA, 2020, ~590k acres), the Doe component of the August Complex. The dataset records component fires under their own names, not the complex name the news reported. Those ten are the extreme tail. Most of the 883 fires sit near the file's 10,000-acre floor, and only three exceed 500,000 acres.
-
-### Exercise 10
-
-Plot the total acres burned per year in `fires` as a line chart. Give it a proper title, axis labels, and caption.
-
-Render.
-
-Take a screenshot of the plot in your rendered page and paste it below.
-
-```{r}
-#| label: wildfire-perimeters-14
-#| echo: false
-learnr2::question(
-  "Plot the total acres burned per year in fires as a line chart. Give it a proper title, axis labels, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
-  type = "reflection",
-  allow_image = TRUE,
-  allow_text = FALSE,
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: wildfire-perimeters-14-answer
-#| echo: true
-fires |>
-  group_by(fire_year) |>
-  summarize(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
-  ggplot(aes(x = fire_year, y = total_acres)) +
-  geom_line() +
-  labs(
-    title = "Western US Wildfire Burned Area, 1990–2023",
-    subtitle = "Fires ≥ 10,000 acres",
-    x = "Year",
-    y = "Total acres burned",
-    caption = "Source: NIFC InterAgencyFirePerimeterHistory"
-  )
-```
-
-###
-
-Annual burned acreage in fires ≥ 10,000 acres averaged 414,000 acres in the 1990s and 1.5 million in the 2010s — roughly a tripling. The line peaks in 2020 at 5.4 million acres, with 2021 next at 4.0 million. No year in the 1990s cleared 1.2 million, and 1991 contributed no qualifying fire at all.
-
-### Exercise 11
-
-Evolve the working chunk to show total acres burned by state in `fires`. Show only the top 10 states, ordered by total acreage.
-
-Render.
-
-Take a screenshot of the plot in your rendered page and paste it below.
-
-```{r}
-#| label: wildfire-perimeters-15
-#| echo: false
-learnr2::question(
-  "Evolve the working chunk to show total acres burned by state in fires. Show only the top 10 states, ordered by total acreage. Render. Take a screenshot of the plot in your rendered page and paste it below.",
-  type = "reflection",
-  allow_image = TRUE,
-  allow_text = FALSE,
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: wildfire-perimeters-15-answer
-#| echo: true
-fires |>
-  group_by(state) |>
-  summarize(total_acres = sum(gis_acres, na.rm = TRUE), .groups = "drop") |>
-  slice_max(total_acres, n = 10) |>
-  mutate(state = fct_reorder(state, total_acres)) |>
-  ggplot(aes(x = total_acres, y = state)) +
-  geom_col() +
-  labs(
-    title = "Total Acres Burned by State, 1990–2023",
-    x = "Total acres burned",
-    y = NULL,
-    caption = "Source: NIFC InterAgencyFirePerimeterHistory"
-  )
-```
-
-###
-
-California's bar comes first by a wide margin: 12.6 million acres over the dataset's 33 years against Idaho's 6.9 million. Idaho burns more than Arizona (4.7 million), Oregon (4.7 million), or New Mexico (4.2 million), but its large burns run through remote rangeland and forest, while California's threaten towns and structures.
+The two tibbles in that cache are small, 9,644 district rows and 51 state rows, because the year filter ran inside DuckDB and only the survivors crossed into R. That is Chapter 21's central discipline: push the work to the database and `collect()` only what you need.
 
 ### Exercise 12
 
-Replace the working chunk's contents with code that filters `fires` to fires of at least 100,000 acres and adds `lon` and `lat` columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to `big_fires` and print it.
+Start a new working chunk. Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
 
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
-#| label: wildfire-perimeters-16
+#| label: us-education-14
 #| echo: false
 learnr2::question(
-  "Replace the working chunk's contents with code that filters fires to fires of at least 100,000 acres and adds lon and lat columns holding a single representative point for each fire: each boundary is a polygon of many coordinate pairs, and averaging the longitudes and averaging the latitudes is a simple way to reduce it to one point. Assign the result to big_fires and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "Start a new working chunk. Plot the distribution of rla_change from score_change as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
   show_text = FALSE
 )
 ```
@@ -612,41 +565,43 @@ learnr2::question(
 ###
 
 ```{r}
-#| label: wildfire-perimeters-16-answer
+#| label: us-education-14-answer
 #| echo: true
-centroid_lon <- function(coords) {
-  mean(map_dbl(coords[[1]], 1))
-}
-centroid_lat <- function(coords) {
-  mean(map_dbl(coords[[1]], 2))
-}
-
-big_fires <- fires |>
-  filter(gis_acres >= 100000) |>
-  mutate(
-    lon = map_dbl(geometry_coordinates, centroid_lon),
-    lat = map_dbl(geometry_coordinates, centroid_lat)
-  )
-big_fires
+ggplot(score_change, aes(x = rla_change)) +
+  geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
+  scale_fill_manual(values = c("TRUE" = "tomato", "FALSE" = "steelblue")) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+  labs(
+    title = "Change in District Reading Scores, 2015 to 2023",
+    subtitle = paste0("n = ", nrow(score_change), " districts; about 79% scored lower in 2023 than in 2015"),
+    x = "Score change (grade-equivalents)",
+    y = "Number of districts",
+    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
+  ) +
+  theme_minimal()
 ```
 
 ###
 
-Eighty-seven of the 883 fires clear 100,000 acres, about 156 square miles each. California holds 25 of them, Idaho 16, and the US Forest Service is the managing agency for 79. `lon` and `lat` are the plain average of the boundary's vertices, not the polygon's centroid. Vertices bunch up where a boundary wiggles, so the average drifts toward the crinkly side of a fire. That is close enough to drop a dot in the right valley, but **[sf](https://r-spatial.github.io/sf/)** computes area-weighted centers properly when position has to be right.
+79% of the 9,644 districts sit left of the dashed line. The *New York Times* got 83% over the longer 2015 to 2025 window, and its caption restricts the sample to "traditional public school districts." SEDA records special-education districts such as `Mo Schools For The Sev Disabled` (−2.44 in 2023) and `Specl. School Dst. St. Louis County` (−1.85) as ordinary rows, which is what fills your far left tail.
+
+![](images/us-ed-district-score-change-nyt.png){width=90%}
 
 ### Exercise 13
 
-The `big_fires` chunk is finished, so delete the `big_fires` print line from the bottom of it. Then, in a new working chunk, build a circle-marker leaflet map of `big_fires` where each circle's size reflects the fire's acreage. Zoom the map to the western US.
+Let's reconstruct the *New York Times* arrow chart from the beginning of this section. Recall:
 
-Render.
+![](images/us-ed-state-reading-change-nyt.png){width=90%}
 
-Take a screenshot of the map in your rendered page and paste it below.
+Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render.
+
+Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
-#| label: wildfire-perimeters-19
+#| label: us-education-16
 #| echo: false
 learnr2::question(
-  "The big_fires chunk is finished, so delete the big_fires print line from the bottom of it. Then, in a new working chunk, build a circle-marker leaflet map of big_fires where each circle's size reflects the fire's acreage. Zoom the map to the western US. Render. Take a screenshot of the map in your rendered page and paste it below.",
+  "Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -657,79 +612,40 @@ learnr2::question(
 ###
 
 ```{r}
-#| label: wildfire-perimeters-19-answer
+#| label: us-education-16-answer
 #| echo: true
-leaflet(big_fires) |>
-  addTiles() |>
-  setView(lng = -115, lat = 42, zoom = 4) |>
-  addCircleMarkers(
-    lng    = ~lon,
-    lat    = ~lat,
-    radius = ~sqrt(gis_acres) / 30,
-    stroke = FALSE,
-    fillOpacity = 0.6
-  )
+#| fig.height: 10
+state_change |>
+  arrange(rla_2023) |>
+  mutate(state_name = fct_inorder(state_name)) |>
+  ggplot(aes(y = state_name)) +
+  geom_segment(
+    aes(x = rla_2015, xend = rla_2023, yend = state_name,
+        color = rla_change > 0),
+    arrow = arrow(length = unit(0.15, "cm"), type = "closed"),
+    linewidth = 0.7,
+    show.legend = FALSE
+  ) +
+  geom_point(aes(x = rla_2015), color = "gray60", size = 1) +
+  scale_color_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +
+  labs(
+    title = "State Reading Score Changes, 2015 to 2023",
+    subtitle = "Arrows point left (decline) in 49 of 51 jurisdictions; only Mississippi and Hawaii gained",
+    x = "Reading score (grade-equivalents)",
+    y = NULL,
+    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
+  ) +
+  theme_minimal() +
+  theme(axis.text.y = element_text(size = 9))
 ```
 
 ###
 
-The circles cluster along the Sierra Nevada, Cascades, and northern Rockies — the fire-prone landscapes of the interior west. Circle size communicates acreage, but not shape: a compact high-elevation burn and a wind-driven valley fire can look identical on this map.
+`state_change` has 51 rows because SEDA reports the District of Columbia alongside the states. Only two arrows point right, Mississippi (+0.061) and Hawaii (+0.043), and both are short next to the red ones: "improved" here means "declined by less than everyone else." Mississippi's 2013 Literacy-Based Promotion Act required phonics-based instruction, put literacy coaches in low-performing schools, and held back third graders who failed a reading screen.
 
 ### Exercise 14
 
-Replace the circle markers with the actual boundary shapes of the ten largest fires in `big_fires`. Give each shape a popup naming the fire, its year, and its acreage, and set the view so those ten are all on screen.
-
-Render.
-
-Take a screenshot of the map in your rendered page and paste it below.
-
-```{r}
-#| label: wildfire-perimeters-20
-#| echo: false
-learnr2::question(
-  "Replace the circle markers with the actual boundary shapes of the ten largest fires in big_fires. Give each shape a popup naming the fire, its year, and its acreage, and set the view so those ten are all on screen. Render. Take a screenshot of the map in your rendered page and paste it below.",
-  type = "reflection",
-  allow_image = TRUE,
-  allow_text = FALSE,
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: wildfire-perimeters-20-answer
-#| echo: true
-top_ten <- big_fires |> slice_max(gis_acres, n = 10)
-
-leaflet() |>
-  addTiles() |>
-  setView(lng = -117, lat = 40, zoom = 5) |>
-  addPolygons(
-    data = top_ten |>
-      transmute(pts = purrr::map(geometry_coordinates,
-                                 \(g) tibble(lng = map_dbl(g[[1]], 1),
-                                             lat = map_dbl(g[[1]], 2)) |>
-                                   add_row(lng = NA, lat = NA))) |>
-      unnest(pts),
-    lng = ~lng,
-    lat = ~lat,
-    weight      = 1,
-    color       = "#cc4400",
-    fillColor   = "#ff7733",
-    fillOpacity = 0.5,
-    popup = paste0(top_ten$incident, " (", top_ten$fire_year, "), ",
-                   format(round(top_ten$gis_acres), big.mark = ","), " acres")
-  )
-```
-
-###
-
-Circle size told you how much burned. The outline tells you how it burned. Click the biggest shape and it is Dixie (2021, 963,309 acres), a long ragged perimeter running north and east through the northern Sierra, while the compact block on Arizona's Mogollon Rim is Rodeo-Chediski (2002, 460,563 acres). Ten shapes is a deliberate limit: the full file holds 391,027 coordinate pairs, and handing all of them to a browser ships several megabytes of geometry for detail no one can resolve at this zoom.
-
-### Exercise 15
-
-Commit `analysis.qmd` with the message `"Add wildfire perimeters analysis"` and push to GitHub.
+Commit `analysis.qmd` with the message `"Add SEDA district reading analysis"` and push to GitHub. You may use your AI agent, the VS Code Source Control panel, or the bash Terminal.
 
 In the bash Terminal, run:
 
@@ -740,10 +656,10 @@ git log --oneline -3
 CP/CR.
 
 ```{r}
-#| label: wildfire-perimeters-21
+#| label: us-education-17
 #| echo: false
 learnr2::question(
-  "Commit analysis.qmd with the message \"Add wildfire perimeters analysis\" and push to GitHub. In the bash Terminal, run: git log --oneline -3 CP/CR.",
+  "Commit analysis.qmd with the message \"Add SEDA district reading analysis\" and push to GitHub. You may use your AI agent, the VS Code Source Control panel, or the bash Terminal. In the bash Terminal, run git log --oneline -3. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -752,23 +668,23 @@ learnr2::question(
 ###
 
 ```{.output}
-abc1234 Add wildfire perimeters analysis
-...
+abc1234 Add SEDA district reading analysis
+def5678 Add .gitignore
 ```
 
 ###
 
-The **NIFC** also publishes current-year fire perimeters in real time — the **IRWIN** (Integrated Reporting of Wildland-Fire Information) feed is updated multiple times per day during active fire season. The historical archive used here is finalized geometry. The live feed shows boundaries as incident command teams map them in the field.
+A decline this broad has exactly two exceptions. One has a famous literacy statute behind it and one does not, which is not enough evidence to credit legislation for the pattern.
 
 ## Summary
 
-This section covered key concepts from [Chapter 23: Hierarchical Data](https://r4ds.hadley.nz/rectangling.html) and [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+This tutorial covered [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html), [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You learned about working with nested JSON data using core packages such as **jsonlite**, **tidyr**, **purrr**, and **leaflet**. Key concepts included rectangling nested GeoJSON into a tidy table, charting burned acreage over 33 years and across states, and building an interactive leaflet map from polygon geometry.
+You used **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** to query the Stanford Education Data Archive and produced a state-level arrow chart of reading score changes, a reconstruction of a chart featured in the *New York Times*.
 
 ### Exercise 1
 
-Render one last time. Check your Live Server tab. Commit and push.
+Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push.
 
 Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
@@ -776,7 +692,7 @@ Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page b
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render one last time. Check your Live Server tab. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
+  "Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -785,12 +701,12 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/your-username/r4ds-5/blob/main/analysis.qmd
+https://github.com/<your-github-username>/r4ds-3/blob/main/analysis.qmd
 ```
 
 ###
 
-One of the four chunks in that file is cached, so the 8.8 MB GeoJSON is read and rectangled once and then loaded from disk, which is why the render you just did was fast. The `fires` tibble is 883 rows, but its `geometry_coordinates` column alone carries 391,027 coordinate pairs, almost all of the file's bulk.
+Four chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub, so a reader of your published page gets the chart without needing 27 MB of DuckDB.
 
 ### Exercise 2
 
@@ -806,7 +722,7 @@ Copy/paste the resulting URL below.
 #| label: summary-2
 #| echo: false
 learnr2::question(
-  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run: quarto publish gh-pages analysis.qmd Copy/paste the resulting URL below.",
+  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run quarto publish gh-pages analysis.qmd. Copy/paste the resulting URL below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -815,7 +731,7 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://your-username.github.io/r4ds-5/ using gh-pages? (Y/n) › Yes
+? Publish site to https://<your-github-username>.github.io/r4ds-3/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
@@ -824,20 +740,19 @@ Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/your-username/r4ds-5.git
+To https://github.com/<your-github-username>/r4ds-3.git
+...
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://your-username.github.io/r4ds-5/
+[✓] Published to https://<your-github-username>.github.io/r4ds-3/
 ```
 
-Your answer is the URL on the last line: `https://your-username.github.io/r4ds-5/`.
+###
+
+The chart on that page was produced without ever loading a full SEDA table into R. The database did the filtering, and `collect()` pulled down 9,644 district rows and 51 state rows.
 
 ###
 
-The leaflet polygon map is fully interactive in the published page: readers can pan, zoom, and click individual fire boundaries. That interactivity only works in HTML output, which is one reason to publish to the web rather than share a static PDF.
-
-###
-
-The polygons you published are finalized perimeters, surveyed after containment. The file's builder removed 25 duplicate records where a fire had been mapped more than once as its boundary was revised. `date_current` in the raw properties is the date the record was last edited, not the date of the fire, which is why every chart here used `fire_year`.
+SEDA is maintained by Stanford's Educational Opportunity Project and reissued annually, which is why the cached chunk is keyed on the database file's modification time rather than on the code alone. Drop next year's file into `data/`, render, and the numbers update themselves.
 
 ## Download answers
 
@@ -857,5 +772,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-5")
+learnr2::download_answers_button(filename_prefix = "r4ds-3")
 ```

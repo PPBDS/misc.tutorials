@@ -1,16 +1,12 @@
 ---
-title: R4DS 3
-author: David Kane and Alec Rogers
-description: 'Students use DuckDB and dbplyr to analyze the Stanford Education Data
-  Archive (SEDA), featured in the New York Times: reading scores across 13,000 US
-  school districts, rescaled so that districts and states can be compared across
-  years. The final artifact is a state-level arrow chart of changes in reading
-  scores from 2015 to 2023.'
+title: R4DS 2
+author: David Kane
+description: 'This tutorial for "R for Data Science" covers Chapter 20: Spreadsheets, Chapter 9: Layers, Chapter 10: Exploratory Data Analysis, and Chapter 11: Communication. Students read FiveThirtyEight daily US birth counts (1994–2014) from an Excel file with readxl, cache the cleaned tibble, build a calendar heatmap with geom_tile(), discover how the weekday confounds a year-by-year comparison of Christmas births, and fit a linear model whose residuals reproduce the FiveThirtyEight holiday chart.'
 format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 5
+  ordering: 2
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -19,32 +15,16 @@ learnr2:
 #| label: setup
 #| include: false
 library(tidyverse)
-library(DBI)
-library(duckdb)
-library(dbplyr)
+library(readxl)
 
-
-con_seda <- dbConnect(duckdb::duckdb(),
-                      dbdir = "data/seda_2025.duckdb",
-                      read_only = TRUE)
-
-dbplyr_dist <- tbl(con_seda, "district_scores")
-
-score_change <- dbplyr_dist |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(district_id, district_name, state, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-
-state_change <- tbl(con_seda, "state_scores") |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(stateabb, state_name, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
+  mutate(
+    day_of_week = factor(
+      day_of_week,
+      levels = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"),
+      ordered = TRUE
+    )
+  )
 ```
 
 ## Information
@@ -57,17 +37,17 @@ learnr2::student_info()
 
 ## Introduction
 
-This tutorial accompanies [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html), [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+This tutorial covers key concepts from [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html), [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html), [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/EDA.html), and [Chapter 11: Communication](https://r4ds.hadley.nz/communication.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You will use the **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** packages to query the Stanford Education Data Archive (SEDA), recently featured in the *New York Times*: reading scores across 13,000 US school districts, rescaled so that districts and states can be compared with each other and across years.
+You will learn about working with tabular data from Excel files using **[readxl](https://readxl.tidyverse.org/)** and **[ggplot2](https://ggplot2.tidyverse.org/)**. Key techniques include calendar heatmaps with `geom_tile()`, ordered factors for correct axis sorting, grouped summaries as the foundation for visualizations, and a linear model whose residuals isolate a holiday effect.
 
 Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. All lowercase: `r4ds-2`, not `R4DS-2` — every path and URL below assumes it.
 
-Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
+Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births"`) and your name as author. In a bash Terminal, run:
 
 ```bash
 quarto render analysis.qmd
@@ -91,7 +71,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. All lowercase: r4ds-2, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -105,11 +85,11 @@ analysis_files
 
 ###
 
-A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. A database table almost always has indexes for fast row lookups, and a data frame does not.
+This tutorial works with one dataset: US daily birth counts (1994–2014) from FiveThirtyEight. It arrives as an `.xlsx` Excel file, so `library(readxl)` will be needed alongside `library(tidyverse)`, which does not load **readxl** for you.
 
 ### Exercise 2
 
-In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. Render.
+In your QMD, put `library(tidyverse)` and `library(readxl)` in a new code chunk. Render.
 
 Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
 
@@ -118,11 +98,13 @@ execute:
   echo: false
 ```
 
-Render. In the R Terminal, run:
+In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
 ```
+
+If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
 
 CP/CR.
 
@@ -130,7 +112,7 @@ CP/CR.
 #| label: introduction-2
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "In your QMD, put library(tidyverse) and library(readxl) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false In the R Terminal, run: show_file(\"analysis.qmd\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -141,18 +123,24 @@ learnr2::question(
 ```{.output}
 #| message: false
 library(tidyverse)
-library(DBI)
-library(duckdb)
-library(dbplyr)
+library(readxl)
 ```
 
 ###
 
-**DBI** is the common interface R uses to talk to any database, and **duckdb** is one driver for it. DuckDB is *in-process*, running inside your R session with no server to administer. Other drivers: **[RSQLite](https://rsqlite.r-dbi.org/)** for the other common in-process engine, **[RPostgres](https://rpostgres.r-dbi.org/)** and **[RMariaDB](https://rmariadb.r-dbi.org/)** for the client-server databases most organizations run, and **[odbc](https://odbc.r-dbi.org/)** as a generic fallback.
+Excel files exported from spreadsheet software often encode categorical variables as plain text. Before those columns display in the right order on a plot axis they need to be converted to ordered factors.
 
 ### Exercise 3
 
-Create a `data` directory at the top level of the `r4ds-3` repo. In the bash Terminal, run `ls`.
+In the R Terminal, run these three commands:
+
+`getwd()`  
+`dir.create("data")`  
+`list.files()`  
+
+This will create a `data` directory in your project. This is a good place to store any data that you are working with. If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-2` folder before going on.
+
+We will soon stop giving you commands like these and just have AI do it.
 
 CP/CR.
 
@@ -160,7 +148,7 @@ CP/CR.
 #| label: introduction-3
 #| echo: false
 learnr2::question(
-  "Create a data directory at the top level of the r4ds-3 repo. In the bash Terminal, run ls. CP/CR.",
+  "In the R Terminal, run these three commands: getwd() dir.create(\"data\") list.files() This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else. Move it into the r4ds-2 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -169,43 +157,53 @@ learnr2::question(
 ###
 
 ```{.output}
-AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
+> getwd()
+[1] "/workspaces/r4ds-2"
+> dir.create("data")
+> list.files()
+[1] "AGENTS.md"      "analysis.html"  "analysis.qmd"   "analysis_files" "data"
+>
 ```
 
 ###
 
-At the simplest level, a database is a collection of data frames — called tables. Like a data frame, a table is a set of named columns where every value in a column has the same type.
+Keeping raw data in its own `data/` directory is the convention [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html) assumes: the spreadsheet you download stays untouched, and every change you make to it lives in code. An Excel workbook edited by hand carries no record of what was edited, while a QMD that reads the original workbook records every step.
 
-## US education
+## Births
 
-This section uses the [Stanford Education Data Archive (SEDA)](https://edopportunity.org/),
-which converts each state's standardized test results into a common
-grade-equivalent scale so that achievement can be compared across districts and
-years.
+In 2016, FiveThirtyEight published ["Some People Are Too Superstitious to Have a Baby on Friday the 13th"](https://fivethirtyeight.com/features/some-people-are-too-superstitious-to-have-a-baby-on-friday-the-13th/), which showed US births relative to average — adjusted for time trends, seasonality, and day of week — across the full calendar year.
 
-Here's [what the *New York Times* found](https://www.nytimes.com/2026/05/13/upshot/test-scores-school-districts-us.html)
-from this same data in May of 2026.
+![](images/us-births-heatmap.png){width=90%}
 
-![](images/us-ed-state-reading-change-nyt.png){width=90%}
+New Year's Day and Christmas show the deepest dips. Even the 13th of each month is slightly lower than surrounding days. You will investigate this dataset and produce a version of this chart.
 
 ### Exercise 1
 
-Download the DuckDB database `seda_2025.duckdb` from this URL and save it in your
-`data/` directory:
+Download the Excel file `us_births_1994_2014.xlsx` into your `data/` directory. In the R Terminal, run:
 
-```default
-https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb
+```r
+download.file(
+  "https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx",
+  "data/us_births_1994_2014.xlsx",
+  mode = "wb"
+)
 ```
 
-In the bash Terminal, run `ls data`.
+Excel `.xlsx` files are binary, not plain text, which is why `download.file()` needs `mode = "wb"` ("write binary").
+
+In a bash Terminal, run:
+
+```bash
+ls data
+```
 
 CP/CR.
 
 ```{r}
-#| label: us-education-1
+#| label: births-1
 #| echo: false
 learnr2::question(
-  "Download the DuckDB database seda_2025.duckdb from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-3/data/seda_2025.duckdb In the bash Terminal, run ls data. CP/CR.",
+  "Download the Excel file us_births_1994_2014.xlsx into your data/ directory. In the R Terminal, run: download.file(\"https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-2/data/us_births_1994_2014.xlsx\", \"data/us_births_1994_2014.xlsx\", mode = \"wb\") Excel .xlsx files are binary, not plain text, which is why download.file() needs mode = \"wb\" (\"write binary\"). In a bash Terminal, run: ls data CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -214,22 +212,24 @@ learnr2::question(
 ###
 
 ```{.output}
-seda_2025.duckdb
+us_births_1994_2014.xlsx
 ```
 
 ###
 
-Every state gives a different test, and those raw scores are not comparable to each other. SEDA's contribution is the rescaling: it anchors each state's results to the National Assessment of Educational Progress and reports everything in grade-equivalent units, which is what makes a district in Mississippi comparable to one in Vermont.
+FiveThirtyEight published this data under a CC-BY license alongside their 2016 article. It combines two overlapping government sources: a CDC-derived file covering 1994–1999 and a Social Security Administration (SSA) file covering 2000–2014. The combined spreadsheet uses the SSA data for the 2000–2003 overlap to avoid double-counting.
 
 ### Exercise 2
 
-`seda_2025.duckdb` is 27 MB, far too big to commit. Add `data/*.duckdb` to your `.gitignore` on its own line, so that Git never offers to track it. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
+Display the structure of `data/us_births_1994_2014.xlsx` — its column names, their types, and a few example values. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
 ```{r}
-#| label: us-education-18
+#| label: births-2
 #| echo: false
 learnr2::question(
-  "seda_2025.duckdb is 27 MB, far too big to commit. Add data/*.duckdb to your .gitignore on its own line, so that Git never offers to track it. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
+  "Display the structure of data/us_births_1994_2014.xlsx — its column names, their types, and a few example values. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -237,272 +237,113 @@ learnr2::question(
 
 ###
 
-```{.output}
-analysis_files
-data/*.duckdb
+
+```{r}
+#| label: births-2-answer
+#| echo: true
+glimpse(read_excel("data/us_births_1994_2014.xlsx"))
 ```
 
 ###
 
-Git keeps every version of every file it has ever tracked. A 27 MB database committed once would travel with every clone of this repo forever.
+The dataset has 7,670 rows — one per calendar day — and five columns, and `day_of_week` arrives as `<chr>` in FiveThirtyEight's abbreviated labels ("Mon", "Tues", "Wed", "Thurs", "Fri", "Sat", "Sun") rather than full names or numbers. Daily counts run from 5,728 — Sunday, December 25, 2011 — up to 16,081 on a Wednesday in September 2009.
 
 ### Exercise 3
 
-Create a new working chunk in `analysis.qmd`. Connect to the database file and display the names of the tables it contains. Render.
+Build a tibble named `births_tibble` from the spreadsheet in which `day_of_week` is an ordered factor running `"Sun"`, `"Mon"`, `"Tues"`, `"Wed"`, `"Thurs"`, `"Fri"`, `"Sat"`, then display its structure. Render.
 
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-2
-#| echo: false
-learnr2::question(
-  "Create a new working chunk in analysis.qmd. Connect to the database file and display the names of the tables it contains. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-2-answer
-#| echo: true
-dbListTables(con_seda)
-```
-
-###
-
-The SEDA database has three tables: `district_scores` (one row per district per year), `district_demographics` (the same districts broken out by race, gender, and income), and `state_scores` (one row per state per year).
-
-### Exercise 4
-
-In the current working chunk, create a lazy reference to the `district_scores` table, assign it to `dbplyr_dist`, and print it. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-3
-#| echo: false
-learnr2::question(
-  "In the current working chunk, create a lazy reference to the district_scores table, assign it to dbplyr_dist, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-3-answer
-#| echo: true
-dbplyr_dist <- tbl(con_seda, "district_scores")
-dbplyr_dist
-```
-
-###
-
-The `rla_score` column is on the SEDA grade-equivalent scale: 0 is roughly the national average, and 1.0 is one full grade level above it. `dbplyr_dist` is a lazy reference. It points to the table but pulls no data into R until you call `collect()`.
-
-### Exercise 5
-
-Count the number of district-year observations per year in `dbplyr_dist`. Collect and arrange by year. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-4
-#| echo: false
-learnr2::question(
-  "Count the number of district-year observations per year in dbplyr_dist. Collect and arrange by year. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-4-answer
-#| echo: true
-dbplyr_dist |>
-  count(year) |>
-  collect() |>
-  arrange(year)
-```
-
-###
-
-The 191,547 district-year rows span 2009–2019 and 2022–2025, with no observations for 2020 or 2021 — most states suspended standardized testing during the COVID-19 pandemic. Coverage is not flat in the years that are present, either. 2014 has 10,855 districts against 14,322 the year before, because ten states, California and Ohio among them, contribute no rows that year.
-
-### Exercise 6
-
-Compute the mean `rla_score` grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-6
-#| echo: false
-learnr2::question(
-  "Compute the mean rla_score grouped by year, for districts with non-missing scores. Arrange by year. Collect and print. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-6-answer
-#| echo: true
-dbplyr_dist |>
-  filter(!is.na(rla_score)) |>
-  group_by(year) |>
-  summarize(mean_rla = mean(rla_score, na.rm = TRUE)) |>
-  arrange(year) |>
-  collect()
-```
-
-###
-
-Scores drift slightly above zero from 2012 through 2018, peaking at 0.064 in 2014, then turn negative in 2019, and the four post-COVID years are far worse and get worse every year: −0.069 in 2022, −0.099 in 2023, −0.122 in 2024, −0.124 in 2025. These are district averages, not student averages: a one-room district counts as much as Los Angeles Unified.
-
-### Exercise 7
-
-Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-7
-#| echo: false
-learnr2::question(
-  "Databases do not run R. Instead of the result, display the query that the database will actually execute for the year-by-year average you just built. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-7-answer
-#| echo: true
-dbplyr_dist |>
-  filter(!is.na(rla_score)) |>
-  group_by(year) |>
-  summarize(mean_rla = mean(rla_score, na.rm = TRUE)) |>
-  arrange(year) |>
-  show_query()
-```
-
-###
-
-You never wrote SQL, but SQL is what ran. **dbplyr** turns the pipeline into a query string, hands the string to the database, and lets the database do the work: the row filter becomes a `WHERE` clause, the grouping and averaging become `GROUP BY` and `AVG`, and the sort becomes `ORDER BY`.
-
-### Exercise 8
-
-For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to `score_change`. Then build `state_change` the same way from the `state_scores` table — the same structure, aggregated at the state level — and print it. Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-8
-#| echo: false
-learnr2::question(
-  "For each district, compute the change in reading score from 2015 to 2023, where a positive value means improvement, keeping only districts with data in both years, and assign the result to score_change. Then build state_change the same way from the state_scores table, the same structure, aggregated at the state level, and print it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{r}
-#| label: us-education-8-answer
-#| echo: true
-score_change <- dbplyr_dist |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(district_id, district_name, state, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-state_change <- tbl(con_seda, "state_scores") |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(stateabb, state_name, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-state_change
-```
-
-###
-
-In 2015 the district scores had a standard deviation of 0.36 and ran from −1.69 to +1.76. The state scores had a standard deviation of 0.14 and ran from −0.27 to +0.36. Averaging cancels the extremes, which is why a state-level chart looks calm even when the districts inside it do not.
-
-### Exercise 9
-
-Now clean up the working chunk — but split it in two rather than leaving it as one.
-
-`score_change` and `state_change` are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the `dbplyr_dist` reference in their own chunk, and leave a second chunk — now the last chunk in the file — holding only the `score_change` and `state_change` computations. Delete everything exploratory from Exercises 4 through 7.
-
-Render.
-
-In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
-
-```{r}
-#| label: us-education-10
-#| echo: false
-learnr2::question(
-  "Now clean up the working chunk, but split it in two rather than leaving it as one. score_change and state_change are ordinary tibbles: once computed, they can be saved to disk and reloaded. A database connection cannot. Put the connection and the dbplyr_dist reference in their own chunk, and leave a second chunk, now the last chunk in the file, holding only the score_change and state_change computations. Delete everything exploratory from Exercises 4 through 7. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-score_change <- dbplyr_dist |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(district_id, district_name, state, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-state_change <- tbl(con_seda, "state_scores") |>
-  filter(year %in% c(2015, 2023), !is.na(rla_score)) |>
-  select(stateabb, state_name, year, rla_score) |>
-  collect() |>
-  pivot_wider(names_from = year, values_from = rla_score, names_prefix = "rla_") |>
-  filter(!is.na(rla_2015), !is.na(rla_2023)) |>
-  mutate(rla_change = rla_2023 - rla_2015)
-```
-
-###
-
-The connection is the one part of this analysis that must be rebuilt on every render. It is a live handle to a running database process, an *external pointer* in R's vocabulary, and external pointers do not survive being written to disk and read back.
-
-### Exercise 10
-
-Add these two lines as the first lines of the last chunk:
+In the R Terminal, run:
 
 ```r
-#| cache: true
-#| cache.extra: !expr file.mtime("data/seda_2025.duckdb")
+show_file("analysis.qmd")
 ```
-
-Render. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: us-education-11
+#| label: births-4
 #| echo: false
 learnr2::question(
-  "Add these two lines as the first lines of the last chunk: #| cache: true and #| cache.extra: !expr file.mtime(\"data/seda_2025.duckdb\"). Render. In the bash Terminal, run ls. CP/CR.",
+  "Build a tibble named births_tibble from the spreadsheet in which day_of_week is an ordered factor running \"Sun\", \"Mon\", \"Tues\", \"Wed\", \"Thurs\", \"Fri\", \"Sat\", then display its structure. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-4-answer
+#| echo: true
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
+  mutate(
+    day_of_week = factor(
+      day_of_week,
+      levels = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"),
+      ordered = TRUE
+    )
+  )
+
+glimpse(births_tibble)
+```
+
+###
+
+`day_of_week` is now `<ord>` — an ordered factor — rather than `<chr>`, which tells **ggplot2** how to sequence it on axes and in legends. Without the ordering, **ggplot2** would sort day names alphabetically ("Fri" before "Mon"), which is meaningless for a day-of-week axis.
+
+### Exercise 4
+
+`births_tibble` is worth keeping around, so the chunk that builds it should do nothing else. Delete the display line from that chunk, leaving only the definition of `births_tibble`. Render.
+
+In the R Terminal, run:
+
+```r
+show_file("analysis.qmd")
+```
+
+CP/CR.
+
+```{r}
+#| label: births-5
+#| echo: false
+learnr2::question(
+  "births_tibble is worth keeping around, so the chunk that builds it should do nothing else. Delete the display line from that chunk, leaving only the definition of births_tibble. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+births_tibble <- read_excel("data/us_births_1994_2014.xlsx") |>
+  mutate(
+    day_of_week = factor(
+      day_of_week,
+      levels = c("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"),
+      ordered = TRUE
+    )
+  )
+```
+
+###
+
+The chunk now holds one thing: the tibble the rest of the section depends on. A chunk that both builds an object and prints something about it would have to be re-run whenever you wanted a different printout.
+
+### Exercise 5
+
+Add `#| cache: true` as the first line inside the `births_tibble` chunk. Render. Rendering with caching turned on creates an `analysis_cache/` directory next to your `analysis.qmd`, which holds the parsed result so Quarto can reload it on subsequent renders rather than re-parsing the Excel file each time.
+
+In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: births-6
+#| echo: false
+learnr2::question(
+  "Add #| cache: true as the first line inside the births_tibble chunk. Render. Rendering with caching turned on creates an analysis_cache/ directory next to your analysis.qmd, which holds the parsed result so Quarto can reload it on subsequent renders rather than re-parsing the Excel file each time. In the bash Terminal, run ls. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -516,14 +357,16 @@ AGENTS.md  analysis_cache  analysis_files  analysis.html  analysis.qmd  data
 
 ###
 
-The first render with caching writes `analysis_cache/` to disk, and later renders read `score_change` and `state_change` back from those files instead of re-querying SEDA. The second line keys the cache on the database file's modification time, so a newer `seda_2025.duckdb` dropped into `data/` invalidates it.
+Total US births varied year to year across this span — the annual daily average in `births_tibble` peaked in 2007 at about 12,000 and had fallen roughly 9% by 2012 — so a raw count on any given December 25 mixes the holiday signal with a year-level baseline shift.
 
-### Exercise 11
+### Exercise 6
+
+The Source Control change count just jumped, because `analysis_cache/` and everything inside it now look like untracked work to git. Cached files should never go to GitHub — they're machine-specific and regenerated on every render.
 
 Add `analysis_cache` to your `.gitignore` on its own line. In the R Terminal, run `show_file(".gitignore")`. CP/CR.
 
 ```{r}
-#| label: us-education-12
+#| label: births-7
 #| echo: false
 learnr2::question(
   "Add analysis_cache to your .gitignore on its own line. In the R Terminal, run show_file(\".gitignore\"). CP/CR.",
@@ -536,25 +379,55 @@ learnr2::question(
 
 ```{.output}
 analysis_files
-data/*.duckdb
 analysis_cache
 ```
 
 ###
 
-The two tibbles in that cache are small, 9,644 district rows and 51 state rows, because the year filter ran inside DuckDB and only the survivors crossed into R. That is Chapter 21's central discipline: push the work to the database and `collect()` only what you need.
+The 7,670 rows are 365 × 21 years plus 5 leap days (1996, 2000, 2004, 2008, 2012), which confirms no calendar days are missing from the data.
 
-### Exercise 12
+### Exercise 7
 
-Start a new working chunk. Plot the distribution of `rla_change` from `score_change` as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render.
+In a new code chunk, compute the average number of births for each calendar position — each combination of `month` and `date_of_month` — averaged across all 21 years. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: births-8
+#| echo: false
+learnr2::question(
+  "In a new code chunk, compute the average number of births for each calendar position — each combination of month and date_of_month — averaged across all 21 years. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-8-answer
+#| echo: true
+births_tibble |>
+  group_by(month, date_of_month) |>
+  summarize(mean_births = mean(births), .groups = "drop")
+```
+
+###
+
+This summary collapses 7,670 daily observations into 366 cells (one per calendar position, including Feb 29). Each cell holds the mean births across all 21 years — except February 29, which appears only 5 times (the leap years 1996, 2000, 2004, 2008, and 2012).
+
+### Exercise 8
+
+Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
-#| label: us-education-14
+#| label: births-9
 #| echo: false
 learnr2::question(
-  "Start a new working chunk. Plot the distribution of rla_change from score_change as a histogram, coloring bars differently for positive and negative changes. Add a vertical reference line at 0. Include the district count in the subtitle. Give the plot a title, subtitle, and caption. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  "Turn that summary into a calendar heatmap: one colored tile per calendar position, with day of month running across the bottom, months running down the side from January, and tile color showing mean births. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -564,44 +437,91 @@ learnr2::question(
 
 ###
 
+
 ```{r}
-#| label: us-education-14-answer
+#| label: births-9-answer
 #| echo: true
-ggplot(score_change, aes(x = rla_change)) +
-  geom_histogram(bins = 60, aes(fill = rla_change < 0), show.legend = FALSE) +
-  scale_fill_manual(values = c("TRUE" = "tomato", "FALSE" = "steelblue")) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
+births_tibble |>
+  group_by(month, date_of_month) |>
+  summarize(mean_births = mean(births), .groups = "drop") |>
+  ggplot(aes(x = date_of_month, y = month, fill = mean_births)) +
+  geom_tile(color = "white", linewidth = 0.1) +
+  scale_y_reverse(breaks = 1:12, labels = month.abb) +
+  scale_fill_gradient(low = "#fff7ec", high = "#7f0000",
+                      labels = scales::comma,
+                      name = "Mean births") +
   labs(
-    title = "Change in District Reading Scores, 2015 to 2023",
-    subtitle = paste0("n = ", nrow(score_change), " districts; about 79% scored lower in 2023 than in 2015"),
-    x = "Score change (grade-equivalents)",
-    y = "Number of districts",
-    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
+    title = "Mean US Births by Calendar Day (1994–2014)",
+    subtitle = "September peaks; holidays show deep dips",
+    x = "Day of month",
+    y = NULL,
+    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
   ) +
   theme_minimal()
 ```
 
 ###
 
-79% of the 9,644 districts sit left of the dashed line. The *New York Times* got 83% over the longer 2015 to 2025 window, and its caption restricts the sample to "traditional public school districts." SEDA records special-education districts such as `Mo Schools For The Sev Disabled` (−2.44 in 2023) and `Specl. School Dst. St. Louis County` (−1.85) as ordinary rows, which is what fills your far left tail.
+A calendar heatmap lays a year out as a matrix — day of month across, month down — and uses color as a third dimension, so 366 daily values fit in a single glance. The September cluster is the darkest band. The holiday notches are the light vertical cuts.
 
-![](images/us-ed-district-score-change-nyt.png){width=90%}
+### Exercise 9
 
-### Exercise 13
+Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render.
 
-Let's reconstruct the *New York Times* arrow chart from the beginning of this section. Recall:
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
 
-![](images/us-ed-state-reading-change-nyt.png){width=90%}
+```{r}
+#| label: births-10
+#| echo: false
+learnr2::question(
+  "Compute, for each year, the number of births on December 25 and the average number of births on the surrounding days (December 20–24 and 27–30), then express December 25 as a percentage of that baseline. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
 
-Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render.
+###
+
+
+```{r}
+#| label: births-10-answer
+#| echo: true
+christmas_data <- births_tibble |>
+  filter(month == 12) |>
+  group_by(year) |>
+  summarize(
+    christmas_births = births[date_of_month == 25],
+    baseline         = mean(births[date_of_month %in% c(20:24, 27:30)]),
+    weekday          = as.character(day_of_week[date_of_month == 25]),
+    .groups          = "drop"
+  ) |>
+  mutate(
+    pct_of_baseline = christmas_births / baseline,
+    weekday = factor(weekday,
+                     levels = c("Sun", "Mon", "Tues", "Wed",
+                                "Thurs", "Fri", "Sat"))
+  )
+
+christmas_data |>
+  mutate(pct_of_baseline = round(pct_of_baseline, 3)) |>
+  select(year, christmas_births, baseline, pct_of_baseline, weekday)
+```
+
+###
+
+`pct_of_baseline` runs from 48.1% to 70.8% across the 21 Christmases, with a median of 60.7% — a 23-point spread too large to be noise alone. The `weekday` column shows Christmas falling on a different day each year — Sunday in 1994, Monday in 1995, Wednesday in 1996. The table alone cannot say how much of the swing comes from the weekday, from year-to-year differences in overall birth rates, or from noise.
+
+### Exercise 10
+
+Make a line and point chart of `pct_of_baseline` by year. Render.
 
 Take a screenshot of the plot in your rendered page and paste it below.
 
 ```{r}
-#| label: us-education-16
+#| label: births-12
 #| echo: false
 learnr2::question(
-  "Build a state-level arrow chart of reading score changes from 2015 to 2023. Sort states by their 2023 reading score. For each state, draw an arrow from its 2015 score to its 2023 score, colored by direction of change. Add a gray dot at the 2015 starting point. Give the plot a title, subtitle, and caption with no y-axis label. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  "Make a line and point chart of pct_of_baseline by year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
   type = "reflection",
   allow_image = TRUE,
   allow_text = FALSE,
@@ -611,41 +531,206 @@ learnr2::question(
 
 ###
 
+
 ```{r}
-#| label: us-education-16-answer
+#| label: births-12-answer
 #| echo: true
-#| fig.height: 10
-state_change |>
-  arrange(rla_2023) |>
-  mutate(state_name = fct_inorder(state_name)) |>
-  ggplot(aes(y = state_name)) +
-  geom_segment(
-    aes(x = rla_2015, xend = rla_2023, yend = state_name,
-        color = rla_change > 0),
-    arrow = arrow(length = unit(0.15, "cm"), type = "closed"),
-    linewidth = 0.7,
-    show.legend = FALSE
-  ) +
-  geom_point(aes(x = rla_2015), color = "gray60", size = 1) +
-  scale_color_manual(values = c("TRUE" = "steelblue", "FALSE" = "tomato")) +
+christmas_data |>
+  ggplot(aes(x = year, y = pct_of_baseline)) +
+  geom_line(color = "gray60", linewidth = 0.5) +
+  geom_point(size = 2) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
   labs(
-    title = "State Reading Score Changes, 2015 to 2023",
-    subtitle = "Arrows point left (decline) in 49 of 51 jurisdictions; only Mississippi and Hawaii gained",
-    x = "Reading score (grade-equivalents)",
-    y = NULL,
-    caption = "Source: Reardon et al. (2026). Stanford Education Data Archive (SEDA 2025.1)."
+    title = "Dec 25 Births as a Share of Surrounding-Day Baseline",
+    subtitle = "Year-over-year comparison looks noisy",
+    x = "Year",
+    y = "Dec 25 births as % of baseline",
+    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
   ) +
-  theme_minimal() +
-  theme(axis.text.y = element_text(size = 9))
+  theme_minimal()
 ```
 
 ###
 
-`state_change` has 51 rows because SEDA reports the District of Columbia alongside the states. Only two arrows point right, Mississippi (+0.061) and Hawaii (+0.043), and both are short next to the red ones: "improved" here means "declined by less than everyone else." Mississippi's 2013 Literacy-Based Promotion Act required phonics-based instruction, put literacy coaches in low-performing schools, and held back third graders who failed a reading screen.
+There seems to be a general downward trend as well as an oscillating pattern. Two things vary year to year that could cause this: which weekday Christmas falls on, and the underlying level of US births — 2007 was a near-record birth year while 2011–2012 were noticeably lower.
+
+### Exercise 11
+
+Update the plot to color each point by the weekday that December 25 fell on that year. Render.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: births-13
+#| echo: false
+learnr2::question(
+  "Update the plot to color each point by the weekday that December 25 fell on that year. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-13-answer
+#| echo: true
+christmas_data |>
+  ggplot(aes(x = year, y = pct_of_baseline, color = weekday)) +
+  geom_line(color = "gray70", linewidth = 0.4) +
+  geom_point(size = 3) +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+  scale_color_brewer(palette = "Dark2") +
+  labs(
+    title = "Dec 25 Births as a Share of Surrounding-Day Baseline",
+    subtitle = "Color shows the weekday Christmas fell on each year",
+    x = "Year",
+    y = "Dec 25 births as % of baseline",
+    color = "Weekday",
+    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
+  ) +
+  theme_minimal()
+```
+
+###
+
+Saturday and Sunday years sit at the bottom of every vertical slice and Wednesday and Thursday years at the top, so the confound is the day of the week. Weekend days already average roughly a third fewer births than weekdays, because scheduled inductions and cesareans are booked on working days, so a Saturday Christmas compounds the holiday effect while a Wednesday Christmas barely adds to it.
+
+### Exercise 12
+
+The FiveThirtyEight graphic at the top of this section removes both confounds — weekday and year — plus a third, season, before measuring what is left.
+
+The tool is a linear model. It predicts each day's birth count from year, month, and day of week. The residuals — the gap between actual and predicted — carry the holiday signal stripped of those confounds.
+
+Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to `births_model`, and print the model's R² — the share of day-to-day variation those three factors account for. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: births-14
+#| echo: false
+learnr2::question(
+  "Fit a linear model that explains each day's birth count from year, month, and day of the week, assign it to births_model, and print the model's R² — the share of day-to-day variation those three factors account for. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-14-answer
+#| echo: true
+births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
+                   data = births_tibble)
+
+summary(births_model)$r.squared
+```
+
+###
+
+The model's R² of roughly 0.88 means year, month, and weekday together explain about 88% of the day-to-day variation in US birth counts. The remaining 12% holds the holiday signal, isolated from season and schedule.
+
+### Exercise 13
+
+Add a column to `births_tibble` named `pct_resid` holding each day's residual from `births_model`, expressed as a percentage of the overall mean birth count, and assign the result to `births_adjusted`. Then collapse `births_adjusted` to one row per calendar position — 365 of them, with February 29 dropped — holding the mean `pct_resid` for that date. Add a date column that pins each position to 2001, a non-leap year, so the whole calendar can go on a date axis. Assign the result to `calendar_resid` and display it. Render.
+
+In the R Terminal, run `show_file("analysis.qmd")`. CP/CR.
+
+```{r}
+#| label: births-16
+#| echo: false
+learnr2::question(
+  "Add a column to births_tibble named pct_resid holding each day's residual from births_model, expressed as a percentage of the overall mean birth count, and assign the result to births_adjusted. Then collapse births_adjusted to one row per calendar position — 365 of them, with February 29 dropped — holding the mean pct_resid for that date. Add a date column that pins each position to 2001, a non-leap year, so the whole calendar can go on a date axis. Assign the result to calendar_resid and display it. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-16-answer
+#| echo: true
+births_model <- lm(births ~ factor(year) + factor(month) + day_of_week,
+                   data = births_tibble)
+
+births_adjusted <- births_tibble |>
+  mutate(pct_resid = resid(births_model) / mean(births) * 100)
+
+calendar_resid <- births_adjusted |>
+  filter(!(month == 2 & date_of_month == 29)) |>
+  group_by(month, date_of_month) |>
+  summarize(mean_pct_resid = mean(pct_resid), .groups = "drop") |>
+  mutate(calendar_date = as.Date(paste("2001", month, date_of_month,
+                                       sep = "-")))
+
+calendar_resid
+```
+
+###
+
+`pct_resid` is how many percentage points a day sits above or below the model's prediction for its year, season, and weekday. The largest negative values belong to the major holidays: Christmas, New Year's Day, July 4, and Thanksgiving. In `calendar_resid` the December 25 row shows −39.4 — Christmas averages about 39 points below the adjusted baseline — while typical September dates sit near zero, because the September peak is fully captured by the month predictor.
 
 ### Exercise 14
 
-Commit `analysis.qmd` with the message `"Add SEDA district reading analysis"` and push to GitHub. You may use your AI agent, the VS Code Source Control panel, or the bash Terminal.
+Plot `calendar_resid` as a line chart with `calendar_date` on the x-axis and `mean_pct_resid` on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render.
+
+Take a screenshot of the plot in your rendered page and paste it below.
+
+```{r}
+#| label: births-17
+#| echo: false
+learnr2::question(
+  "Plot calendar_resid as a line chart with calendar_date on the x-axis and mean_pct_resid on the y-axis. Add a horizontal reference line at zero and annotate at least three of the deepest holiday dips by name. Render. Take a screenshot of the plot in your rendered page and paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+
+```{r}
+#| label: births-17-answer
+#| echo: true
+calendar_resid |>
+  ggplot(aes(x = calendar_date, y = mean_pct_resid)) +
+  geom_hline(yintercept = 0, color = "gray60") +
+  geom_line(linewidth = 0.4) +
+  annotate("text", x = as.Date("2001-01-01"), y = -21, label = "Jan. 1",  size = 3, hjust = 0.2) +
+  annotate("text", x = as.Date("2001-07-04"), y = -23, label = "July 4",  size = 3, hjust = 0.5) +
+  annotate("text", x = as.Date("2001-12-25"), y = -36, label = "Dec. 25", size = 3, hjust = 1) +
+  scale_x_date(date_labels = "%b.", date_breaks = "3 months") +
+  scale_y_continuous(labels = scales::label_percent(scale = 1)) +
+  labs(
+    title = "Fewer Babies Are Born on Holidays",
+    subtitle = "US births relative to year-, month-, and weekday-adjusted baseline (1994–2014)",
+    x = NULL,
+    y = "% vs. adjusted baseline",
+    caption = "Source: FiveThirtyEight/SSA (1994–2014)"
+  ) +
+  theme_minimal()
+```
+
+###
+
+Original FiveThirtyEight graphic for comparison:
+
+![](images/us-births-heatmap.png){width=90%}
+
+The pattern matches the FiveThirtyEight original: deep dips at Christmas, New Year's Day, and July 4, with the rest of the year near zero. After removing year, month, and weekday effects, the September peak disappears — it was entirely seasonal.
+
+### Exercise 15
+
+Commit `analysis.qmd` with the message `"Add births analysis"` and push to GitHub.
 
 In the bash Terminal, run:
 
@@ -656,10 +741,10 @@ git log --oneline -3
 CP/CR.
 
 ```{r}
-#| label: us-education-17
+#| label: births-18
 #| echo: false
 learnr2::question(
-  "Commit analysis.qmd with the message \"Add SEDA district reading analysis\" and push to GitHub. You may use your AI agent, the VS Code Source Control panel, or the bash Terminal. In the bash Terminal, run git log --oneline -3. CP/CR.",
+  "Commit analysis.qmd with the message \"Add births analysis\" and push to GitHub. In the bash Terminal, run: git log --oneline -3 CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -668,23 +753,23 @@ learnr2::question(
 ###
 
 ```{.output}
-abc1234 Add SEDA district reading analysis
-def5678 Add .gitignore
+a1b2c3d (HEAD -> main, origin/main) Add births analysis
+e4f5a6b Add analysis.qmd and .gitignore
 ```
 
 ###
 
-A decline this broad has exactly two exceptions. One has a famous literacy statute behind it and one does not, which is not enough evidence to credit legislation for the pattern.
+The births analysis is a textbook EDA iteration: a simple plot reveals a pattern, a second makes it look noisy, and a third reveals the confound that was blurring the signal. That cycle — inspect, notice, refine — is the core loop Chapter 10 describes.
 
 ## Summary
 
-This tutorial covered [Chapter 21: Databases](https://r4ds.hadley.nz/databases.html), [Chapter 12: Logical vectors](https://r4ds.hadley.nz/logicals.html), and [Chapter 13: Numbers](https://r4ds.hadley.nz/numbers.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
+This tutorial covered key concepts from [Chapter 20: Spreadsheets](https://r4ds.hadley.nz/spreadsheets.html), [Chapter 9: Layers](https://r4ds.hadley.nz/layers.html), [Chapter 10: Exploratory Data Analysis](https://r4ds.hadley.nz/EDA.html), and [Chapter 11: Communication](https://r4ds.hadley.nz/communication.html) from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund.
 
-You used **[DBI](https://dbi.r-dbi.org/)**, **[duckdb](https://duckdb.org/docs/api/r)**, and **[dbplyr](https://dbplyr.tidyverse.org/)** to query the Stanford Education Data Archive and produced a state-level arrow chart of reading score changes, a reconstruction of a chart featured in the *New York Times*.
+You learned about working with tabular data from Excel files using **readxl** and **ggplot2**. Key techniques included calendar heatmaps with `geom_tile()`, ordered factors, grouped summaries, and a linear model whose residuals isolate a holiday effect.
 
 ### Exercise 1
 
-Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push.
+Render one last time. Check your Live Server tab — the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push.
 
 Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page below.
 
@@ -692,7 +777,7 @@ Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page b
 #| label: summary-1
 #| echo: false
 learnr2::question(
-  "Render one last time. Check your Live Server tab. The page should show your arrow chart and nothing else. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
+  "Render one last time. Check your Live Server tab - the resulting HTML page should be attractive, showing a clean version of your plot. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -701,12 +786,12 @@ learnr2::question(
 ###
 
 ```{.output}
-https://github.com/<your-github-username>/r4ds-3/blob/main/analysis.qmd
+https://github.com/your-username/r4ds-2/blob/main/analysis.qmd
 ```
 
 ###
 
-Four chunks, and only one of them is cached. Neither the cache nor the database file goes to GitHub, so a reader of your published page gets the chart without needing 27 MB of DuckDB.
+The whole analysis rests on one data-preparation step: reading the Excel file and converting `day_of_week` to an ordered factor running Sunday through Saturday. Skipping it would leave the weekdays sorted alphabetically — "Fri" before "Mon" — on every axis and in every legend.
 
 ### Exercise 2
 
@@ -722,7 +807,7 @@ Copy/paste the resulting URL below.
 #| label: summary-2
 #| echo: false
 learnr2::question(
-  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run quarto publish gh-pages analysis.qmd. Copy/paste the resulting URL below.",
+  "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run: quarto publish gh-pages analysis.qmd Copy/paste the resulting URL below.",
   type = "reflection",
   show_text = FALSE
 )
@@ -731,28 +816,31 @@ learnr2::question(
 ###
 
 ```{.output}
-? Publish site to https://<your-github-username>.github.io/r4ds-3/ using gh-pages? (Y/n) › Yes
+? Publish site to https://your-username.github.io/r4ds-2/ using gh-pages? (Y/n) › Yes
 Switched to a new branch 'gh-pages'
 ...
 Rendering for publish:
-...
+
+[1/1] analysis.qmd
+
 Output created: analysis.html
 ...
 [gh-pages abc1234] Built site for gh-pages
 ...
-To https://github.com/<your-github-username>/r4ds-3.git
-...
+To https://github.com/your-username/r4ds-2.git
 [✓] Deploying gh-pages branch to website (this may take a few minutes)
-[✓] Published to https://<your-github-username>.github.io/r4ds-3/
+[✓] Published to https://your-username.github.io/r4ds-2/
 ```
 
-###
-
-The chart on that page was produced without ever loading a full SEDA table into R. The database did the filtering, and `collect()` pulled down 9,644 district rows and 51 state rows.
+Your answer is the URL on the last line: `https://your-username.github.io/r4ds-2/`.
 
 ###
 
-SEDA is maintained by Stanford's Educational Opportunity Project and reissued annually, which is why the cached chunk is keyed on the database file's modification time rather than on the code alone. Drop next year's file into `data/`, render, and the numbers update themselves.
+The published page carries one finding: births on December 25 run about 39 percentage points below the year-, month-, and weekday-adjusted baseline, with Christmas Eve and July 4 (both about −26) and New Year's Day (−24) the next-deepest dips.
+
+###
+
+The births series stops at 2014 because no later public-use dataset records the day of birth — the CDC's public natality files suppress it — so this analysis cannot be extended without restricted data.
 
 ## Download answers
 
@@ -772,5 +860,5 @@ learnr2::question(
 ```{r}
 #| label: download-answers-2
 #| echo: false
-learnr2::download_answers_button(filename_prefix = "r4ds-3")
+learnr2::download_answers_button(filename_prefix = "r4ds-2")
 ```
