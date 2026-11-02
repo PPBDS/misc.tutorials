@@ -67,7 +67,25 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-5`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Analyzing School District Reading Scores"` and your name as the author. In a bash Terminal, render it:
+Create `analysis.qmd` with the title `"Analyzing School District Reading Scores"` and your name as the author. Add a code chunk that loads the libraries you will need:
+
+```r
+library(tidyverse)
+library(DBI)
+library(duckdb)
+library(dbplyr)
+```
+
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
+
+```yaml
+execute:
+  echo: false
+```
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
 
 ```bash
 quarto render analysis.qmd
@@ -75,50 +93,7 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
 In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing School District Reading Scores\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. A database table almost always has indexes for fast row lookups, and a data frame does not.
-
-### Exercise 2
-
-In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. Render.
-
-Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
-
-```yaml
-execute:
-  echo: false
-```
-
-Render. In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
@@ -127,10 +102,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-5. If you are not, create one and then connect to it. Create analysis.qmd with the title \"Analyzing School District Reading Scores\" and your name as the author. Add a code chunk that loads library(tidyverse), library(DBI), library(duckdb), library(dbplyr). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -148,16 +123,20 @@ library(dbplyr)
 
 ###
 
+A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. A database table almost always has indexes for fast row lookups, and a data frame does not.
+
+###
+
 **DBI** is the common interface R uses to talk to any database, and **duckdb** is one driver for it. DuckDB is *in-process*, running inside your R session with no server to administer. Other drivers: **[RSQLite](https://rsqlite.r-dbi.org/)** for the other common in-process engine, **[RPostgres](https://rpostgres.r-dbi.org/)** and **[RMariaDB](https://rmariadb.r-dbi.org/)** for the client-server databases most organizations run, and **[odbc](https://odbc.r-dbi.org/)** as a generic fallback.
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-5` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-5 repo. In the bash Terminal, run ls. CP/CR.",
@@ -190,14 +169,15 @@ from this same data in May of 2026.
 
 ### Exercise 1
 
-Download the DuckDB database `seda_2025.duckdb` from this URL and save it in your
-`data/` directory:
+Download the DuckDB database `seda_2025.duckdb` to your own computer: open this URL in your browser and the file lands in your Downloads folder.
 
 ```default
 https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/seda_2025.duckdb
 ```
 
-In the bash Terminal, run `ls data`.
+Now move it into the Codespace by hand. Open your Downloads folder beside the browser window and drag `seda_2025.duckdb` onto the `data` folder in the VS Code Explorer. Copy and paste works too: copy the file in your Downloads folder, click the `data` folder in the Explorer, and paste. The upload takes a moment; the file is 27 MB.
+
+In the bash Terminal, run `ls -lh data`.
 
 CP/CR.
 
@@ -205,7 +185,7 @@ CP/CR.
 #| label: us-education-1
 #| echo: false
 learnr2::question(
-  "Download the DuckDB database seda_2025.duckdb from this URL and save it in your data/ directory: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/seda_2025.duckdb In the bash Terminal, run ls data. CP/CR.",
+  "Download the DuckDB database seda_2025.duckdb to your own computer by opening this URL in your browser: https://github.com/PPBDS/misc.tutorials/raw/refs/heads/main/inst/tutorials/r4ds-5/data/seda_2025.duckdb Then move it into the Codespace by hand: drag it from your Downloads folder onto the data folder in the VS Code Explorer, or copy it there and paste it onto the data folder. In the bash Terminal, run ls -lh data. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -214,8 +194,13 @@ learnr2::question(
 ###
 
 ```{.output}
-seda_2025.duckdb
+total 27M
+-rw-r--r-- 1 codespace codespace 27M Nov  1 14:02 seda_2025.duckdb
 ```
+
+###
+
+Your Codespace is a different computer from the one in front of you. The URL put the file on your laptop; the drag sent a copy across the network into `/workspaces/r4ds-5/data`, the only place your code can see it. Until now a command fetched each file straight into the Codespace, which is faster, but files you already have, or that reach you by email, go in this way.
 
 ###
 

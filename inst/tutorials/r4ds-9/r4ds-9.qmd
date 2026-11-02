@@ -67,49 +67,7 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-9`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Wildfires"` and your name as the author. In a bash Terminal, render it:
-
-```bash
-quarto render analysis.qmd
-```
-
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
-
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
-In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-9. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Wildfires\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-This tutorial works with a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US, every one of them at least 10,000 acres, from 1990 to 2023.
-
-### Exercise 2
-
-In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
+Create `analysis.qmd` with the title `"Wildfires"` and your name as the author. Add a code chunk that loads the libraries you will need:
 
 ```r
 library(tidyverse)
@@ -118,14 +76,22 @@ library(leaflet)
 library(jsonlite)
 ```
 
-Also add the following to the YAML header to remove all code from the HTML output:
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
 
 ```yaml
 execute:
   echo: false
 ```
 
-Render.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
+
+```bash
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 In the R Terminal, run:
 
@@ -136,10 +102,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(purrr), library(leaflet), library(jsonlite). Also add execute: echo: false to the YAML header to remove all code from the HTML output. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-9. If you are not, create one and then connect to it. Create analysis.qmd with the title \"Wildfires\" and your name as the author. Add a code chunk that loads library(tidyverse), library(purrr), library(leaflet), library(jsonlite). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -157,6 +123,10 @@ library(jsonlite)
 
 ###
 
+This tutorial works with a GeoJSON file from the National Interagency Fire Center containing 883 finalized wildfire perimeter polygons across the western US, every one of them at least 10,000 acres, from 1990 to 2023.
+
+###
+
 JSON is a machine-readable format with six data types: null (like R's `NA`), string, number, boolean (lowercase `true`/`false`), array (like unnamed R lists), and object (like named R lists).
 
 ```json
@@ -168,14 +138,14 @@ JSON is a machine-readable format with six data types: null (like R's `NA`), str
 }
 ```
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-9` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-9 repo. In the bash Terminal, run ls. CP/CR.",

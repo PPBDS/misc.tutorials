@@ -39,49 +39,7 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-10`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"IMDb Rankings"` and your name as the author. In a bash Terminal, render it:
-
-```bash
-quarto render analysis.qmd
-```
-
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
-
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
-In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-10. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"IMDb Rankings\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-This tutorial works with five archived snapshots of the IMDb Top 250, captured by the Wayback Machine in January 2015, 2017, 2019, and 2021 and in February 2022 — 1,250 rows in all, one per film per snapshot. The live chart changes every day. The archive is the only place the chart of a given past date still exists.
-
-### Exercise 2
-
-In your QMD, add the following `library()` commands in a new code chunk with `#| message: false`:
+Create `analysis.qmd` with the title `"IMDb Rankings"` and your name as the author. Add a code chunk that loads the libraries you will need:
 
 ```r
 library(tidyverse)
@@ -90,14 +48,22 @@ library(httr2)
 library(purrr)
 ```
 
-Also add the following to the YAML header to remove all code from the HTML output:
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
 
 ```yaml
 execute:
   echo: false
 ```
 
-Render.
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
+
+```bash
+quarto render analysis.qmd
+```
+
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
 In the R Terminal, run:
 
@@ -108,10 +74,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, add the following library() commands in a new code chunk with #| message: false: library(tidyverse), library(rvest), library(httr2), library(purrr). Also add execute: echo: false to the YAML header to remove all code from the HTML output. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-10. If you are not, create one and then connect to it. Create analysis.qmd with the title \"IMDb Rankings\" and your name as the author. Add a code chunk that loads library(tidyverse), library(rvest), library(httr2), library(purrr). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -129,6 +95,10 @@ library(purrr)
 
 ###
 
+This tutorial works with five archived snapshots of the IMDb Top 250, captured by the Wayback Machine in January 2015, 2017, 2019, and 2021 and in February 2022 — 1,250 rows in all, one per film per snapshot. The live chart changes every day. The archive is the only place the chart of a given past date still exists.
+
+###
+
 An HTML page is a tree of **elements**, each a start tag, optional attributes, some contents, and an end tag — this is one cell of the table you will scrape:
 
 ```html
@@ -139,14 +109,14 @@ An HTML page is a tree of **elements**, each a start tag, optional attributes, s
 
 The rating is the element's text. The vote count hides in its `title` attribute.
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-10` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-10 repo. In the bash Terminal, run ls. CP/CR.",

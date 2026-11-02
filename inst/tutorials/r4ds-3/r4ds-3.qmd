@@ -45,7 +45,7 @@ Use AI however you like.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it. All lowercase: `r4ds-3`, not `R4DS-2` — every path and URL below assumes it.
+You should be doing this tutorial in a repo named `r4ds-3`. If you are not, create one and then connect to it.
 
 Create a new file and save it as `analysis.qmd`. Add a YAML header at the top with a title (`"Analyzing US Births"`) and your name as author. In a bash Terminal, run:
 
@@ -71,7 +71,7 @@ CP/CR.
 #| label: introduction-1
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. All lowercase: r4ds-3, not R4DS-2 — every path and URL below assumes it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-3. If you are not, create one and then connect to it. Create a new file and save it as analysis.qmd. Add a YAML header at the top with a title (\"Analyzing US Births\") and your name as author. In a bash Terminal, run: quarto render analysis.qmd Open analysis.html with Live Server (right-click it in the Explorer, then Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )

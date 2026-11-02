@@ -88,7 +88,25 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-6`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Analyzing Americans' Time Use"` and your name as the author. In a bash Terminal, render it:
+Create `analysis.qmd` with the title `"Analyzing Americans' Time Use"` and your name as the author. Add a code chunk that loads the libraries you will need:
+
+```r
+library(tidyverse)
+library(DBI)
+library(duckdb)
+library(dbplyr)
+```
+
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
+
+```yaml
+execute:
+  echo: false
+```
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
 
 ```bash
 quarto render analysis.qmd
@@ -96,50 +114,7 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
 In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-6. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Analyzing Americans' Time Use\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. The ATUS activity table you are about to use has 4.9 million rows, which is why it ships as a DuckDB file rather than as a CSV you would read into R.
-
-### Exercise 2
-
-In your QMD, put `library(tidyverse)`, `library(DBI)`, `library(duckdb)`, and `library(dbplyr)` in a new code chunk. Render.
-
-Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add `#| message: false` to remove all the messages in this code chunk. Also add the following to the YAML header to remove all code echoes from the HTML:
-
-```yaml
-execute:
-  echo: false
-```
-
-Render. In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
@@ -148,10 +123,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, put library(tidyverse), library(DBI), library(duckdb), and library(dbplyr) in a new code chunk. Render. Notice that the file does not look good because the code is visible and there are annoying messages. To take care of this, add #| message: false to remove all the messages in this code chunk. Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-6. If you are not, create one and then connect to it. Create analysis.qmd with the title \"Analyzing Americans' Time Use\" and your name as the author. Add a code chunk that loads library(tidyverse), library(DBI), library(duckdb), library(dbplyr). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -169,16 +144,20 @@ library(dbplyr)
 
 ###
 
+A database table lives on disk and can be arbitrarily large, while a data frame lives in memory. The ATUS activity table you are about to use has 4.9 million rows, which is why it ships as a DuckDB file rather than as a CSV you would read into R.
+
+###
+
 **dbplyr** is the translator: you write an ordinary **dplyr** pipeline against a database table, it turns the pipeline into SQL, and the database — here DuckDB, running inside your R session through the **duckdb** driver and the **DBI** interface — does the work. R receives only the rows you ask for with `collect()`.
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-6` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-6 repo. In the bash Terminal, run ls. CP/CR.",
@@ -196,6 +175,110 @@ AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ###
 
 ATUS interviews one randomly selected person, aged 15 or older, from a household that has just completed its final month in the Current Population Survey, so the sample inherits the CPS's national coverage. Each respondent accounts for a single diary day, assigned in advance, which is why the survey can say how a weekday differs from a weekend.
+
+### Exercise 3
+
+Your repo is one folder on a larger machine. In the bash Terminal, run these two commands:
+
+```bash
+pwd
+ls ..
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run these two commands: pwd, then ls .. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-6 $ pwd
+/workspaces/r4ds-6
+r4ds-6 $ ls ..
+codespace-starter  r4ds-6
+r4ds-6 $
+```
+
+###
+
+`..` is the directory one level up. Everything in a Codespace lives under `/workspaces`: the course's `codespace-starter` folder, which the Codespace was built from, and one folder per repo you have connected, here just `r4ds-6`. If `analysis.qmd` ever goes missing, look here first: it must be inside `/workspaces/r4ds-6`, not beside it.
+
+### Exercise 4
+
+Look inside the other folder. In the bash Terminal, run:
+
+```bash
+ls -a /workspaces/codespace-starter
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-4
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls -a /workspaces/codespace-starter. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+.  ..  .devcontainer  .git  .github  .vscode
+```
+
+###
+
+`codespace-starter` holds nothing but bookkeeping: every entry is a hidden folder of settings for the Codespace, for GitHub, or for VS Code. You never save work there. It belongs to the course, not to you, and every new Codespace starts from a fresh copy of it.
+
+### Exercise 5
+
+Move around and come back. In the bash Terminal, run these commands one at a time:
+
+```bash
+cd /workspaces
+ls
+cd r4ds-6
+pwd
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-5
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run these commands one at a time: cd /workspaces, ls, cd r4ds-6, pwd. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-6 $ cd /workspaces
+workspaces $ ls
+codespace-starter  r4ds-6
+workspaces $ cd r4ds-6
+r4ds-6 $ pwd
+/workspaces/r4ds-6
+r4ds-6 $
+```
+
+###
+
+The prompt names the folder you are in, which is the working directory every command runs from: `quarto render analysis.qmd` works only when the prompt says `r4ds-6 $`. A new bash Terminal always opens in the folder VS Code has open, so the quickest fix for a terminal that has wandered off is a new one.
 
 ## Time use
 

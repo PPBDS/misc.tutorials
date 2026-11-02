@@ -38,7 +38,23 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-7`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Crypto Markets"` and your name as the author. In a bash Terminal, render it:
+Create `analysis.qmd` with the title `"Crypto Markets"` and your name as the author. Add a code chunk that loads the libraries you will need:
+
+```r
+library(tidyverse)
+library(arrow)
+```
+
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
+
+```yaml
+execute:
+  echo: false
+```
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
 
 ```bash
 quarto render analysis.qmd
@@ -46,55 +62,7 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
 In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "Create a new file, analysis.qmd, with the title \"Crypto Markets\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run: show_file(\".gitignore\") If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-Parquet stores a table column-by-column instead of row-by-row. A query that needs one column reads only that column's bytes and skips the rest of the file, and repeated values inside a single column compress extremely well.
-
-### Exercise 2
-
-In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
-
-```r
-library(tidyverse)
-library(arrow)
-```
-
-Also add the following to the YAML header to remove all code echoes from the HTML:
-
-```yaml
-execute:
-  echo: false
-```
-
-Render. In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
@@ -103,10 +71,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add the following to the YAML header to remove all code echoes from the HTML: execute: echo: false. Render. In the R Terminal, run: show_file(\"analysis.qmd\") CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-7. If you are not, create one and then connect to it. Create analysis.qmd with the title \"Crypto Markets\" and your name as the author. Add a code chunk that loads library(tidyverse), library(arrow). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -122,16 +90,20 @@ library(arrow)
 
 ###
 
+Parquet stores a table column-by-column instead of row-by-row. A query that needs one column reads only that column's bytes and skips the rest of the file, and repeated values inside a single column compress extremely well.
+
+###
+
 **arrow** is one of several tools for data that is too large or too slow for ordinary in-memory work. **[duckdb](https://r.duckdb.org/)** runs SQL directly against parquet files and is usually the fastest option for big joins and aggregations. **[data.table](https://rdatatable.gitlab.io/data.table/)** is the classic in-memory speed package, and **[fst](https://www.fstpackage.org/)** is a fast R-only binary format for local caching.
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-7` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-7 repo. In the bash Terminal, run ls. CP/CR.",
@@ -149,6 +121,131 @@ AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ###
 
 In production, a parquet *dataset* is usually not one file but a directory of them — one file per day, per region, or per coin — read as a single table. A partition value lives in the directory name, so a query for one coin never opens the other folders.
+### Exercise 3
+
+So far every tutorial has used one repo. Make a second one. In the bash Terminal, run:
+
+```bash
+connect-repo r4ds-7-new
+```
+
+You are already signed in, so it goes straight to creating the repo and finishes with a line like `✅  Connected: /workspaces/r4ds-7-new  →  https://github.com/your-username/r4ds-7-new`. Usually the window then switches to the new folder: click **Trust Folder & Continue** if asked. The old terminals disappear and a fresh bash Terminal opens at `r4ds-7-new $`. If the window does not switch, choose `File -> Open Folder...` from the Application Menu, type `/workspaces/r4ds-7-new`, and press **OK**. This browser tab keeps working either way; if it greys out, reload it.
+
+In the new bash Terminal, run `ls /workspaces`.
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run connect-repo r4ds-7-new. Click Trust Folder & Continue if asked. If the window does not switch to the new folder, choose File -> Open Folder..., type /workspaces/r4ds-7-new, and press OK. In the new bash Terminal, run ls /workspaces. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-7-new $ ls /workspaces
+codespace-starter  r4ds-7  r4ds-7-new
+r4ds-7-new $
+```
+
+###
+
+`connect-repo` did three things: created `r4ds-7-new` on GitHub, cloned it to `/workspaces/r4ds-7-new`, and pointed VS Code at that folder. The Explorer shows one folder at a time, so your `r4ds-7` work seems to have vanished. It has not. It sits one level up, beside the new folder.
+
+### Exercise 4
+
+Go back to your real repo. From the Application Menu choose `File -> Open Folder...`, type `/workspaces/r4ds-7` in the box, and press **OK**. Click **Trust Folder & Continue** if asked. The window rebuilds around `r4ds-7`, and the Explorer shows `analysis.qmd` again. If this tutorial page stops responding, reload the browser tab; if that does not fix it, restart the tutorial from **R Tutorials** in the Activity Bar. Your answers are saved.
+
+In the fresh bash Terminal, run `pwd`.
+
+CP/CR.
+
+```{r}
+#| label: introduction-4
+#| echo: false
+learnr2::question(
+  "From the Application Menu choose File -> Open Folder..., type /workspaces/r4ds-7, and press OK. Click Trust Folder & Continue if asked. In the fresh bash Terminal, run pwd. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-7 $ pwd
+/workspaces/r4ds-7
+r4ds-7 $
+```
+
+###
+
+`File -> Open Folder...` is all that `connect-repo` does at the end. The folder VS Code has open decides what the Explorer lists, where new terminals start, and which repo the Source Control panel commits to. Switching folders is how you move between projects inside one Codespace.
+
+### Exercise 5
+
+You do not need `r4ds-7-new`. Delete your local copy. In the bash Terminal, run these two commands:
+
+```bash
+rm -rf /workspaces/r4ds-7-new
+ls /workspaces
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-5
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run these two commands: rm -rf /workspaces/r4ds-7-new, then ls /workspaces. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-7 $ rm -rf /workspaces/r4ds-7-new
+r4ds-7 $ ls /workspaces
+codespace-starter  r4ds-7
+r4ds-7 $
+```
+
+###
+
+`rm -rf` removes a folder and everything in it, with no confirmation and no trash can, so read the path twice before pressing Enter. It touched only this Codespace. The repository on GitHub is a separate copy and is still there.
+
+### Exercise 6
+
+Delete the GitHub copy too. Go to `https://github.com/your-username/r4ds-7-new`, click **Settings**, scroll to the **Danger Zone** at the bottom, click **Delete this repository**, and follow the prompts; GitHub makes you type the repository's full name before it will proceed. Then open your repositories page (click your profile picture, then **Your repositories**) and type `r4ds-7` in the search box. Only `r4ds-7` should remain.
+
+Take a screenshot of that list and paste it below.
+
+```{r}
+#| label: introduction-6
+#| echo: false
+learnr2::question(
+  "Delete r4ds-7-new on GitHub: open its page, click Settings, scroll to the Danger Zone, click Delete this repository, and follow the prompts. Then open Your repositories, type r4ds-7 in the search box, and take a screenshot of the list, which should show only r4ds-7. Paste it below.",
+  type = "reflection",
+  allow_image = TRUE,
+  allow_text = FALSE,
+  show_text = FALSE
+)
+```
+
+###
+
+Your screenshot should show the search box with `r4ds-7` in it and a single repository, `r4ds-7`, listed below.
+
+###
+
+A repo lives in two places, and deleting one copy never deletes the other. GitHub asks for the full name because the deletion is meant to be final. Remember the pair of steps for the practice repos you will create by accident over the course: one `rm -rf` here, one Danger Zone there.
 
 ## Crypto markets
 

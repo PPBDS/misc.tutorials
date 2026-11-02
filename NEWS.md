@@ -1,5 +1,22 @@
 # misc.tutorials (development version)
 
+* The R4DS family now has a deliberate pacing gradient. `r4ds-1` and `r4ds-2`
+  open with four slow Introduction exercises, the lowercase-name warning and
+  a spelled-out `download.file()`. `r4ds-3` and `r4ds-4` keep the standard
+  three-exercise Introduction. From `r4ds-5` on the Introduction is two
+  exercises: one creates the repo, `analysis.qmd`, `.gitignore` and the
+  libraries chunk, the other the `data/` directory.
+
+* Three tutorials now teach the Codespace itself, a recorded departure from
+  the base guide's environment-neutral rule. In `r4ds-5` the student
+  downloads the data file to their own computer and drags or pastes it into
+  the Codespace. In `r4ds-6` three exercises tour `/workspaces` with `pwd`,
+  `ls ..`, `ls -a` and `cd`. In `r4ds-7` the student runs `connect-repo` a
+  second time to make `r4ds-7-new`, switches folders with `File -> Open
+  Folder...`, and then deletes the extra repo both locally and on GitHub. In
+  `r4ds-8` two exercises review the picture with `ls /workspaces` and
+  `git remote -v`.
+
 * `census-1` is split in two. `census-1` keeps the Texas income map and adds two
   exercises on the margin of error: a table of the counties where it is
   largest relative to the estimate, and a second map of that share. The new

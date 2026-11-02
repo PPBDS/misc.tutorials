@@ -41,7 +41,23 @@ Use AI however you like.
 
 You should be doing this tutorial in a repo named `r4ds-8`. If you are not, create one and then connect to it.
 
-Create a new file, `analysis.qmd`, with the title `"Prediction Markets"` and your name as the author. In a bash Terminal, render it:
+Create `analysis.qmd` with the title `"Prediction Markets"` and your name as the author. Add a code chunk that loads the libraries you will need:
+
+```r
+library(tidyverse)
+library(arrow)
+```
+
+Give the chunk `#| message: false`, and add this to the YAML header so no code appears in the HTML:
+
+```yaml
+execute:
+  echo: false
+```
+
+Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
+
+In a bash Terminal, render:
 
 ```bash
 quarto render analysis.qmd
@@ -49,55 +65,7 @@ quarto render analysis.qmd
 
 Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
 
-Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
-
 In the R Terminal, run:
-
-```r
-show_file(".gitignore")
-```
-
-If that fails, it is probably because you have not yet loaded `library(learnr2)` in the R Terminal.
-
-CP/CR.
-
-```{r}
-#| label: introduction-1
-#| echo: false
-learnr2::question(
-  "Create a new file, analysis.qmd, with the title \"Prediction Markets\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
-  type = "reflection",
-  show_text = FALSE
-)
-```
-
-###
-
-```{.output}
-analysis_files
-```
-
-###
-
-The data comes from **Manifold Markets**, a play-money platform launched in 2022. Traders use Mana, a fictional currency, which matters for how you read the results: nobody is risking rent on these forecasts, so the incentive to be right is weaker than on a real-money exchange like Kalshi or Polymarket.
-
-### Exercise 2
-
-In your QMD, add a new code chunk with `#| message: false` to load all required libraries:
-
-```r
-library(tidyverse)
-library(arrow)
-```
-
-Also add the following to the YAML header to remove all code echoes from the HTML:
-
-```yaml
-execute:
-  echo: false
-```
-
-Render. In the R Terminal, run:
 
 ```r
 show_file("analysis.qmd")
@@ -106,10 +74,10 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-1
 #| echo: false
 learnr2::question(
-  "In your QMD, add a new code chunk with #| message: false to load all required libraries: library(tidyverse) and library(arrow). Also add execute: echo: false to the YAML header to remove all code echoes from the HTML. Render. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
+  "You should be doing this tutorial in a repo named r4ds-8. If you are not, create one and then connect to it. Create analysis.qmd with the title \"Prediction Markets\" and your name as the author. Add a code chunk that loads library(tidyverse), library(arrow). Give the chunk #| message: false, and add execute: echo: false to the YAML header. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In a bash Terminal, run quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -125,16 +93,20 @@ library(arrow)
 
 ###
 
+The data comes from **Manifold Markets**, a play-money platform launched in 2022. Traders use Mana, a fictional currency, which matters for how you read the results: nobody is risking rent on these forecasts, so the incentive to be right is weaker than on a real-money exchange like Kalshi or Polymarket.
+
+###
+
 Parquet stores a table column-by-column rather than row-by-row, so a query that touches one column reads only that column's bytes, and repeated values inside a column compress well. It shows in this data: 43,694 daily snapshots occupy 186 KB.
 
-### Exercise 3
+### Exercise 2
 
 Create a `data` directory at the top level of the `r4ds-8` repo. In the bash Terminal, run `ls`.
 
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-2
 #| echo: false
 learnr2::question(
   "Create a data directory at the top level of the r4ds-8 repo. In the bash Terminal, run ls. CP/CR.",
@@ -152,6 +124,74 @@ AGENTS.md  analysis_files  analysis.html  analysis.qmd  data
 ###
 
 The four files you are about to download are a small relational database rather than one table. `markets` has one row per question, `history` has one row per market per day, and `groups` lists topic labels.
+### Exercise 3
+
+A quick review of where you are working. In the bash Terminal, run:
+
+```bash
+ls /workspaces
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-3
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run ls /workspaces. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+codespace-starter  r4ds-8
+```
+
+If you reused a Codespace from an earlier tutorial, its repo folders are listed too. That is fine.
+
+###
+
+`/workspaces` can hold any number of folders. One of them, `codespace-starter`, you never use and cannot really use: it belongs to the course. Every other folder should correspond to a repo in your own GitHub account, and it is perfectly normal to have several, one per project.
+
+### Exercise 4
+
+The link between a folder and its repo is written inside the folder. In the bash Terminal, run these two commands:
+
+```bash
+git remote -v
+git -C /workspaces/codespace-starter remote -v
+```
+
+CP/CR.
+
+```{r}
+#| label: introduction-4
+#| echo: false
+learnr2::question(
+  "In the bash Terminal, run these two commands: git remote -v, then git -C /workspaces/codespace-starter remote -v. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+r4ds-8 $ git remote -v
+origin  https://github.com/your-username/r4ds-8.git (fetch)
+origin  https://github.com/your-username/r4ds-8.git (push)
+r4ds-8 $ git -C /workspaces/codespace-starter remote -v
+origin  https://github.com/PPBDS/codespace-starter.git (fetch)
+origin  https://github.com/PPBDS/codespace-starter.git (push)
+r4ds-8 $
+```
+
+###
+
+`origin` is the GitHub copy a folder pushes to. Yours points at your account; `codespace-starter`'s points at `PPBDS`, where you have no permission to push, which is why work saved there can never reach GitHub. `git -C <folder>` runs a Git command inside another folder without leaving this one.
 
 ## Does the crowd get it right?
 

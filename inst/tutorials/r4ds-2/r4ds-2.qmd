@@ -34,11 +34,13 @@ This tutorial covers key concepts from [Chapter 7: Data Import](https://r4ds.had
 
 You will use AI to explore a sample of the Million Song Dataset: a plain CSV that looks complete at first glance and turns out to be missing most of what it claims to hold. Your job is to steer the analysis, render often, inspect the output, and decide what the data can honestly show.
 
-Use AI however you like.
+###
+
+Use AI however you like. The rhythm is always the same: describe the result you want, let the agent edit your files, review its changes, render, and inspect the output.
 
 ### Exercise 1
 
-You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it.
+You should be doing this tutorial in a repo named `r4ds-2`. If you are not, create one and then connect to it. All lowercase: `r4ds-2`, not `R4DS-2` — every path and URL below assumes it.
 
 Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and your name as the author. In a bash Terminal, render it:
 
@@ -46,7 +48,35 @@ Create a new file, `analysis.qmd`, with the title `"Million Song Dataset"` and y
 quarto render analysis.qmd
 ```
 
-Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to "Render" when we want you to take these steps.
+Open `analysis.html` with Live Server (right-click it in the Explorer → **Open with Live Server**) and keep the tab open. It refreshes on every render, so you always have a live view of your finished page. Going forward, we will just tell you to "Render" when we want you to take these steps: render in the bash Terminal, then glance at the refreshed Live Server tab.
+
+In the bash Terminal, run `ls`.
+
+CP/CR.
+
+```{r}
+#| label: introduction-1
+#| echo: false
+learnr2::question(
+  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. All lowercase: r4ds-2, not R4DS-2. Every path and URL below assumes it. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it with quarto render analysis.qmd. Open analysis.html with Live Server and keep the tab open. In the bash Terminal, run ls. CP/CR.",
+  type = "reflection",
+  show_text = FALSE
+)
+```
+
+###
+
+```{.output}
+AGENTS.md  analysis_files  analysis.html  analysis.qmd
+```
+
+If `analysis.qmd` is not in this listing, you saved it somewhere else. Move it into the `r4ds-2` folder before going on.
+
+###
+
+Like the Billboard data in `r4ds-1`, this data arrives as a plain-text CSV you fetch and parse yourself, which is what [Chapter 7](https://r4ds.hadley.nz/data-import.html) of *R for Data Science* is about. The difference is size and quality: 10,000 songs, and several columns that are not what they claim to be.
+
+### Exercise 2
 
 Create a `.gitignore` with `analysis_files` followed by a blank line. Commit and push.
 
@@ -61,10 +91,10 @@ If that fails, it is probably because you have not yet loaded `library(learnr2)`
 CP/CR.
 
 ```{r}
-#| label: introduction-1
+#| label: introduction-2
 #| echo: false
 learnr2::question(
-  "You should be doing this tutorial in a repo named r4ds-2. If you are not, create one and then connect to it. Create a new file, analysis.qmd, with the title \"Million Song Dataset\" and your name as the author. In a bash Terminal, render it: quarto render analysis.qmd. Open analysis.html with Live Server (right-click it in the Explorer and choose Open with Live Server) and keep the tab open. It refreshes on every render. Going forward, we will just tell you to \"Render\" when we want you to take these steps. Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
+  "Create a .gitignore with analysis_files followed by a blank line. Commit and push. In the R Terminal, run show_file(\".gitignore\"). If that fails, it is probably because you have not yet loaded library(learnr2) in the R Terminal. CP/CR.",
   type = "reflection",
   show_text = FALSE
 )
@@ -88,7 +118,7 @@ A CSV is the plainest possible table: one line per row, values separated by comm
 
 No types, no formulas, no formatting — which is exactly why every programming language, database, and spreadsheet program can read one.
 
-### Exercise 2
+### Exercise 3
 
 In your QMD, put `library(tidyverse)` and `library(maps)` in a new code chunk. Add `#| message: false` to the chunk so package startup messages do not appear in the rendered HTML.
 
@@ -110,7 +140,7 @@ show_file("analysis.qmd")
 CP/CR.
 
 ```{r}
-#| label: introduction-2
+#| label: introduction-3
 #| echo: false
 learnr2::question(
   "In your QMD, put library(tidyverse) and library(maps) in a new code chunk. Add #| message: false to the chunk so package startup messages do not appear in the rendered HTML. Also add execute: echo: false to the YAML header to hide code in the HTML. Render again. Check the rendered HTML. Only the title and author should appear in the HTML. In the R Terminal, run show_file(\"analysis.qmd\"). CP/CR.",
@@ -131,7 +161,7 @@ library(maps)
 
 `read_csv()`, from **[readr](https://readr.tidyverse.org/)**, does much more than split lines on commas. It scans the first several thousand values in each column, guesses a type — integer, double, character, date — and then prints the specification it settled on.
 
-### Exercise 3
+### Exercise 4
 
 In the R Terminal, run these three commands:
 
@@ -148,7 +178,7 @@ We will soon stop giving you commands like these and just have AI do it.
 CP/CR.
 
 ```{r}
-#| label: introduction-3
+#| label: introduction-4
 #| echo: false
 learnr2::question(
   "In the R Terminal, run these three commands: getwd(), dir.create(\"data\"), list.files(). This will create a data directory in your project. This is a good place to store any data that you are working with. If analysis.qmd is not in this listing, you saved it somewhere else. Move it into the r4ds-2 folder before going on. We will soon stop giving you commands like these and just have AI do it. CP/CR.",
