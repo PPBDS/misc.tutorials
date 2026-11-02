@@ -2,6 +2,25 @@
 
 ## misc.tutorials (development version)
 
+- The R4DS family now has a deliberate pacing gradient. `r4ds-1` and
+  `r4ds-2` open with four slow Introduction exercises, the
+  lowercase-name warning and a spelled-out
+  [`download.file()`](https://rdrr.io/r/utils/download.file.html).
+  `r4ds-3` and `r4ds-4` keep the standard three-exercise Introduction.
+  From `r4ds-5` on the Introduction is two exercises: one creates the
+  repo, `analysis.qmd`, `.gitignore` and the libraries chunk, the other
+  the `data/` directory.
+
+- Three tutorials now teach the Codespace itself, a recorded departure
+  from the base guide’s environment-neutral rule. In `r4ds-5` the
+  student downloads the data file to their own computer and drags or
+  pastes it into the Codespace. In `r4ds-6` three exercises tour
+  `/workspaces` with `pwd`, `ls ..`, `ls -a` and `cd`. In `r4ds-7` the
+  student runs `connect-repo` a second time to make `r4ds-7-new`,
+  switches folders with `File -> Open Folder...`, and then deletes the
+  extra repo both locally and on GitHub. In `r4ds-8` two exercises
+  review the picture with `ls /workspaces` and `git remote -v`.
+
 - `census-1` is split in two. `census-1` keeps the Texas income map and
   adds two exercises on the margin of error: a table of the counties
   where it is largest relative to the estimate, and a second map of that
@@ -16,8 +35,12 @@
   old `r4ds-4` (crypto) is `r4ds-7`, `prediction-markets` is `r4ds-8`,
   the old `r4ds-5` (wildfires) is `r4ds-9`, and `imdb-rankings` is
   `r4ds-10`. Titles follow (“R4DS 2” and so on), as do the repo names
-  and download URLs inside each tutorial. Older entries below use the
-  names current when they were written.
+  and download URLs inside each tutorial. The introductory scaffolding
+  moved with the slots: `r4ds-2` now spells out the `data/` commands and
+  the [`download.file()`](https://rdrr.io/r/utils/download.file.html)
+  call, and `r4ds-3` (births) uses the goal-stated form like every later
+  tutorial. Older entries below use the names current when they were
+  written.
 
 - The census tutorials’ folders are `census-1` and `census-2` (formerly
   `census` and `demographics`), so their order is visible at a glance;

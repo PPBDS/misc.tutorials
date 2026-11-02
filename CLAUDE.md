@@ -39,19 +39,18 @@ here — never a silent difference. (The base guide already carries the
 *Choosing topics (misc.tutorials-specific)* section; this file does not
 repeat it.)
 
-**Override — explicit `data/` scaffold in `r4ds-1` and `r4ds-3`
-(Billboard and births) only.** The base guide (§4, Introduction step 3)
-says to state the goal and confirm with bash `ls`. The first two r4ds
-tutorials instead spell out the commands —
-[`getwd()`](https://rdrr.io/r/base/getwd.html), `dir.create("data")`,
+**Override — explicit `data/` scaffold in `r4ds-1` and `r4ds-2` only.**
+The base guide (§4, Introduction step 3) says to state the goal and
+confirm with bash `ls`. The first two r4ds tutorials instead spell out
+the commands — [`getwd()`](https://rdrr.io/r/base/getwd.html),
+`dir.create("data")`,
 [`list.files()`](https://rdrr.io/r/base/list.files.html) in the R
 Terminal — because students arrive fresh from the infrastructure
-tutorials and should see exactly what is happening. `r4ds-3` adds the
+tutorials and should see exactly what is happening. `r4ds-2` adds the
 transition note: “We will soon stop giving you commands like these and
-just have AI do it.” Every other tutorial — `r4ds-5` on, the spin-outs
-(`r4ds-2`, `r4ds-4`, …), `census-1`, `baseball`, … — follows the base
-guide’s goal-stated + bash-`ls` form. (This narrowing is one instance of
-the pacing gradient recorded below.)
+just have AI do it.” Every other tutorial — `r4ds-3` on, `census-1`,
+`baseball`, … — follows the base guide’s goal-stated + bash-`ls` form.
+(This narrowing is one instance of the pacing gradient recorded below.)
 
 **Override — no interpretation exercises.** The base guide (§4,
 *Analysis path*) requires a dedicated interpretation exercise after each
@@ -62,6 +61,29 @@ creation; students steer the analysis and judge the output, but are not
 asked to write prose interpretations in the QMD. Knowledge drops carry
 the interpretive commentary instead. Do not add interpretation exercises
 to any tutorial in this package.
+
+**Override — Codespaces exercises from `r4ds-5` on.** The base guide
+(§4, Introduction) says a normal tutorial must not name a specific
+environment. From `r4ds-5` on, the R4DS family does, on purpose, in a
+few exercises whose lesson is the working environment itself, which
+students otherwise never see explained after the infrastructure
+tutorials: `r4ds-5` has the student download the data file to their own
+computer and move it into the Codespace by hand (drag it, or copy and
+paste it, onto `data/` in the Explorer; `ls -lh data`); `r4ds-6` tours
+`/workspaces` with `pwd`, `ls ..`,
+`ls -a /workspaces/codespace-starter`, and a `cd` round trip; `r4ds-7`
+runs `connect-repo r4ds-7-new` a second time, tours the three folders,
+returns with `File -> Open Folder...`, then deletes `r4ds-7-new` locally
+(`rm -rf`) and on GitHub (Settings, Danger Zone), ending with a
+screenshot of the repositories list; `r4ds-8` reviews the picture with
+`ls /workspaces` and `git remote -v` run against both the repo and
+`codespace-starter` (several folders are normal, each is a GitHub repo
+of yours, the starter is the course’s and cannot be pushed to). `r4ds-9`
+and `r4ds-10` do not yet have an infrastructure topic; that is an open
+decision. These answer the recurring “saved `analysis.qmd` in the wrong
+place” problem and are the only places the family assumes Codespaces;
+everything else still works locally. Record any further such exercise
+here.
 
 ## Tutorial format: learnr2
 
@@ -187,7 +209,14 @@ topic.)
 The class workflow: students complete the **first four
 `vscode.tutorials` infrastructure tutorials** — Orientation, Workflow,
 Code, and Quarto — and then do the R4DS family, `r4ds-1` through
-`r4ds-10` in order, as their first data-science practice. Two standing
+`r4ds-10` in order, as their first data-science practice. **The family’s
+arc:** the core of every R4DS tutorial is practice at using AI to do
+data science, the same practice each time; but before that practice
+begins, each tutorial from `r4ds-5` on teaches one more piece of the
+infrastructure that makes the work possible (the upload in `r4ds-5`,
+`/workspaces` in `r4ds-6`, a second repo in `r4ds-7`, the review in
+`r4ds-8`; see the Codespaces override above). The infrastructure topics
+for `r4ds-9` and `r4ds-10` are not yet decided. Three standing
 consequences:
 
 - **Prerequisite contract.** The R4DS-family tutorials may assume
@@ -199,17 +228,20 @@ consequences:
   of this contract: the student environment guarantees every package the
   tutorials need is preinstalled, so tutorials never include install
   exercises.)
-- **Pacing gradient.** `r4ds-1` is the student’s first
-  post-infrastructure tutorial and goes slowest: more explanation,
-  smaller setup steps, explicit commands where later tutorials just
-  state goals. `r4ds-3` (births) was written as the second-slowest.
-  Since the November 2026 renumbering, `r4ds-2` (the Million Song data,
-  formerly music) sits between them but was written to run at full
-  speed, assuming both parents are done. Everything from `r4ds-4` on
-  moves at full speed. Smoothing the gradient across the whole run is
-  open work. The explicit `data/` scaffold override (above) is one
-  instance of this gradient; the download-instruction style (see *Data
-  handling*) is another.
+- **Pacing gradient.** `r4ds-1` and `r4ds-2` go slowest: a four-exercise
+  Introduction (repo and QMD, then `.gitignore`, then the libraries
+  chunk, then the explicit `data/` commands), the lowercase-name
+  warning, and a spelled-out
+  [`download.file()`](https://rdrr.io/r/utils/download.file.html).
+  `r4ds-3` and `r4ds-4` run at the base guide’s standard pace: three
+  Introduction exercises, goal-stated `data/`, URL-only downloads. From
+  `r4ds-5` on the Introduction is two exercises — one that creates the
+  repo, `analysis.qmd`, `.gitignore` and the libraries chunk and submits
+  `show_file("analysis.qmd")`, then the `data/` step — and the family
+  spends the room on the Codespaces exercises recorded in the override
+  below. The explicit `data/` scaffold override (above) and the
+  download-instruction style (see *Data handling*) are the two visible
+  instances of this gradient.
 
 ## Per-tutorial map
 
@@ -396,11 +428,11 @@ machinery are **gone**. This section records the
   from the build while the data files themselves still ship.
 - **Download-instruction style depends on the tutorial’s place in the
   sequence** (per the base guide’s *Match the download instruction*
-  rule). `r4ds-1` and `r4ds-3` are a student’s first data-science
+  rule). `r4ds-1` and `r4ds-2` are a student’s first data-science
   tutorials, so they hand students an explicit, working
   `download.file("<url>", "data/<file>")` command. Every later tutorial
-  (`r4ds-2` and `r4ds-4` onward, `census-1`, the topic tutorials) just
-  points students at the stable URL and lets them choose how to fetch it
+  (`r4ds-3` onward, `census-1`, the topic tutorials) just points
+  students at the stable URL and lets them choose how to fetch it
   ([`download.file()`](https://rdrr.io/r/utils/download.file.html) or
   AI).
 - **Large data files are gitignored, not committed.** `r4ds-5` and
