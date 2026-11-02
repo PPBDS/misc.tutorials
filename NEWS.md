@@ -13,8 +13,11 @@
   districts) is `r4ds-5`, `time-use` is `r4ds-6`, the old `r4ds-4` (crypto) is
   `r4ds-7`, `prediction-markets` is `r4ds-8`, the old `r4ds-5` (wildfires) is
   `r4ds-9`, and `imdb-rankings` is `r4ds-10`. Titles follow ("R4DS 2" and so
-  on), as do the repo names and download URLs inside each tutorial. Older
-  entries below use the names current when they were written.
+  on), as do the repo names and download URLs inside each tutorial. The
+  introductory scaffolding moved with the slots: `r4ds-2` now spells out the
+  `data/` commands and the `download.file()` call, and `r4ds-3` (births) uses
+  the goal-stated form like every later tutorial. Older entries below use the
+  names current when they were written.
 
 * The census tutorials' folders are `census-1` and `census-2` (formerly
   `census` and `demographics`), so their order is visible at a glance; their
