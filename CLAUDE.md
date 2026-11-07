@@ -52,6 +52,16 @@ just have AI do it.” Every other tutorial — `r4ds-3` on, `census-1`,
 `baseball`, … — follows the base guide’s goal-stated + bash-`ls` form.
 (This narrowing is one instance of the pacing gradient recorded below.)
 
+**Override — `antigravity` is a setup tutorial.** It moved here from
+`vscode.tutorials` in November 2026 and sits first (ordering 1), just
+before `r4ds-1`. Its only job is to get the student signed in to the
+Antigravity CLI and to use it for a few small jobs (read the repo, write
+a file, run a command, commit and push). It has no data, no
+`analysis.qmd`, no analysis path, and no published graphic, and it names
+the Codespace and the NCF Google Cloud project because the sign-in is
+environment-specific. `r4ds-1` is where the ask-AI-render-look workflow
+is first taught.
+
 **Override — no interpretation exercises.** The base guide (§4,
 *Analysis path*) requires a dedicated interpretation exercise after each
 significant visualization, asking students to write one or two sentences
@@ -251,22 +261,23 @@ sentence of its Introduction (and, in the past tense, in its Summary).
 
 | \# | Tutorial | Storage technology | Key packages | Data | R4DS chapters |
 |----|----|----|----|----|----|
-| 1 | `r4ds-1` | Delimited files (CSV) | readr, tidyr | `billboard.csv` | 7 Data import; 5 Data tidying; 9 Layers |
-| 2 | `r4ds-2` | Delimited files (CSV) | readr, maps | `music.csv` | 7 Data import; 18 Missing values; 10 EDA |
-| 3 | `r4ds-3` | Spreadsheets | readxl | `us_births_1994_2014.xlsx` | 20 Spreadsheets; 9 Layers; 10 EDA; 11 Communication |
-| 4 | `r4ds-4` | Spreadsheets | readxl | `nba_recruits.xlsx` | 20 Spreadsheets; 16 Factors; 10 EDA |
-| 5 | `r4ds-5` | Databases | DBI, dbplyr, duckdb | `seda_2025.duckdb` | 21 Databases; 12 Logical vectors; 13 Numbers |
-| 6 | `r4ds-6` | Databases | DBI, dbplyr, duckdb | `atus.duckdb` | 21 Databases; 17 Dates and times; 16 Factors |
-| 7 | `r4ds-7` | Arrow / Parquet | arrow | `daily_prices.parquet`, `coin_metadata.parquet`, `categories.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
-| 8 | `r4ds-8` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
-| 9 | `r4ds-9` | Spatial JSON | jsonlite, leaflet, purrr | `wildfires.geojson` | 23 Hierarchical data; 9 Layers |
-| 10 | `r4ds-10` | Scraped HTML (Wayback Machine) | rvest, httr2, purrr | `imdb_snapshots.rds` | 24 Web scraping; 25 Functions; 26 Iteration |
-| 11 | `census-1` | Web API | tidycensus, sf | `income_tx.rds` | — |
-| 12 | `census-2` | Web API | tidycensus | `edu_state.rds`, `age_ca.rds` | — |
-| 13 | `baseball` | R data package (Lahman) | Lahman | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) | — |
-| 14 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
-| 15 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
-| 16 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
+| 1 | `antigravity` | — (setup) | — | — | — |
+| 2 | `r4ds-1` | Delimited files (CSV) | readr, tidyr | `billboard.csv` | 7 Data import; 5 Data tidying; 9 Layers |
+| 3 | `r4ds-2` | Delimited files (CSV) | readr, maps | `music.csv` | 7 Data import; 18 Missing values; 10 EDA |
+| 4 | `r4ds-3` | Spreadsheets | readxl | `us_births_1994_2014.xlsx` | 20 Spreadsheets; 9 Layers; 10 EDA; 11 Communication |
+| 5 | `r4ds-4` | Spreadsheets | readxl | `nba_recruits.xlsx` | 20 Spreadsheets; 16 Factors; 10 EDA |
+| 6 | `r4ds-5` | Databases | DBI, dbplyr, duckdb | `seda_2025.duckdb` | 21 Databases; 12 Logical vectors; 13 Numbers |
+| 7 | `r4ds-6` | Databases | DBI, dbplyr, duckdb | `atus.duckdb` | 21 Databases; 17 Dates and times; 16 Factors |
+| 8 | `r4ds-7` | Arrow / Parquet | arrow | `daily_prices.parquet`, `coin_metadata.parquet`, `categories.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
+| 9 | `r4ds-8` | Arrow / Parquet | arrow | `markets.parquet`, `history.parquet`, `groups.parquet`, `market_groups.parquet` | 22 Arrow; 19 Joins; 17 Dates and times |
+| 10 | `r4ds-9` | Spatial JSON | jsonlite, leaflet, purrr | `wildfires.geojson` | 23 Hierarchical data; 9 Layers |
+| 11 | `r4ds-10` | Scraped HTML (Wayback Machine) | rvest, httr2, purrr | `imdb_snapshots.rds` | 24 Web scraping; 25 Functions; 26 Iteration |
+| 12 | `census-1` | Web API | tidycensus, sf | `income_tx.rds` | — |
+| 13 | `census-2` | Web API | tidycensus | `edu_state.rds`, `age_ca.rds` | — |
+| 14 | `baseball` | R data package (Lahman) | Lahman | [`Lahman::Teams`](http://cdalzell.github.io/Lahman/reference/Teams.md), [`Lahman::Batting`](http://cdalzell.github.io/Lahman/reference/Batting.md), [`Lahman::People`](http://cdalzell.github.io/Lahman/reference/People.md) | — |
+| 15 | `ducks` | Delimited files (CSV) | sf, rnaturalearth, ggridges | `mallards.csv` | — |
+| 16 | `sharks` | Delimited files (CSV) | maps | `attacks_clean.csv` | — |
+| 17 | `movies` | Delimited files (CSV) | tidyverse | `movies.csv` | — |
 
 `baseball`, `ducks` and `sharks` are **project-tier** tutorials that
 build a multi-page website (see the next section); every other tutorial
@@ -284,16 +295,17 @@ leaving `r4ds-9` purely spatial.
 **List order.** Each tutorial’s YAML header sets `learnr2:` /
 `ordering: <n>`, which fixes its place in the VS Code tutorial list
 (lowest first; tutorials without it sort after, by folder name). The
-current order is the `#` column above: `r4ds-1` through `r4ds-10`
-(1–10), then `census-1` and `census-2` (11–12), then the topic tutorials
-(13–16). Only the first twelve positions are deliberate; the order after
-the census pair is not considered important. The two census folders are
-numbered for the same reason, even though their titles are *Mapping
-Census Data* and *Census Demographics*: the order should be visible at a
-glance. A new tutorial must set an `ordering`. Because `ordering`
-controls the sequence, folder names carry no numeric prefix (the r4ds
-folders were renamed from `01-r4ds-1` … `05-r4ds-9` to `r4ds-1` …
-`r4ds-5` in October 2026, before the November renumbering).
+current order is the `#` column above: `antigravity` (1), `r4ds-1`
+through `r4ds-10` (2–11), then `census-1` and `census-2` (12–13), then
+the topic tutorials (14–17). Only the first thirteen positions are
+deliberate; the order after the census pair is not considered important.
+The two census folders are numbered for the same reason, even though
+their titles are *Mapping Census Data* and *Census Demographics*: the
+order should be visible at a glance. A new tutorial must set an
+`ordering`. Because `ordering` controls the sequence, folder names carry
+no numeric prefix (the r4ds folders were renamed from `01-r4ds-1` …
+`05-r4ds-9` to `r4ds-1` … `r4ds-5` in October 2026, before the November
+renumbering).
 
 ## Project tutorials (`baseball` and later)
 

@@ -16,6 +16,12 @@ essentials, US Census data analysis, and a set of topic tutorials. The
 tutorials are built with the learnr2 package, which renders each one to
 a static page whose code runs in the browser via WebR.
 
+## Antigravity
+
+The antigravity tutorial comes first. It signs the student in to the
+Antigravity CLI and uses it for a few small jobs before the data-science
+tutorials begin.
+
 ## R for Data Science Tutorials
 
 The family has ten tutorials, listed here in the order the R Tutorials
@@ -74,8 +80,8 @@ builds a single page.
 To run a tutorial, use:
 `learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")`
 
-Available tutorial names are: r4ds-1 through r4ds-10, census-1,
-census-2, baseball, ducks, sharks, and movies.
+Available tutorial names are: antigravity, r4ds-1 through r4ds-10,
+census-1, census-2, baseball, ducks, sharks, and movies.
 
 ## See also
 

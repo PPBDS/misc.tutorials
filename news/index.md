@@ -2,6 +2,10 @@
 
 ## misc.tutorials (development version)
 
+- `antigravity` arrives from `vscode.tutorials`, shortened to a
+  sign-in-and-try-it tutorial at ordering 1. Every other tutorial’s
+  ordering moves up by one.
+
 - The R4DS family now has a deliberate pacing gradient. `r4ds-1` and
   `r4ds-2` open with four slow Introduction exercises, the
   lowercase-name warning and a spelled-out

@@ -35,6 +35,12 @@ learnr2::run_tutorial(name = "r4ds-1",
                       package = "misc.tutorials")
 ```
 
+### Antigravity
+
+One short tutorial, `antigravity`, comes first. It signs you in to the
+Antigravity CLI, Google’s terminal-based AI agent, and has you use it
+for a few small jobs before the data-science tutorials begin.
+
 ### R for Data Science
 
 These tutorials cover material from [*R for Data Science
@@ -49,24 +55,21 @@ tutorial draws on are listed below.
 | Tutorial | Data | R4DS chapters |
 |----|----|----|
 | `r4ds-1` | Billboard Hot 100 (CSV) | Data import; Data tidying; Layers |
-| `r4ds-2` | Million Song Dataset sample (CSV) | Data import; Missing values; Exploratory data analysis |
-| `r4ds-3` | US births (spreadsheet) | Spreadsheets; Layers; Exploratory data analysis; Communication |
-| `r4ds-4` | NBA recruits (spreadsheet) | Spreadsheets; Factors; Exploratory data analysis |
-| `r4ds-5` | School district test scores (DuckDB database) | Databases; Logical vectors; Numbers |
-| `r4ds-6` | American Time Use Survey (DuckDB database) | Databases; Dates and times; Factors |
-| `r4ds-7` | Cryptocurrency prices (Parquet) | Arrow; Joins; Dates and times |
-| `r4ds-8` | Manifold prediction markets (Parquet) | Arrow; Joins; Dates and times |
-| `r4ds-9` | Wildfire perimeters (GeoJSON) | Hierarchical data; Layers |
-| `r4ds-10` | IMDb Top 250 snapshots (scraped HTML) | Web scraping; Functions; Iteration |
+| `r4ds-2` | US births (spreadsheet) | Spreadsheets; Layers; Exploratory data analysis; Communication |
+| `music` | Million Song Dataset sample (CSV) | Data import; Missing values; Exploratory data analysis |
+| `nba-recruits` | NBA recruits (spreadsheet) | Spreadsheets; Factors; Exploratory data analysis |
+| `r4ds-3` | School district test scores (DuckDB database) | Databases; Logical vectors; Numbers |
+| `time-use` | American Time Use Survey (DuckDB database) | Databases; Dates and times; Factors |
+| `r4ds-4` | Cryptocurrency prices (Parquet) | Arrow; Joins; Dates and times |
+| `prediction-markets` | Manifold prediction markets (Parquet) | Arrow; Joins; Dates and times |
+| `r4ds-5` | Wildfire perimeters (GeoJSON) | Hierarchical data; Layers |
+| `imdb-rankings` | IMDb Top 250 snapshots (scraped HTML) | Web scraping; Functions; Iteration |
 
 ### Analyzing US Census Data
 
-We have two tutorials covering material from [*Analyzing US Census Data:
-Methods, Maps, and Models in
-R*](https://walker-data.com/census-r/index.html) by Kyle Walker:
-`census-1` maps median household income across Texas counties, and
-`census-2` charts educational attainment by state and median age by
-California county.
+We have one tutorial, `census`, covering material from [*Analyzing US
+Census Data: Methods, Maps, and Models in
+R*](https://walker-data.com/census-r/index.html) by Kyle Walker.
 
 ### Topic tutorials
 
