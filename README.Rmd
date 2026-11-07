@@ -45,6 +45,10 @@ learnr2::run_tutorial(name = "r4ds-1",
                       package = "misc.tutorials")
 ```
 
+### Antigravity
+
+One short tutorial, `antigravity`, comes first. It signs you in to the Antigravity CLI, Google's terminal-based AI agent, and has you use it for a few small jobs before the data-science tutorials begin.
+
 ### R for Data Science
 
 These tutorials cover material from [*R for Data Science (2e)*](https://r4ds.hadley.nz/) (R4DS) by Hadley Wickham, Mine Çetinkaya-Rundel, and Garrett Grolemund. There are ten related tutorials, listed here in the order the R Tutorials extension shows them. Each begins by sourcing data from a different sort of storage technology and then works with that data, so the organization of the tutorials is not the same as the organization of R4DS. The chapters each tutorial draws on are listed below.

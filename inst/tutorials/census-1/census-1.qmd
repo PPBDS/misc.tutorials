@@ -6,7 +6,7 @@ format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 11
+  ordering: 12
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -616,7 +616,7 @@ Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page b
 #| echo: false
 learnr2::question(
   "Render one last time. Check your Live Server tab. The page should show your two maps and nothing else. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```
@@ -646,7 +646,7 @@ Copy and paste the resulting URL below.
 #| echo: false
 learnr2::question(
   "Publish your work to GitHub Pages. In a bash Terminal, run: quarto publish gh-pages analysis.qmd. Copy and paste the resulting URL below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```

@@ -15,6 +15,11 @@
 #' \href{https://walker-data.com/census-r/}{\emph{Analyzing US Census Data: Methods, Maps, and Models in R}}
 #' by Kyle Walker.
 #'
+#' @section Antigravity:
+#' The antigravity tutorial comes first. It signs the student in to the
+#' Antigravity CLI and uses it for a few small jobs before the data-science
+#' tutorials begin.
+#'
 #' @section R for Data Science Tutorials:
 #' The family has ten tutorials, listed here in the order the R Tutorials
 #' extension shows them. The organization differs from the book: each tutorial
@@ -51,7 +56,7 @@
 #' To run a tutorial, use:
 #' \code{learnr2::run_tutorial(name = "short_tutorial_name", package = "misc.tutorials")}
 #'
-#' Available tutorial names are: r4ds-1 through r4ds-10, census-1, census-2,
+#' Available tutorial names are: antigravity, r4ds-1 through r4ds-10, census-1, census-2,
 #' baseball, ducks, sharks, and movies.
 #'
 #' @importFrom learnr2 show_file

@@ -10,7 +10,7 @@ format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 6
+  ordering: 7
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -844,7 +844,7 @@ Open your repo on GitHub, click `analysis.qmd`, and paste the URL of that page b
 #| echo: false
 learnr2::question(
   "Render one last time. Check your Live Server tab. The page should show your two graphics and nothing else, so if the hourly_avg chunk still prints a tibble, delete that print first. Commit and push. Open your repo on GitHub, click analysis.qmd, and paste the URL of that page below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```
@@ -874,7 +874,7 @@ Copy/paste the resulting URL below.
 #| echo: false
 learnr2::question(
   "Publish your rendered QMD to GitHub Pages. In a bash Terminal, run quarto publish gh-pages analysis.qmd. Copy/paste the resulting URL below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```

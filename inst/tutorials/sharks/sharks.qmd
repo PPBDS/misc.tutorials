@@ -10,7 +10,7 @@ format: live-html
 engine: knitr
 toc: true
 learnr2:
-  ordering: 15
+  ordering: 16
 ---
 
 {{< include _extensions/r-wasm/live/_knitr.qmd >}}
@@ -800,7 +800,7 @@ Copy/paste the resulting URL below.
 #| echo: false
 learnr2::question(
   "Publish the website to GitHub Pages. In the bash Terminal, run quarto publish gh-pages. Copy/paste the resulting URL below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```
@@ -841,7 +841,7 @@ Commit and push any remaining changes. Open your repo on GitHub, click `index.qm
 #| echo: false
 learnr2::question(
   "Commit and push any remaining changes. Open your repo on GitHub, click index.qmd, and paste the URL of that page below.",
-  type = "reflection",
+  type = "reflection_editable",
   show_text = FALSE
 )
 ```
