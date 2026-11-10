@@ -143,15 +143,18 @@ choices, shared with `vscode.tutorials`:
 - **Questions lock on submit, and Continue is gated.** Every text or
   image question is `type = "reflection"`: one Submit, then the box
   locks and our answer appears, so it cannot be copied back.
-  `reflection_editable` is for the minutes question only;
-  `student_info()` and the minutes question get an Edit/Submit cycle,
-  and a submitted screenshot gets an “Edit Answer” button for the image
-  box alone. The hidden `tutorial_options()` chunk defaults to
-  `require_submission = TRUE` (a section’s Continue stays disabled until
-  every question above it is submitted) and `allow_skip = FALSE` (TOC
-  entries past the current section are dimmed). Tutorial-wide switches
-  go through `tutorial_options()`, never a new YAML key. A bare `###` is
-  a Continue stop; never put one directly under a heading.
+  `reflection_editable` is for the minutes question and for any question
+  whose answer is a URL of the student’s own (a wrong URL is the
+  commonest reason to resubmit; `check_tutorial()`’s `urls` check
+  insists on it); `student_info()` and editable questions get an
+  Edit/Submit cycle, and a submitted screenshot gets an “Edit Answer”
+  button for the image box alone. The hidden `tutorial_options()` chunk
+  defaults to `require_submission = TRUE` (a section’s Continue stays
+  disabled until every question above it is submitted) and
+  `allow_skip = FALSE` (TOC entries past the current section are
+  dimmed). Tutorial-wide switches go through `tutorial_options()`, never
+  a new YAML key. A bare `###` is a Continue stop; never put one
+  directly under a heading.
 - **Never mention learnr or tutorial.helpers.** `show_file()` comes from
   **learnr2**, and students load it with
   [`library(learnr2)`](https://github.com/PPBDS/learnr2).
@@ -517,11 +520,15 @@ library, add it to `Suggests`.
 
 ## Checking
 
-Run
+Run `learnr2::check_tutorials("misc.tutorials")` for everything at once
+— the static checks on every tutorial, a real render of each, and a
+check that each rendered page’s download file names this package, its
+version and the tutorial; it is what `tests/testthat/test-tutorials.R`
+calls. For one tutorial while editing,
 [`learnr2::check_tutorial()`](https://ppbds.github.io/learnr2/reference/check_tutorial.html)
-for the static checks and
+and
 [`learnr2::render_tutorials()`](https://ppbds.github.io/learnr2/reference/render_tutorials.html)
-for a real render, `devtools::check()` before any PR, and
+on its path. Run `devtools::check()` before any PR, and
 [`learnr2::run_tutorial()`](https://ppbds.github.io/learnr2/reference/run_tutorial.html)
 (after `devtools::load_all()`) for the student view. `devtools::check()`
 may report a size NOTE — see *CRAN / build size* above.
